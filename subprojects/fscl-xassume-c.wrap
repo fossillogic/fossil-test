@@ -1,0 +1,9 @@
+# ======================
+# Git Wrap package definition
+# ======================
+[wrap-git]
+url = https://github.com/fossil-lib/fscl-xassume-c.git
+revision = v3.0.0
+
+[provide]
+fscl-xassume-c = fscl_xassume_c_dep

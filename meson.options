@@ -1,0 +1,7 @@
+# - ############## - #
+#   Project Option   #
+# - ############## - #
+option('with_test',
+    type : 'feature',
+    value : 'disabled',
+    description : 'Enable Fossil XTest for this project')
