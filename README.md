@@ -1,6 +1,6 @@
-# Project Template - `C`
+# Fossil Test - `C`
 
-Welcome to the Project Template repository! This README provides user-friendly instructions for setting up, compiling, testing, and running a project using the Meson build system on Windows, macOS, and Linux systems. Please note that the Meson build system is required for successfully building this project.
+Fossil Logic's library stands as a cornerstone within a vast collection of libraries, each a testament to the company's commitment to knowledge and innovation. Serving as a rich repository of resources, Fossil Logic's library embodies the organization's dedication to fostering intellectual growth and development. With a diverse array of materials spanning various disciplines, it serves as a hub for exploration, learning, and collaboration. Whether seeking information for research, inspiration for creativity, or solutions to complex problems, Fossil Logic's library offers a wealth of opportunities for individuals to expand their horizons and deepen their understanding.
 
 ## Prerequisites
 
@@ -17,33 +17,39 @@ Before getting started, make sure you have the following installed:
    python -m pip install --upgrade meson # to upgrade Meson
    ```
 
-2. **Adding Wrap File**: You can add a `.wrap`, first go into `subprojects` directory and create `fscl-<name>-c.wrap` next copy the defintion into the file:
+2. **Adding Wrap File**: You can add a `.wrap`, first go into `subprojects` directory and create `fossil-test-c.wrap` next copy the defintion into the file:
 
    ```ini
    # ======================
    # Git Wrap package definition
    # ======================
    [wrap-git]
-   url = https://github.com/fossil-lib/tscl-<name>-c.git
-   revision = v2.4.3
+   url = https://github.com/dreamer-coding-555/fossil-test-c.git
+   revision = v1.0.0
 
    [provide]
-   fscl-<name>-c = fscl_<name>_c_dep
+   fossil-test-c = fossil_test_c_dep
    ```
 
 3. **Integrate the New Dependency**: After creating the dependency `.wrap` file, you need to integrate it into your Meson project. This typically involves adding the dependency to your `meson.build` file. Here's an example of how you might do that:
 
    ```ini
-   dep = dependency('fscl-<name>-c')
+   dep = dependency('fossil-test-c')
    ```
 
-   This line retrieves the `fscl-<name>-c` dependency, allowing you to use it in your project.
-
+   This line retrieves the `fossil-test-c` dependency, allowing you to use it in your project.
+   
 ## Configure Options
 
 You have options when configuring the build, each serving a different purpose:
 
 - **Running Tests**: To enable running tests, use `-Dwith_test=enabled` when configuring the build.
+
+Example:
+
+```python
+meson setup builddir -Dwith_test=enabled
+```
 
 ## Contributing and Support
 
