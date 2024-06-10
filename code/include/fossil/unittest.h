@@ -20,6 +20,7 @@ extern "C"
 
 #include "unittest/benchmark.h" // benchmarking functionaility
 #include "unittest/internal.h" // internal header file for fossil test
+#include "unittest/console.h"
 
 // =================================================================
 // XTest create and erase commands

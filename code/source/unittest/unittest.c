@@ -12,6 +12,8 @@ Description:
 */
 #include "fossil/unittest/internal.h"
 #include "fossil/_common/common.h"
+#include "fossil/unittest/console.h"
+#include "fossil/unittest/commands.h"
 #include <stdarg.h>
 
 fossil_env_t _fossil_test_env;
@@ -31,11 +33,6 @@ fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue);
 
 // Function to clear the queue
 void fossil_test_queue_clear(fossil_test_queue_t *queue);
-
-
-// Function prototypes for internal functions
-static void calculate_elapsed_time(fossil_test_timer_t *timer);
-static void print_elapsed_time(fossil_test_timer_t *timer);
 
 //
 // Double ended priority queue functions
