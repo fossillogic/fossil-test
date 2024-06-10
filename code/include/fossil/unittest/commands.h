@@ -14,20 +14,23 @@ Description:
 #define FOSSIL_TEST_COMMANDS_H
 
 #include "fossil/_common/common.h"
-#include "types.h"
-
-typedef struct {
-    char *description;  // Description of the command
-    char *long_name;    // Long name of the command (e.g., --help)
-    char *short_name;   // Short name of the command (e.g., -h)
-    char **valid_args;  // Array of valid arguments for the command
-    int32_t flag;       // Flag indicating if the command is a flag (1) or requires arguments (0)
-} fossil_test_command_t;
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/**
+ * Structure representing a command for a test.
+ * This structure contains the description, long name, short name, valid arguments, and flag for a test command.
+ */
+typedef struct {
+    char *description; /**< Description of the command. */
+    char *long_name; /**< Long name of the command. */
+    char *short_name; /**< Short name of the command. */
+    char **valid_args; /**< Array of valid arguments for the command. */
+    int32_t flag; /**< Flag indicating whether the command is set. */
+} fossil_test_command_t;
 
 /**
  * Array of available commands.
@@ -57,6 +60,16 @@ void fossil_test_cli_show_help(fossil_test_command_t *commands);
  * @param arg A string representing the argument for the command.
  */
 void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg);
+
+/**
+ * Gets the value of a specific command.
+ *
+ * @param commands An array of `fossil_test_command_t` structures representing the available commands.
+ * @param command_name A string representing the name of the command.
+ * @param value A pointer to an integer to store the value of the command.
+ * @return 0 if the command was found, -1 otherwise.
+ */
+int fossil_test_cli_get(fossil_test_command_t *commands, const char *command_name, int32_t value);
 
 #ifdef __cplusplus
 }

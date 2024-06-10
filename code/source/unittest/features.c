@@ -42,96 +42,14 @@ void _fossil_test_assert_handle_tag_fast(fossil_test_t* test_case) {
     }
 }
 
-// features to be added in a next release.
-void _fossil_test_assert_handle_tag_bug(fossil_test_t* test_case) {
-    // Handle bug tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_feature(fossil_test_t* test_case) {
-    // Handle feature tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_security(fossil_test_t* test_case) {
-    // Handle security tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_performance(fossil_test_t* test_case) {
-    // Handle performance tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_stress(fossil_test_t* test_case) {
-    // Handle stress tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_regression(fossil_test_t* test_case) {
-    // Handle regression tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_compatibility(fossil_test_t* test_case) {
-    // Handle compatibility tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_usability(fossil_test_t* test_case) {
-    // Handle usability tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_robustness(fossil_test_t* test_case) {
-    // Handle robustness tag logic here
-    (void)test_case;
-}
-
-void _fossil_test_assert_handle_tag_corner_case(fossil_test_t* test_case) {
-    // Handle corner case tag logic here
-    (void)test_case;
-}
-
 // ==============================================================================
 // Xtest basic utility functions
 // ==============================================================================
-
-void _fossil_test_assume_unit_apply_xtags(fossil_test_t* test_case) {
-     if (strcmp(test_case->tags->name, "default") != 0) {
-        if (strcmp(test_case->tags->name, "bug") == 0) {
-            _fossil_test_assert_handle_tag_bug(test_case);
-        } else if (strcmp(test_case->tags->name, "feature") == 0) {
-            _fossil_test_assert_handle_tag_feature(test_case);
-        } else if (strcmp(test_case->tags->name, "security") == 0) {
-            _fossil_test_assert_handle_tag_security(test_case);
-        } else if (strcmp(test_case->tags->name, "performance") == 0) {
-            _fossil_test_assert_handle_tag_performance(test_case);
-        } else if (strcmp(test_case->tags->name, "stress") == 0) {
-            _fossil_test_assert_handle_tag_stress(test_case);
-        } else if (strcmp(test_case->tags->name, "regression") == 0) {
-            _fossil_test_assert_handle_tag_regression(test_case);
-        } else if (strcmp(test_case->tags->name, "compatibility") == 0) {
-            _fossil_test_assert_handle_tag_compatibility(test_case);
-        } else if (strcmp(test_case->tags->name, "usability") == 0) {
-            _fossil_test_assert_handle_tag_usability(test_case);
-        } else if (strcmp(test_case->tags->name, "robustness") == 0) {
-            _fossil_test_assert_handle_tag_robustness(test_case);
-        } else if (strcmp(test_case->tags->name, "corner case") == 0) {
-            _fossil_test_assert_handle_tag_corner_case(test_case);
-        }
-    }
-}
 
 void _fossil_test_assume_unit_apply_marks(fossil_test_t* test_case) {
     if (strcmp(test_case->marks->name, "default") != 0) {
         if (strcmp(test_case->marks->name, "skip") == 0) {
             _fossil_test_env.rule.skipped = true;
-        } else if (strcmp(test_case->marks->name, "fail") == 0) {
-            _fossil_test_env.rule.result = false;
-            _xassert_info.should_fail = true; // based on rules applyed from 'fail' mark
-        } else if (strcmp(test_case->marks->name, "pass") == 0) {
-            _fossil_test_env.rule.result = true;
         } else if (strcmp(test_case->marks->name, "timeout") == 0) {
             _fossil_test_env.rule.timeout = true;
             _fossil_test_env.rule.timeout = true;
@@ -145,22 +63,17 @@ void _fossil_test_assume_unit_apply_marks(fossil_test_t* test_case) {
     }
 }
 
-void _fossil_test_assume_unit_check_xtags(fossil_test_t* test_case) {
-    if (strcmp(test_case->tags->name, "default") != 0) {
-        if (strcmp(test_case->tags->name, "fast") == 0) {
-            _fossil_test_assert_handle_tag_fast(test_case);
-        } else if (strcmp(test_case->tags->name, "slow") == 0) {
-            _fossil_test_assert_handle_tag_slow(test_case);
-        }
-    }
-}
-
 void _fossil_test_assume_unit(fossil_test_t* test_case) {
     if (test_case->fixture.setup) {
         test_case->fixture.setup();
     }
+    
+    int32_t max_iter = 1;
+    if (strcmp(commands->long_name, "--repeat") == 0 && commands->flag > 1) {
+        max_iter = commands->flag;
+    }
 
-    for (uint8_t iter = 0; iter < xcli.iter_repeat; iter++) {
+    for (uint8_t iter = 0; iter < max_iter; iter++) {
         test_case->test_function();
     }
 
@@ -182,11 +95,7 @@ void _fossil_test_assume_unit_runner(fossil_test_t* test_case) {
     _fossil_test_assume_unit_apply_xtags(test_case);
 
     if (!_fossil_test_env.rule.skipped) {
-        if (!xcli.dry_run) {
-            _fossil_test_assume_unit(test_case);
-        } else {
-            fossil_test_cout("blue", "Simulating test case...\n");
-        }
+        _fossil_test_assume_unit(test_case);
         _fossil_test_assume_unit_check_xtags(test_case); // Check tags
     }
 
@@ -241,10 +150,8 @@ void _fossil_test_apply_priority(fossil_test_t *test_case, char* priority) {
 
 void _fossil_test_apply_xtag(fossil_test_t* test_case, char* tag) {
     if (!test_case) {
-        fossil_test_cout("red", "Test case pointer is xnullptr\n");
         return;
     } else if (!tag) {
-        fossil_test_cout("red", "Error: Invalid xtag %s\n", tag);
         return;
     }
 
@@ -292,10 +199,8 @@ void _fossil_test_apply_xtag(fossil_test_t* test_case, char* tag) {
 
 void _fossil_test_apply_mark(fossil_test_t* test_case, char* mark) {
     if (!test_case) {
-        fossil_test_cout("red", "Test case pointer is xnullptr\n");
         return;
     } else if (!mark) {
-        fossil_test_cout("red", "Error: Invalid marker %s\n", mark);
         return;
     }
 
@@ -303,12 +208,6 @@ void _fossil_test_apply_mark(fossil_test_t* test_case, char* mark) {
     if (strcmp(mark, "skip") == 0) {
         test_case->marks->name = "skip";
         test_case->marks->rule = TEST_ASSERT_MARK_RULE_SKIP;
-    } else if (strcmp(mark, "fail") == 0) {
-        test_case->marks->name = "fail";
-        test_case->marks->rule = TEST_ASSERT_MARK_RULE_FAIL;
-    } else if (strcmp(mark, "pass") == 0) {
-        test_case->marks->name = "pass";
-        test_case->marks->rule = TEST_ASSERT_MARK_RULE_PASS;
     } else if (strcmp(mark, "timeout") == 0) {
         test_case->marks->name = "timeout";
         test_case->marks->rule = TEST_ASSERT_MARK_RULE_TIMEOUT;

@@ -534,6 +534,7 @@ extern "C"
  */
 #define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((const char*)"yoctoseconds", elapsed, actual)
 
+
 // =================================================================
 // Assertion specific commands
 // =================================================================
@@ -550,7 +551,7 @@ extern "C"
  * @param message The message to log if the assertion fails.
  */
 #define TEST_ASSERT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSERT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSERT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 /**
  * @brief Define macros for test expectations with expression and message.
@@ -564,7 +565,7 @@ extern "C"
  * @param message The message to log if the expectation fails.
  */
 #define TEST_EXPECT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXPECT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXPECT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 /**
  * @brief Define macros for test assumptions with expression and message.
@@ -579,7 +580,7 @@ extern "C"
  * @param message The message to log if the assumption fails.
  */
 #define TEST_ASSUME(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSUME, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSUME, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 /**
  * @brief Define macros for exception testing with expression and message.
@@ -593,7 +594,7 @@ extern "C"
  * @param message The message to log if the exception test fails.
  */
 #define TEST_EXCEPT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXCEPT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXCEPT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 /**
  * @brief Define macros for sanity pen testing with expression and message.
@@ -608,7 +609,7 @@ extern "C"
  * @param message The message to log if the sanity test fails.
  */
 #define TEST_SANITY(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_SANITY, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_SANITY, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 #ifdef __cplusplus
 }

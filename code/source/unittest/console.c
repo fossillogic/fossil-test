@@ -209,116 +209,24 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
     va_end(args);
 }
 
-// ==============================================================================
-// Output functions
-// ==============================================================================
+void fossil_test_io_unittest_start(fossil_test_t *test);
+void fossil_test_io_unittest_ended(fossil_test_t *test);
 
-//
-// minimize output to for only three IO modes [human/cutback/turbo]
+void fossil_test_io_asserted(xassert_info *assume);
 
-// Formats and displays information about the start/end of a test case.
-void output_start_test(fossil_test_t *test_case, fossil_env_t* test_env) {
-    if (strcmp(commands->long_name, "--console") && commands->flag == 0) {
-        fossil_test_cout("blue", "[...start case...] ");
-        fossil_test_cout("dark blue", "- %s\n", replace_underscore(test_case->name));
-        fossil_test_cout("dark blue", "- > fossil_test_case: - %.4i\n", test_env->stats.expected_total_count + 1);
-        fossil_test_cout("dark blue", "- > priority: - %.3i\n", test_case->priority);
-    } else if (strcmp(commands->long_name, "--console") && commands->flag == 1) {
-        fossil_test_cout("blue", "[START] > case: %.4i name: - %s\n", test_env->stats.expected_total_count + 1, replace_underscore(test_case->name));
-    }
-} // end of func
+void fossil_test_io_summary_start(fossil_env_t *env);
 
-void output_end_test(fossil_test_t *test_case) {
-    test_case->timer.end = clock();
-    test_case->timer.elapsed = test_case->timer.end - test_case->timer.start;
+void fossil_test_io_summary_ended(fossil_env_t *env) {
+    fossil_test_cout("blue", "\n%s %s: %S\n", FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, FOSSIL_TEST_INFO);
+    fossil_test_cout("blue", "==============================================================================\n");
+    fossil_test_cout("blue", " message: %s\n", empty_runner_comment());
+    fossil_test_cout("blue", "  Expected Passed: %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("blue", "Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("blue", " Timeout Cases: %3d Skipped Cases %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count);
+    fossil_test_cout("blue", "==============================================================================\n");
+    fossil_test_cout("blue", "Test Summary\n");
+    fossil_test_cout("blue", "==============================================================================\n");
+    fossil_test_cout("blue", "Total Tests: %d\n", env->stats.expected_total_count);
+    fossil_test_cout("blue", "Total Ghost: %d\n", env->stats.untested_count);
 
-    double elapsed_seconds = (double)test_case->timer.elapsed / CLOCKS_PER_SEC;
-
-    test_case->timer.detail.minutes = (int64_t)(elapsed_seconds / 60);
-    test_case->timer.detail.seconds = (int64_t)(elapsed_seconds) % 60;
-    test_case->timer.detail.milliseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000);
-    test_case->timer.detail.microseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000);
-    test_case->timer.detail.nanoseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000000);
-
-    if (strcmp(commands->long_name, "--console") && commands->flag == 0) {
-        fossil_test_cout("dark blue", "- > mark: %s\n", test_case->marks->name);
-        fossil_test_cout("dark blue", "- > xtag: %s\n", test_case->tags->name);
-        fossil_test_cout("dark blue", "- > time: (%2.2lld:%2.2lld:%2.3lld:%2.6lld:%2.9lld)\n",
-            test_case->timer.detail.minutes, test_case->timer.detail.seconds,
-            test_case->timer.detail.milliseconds, test_case->timer.detail.microseconds,
-            test_case->timer.detail.nanoseconds);
-        fossil_test_cout("blue", "[...end case.....]\n\n");
-    } else if (strcmp(commands->long_name, "--console") && commands->flag == 1) {
-        fossil_test_cout("blue", "[ENDED] > tag: %s mark: %s time: %2lld:%2lld:%3lld\n\n",
-            test_case->tags->name, test_case->marks->name,
-            test_case->timer.detail.minutes,
-            test_case->timer.detail.seconds,
-            test_case->timer.detail.milliseconds);
-    }
-} // end of func
-
-// Output for XUnit Test Case Report
-void output_summary_format(fossil_env_t* test_env) {
-    test_env->timer.end = clock();
-    test_env->timer.elapsed = test_env->timer.end - test_env->timer.start;
-
-    double elapsed_seconds = (double)test_env->timer.elapsed / CLOCKS_PER_SEC;
-
-    test_env->timer.detail.minutes = (int64_t)(elapsed_seconds / 60);
-    test_env->timer.detail.seconds = (int64_t)(elapsed_seconds) % 60;
-    test_env->timer.detail.milliseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000);
-    test_env->timer.detail.microseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000);
-    test_env->timer.detail.nanoseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000000);
-
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-    fossil_test_cout("blue", "[%s Runner] version:(%6s) host:(%s) timestamp:(%2.2lld:%2.2lld:%3.3lld:%6.6lld:%9.9lld)\n",
-        FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, _fossil_test_get_os_name(),
-        test_env->timer.detail.minutes, test_env->timer.detail.seconds,
-        test_env->timer.detail.milliseconds, test_env->timer.detail.microseconds, 
-        test_env->timer.detail.nanoseconds);
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-
-    if (test_env->stats.expected_total_count > 0 || test_env->stats.untested_count != 0) {
-        fossil_test_cout("bright blue", "> - Passed           : - %3d\n", test_env->stats.expected_passed_count);
-        fossil_test_cout("dark blue",   "> - Failed           : - %3d\n", test_env->stats.expected_failed_count);
-        fossil_test_cout("bright blue", "> - Skipped          : - %3d\n", test_env->stats.expected_skipped_count);
-        fossil_test_cout("dark blue",   "> - Timeout          : - %3d\n", test_env->stats.expected_timeout_count);
-        fossil_test_cout("bright blue", "> - Unexpected Passed: - %3d\n", test_env->stats.unexpected_passed_count);
-        fossil_test_cout("dark blue",   "> - Unexpected Failed: - %3d\n", test_env->stats.unexpected_failed_count);
-        fossil_test_cout("bright blue", "> - Total Cases      : - %3d\n", test_env->stats.expected_total_count);
-        fossil_test_cout("bright blue", "> - Ghost Cases      : - %3d\n", test_env->stats.untested_count);
-    } else {
-        fossil_test_cout("bright blue", "\n\n\n%s\n\n\n\n", empty_runner_comment());
-    }
-    fossil_test_cout("blue", "******: arch:(%s) memory:(%.4i) cpus:(%.2i) endian:(%s) time:(%s)\n",
-        _fossil_test_get_architecture(), _fossil_test_get_memory_size(), _fossil_test_get_num_cpus(),
-        _fossil_test_assert_is_big_endian()? "big" : "small", current_datetime());
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-    fossil_test_cout("blue", "%s\n", "****************************************************************************************:");
-} // end of func
-
-void output_assume_format(const char* message, const char* file, int line, const char* func) {
-    if (strcmp(commands->long_name, "--console") && commands->flag == 0) {
-        fossil_test_cout("red", "******************************************************:\n");
-        fossil_test_cout("red", " -> In Function: %s\n - > In File: %s\n - > At Line: %d\n", replace_underscore(func), file, line);
-        fossil_test_cout("red", " -> Assert failed: %s\n", message);
-        fossil_test_cout("red", "******************************************************:\n");
-    } else if (strcmp(commands->long_name, "--console") && commands->flag == 1) {
-        fossil_test_cout("red", "assert: %s\n", message);
-        fossil_test_cout("red", "func: %s, file: %s, line: %d\n", func, file, line);
-    }
-    _fossil_test_env.rule.should_pass = false;
-}
-
-void output_benchmark_format(uint64_t elapsed, double max) {
-    if (strcmp(commands->long_name, "--console") && commands->flag == 0) {
-        fossil_test_cout("red", "[...benchmark...]\n");
-        fossil_test_cout("red", ".\t> Elapsed time (%.2f time)\n", elapsed);
-        fossil_test_cout("red", ".\t> Exceeds limit (%.2f time)\n", max);
-    } else if (strcmp(commands->long_name, "--console") && commands->flag == 1) {
-        fossil_test_cout("red", "> benchmark failed: elapsed time (%.2f time) exceeds limit (%.2f time)\n", elapsed, max);
-    }
-    _fossil_test_env.rule.should_pass = false;
 }

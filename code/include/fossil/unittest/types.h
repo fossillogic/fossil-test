@@ -141,17 +141,6 @@ typedef struct {
     xassert_tag_t rule; /**< Rule type for the tag. */
 } fossil_test_xtag_map_t; // should have this set to have a max of three for tags and marks
 
-/**
- * Structure representing a command for a test.
- * This structure contains the description, long name, short name, valid arguments, and flag for a test command.
- */
-typedef struct {
-    char *description; /**< Description of the command. */
-    char *long_name; /**< Long name of the command. */
-    char *short_name; /**< Short name of the command. */
-    char **valid_args; /**< Array of valid arguments for the command. */
-    bool flag; /**< Flag indicating whether the command is set. */
-} fossil_test_command_t;
 
 /**
  * @brief Structure to hold timing information for tests.

@@ -17,317 +17,287 @@ Description:
 fossil_env_t _fossil_test_env;
 xassert_info _xassert_info;
 
-// Running tests in a queue
-void fossil_test_run_queue(fossil_env_t* test_env);
+// Function to add a test to the front of the queue
+void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue);
 
-// ==============================================================================
-// Xtest internal argument parser logic
-// ==============================================================================
+// Function to add a test to the rear of the queue
+void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue);
 
-fossil_test_queue_t* fossil_test_queue_t_create(void) {
-    fossil_test_queue_t* queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-    if (!queue) {
-        fossil_test_cout("red", "Failed to allocate memory for queue\n");
-        return xnullptr;
-    }
-    queue->front = xnullptr;
-    queue->rear = xnullptr;
-    return queue;
-}
+// Function to remove and return the test from the front of the queue
+fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue);
 
-bool fossil_test_queue_t_is_empty(fossil_test_queue_t* queue) {
-    if (!queue) {
-        fossil_test_cout("red", "Queue pointer is xnullptr\n");
-        return true; // Consider an invalid queue as empty
-    }
-    return queue->front == xnullptr;
-}
+// Function to remove and return the test from the rear of the queue
+fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue);
 
-fossil_test_t* fossil_test_queue_t_peek_front(fossil_test_queue_t* queue) {
-    if (fossil_test_queue_t_is_empty(queue)) {
-        return xnullptr;
-    }
-    return queue->front;
-}
+// Function to clear the queue
+void fossil_test_queue_clear(fossil_test_queue_t *queue);
 
-bool fossil_test_queue_t_remove_by_name(fossil_test_queue_t* queue, const char* name) {
-    if (!queue || fossil_test_queue_t_is_empty(queue) || !name) {
-        return false;
-    }
 
-    fossil_test_t* current = queue->front;
-    while (current != xnullptr) {
-        if (strcmp(current->name, name) == 0) {
-            // Remove the current node
-            if (current->prev != xnullptr) {
-                current->prev->next = current->next;
-            } else {
-                queue->front = current->next;
-            }
+// Function prototypes for internal functions
+static void calculate_elapsed_time(fossil_test_timer_t *timer);
+static void print_elapsed_time(fossil_test_timer_t *timer);
 
-            if (current->next != xnullptr) {
-                current->next->prev = current->prev;
-            } else {
-                queue->rear = current->prev;
-            }
-
-            free(current);
-            return true;
-        }
-        current = current->next;
-    }
-
-    return false; // Name not found
-}
-
-fossil_test_t* fossil_test_queue_t_find_by_name(fossil_test_queue_t* queue, const char* name) {
-    if (!queue || fossil_test_queue_t_is_empty(queue) || !name) {
-        return xnullptr;
-    }
-
-    fossil_test_t* current = queue->front;
-    while (current != xnullptr) {
-        if (strcmp(current->name, name) == 0) {
-            return current;
-        }
-        current = current->next;
-    }
-
-    return xnullptr; // Name not found
-}
-
-fossil_test_t* fossil_test_queue_t_peek_rear(fossil_test_queue_t* queue) {
-    if (fossil_test_queue_t_is_empty(queue)) {
-        return xnullptr;
-    }
-    return queue->rear;
-}
-
-void fossil_test_queue_t_enqueue(fossil_test_queue_t* queue, fossil_test_t* test) {
-    if (!queue || !test) {
-        fossil_test_cout("red", "Queue or test pointer is xnullptr\n");
+//
+// Double ended priority queue functions
+//
+// Function to add a test to the front of the queue
+void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue) {
+    if (test == xnullptr || queue == xnullptr) {
         return;
     }
 
-    if (fossil_test_queue_t_is_empty(queue)) {
+    if (queue->front == xnullptr) {
+        // The queue is empty
         queue->front = test;
         queue->rear = test;
-        test->prev = xnullptr;
-        test->next = xnullptr;
     } else {
-        fossil_test_t* current = queue->front;
-
-        // Traverse to find the correct position based on priority
-        while (current != xnullptr && current->priority >= test->priority) {
-            current = current->next;
-        }
-
-        if (current == queue->front) {
-            // Insert at the front
-            test->next = queue->front;
-            queue->front->prev = test;
-            queue->front = test;
-            test->prev = xnullptr;
-        } else if (current == xnullptr) {
-            // Insert at the rear
-            test->prev = queue->rear;
-            queue->rear->next = test;
-            queue->rear = test;
-            test->next = xnullptr;
-        } else {
-            // Insert in the middle
-            test->next = current;
-            test->prev = current->prev;
-            current->prev->next = test;
-            current->prev = test;
-        }
+        // Insert test at the front
+        test->next = queue->front;
+        queue->front->prev = test;
+        queue->front = test;
     }
 }
 
-fossil_test_t* fossil_test_queue_t_dequeue(fossil_test_queue_t* queue) {
-    if (fossil_test_queue_t_is_empty(queue)) {
-        return xnullptr;
-    }
-    fossil_test_t* temp = queue->front;
-    queue->front = queue->front->next;
-    if (queue->front == xnullptr) {
-        queue->rear = xnullptr;
-    } else {
-        queue->front->prev = xnullptr;
-    }
-    temp->next = xnullptr;
-    return temp;
-}
-
-void fossil_test_queue_t_erase(fossil_test_queue_t* queue) {
-    if (!queue) {
-        fossil_test_cout("red", "Queue pointer is xnullptr\n");
+// Function to add a test to the rear of the queue
+void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue) {
+    if (test == xnullptr || queue == xnullptr) {
         return;
     }
 
-    while (!fossil_test_queue_t_is_empty(queue)) {
-        fossil_test_t* current_test = fossil_test_queue_t_dequeue(queue);
-        if (current_test != xnullptr) {
-            free(current_test); // Free memory allocated for dequeued test case
-        }
-    }
-    free(queue); // Free the queue structure itself
-}
-
-// ==============================================================================
-// Xtest score board rule functions
-// ==============================================================================
-
-void _fossil_test_scoreboard_update(fossil_env_t* test_env) {
-    // here we just update the scoreboard count
-    // add one to total tested cases and remove
-    // one from untested ghost cases.
-    //
-    // The main goal is to ensure ghost cases are removed
-    // accordingly and the total tested cases are updated.
-    //
-    // However in the event exit is called we will have
-    // record of test that are tested and those that are
-    // not tested.
-    test_env->stats.untested_count--;
-    test_env->stats.expected_total_count++;
-}
-
-void _fossil_test_scoreboard_expected_rules(fossil_env_t* test_env) {
-    // nothing crazy here just updating the expected passed and failed
-    // counts based on the test case results.
-    if (!_fossil_test_env.rule.should_pass) {
-        test_env->stats.expected_failed_count++;
+    if (queue->rear == xnullptr) {
+        // The queue is empty
+        queue->front = test;
+        queue->rear = test;
     } else {
-        test_env->stats.expected_passed_count++;
+        // Insert test at the rear
+        queue->rear->next = test;
+        test->prev = queue->rear;
+        queue->rear = test;
     }
 }
 
-void _fossil_test_scoreboard_unexpected_rules(fossil_env_t* test_env) {
-    // here we handle unexpected rules for cases that play
-    // the UNO reverse card on us.
-    if (_fossil_test_env.rule.should_pass) {
-        test_env->stats.unexpected_failed_count++;
+// Function to remove and return the test from the front of the queue
+fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue) {
+    if (queue == xnullptr || queue->front == xnullptr) {
+        return xnullptr;
+    }
+
+    fossil_test_t *front_test = queue->front;
+
+    if (queue->front == queue->rear) {
+        // The queue has only one test
+        queue->front = xnullptr;
+        queue->rear = xnullptr;
     } else {
-        test_env->stats.unexpected_passed_count++;
+        // Remove test from the front
+        queue->front = queue->front->next;
+        queue->front->prev = xnullptr;
     }
+
+    return front_test;
 }
 
-void _fossil_test_scoreboard_feature_rules(fossil_env_t* test_env, fossil_test_t* test_case) {
-    // handling features for skip and timeouts
-    if (_fossil_test_env.rule.skipped == true && strcmp(test_case->marks->name, "skip") == 0) {
-        test_env->stats.expected_skipped_count++;
-        _fossil_test_env.rule.skipped = false;
-    } else if (strcmp(test_case->tags->name, "fast") == 0 && _fossil_test_env.rule.should_timeout == true) {
-        test_env->stats.expected_timeout_count++;
-        _fossil_test_env.rule.should_timeout = false; // Reset timeout flag
-    } else if (strcmp(test_case->tags->name, "slow") == 0 && _fossil_test_env.rule.should_timeout == true) {
-        test_env->stats.expected_timeout_count++;
-        _fossil_test_env.rule.timeout = false; // Reset timeout flag
-    } else if (!_fossil_test_env.rule.should_pass) {
-        if (_xassert_info.should_fail) {
-            test_env->stats.expected_passed_count++;
-            _fossil_test_env.rule.should_pass = true;
+// Function to remove and return the test from the rear of the queue
+fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue) {
+    if (queue == xnullptr || queue->rear == xnullptr) {
+        return xnullptr;
+    }
+
+    fossil_test_t *rear_test = queue->rear;
+
+    if (queue->front == queue->rear) {
+        // The queue has only one test
+        queue->front = xnullptr;
+        queue->rear = xnullptr;
+    } else {
+        // Remove test from the rear
+        queue->rear = queue->rear->prev;
+        queue->rear->next = xnullptr;
+    }
+
+    return rear_test;
+}
+
+// Function to clear the queue
+void fossil_test_queue_clear(fossil_test_queue_t *queue) {
+    if (queue == xnullptr) {
+        return;
+    }
+
+    // Free memory occupied by the tests in the queue
+    fossil_test_t *current_test = queue->front;
+    while (current_test != xnullptr) {
+        fossil_test_t *temp = current_test;
+        current_test = current_test->next;
+        free(temp);
+    }
+
+    // Reset queue pointers
+    queue->front = xnullptr;
+    queue->rear = xnullptr;
+}
+
+// Function to add a test to the queue based on priority
+void add_test_to_queue(fossil_test_t *test, fossil_test_queue_t *queue) {
+    fossil_test_queue_push_back(test, queue);
+}
+
+// Function to remove and return the test with the highest priority from the queue
+fossil_test_t* get_highest_priority_test(fossil_test_queue_t *queue) {
+    // In this implementation, the test with the highest priority is the one at the front of the queue
+    return fossil_test_queue_pop_front(queue);
+}
+
+// Function to remove and return the test with the lowest priority from the queue
+fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
+    // In this implementation, the test with the lowest priority is the one at the rear of the queue
+    return fossil_test_queue_pop_back(queue);
+}
+
+
+//
+// Fossil Test Environment functions
+//
+
+// Function to create a new test environment
+fossil_env_t* fossil_test_environment_create(int argc, char **argv) {
+    fossil_test_cli_parse(argc, argv, commands);
+    fossil_env_t *env = (fossil_env_t*)malloc(sizeof(fossil_env_t));
+    if (env != xnullptr) {
+        // Initialize test statistics
+        env->stats.expected_passed_count = 0;
+        env->stats.expected_failed_count = 0;
+        env->stats.unexpected_passed_count = 0;
+        env->stats.unexpected_failed_count = 0;
+        env->stats.expected_skipped_count = 0;
+        env->stats.expected_timeout_count = 0;
+        env->stats.expected_total_count = 0;
+        env->stats.untested_count = 0;
+
+        // Initialize test timer
+        env->timer.start = 0;
+        env->timer.end = 0;
+        env->timer.elapsed = 0;
+        env->timer.detail.minutes = 0;
+        env->timer.detail.seconds = 0;
+        env->timer.detail.milliseconds = 0;
+        env->timer.detail.microseconds = 0;
+        env->timer.detail.nanoseconds = 0;
+
+        // Initialize test queue
+        env->queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
+        if (env->queue != xnullptr) {
+            env->queue->front = xnullptr;
+            env->queue->rear = xnullptr;
         } else {
-            test_env->stats.expected_failed_count++;
+            // Handle memory allocation failure
+            free(env);
+            env = xnullptr;
         }
+
+        // Initialize exception and assumption counts
+        env->current_except_count = 0;
+        env->current_assume_count = 0;
+    }
+    return env;
+}
+
+// Function to run the test environment
+void fossil_test_environment_run(fossil_env_t *env) {
+    if (env == xnullptr || env->queue == xnullptr || env->queue->front == xnullptr) {
+        fossil_test_cout("blue", "No tests to run.\n");
+        return;
+    }
+
+    // Start the timer
+    env->timer.start = clock();
+
+    // Iterate through the test queue and run each test
+    fossil_test_t *current_test = env->queue->front;
+    while (current_test != NULL) {
+        // Run the test function
+        current_test->test_function();
+
+        // Calculate and print elapsed time for the test
+        calculate_elapsed_time(&(current_test->timer));
+        print_elapsed_time(&(current_test->timer));
+
+        // Move to the next test
+        current_test = current_test->next;
+    }
+
+    // Stop the timer
+    env->timer.end = clock();
+    env->timer.elapsed = env->timer.end - env->timer.start;
+}
+
+// Function to summarize the test environment
+void fossil_test_environment_summary(fossil_env_t *env) {
+    if (env == xnullptr) {
+        return;
+    }
+    fossil_test_io_summary(env);
+
+    // Print total elapsed time
+    fossil_test_cout("blue", "Total Elapsed Time: %ld milliseconds\n", (long)env->timer.elapsed);
+}
+
+// Function to add a test to the test environment
+void fossil_test_add(fossil_test_t *test, fossil_env_t *env) {
+    if (test == xnullptr || env == xnullptr || env->queue == xnullptr) {
+        return;
+    }
+
+    // Update test statistics
+    env->stats.expected_total_count++;
+
+    // Add the test to the queue
+    if (env->queue->front == xnullptr) {
+        // The queue is empty
+        env->queue->front = test;
+        env->queue->rear = test;
     } else {
-        test_env->stats.expected_passed_count++;
+        // Append the test to the end of the queue
+        env->queue->rear->next = test;
+        test->prev = env->queue->rear;
+        env->queue->rear = test;
     }
 }
 
-void _fossil_test_scoreboard(fossil_env_t* test_env, fossil_test_t* test_case) {
-    // here we handle the scoreboard logic for the test cases
-    // based on the rules and features that are set.
-    if (strcmp(test_case->marks->name, "default") != 0 || strcmp(test_case->tags->name, "default") != 0) {
-        // Simply handling unique cases using marks and tags first
-        // to ensure I catch the added features.
-        _fossil_test_scoreboard_feature_rules(test_env, test_case);
-    } else if (_fossil_test_env.rule.result) {
-        // here we handle the expected and unexpected rules
-        // using normal flow without worrying about the features
-        // as used in marks and tags.
-        _fossil_test_scoreboard_expected_rules(test_env);
-    } else if (!_fossil_test_env.rule.result) {
-        // here we handle unexpected rules for cases that play
-        // the UNO reverse card on us.
-        _fossil_test_scoreboard_unexpected_rules(test_env);
-    }
-
-    // here we just update the scoreboard count
-    // add one to total tested cases and remove
-    // one from untested ghost cases.
-    _fossil_test_scoreboard_update(test_env);
+// Function to apply a mark to a test case
+void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
+    _fossil_test_apply_mark(test, mark);
 }
 
-// ==============================================================================
-// Xtest create and erase
-// ==============================================================================
-
-fossil_env_t _fossil_test_environment_create(int argc, char* *argv) {
-    fossil_test_cli_parse(argc, argv, commands); // Parse command line arguments
-    fossil_env_t new_env;
-
-    new_env.stats = (fossil_test_score_t){0, 0, 0, 0, 0, 0, 0, 0};
-    new_env.timer = (fossil_test_timer_t){0, 0, 0, {0, 0, 0, 0, 0}};
-    new_env.rule  = (fossil_test_rule_t){false, true, false, true, false, false, false, false};
-    new_env.queue = fossil_test_queue_t_create(); // Create priority queue
-
-    new_env.timer.start = clock(); // Start the timer
-
-    // as a safty mesure we provide an atexit handler to avoid memory leaks
-    atexit(_fossil_test_environment_erase); // Register cleanup function
-    
-    return new_env;
+// Function to apply an extended tag to a test case
+void fossil_test_apply_xtag(fossil_test_t *test, const char *xtag) {
+    _fossil_test_apply_xtag(test, xtag);
 }
 
-void _fossil_test_environment_erase(void) {
-    fossil_test_queue_t_erase(_fossil_test_env.queue);
-
-    // ensure summary dosent print twice if we happen to call exit
-    if (!_fossil_test_env.rule.should_pass) {
-        _fossil_test_environment_summary();
-    }
+// Function to apply a priority to a test case
+void fossil_test_apply_priority(fossil_test_t *test, const char *priority) {
+    _fossil_test_apply_priority(test, priority);
 }
 
-void _fossil_test_environment_add(fossil_env_t* test_env, fossil_test_t* test_case, fossil_fixture_t* fixture) {
-    if (fixture != xnullptr && fixture->setup != xnullptr && fixture->teardown != xnullptr) {
-        test_case->fixture.setup = fixture->setup;
-        test_case->fixture.teardown = fixture->teardown;
-    } else {
-        test_case->fixture.setup = xnullptr;
-        test_case->fixture.teardown = xnullptr;
-    }
+// Internal function to calculate elapsed time for a test
+static void calculate_elapsed_time(fossil_test_timer_t *timer) {
+    // Calculate elapsed time
+    timer->elapsed = timer->end - timer->start;
 
-    // here we count up the untested cases
-    test_env->stats.untested_count++;
-    fossil_test_queue_t_enqueue(test_env->queue, test_case);
+    // Convert elapsed time to different units
+    timer->detail.minutes = timer->elapsed / (CLOCKS_PER_SEC * 60);
+    timer->detail.seconds = (timer->elapsed / CLOCKS_PER_SEC) % 60;
+    timer->detail.milliseconds = (timer->elapsed * 1000) / CLOCKS_PER_SEC;
+    timer->detail.microseconds = (timer->elapsed * 1000000) / CLOCKS_PER_SEC;
+    timer->detail.nanoseconds = (timer->elapsed * 1000000000) / CLOCKS_PER_SEC;
 }
 
-void _fossil_test_environment_run(void) {
-    while (!fossil_test_queue_t_is_empty(_fossil_test_env.queue)) {
-        fossil_test_t* current_test = fossil_test_queue_t_dequeue(_fossil_test_env.queue);
-        if (current_test != xnullptr) {
-            _fossil_test_assume_unit_runner(current_test);
-        }
-    }
+// Internal function to print elapsed time for a test
+static void print_elapsed_time(fossil_test_timer_t *timer) {
+    fossil_test_cout("blue", "Elapsed Time: %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+           timer->detail.minutes, timer->detail.seconds, timer->detail.milliseconds,
+           timer->detail.microseconds, timer->detail.nanoseconds);
 }
-
-int _fossil_test_environment_summary(void) {
-    int result = (_fossil_test_env.stats.untested_count          + // Count of untested cases
-                  _fossil_test_env.stats.expected_failed_count   + // Count of expected failed cases
-                  _fossil_test_env.stats.unexpected_passed_count + // Count of unexpected passed cases
-                  _fossil_test_env.stats.expected_timeout_count  + // Count of expected timeout cases
-                  _fossil_test_env.stats.unexpected_failed_count); // Count of unexpected failed cases
-    output_summary_format(&_fossil_test_env);
-    return result;
-}
-
-// ==============================================================================
-// Xtest functions for asserts
-// ==============================================================================
-
-// assertion classes should abort like normal without memory leaks
 
 // Custom assumptions function with optional message.
 void fossil_test_assert_impl_assume(bool expression, const char* message, const char* file, int line, const char* func) {
@@ -372,25 +342,6 @@ void fossil_test_assert_impl_assert(bool expression, const char* message, const 
     }
 } // end of func
 
-// Custom assertion function with optional message.
-void fossil_test_assert_impl_sanity(bool expression, const char* message, const char* file, int line, const char* func) {
-    if (_xassert_info.should_fail) {
-        if (!expression) {
-            _fossil_test_env.rule.should_pass = true;
-        } else if (expression) {
-            _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
-            exit(FOSSIL_TEST_ABORT_FAIL);
-        }
-    } else {
-        if (!expression) {
-            _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
-            exit(FOSSIL_TEST_ABORT_FAIL);
-        }
-    }
-} // end of func
-
 // Custom expectation function with optional message.
 void fossil_test_assert_impl_expect(bool expression, const char* message, const char* file, int line, const char* func) {
     if (_xassert_info.should_fail) {
@@ -408,29 +359,6 @@ void fossil_test_assert_impl_expect(bool expression, const char* message, const 
     }
 } // end of func
 
-// Custom expectation function with optional message.
-void fossil_test_assert_impl_except(bool expression, const char* message, const char* file, int line, const char* func) {
-    if (_fossil_test_env.current_except_count == FOSSIL_TEST_EXCEPT_MAX) {
-        return;
-    }
-
-    if (_xassert_info.should_fail) {
-        if (!expression) {
-            _fossil_test_env.rule.should_pass = true;
-        } else {
-            _fossil_test_env.rule.should_pass = false;
-            _fossil_test_env.current_except_count++;
-            output_assume_format(message, file, line, func);
-        }
-    } else {
-        if (!expression) {
-            _fossil_test_env.rule.should_pass = false;
-            _fossil_test_env.current_except_count++;
-            output_assume_format(message, file, line, func);
-        }
-    }
-} // end of func
-
 void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* message, char* file, int line, char* func) {
     if (behavor == TEST_ASSERT_AS_CLASS_ASSUME) {
         fossil_test_assert_impl_assume(expression, message, file, line, func);
@@ -438,34 +366,6 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* me
         fossil_test_assert_impl_assert(expression, message, file, line, func);
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
         fossil_test_assert_impl_expect(expression, message, file, line, func);
-    } else if (behavor == TEST_ASSERT_AS_CLASS_SANITY) {
-        fossil_test_assert_impl_sanity(expression, message, file, line, func);
-    } else if (behavor == TEST_ASSERT_AS_CLASS_EXCEPT) {
-        fossil_test_assert_impl_except(expression, message, file, line, func);
     }
     _xassert_info.has_assert = true; // Make note of an assert being added in a given test case
-}
-
-// regex_match function for use in regular expressions assertions
-bool _assume_regex_match(const char *pattern, const char *str) {
-    while (*pattern) {
-        if (*pattern == '*') {
-            while (*str) {
-                if (_assume_regex_match(pattern + 1, str)) {
-                    return true;
-                }
-                str++;
-            }
-            return _assume_regex_match(pattern + 1, str);
-        }
-        
-        if (*str == '\0' || (*pattern != '?' && *pattern != *str)) {
-            return false;
-        }
-        
-        pattern++;
-        str++;
-    }
-    
-    return *str == '\0';
 }

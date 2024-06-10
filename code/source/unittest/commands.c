@@ -137,3 +137,13 @@ void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg) {
         exit(EXIT_FAILURE);
     }
 }
+
+int fossil_test_cli_get(fossil_test_command_t *commands, const char *command_name, int32_t value) {
+    size_t command_count = sizeof(commands) / sizeof(commands[0]);
+    for (size_t i = 0; i < command_count; i++) {
+        if (strcmp(commands[i].long_name, command_name) == 0 && commands[i].flag == 0) {
+            return commands[i].flag;
+        }
+    }
+    return -1;
+}
