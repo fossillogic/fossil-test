@@ -12,6 +12,7 @@ Description:
 */
 #include "fossil/unittest/benchmark.h"
 #include "fossil/unittest/internal.h"
+#include "fossil/unittest/console.h"
 #include <stdarg.h>
 
 // ==============================================================================
@@ -76,7 +77,7 @@ void assume_duration(double expected, double actual, double unit) {
     clock_t end_time = clock();
     double elapsed_time = (double)(end_time - start_time) / ((double)CLOCKS_PER_SEC / unit);
     if (elapsed_time < expected) {
-        output_benchmark_format(expected, actual);
+        fossil_test_cout("red", "Benchmark failed: expected %f, got %f\n", expected, actual);
     }
 }
 
