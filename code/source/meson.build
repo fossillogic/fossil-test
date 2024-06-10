@@ -2,7 +2,6 @@ test_code = [
     'unittest' / 'benchmark.c',
     'unittest' / 'commands.c',
     'unittest' / 'console.c',
-    'unittest' / 'features.c',
     'unittest' / 'unittest.c']
 
 fossil_test_lib = library('fossil-test',
