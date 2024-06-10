@@ -13,16 +13,16 @@ Description:
 #include "fossil/mockup/internal.h"
 #include <stdarg.h>
 
-xmock_t* xmock_create(const char *function_name, int32_t num_args) {
-    xmock_t *mock = (xmock_t *)malloc(sizeof(xmock_t));
+fossil_mockup_t* fossil_mockup_create(const char *function_name, int32_t num_args) {
+    fossil_mockup_t *mock = (fossil_mockup_t *)malloc(sizeof(fossil_mockup_t));
     if (mock == NULL) {
         perror("Failed to allocate memory for mock");
         exit(EXIT_FAILURE);
     }
-    mock->function_name = _custom_xmock_core_strdup(function_name);
+    mock->function_name = _custom_fossil_mockup_core_strdup(function_name);
     mock->num_args = num_args;
     mock->expected_args = (void **)malloc(num_args * sizeof(void *));
-    mock->comparators = (xmock_comparator_t *)calloc(num_args, sizeof(xmock_comparator_t));
+    mock->comparators = (fossil_mockup_comparator_t *)calloc(num_args, sizeof(fossil_mockup_comparator_t));
     mock->actual_args = (void **)malloc(num_args * sizeof(void *));
     mock->return_values = NULL;
     mock->return_count = 0;
@@ -32,7 +32,7 @@ xmock_t* xmock_create(const char *function_name, int32_t num_args) {
     return mock;
 }
 
-void xmock_set_expected_args(xmock_t *mock, ...) {
+void fossil_mockup_set_expected_args(fossil_mockup_t *mock, ...) {
     va_list args;
     va_start(args, mock);
     for (int32_t i = 0; i < mock->num_args; i++) {
@@ -41,13 +41,13 @@ void xmock_set_expected_args(xmock_t *mock, ...) {
     va_end(args);
 }
 
-void xmock_set_comparator(xmock_t *mock, int32_t arg_index, xmock_comparator_t comparator) {
+void fossil_mockup_set_comparator(fossil_mockup_t *mock, int32_t arg_index, fossil_mockup_comparator_t comparator) {
     if (arg_index >= 0 && arg_index < mock->num_args) {
         mock->comparators[arg_index] = comparator;
     }
 }
 
-void xmock_set_return_values(xmock_t *mock, int32_t count, ...) {
+void fossil_mockup_set_return_values(fossil_mockup_t *mock, int32_t count, ...) {
     mock->return_values = (void **)malloc(count * sizeof(void *));
     va_list args;
     va_start(args, count);
@@ -58,7 +58,7 @@ void xmock_set_return_values(xmock_t *mock, int32_t count, ...) {
     mock->return_count = count;
 }
 
-void* xmock_call(xmock_t *mock, ...) {
+void* fossil_mockup_call(fossil_mockup_t *mock, ...) {
     va_list args;
     va_start(args, mock);
     for (int32_t i = 0; i < mock->num_args; i++) {
@@ -74,7 +74,7 @@ void* xmock_call(xmock_t *mock, ...) {
     return NULL;
 }
 
-bool xmock_verify(xmock_t *mock) {
+bool fossil_mockup_verify(fossil_mockup_t *mock) {
     if (!mock->called) {
         fprintf(stderr, "Mock function '%s' was not called\n", mock->function_name);
         return false;
@@ -95,7 +95,7 @@ bool xmock_verify(xmock_t *mock) {
     return true;
 }
 
-bool xmock_verify_call_count(xmock_t *mock, int32_t expected_call_count) {
+bool fossil_mockup_verify_call_count(fossil_mockup_t *mock, int32_t expected_call_count) {
     if (mock->call_count != expected_call_count) {
         fprintf(stderr, "Mock function '%s' was called %d times, expected %d times\n",
                 mock->function_name, mock->call_count, expected_call_count);
@@ -104,12 +104,12 @@ bool xmock_verify_call_count(xmock_t *mock, int32_t expected_call_count) {
     return true;
 }
 
-void xmock_reset(xmock_t *mock) {
+void fossil_mockup_reset(fossil_mockup_t *mock) {
     mock->call_count = 0;
     mock->called = false;
 }
 
-void xmock_erase(xmock_t *mock) {
+void fossil_mockup_erase(fossil_mockup_t *mock) {
     free(mock->function_name);
     free(mock->expected_args);
     free(mock->comparators);
@@ -120,19 +120,19 @@ void xmock_erase(xmock_t *mock) {
     free(mock);
 }
 
-bool xmock_i32_comparator(void *expected, void *actual) {
+bool fossil_mockup_i32_comparator(void *expected, void *actual) {
     return *(int32_t *)expected == *(int32_t *)actual;
 }
 
-bool xmock_cstr_comparator(void *expected, void *actual) {
+bool fossil_mockup_cstr_comparator(void *expected, void *actual) {
     return strcmp((char *)expected, (char *)actual) == 0;
 }
 
-bool xmock_ptr_comparator(void *expected, void *actual) {
+bool fossil_mockup_ptr_comparator(void *expected, void *actual) {
     return expected == actual;
 }
 
-void xmock_log(const char *format, ...) {
+void fossil_mockup_log(const char *format, ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);

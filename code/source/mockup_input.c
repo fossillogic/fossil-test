@@ -13,13 +13,13 @@ Description:
 #include "fossil/mockup/input.h"
 #include <stdarg.h>
 
-xmock_input_t* xmock_input_create(const char *function_name) {
-    xmock_input_t *input = (xmock_input_t *)malloc(sizeof(xmock_input_t));
+fossil_mockup_input_t* fossil_mockup_input_create(const char *function_name) {
+    fossil_mockup_input_t *input = (fossil_mockup_input_t *)malloc(sizeof(fossil_mockup_input_t));
     if (input == NULL) {
         perror("Failed to allocate memory for input mock");
         exit(EXIT_FAILURE);
     }
-    input->function_name = _custom_xmock_core_strdup(function_name);
+    input->function_name = _custom_fossil_mockup_core_strdup(function_name);
     input->mocked_inputs = NULL;
     input->input_count = 0;
     input->call_count = 0;
@@ -27,7 +27,7 @@ xmock_input_t* xmock_input_create(const char *function_name) {
     return input;
 }
 
-void xmock_input_set_inputs(xmock_input_t *input, int32_t count, ...) {
+void fossil_mockup_input_set_inputs(fossil_mockup_input_t *input, int32_t count, ...) {
     input->mocked_inputs = (void **)malloc(count * sizeof(void *));
     va_list args;
     va_start(args, count);
@@ -38,7 +38,7 @@ void xmock_input_set_inputs(xmock_input_t *input, int32_t count, ...) {
     input->input_count = count;
 }
 
-void* xmock_input_get(xmock_input_t *input) {
+void* fossil_mockup_input_get(fossil_mockup_input_t *input) {
     if (input->input_count > 0) {
         input->call_count++;
         return input->mocked_inputs[(input->call_count - 1) % input->input_count];
@@ -46,7 +46,7 @@ void* xmock_input_get(xmock_input_t *input) {
     return NULL;
 }
 
-bool xmock_input_verify_call_count(xmock_input_t *input, int32_t expected_call_count) {
+bool fossil_mockup_input_verify_call_count(fossil_mockup_input_t *input, int32_t expected_call_count) {
     if (input->call_count != expected_call_count) {
         fprintf(stderr, "Input function '%s' was called %d times, expected %d times\n",
                 input->function_name, input->call_count, expected_call_count);
@@ -55,11 +55,11 @@ bool xmock_input_verify_call_count(xmock_input_t *input, int32_t expected_call_c
     return true;
 }
 
-void xmock_input_reset(xmock_input_t *input) {
+void fossil_mockup_input_reset(fossil_mockup_input_t *input) {
     input->call_count = 0;
 }
 
-void xmock_input_erase(xmock_input_t *input) {
+void fossil_mockup_input_erase(fossil_mockup_input_t *input) {
     free(input->function_name);
     if (input->mocked_inputs) {
         free(input->mocked_inputs);

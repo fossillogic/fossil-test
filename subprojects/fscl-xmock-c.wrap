@@ -2,8 +2,8 @@
 # Git Wrap package definition
 # ======================
 [wrap-git]
-url = https://github.com/fossil-lib/fscl-xmock-c.git
+url = https://github.com/fossil-lib/fscl-mockup-c.git
 revision = v3.0.0
 
 [provide]
-fscl-xmock-c = fscl_xmock_c_dep
+fscl-mockup-c = fscl_fossil_mockup_c_dep

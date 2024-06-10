@@ -6,7 +6,7 @@ code = files(
     'stub.c', 'file.c',
     'behavior.c', 'inject.c',
     'network.c', 'output.c',
-    'input.c', 'xmock.c'
+    'input.c', 'mockup.c'
 )
 
 common_dep = dependency('fscl-xcommon-c')

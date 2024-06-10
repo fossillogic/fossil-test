@@ -7,11 +7,11 @@ class TestRunnerGenerator:
 
     def find_test_groups(self, extension):
         test_groups = set()
-        pattern = r'XTEST_DEFINE_POOL\((\w+)\)'
+        pattern = r'FOSSIL_TEST_GROUP\((\w+)\)'
 
         for root, _, files in os.walk(self.directory):
             for file in files:
-                if file.startswith('xtest_') and file.endswith('.' + extension):
+                if file.startswith('fossil_test_') and file.endswith('.' + extension):
                     with open(os.path.join(root, file), 'r') as f:
                         content = f.read()
                         matches = re.findall(pattern, content)
@@ -26,19 +26,19 @@ class TestRunnerGenerator:
 
         if extension == 'c':
             header += """
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 """
         elif extension == 'cpp':
             header += """
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 """
         elif extension == 'm':
             header += """
-#import <fossil/xtest.h>
+#import <fossil/unittest.h>
 """
         elif extension == 'mm':
             header += """
-#import <fossil/xtest.h>
+#import <fossil/unittest.h>
 """
 
         header += """
@@ -47,7 +47,7 @@ class TestRunnerGenerator:
 // * Fossil Logic Test List
 // * * * * * * * * * * * * * * * * * * * * * * * *\n"""
 
-        extern_pools = '\n'.join([f"XTEST_EXTERN_POOL({group});" for group in test_groups])
+        extern_pools = '\n'.join([f"FOSSIL_TEST_EXTERN_POOL({group});" for group in test_groups])
 
         runner = """
 
@@ -58,25 +58,25 @@ class TestRunnerGenerator:
         if extension == 'c':
             runner += """
 int main(int argc, char **argv) {
-    XTEST_CREATE(argc, argv);\n"""
+    FOSSIL_TEST_CREATE(argc, argv);\n"""
         elif extension == 'cpp':
             runner += """
 int main(int argc, char **argv) {
-    XTEST_CREATE(argc, argv);\n"""
+    FOSSIL_TEST_CREATE(argc, argv);\n"""
         elif extension == 'm':
             runner += """
 int main(int argc, const char **argv) {
-    XTEST_CREATE(argc, argv);\n\n"""
+    FOSSIL_TEST_CREATE(argc, argv);\n\n"""
         elif extension == 'mm':
             runner += """
 int main(int argc, const char **argv) {
-    XTEST_CREATE(argc, argv);\n\n"""
+    FOSSIL_TEST_CREATE(argc, argv);\n\n"""
 
-        import_pools = '\n'.join([f"    XTEST_IMPORT_POOL({group});" for group in test_groups])
+        import_pools = '\n'.join([f"    FOSSIL_TEST_IMPORT_POOL({group});" for group in test_groups])
 
         footer = """
-    XTEST_RUN();
-    return XTEST_ERASE();
+    FOSSIL_TEST_RUN();
+    return FOSSIL_TEST_ERASE();
 } // end of func
 """
 

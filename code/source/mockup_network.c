@@ -13,27 +13,27 @@ Description:
 #include "fossil/mockup/network.h"
 #include <string.h>
 
-xmock_network_t* xmock_network_create(const char *host, const char *request, const char *response) {
-    xmock_network_t *network = (xmock_network_t *)malloc(sizeof(xmock_network_t));
+fossil_mockup_network_t* fossil_mockup_network_create(const char *host, const char *request, const char *response) {
+    fossil_mockup_network_t *network = (fossil_mockup_network_t *)malloc(sizeof(fossil_mockup_network_t));
     if (network == NULL) {
         perror("Failed to allocate memory for network mock");
         exit(EXIT_FAILURE);
     }
-    network->host = _custom_xmock_core_strdup(host);
-    network->request = _custom_xmock_core_strdup(request);
-    network->response = _custom_xmock_core_strdup(response);
+    network->host = _custom_fossil_mockup_core_strdup(host);
+    network->request = _custom_fossil_mockup_core_strdup(request);
+    network->response = _custom_fossil_mockup_core_strdup(response);
     network->next = NULL;
     return network;
 }
 
-const char* xmock_network_request(xmock_network_t *network, const char *request) {
+const char* fossil_mockup_network_request(fossil_mockup_network_t *network, const char *request) {
     if (strcmp(request, network->request) == 0) {
         return network->response;
     }
     return NULL;
 }
 
-void xmock_network_erase(xmock_network_t *network) {
+void fossil_mockup_network_erase(fossil_mockup_network_t *network) {
     free(network->host);
     free(network->request);
     free(network->response);

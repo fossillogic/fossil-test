@@ -14,20 +14,20 @@ Description:
 #include <stdarg.h>
 #include <string.h>
 
-xmock_behavior_t* xmock_behavior_create(const char *function_name, int32_t arg_count) {
-    xmock_behavior_t *behavior = (xmock_behavior_t *)malloc(sizeof(xmock_behavior_t));
+fossil_mockup_behavior_t* fossil_mockup_behavior_create(const char *function_name, int32_t arg_count) {
+    fossil_mockup_behavior_t *behavior = (fossil_mockup_behavior_t *)malloc(sizeof(fossil_mockup_behavior_t));
     if (behavior == NULL) {
         perror("Failed to allocate memory for behavior");
         exit(EXIT_FAILURE);
     }
-    behavior->function_name = _custom_xmock_core_strdup(function_name);
+    behavior->function_name = _custom_fossil_mockup_core_strdup(function_name);
     behavior->arg_count = arg_count;
     behavior->args = (void **)malloc(arg_count * sizeof(void *));
     behavior->next = NULL;
     return behavior;
 }
 
-void xmock_behavior_record_call(xmock_behavior_t *behavior, ...) {
+void fossil_mockup_behavior_record_call(fossil_mockup_behavior_t *behavior, ...) {
     va_list args;
     va_start(args, behavior);
     for (int32_t i = 0; i < behavior->arg_count; i++) {
@@ -36,7 +36,7 @@ void xmock_behavior_record_call(xmock_behavior_t *behavior, ...) {
     va_end(args);
 }
 
-bool xmock_behavior_verify_call(xmock_behavior_t *behavior, int32_t arg_count, ...) {
+bool fossil_mockup_behavior_verify_call(fossil_mockup_behavior_t *behavior, int32_t arg_count, ...) {
     if (arg_count != behavior->arg_count) {
         fprintf(stderr, "Argument count mismatch for function '%s'\n", behavior->function_name);
         return false;
@@ -57,7 +57,7 @@ bool xmock_behavior_verify_call(xmock_behavior_t *behavior, int32_t arg_count, .
     return true;
 }
 
-void xmock_behavior_erase(xmock_behavior_t *behavior) {
+void fossil_mockup_behavior_erase(fossil_mockup_behavior_t *behavior) {
     free(behavior->function_name);
     free(behavior->args);
     free(behavior);

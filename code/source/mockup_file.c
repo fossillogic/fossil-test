@@ -13,21 +13,21 @@ Description:
 #include "fossil/mockup/file.h"
 #include <string.h>
 
-xmock_file_t* xmock_file_create(const char *filename, const char *content) {
-    xmock_file_t *file = (xmock_file_t *)malloc(sizeof(xmock_file_t));
+fossil_mockup_file_t* fossil_mockup_file_create(const char *filename, const char *content) {
+    fossil_mockup_file_t *file = (fossil_mockup_file_t *)malloc(sizeof(fossil_mockup_file_t));
     if (file == NULL) {
         perror("Failed to allocate memory for file mock");
         exit(EXIT_FAILURE);
     }
-    file->filename = _custom_xmock_core_strdup(filename);
-    file->content = _custom_xmock_core_strdup(content);
+    file->filename = _custom_fossil_mockup_core_strdup(filename);
+    file->content = _custom_fossil_mockup_core_strdup(content);
     file->size = strlen(content);
     file->position = 0;
     file->next = NULL;
     return file;
 }
 
-size_t xmock_file_read(void *ptr, size_t size, size_t nmemb, xmock_file_t *file) {
+size_t fossil_mockup_file_read(void *ptr, size_t size, size_t nmemb, fossil_mockup_file_t *file) {
     size_t bytes_to_read = size * nmemb;
     if (file->position + bytes_to_read > file->size) {
         bytes_to_read = file->size - file->position;
@@ -37,7 +37,7 @@ size_t xmock_file_read(void *ptr, size_t size, size_t nmemb, xmock_file_t *file)
     return bytes_to_read / size;
 }
 
-size_t xmock_file_write(const void *ptr, size_t size, size_t nmemb, xmock_file_t *file) {
+size_t fossil_mockup_file_write(const void *ptr, size_t size, size_t nmemb, fossil_mockup_file_t *file) {
     size_t bytes_to_write = size * nmemb;
     if (file->position + bytes_to_write > file->size) {
         file->content = (char *)realloc(file->content, file->position + bytes_to_write + 1);
@@ -49,7 +49,7 @@ size_t xmock_file_write(const void *ptr, size_t size, size_t nmemb, xmock_file_t
     return bytes_to_write / size;
 }
 
-int xmock_file_seek(xmock_file_t *file, long offset, int whence) {
+int fossil_mockup_file_seek(fossil_mockup_file_t *file, long offset, int whence) {
     switch (whence) {
         case SEEK_SET:
             file->position = offset;
@@ -71,11 +71,11 @@ int xmock_file_seek(xmock_file_t *file, long offset, int whence) {
     return 0;
 }
 
-void xmock_file_reset(xmock_file_t *file) {
+void fossil_mockup_file_reset(fossil_mockup_file_t *file) {
     file->position = 0;
 }
 
-void xmock_file_erase(xmock_file_t *file) {
+void fossil_mockup_file_erase(fossil_mockup_file_t *file) {
     free(file->filename);
     free(file->content);
     free(file);

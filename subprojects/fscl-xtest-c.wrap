@@ -6,4 +6,4 @@ url = https://github.com/fossil-lib/fscl-xtest-c.git
 revision = v3.0.0
 
 [provide]
-fscl-xtest-c = fscl_xtest_c_dep
+fscl-xtest-c = fscl_fossil_test_c_dep

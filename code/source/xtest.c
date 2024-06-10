@@ -10,32 +10,32 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include "fossil/xtest/internal.h"
+#include "fossil/unittest/internal.h"
 #include <stdarg.h>
 
 // Define thread pool size
 enum {
-    XTEST_MAX_FILTER_LENGTH = 50,
-    XTEST_ASSUME_MAX  = 5,
-    XTEST_EXCEPT_MAX  = 5,
-    XTEST_MAX_REPEATS = 100,
-    XTEST_MIN_REPEATS = 1,
-    XTEST_MAX_PRIORITY = 100,
-    XTEST_MIN_PRIORITY = 1,
+    FOSSIL_TEST_MAX_FILTER_LENGTH = 50,
+    FOSSIL_TEST_ASSUME_MAX  = 5,
+    FOSSIL_TEST_EXCEPT_MAX  = 5,
+    FOSSIL_TEST_MAX_REPEATS = 100,
+    FOSSIL_TEST_MIN_REPEATS = 1,
+    FOSSIL_TEST_MAX_PRIORITY = 100,
+    FOSSIL_TEST_MIN_PRIORITY = 1,
     MAX_EXPECTED_TIME_FAST = 1000, // Example value: 1000 milliseconds (1 second)
     MAX_EXPECTED_TIME_SLOW = 2000, // 2000 milliseconds (2 seconds)
-    XTEST_DEFAULT_PRIORITY_THRESHOLD = 50,
-    XTEST_ABORT_FAIL = -1,
+    FOSSIL_TEST_DEFAULT_PRIORITY_THRESHOLD = 50,
+    FOSSIL_TEST_ABORT_FAIL = -1,
 };
 
 typedef enum {
-    XTEST_IO_AS_HUMAN,
-    XTEST_IO_AS_CUTBACK,
-    XTEST_IO_AS_TURBO
-} xtest_mode;
+    FOSSIL_TEST_IO_AS_HUMAN,
+    FOSSIL_TEST_IO_AS_CUTBACK,
+    FOSSIL_TEST_IO_AS_TURBO
+} fossil_test_mode;
 
 typedef struct {
-    xtest_mode mode;
+    fossil_test_mode mode;
     bool dry_run;
     bool color;
     bool repeat;
@@ -47,11 +47,11 @@ typedef struct {
 // Global xparser variable
 xparser xcli;
 
-xenv _xtest_env;
+xenv _fossil_test_env;
 xassert_info _xassert_info;
 
 // Running tests in a queue
-void xtest_run_queue(xenv* test_env);
+void fossil_test_run_queue(xenv* test_env);
 
 // ==============================================================================
 // Xtest internal console stream logic
@@ -59,19 +59,19 @@ void xtest_run_queue(xenv* test_env);
 
 // to make strdup work on multable platforms and be C23, C18 compatabliity
 // a custom strdup has been written to soul purpose of using strdup.
-static xstring xstrdup(const xstring str) {
+static char* xstrdup(const char* str) {
     if (str == xnullptr) {
         return xnullptr;
     }
     size_t len = strlen(str) + 1;
-    xstring copy = (xstring )malloc(len);
+    char* copy = (char* )malloc(len);
     if (copy != xnullptr) {
         memcpy(copy, str, len);
     }
     return copy;
 }
 
-xstring current_datetime(void) {
+char* current_datetime(void) {
     time_t rawtime;
     struct tm* timeinfo;
     static char datetime[20];  // Buffer to hold the formatted date and time
@@ -86,29 +86,29 @@ xstring current_datetime(void) {
         return xnullptr; // Check for memory allocation failure
     }
 
-    xstring result = xstrdup(datetime);  // Return a dynamically allocated copy of the datetime
+    char* result = xstrdup(datetime);  // Return a dynamically allocated copy of the datetime
     free(copy);  // Free the temporary copy
 
     return result;
 }
 
-static xstring replace_underscore(const xstring str) {
+static char* replace_underscore(const char* str) {
     if (!str) {
         return xnullptr; // Check for xnull input
     }
 
-    xstring result = xstrdup(str);
+    char* result = xstrdup(str);
     if (!result) {
         return xnullptr; // Check for memory allocation failure
     }
 
-    for (xstring ptr = result; *ptr; ptr++) {
+    for (char* ptr = result; *ptr; ptr++) {
         if (*ptr == '_') {
             *ptr = ' ';
         }
     }
 
-    xstring copy = xstrdup(result);  // Create a copy to free the original
+    char* copy = xstrdup(result);  // Create a copy to free the original
     free(result);  // Free the original
 
     return copy;
@@ -180,12 +180,12 @@ static void xconsole_out(const char* color_name, const char* format, ...) {
 
 // Formats and displays information about the start/end of a test case.
 static void output_start_test(xtest *test_case, xenv* test_env) {
-    if (xcli.mode == XTEST_IO_AS_HUMAN) {
+    if (xcli.mode == FOSSIL_TEST_IO_AS_HUMAN) {
         xconsole_out("blue", "[...start case...] ");
         xconsole_out("dark blue", "- %s\n", replace_underscore(test_case->name));
-        xconsole_out("dark blue", "- > xtest_case: - %.4i\n", test_env->stats.expected_total_count + 1);
+        xconsole_out("dark blue", "- > fossil_test_case: - %.4i\n", test_env->stats.expected_total_count + 1);
         xconsole_out("dark blue", "- > priority: - %.3i\n", test_case->priority);
-    } else if (xcli.mode == XTEST_IO_AS_CUTBACK) {
+    } else if (xcli.mode == FOSSIL_TEST_IO_AS_CUTBACK) {
         xconsole_out("blue", "[START] > case: %.4i name: - %s\n", test_env->stats.expected_total_count + 1, replace_underscore(test_case->name));
     }
 } // end of func
@@ -202,7 +202,7 @@ static void output_end_test(xtest *test_case) {
     test_case->timer.detail.microseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000);
     test_case->timer.detail.nanoseconds = (int64_t)((elapsed_seconds - (int64_t)elapsed_seconds) * 1000000000);
 
-    if (xcli.mode == XTEST_IO_AS_HUMAN) {
+    if (xcli.mode == FOSSIL_TEST_IO_AS_HUMAN) {
         xconsole_out("dark blue", "- > mark: %s\n", test_case->marks->name);
         xconsole_out("dark blue", "- > xtag: %s\n", test_case->tags->name);
         xconsole_out("dark blue", "- > time: (%2.2lld:%2.2lld:%2.3lld:%2.6lld:%2.9lld)\n",
@@ -210,7 +210,7 @@ static void output_end_test(xtest *test_case) {
             test_case->timer.detail.milliseconds, test_case->timer.detail.microseconds,
             test_case->timer.detail.nanoseconds);
         xconsole_out("blue", "[...end case.....]\n\n");
-    } else if (xcli.mode == XTEST_IO_AS_CUTBACK) {
+    } else if (xcli.mode == FOSSIL_TEST_IO_AS_CUTBACK) {
         xconsole_out("blue", "[ENDED] > tag: %s mark: %s time: %2lld:%2lld:%3lld\n\n",
             test_case->tags->name, test_case->marks->name,
             test_case->timer.detail.minutes,
@@ -235,7 +235,7 @@ static void output_summary_format(xenv* test_env) {
     xconsole_out("blue", "%s\n", "****************************************************************************************:");
     xconsole_out("blue", "%s\n", "****************************************************************************************:");
     xconsole_out("blue", "[%s Runner] version:(%6s) host:(%s) timestamp:(%2.2lld:%2.2lld:%3.3lld:%6.6lld:%9.9lld)\n",
-        FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, _xtest_get_os_name(),
+        FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, _fossil_test_get_os_name(),
         test_env->timer.detail.minutes, test_env->timer.detail.seconds,
         test_env->timer.detail.milliseconds, test_env->timer.detail.microseconds, 
         test_env->timer.detail.nanoseconds);
@@ -255,34 +255,34 @@ static void output_summary_format(xenv* test_env) {
         xconsole_out("bright blue", "\n\n\n%s\n\n\n\n", empty_runner_comment());
     }
     xconsole_out("blue", "******: arch:(%s) memory:(%.4i) cpus:(%.2i) endian:(%s) time:(%s)\n",
-        _xtest_get_architecture(), _xtest_get_memory_size(), _xtest_get_num_cpus(),
-        _xtest_assert_is_big_endian()? "big" : "small", current_datetime());
+        _fossil_test_get_architecture(), _fossil_test_get_memory_size(), _fossil_test_get_num_cpus(),
+        _fossil_test_assert_is_big_endian()? "big" : "small", current_datetime());
     xconsole_out("blue", "%s\n", "****************************************************************************************:");
     xconsole_out("blue", "%s\n", "****************************************************************************************:");
 } // end of func
 
-void output_assume_format(const xstring message, const xstring file, int line, const xstring func) {
-    if (xcli.mode == XTEST_IO_AS_HUMAN) {
+void output_assume_format(const char* message, const char* file, int line, const char* func) {
+    if (xcli.mode == FOSSIL_TEST_IO_AS_HUMAN) {
         xconsole_out("red", "******************************************************:\n");
         xconsole_out("red", " -> In Function: %s\n - > In File: %s\n - > At Line: %d\n", replace_underscore(func), file, line);
         xconsole_out("red", " -> Assert failed: %s\n", message);
         xconsole_out("red", "******************************************************:\n");
-    } else if (xcli.mode == XTEST_IO_AS_CUTBACK) {
+    } else if (xcli.mode == FOSSIL_TEST_IO_AS_CUTBACK) {
         xconsole_out("red", "assert: %s\n", message);
         xconsole_out("red", "func: %s, file: %s, line: %d\n", func, file, line);
     }
-    _xtest_env.rule.should_pass = false;
+    _fossil_test_env.rule.should_pass = false;
 }
 
 void output_benchmark_format(uint64_t elapsed, double max) {
-    if (xcli.mode == XTEST_IO_AS_HUMAN) {
+    if (xcli.mode == FOSSIL_TEST_IO_AS_HUMAN) {
         xconsole_out("red", "[...benchmark...]\n");
         xconsole_out("red", ".\t> Elapsed time (%.2f time)\n", elapsed);
         xconsole_out("red", ".\t> Exceeds limit (%.2f time)\n", max);
-    } else if (xcli.mode == XTEST_IO_AS_CUTBACK) {
+    } else if (xcli.mode == FOSSIL_TEST_IO_AS_CUTBACK) {
         xconsole_out("red", "> benchmark failed: elapsed time (%.2f time) exceeds limit (%.2f time)\n", elapsed, max);
     }
-    _xtest_env.rule.should_pass = false;
+    _fossil_test_env.rule.should_pass = false;
 }
 
 // Prints usage instructions, including custom options, for a command-line program.
@@ -304,14 +304,14 @@ static void output_usage_format(void) {
 // Xtest internal argument parser logic
 // ==============================================================================
 
-static void xparser_parse_args(int argc, xstring argv[]) {
+static void xparser_parse_args(int argc, char* argv[]) {
     // Existing options initialization
-    xcli.mode      = XTEST_IO_AS_HUMAN;// set to human by default as humans are expected to run this nativly
+    xcli.mode      = FOSSIL_TEST_IO_AS_HUMAN;// set to human by default as humans are expected to run this nativly
     xcli.iter_repeat = 1;
     xcli.dry_run = false;
     xcli.repeat  = false;
     xcli.color   = false;
-    xcli.priority_threshold = XTEST_DEFAULT_PRIORITY_THRESHOLD; // Set default priority threshold
+    xcli.priority_threshold = FOSSIL_TEST_DEFAULT_PRIORITY_THRESHOLD; // Set default priority threshold
 
     for (int32_t i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--dry-run") == 0) {
@@ -331,7 +331,7 @@ static void xparser_parse_args(int argc, xstring argv[]) {
             xcli.repeat = true;
             if (++i < argc) {
                 int iter_repeat = atoi(argv[i]);
-                if (iter_repeat >= XTEST_MIN_REPEATS && iter_repeat <= XTEST_MAX_REPEATS) {
+                if (iter_repeat >= FOSSIL_TEST_MIN_REPEATS && iter_repeat <= FOSSIL_TEST_MAX_REPEATS) {
                     xcli.iter_repeat = iter_repeat;
                 } else {
                     xconsole_out("red", "Error: --repeat value must be between 1 and 100.\n");
@@ -344,11 +344,11 @@ static void xparser_parse_args(int argc, xstring argv[]) {
         } else if (strcmp(argv[i], "--console") == 0 || strcmp(argv[i], "-o") == 0) {
             if (++i < argc) {
                 if (strcmp(argv[i], "turbo") == 0) {
-                    xcli.mode = XTEST_IO_AS_TURBO;
+                    xcli.mode = FOSSIL_TEST_IO_AS_TURBO;
                 } else if (strcmp(argv[i], "cutback") == 0) {
-                    xcli.mode = XTEST_IO_AS_CUTBACK;
+                    xcli.mode = FOSSIL_TEST_IO_AS_CUTBACK;
                 } else if (strcmp(argv[i], "human") == 0) {
-                    xcli.mode = XTEST_IO_AS_HUMAN;
+                    xcli.mode = FOSSIL_TEST_IO_AS_HUMAN;
                 } else {
                     xconsole_out("red", "Error: Invalid run_as option. Use 'human', 'cutback', or 'turbo'.\n");
                     exit(EXIT_FAILURE);
@@ -360,7 +360,7 @@ static void xparser_parse_args(int argc, xstring argv[]) {
         } else if (strcmp(argv[i], "--priority") == 0 || strcmp(argv[i], "-p") == 0) {
             if (++i < argc) {
                 int priority_threshold = atoi(argv[i]);
-                if (priority_threshold >= XTEST_MIN_PRIORITY && priority_threshold <= XTEST_MAX_PRIORITY) {
+                if (priority_threshold >= FOSSIL_TEST_MIN_PRIORITY && priority_threshold <= FOSSIL_TEST_MAX_PRIORITY) {
                     xcli.priority_threshold = priority_threshold;
                 } else {
                     xconsole_out("red", "Error: --priority value must be between 1 and 100.\n");
@@ -532,7 +532,7 @@ void xqueue_erase(xqueue* queue) {
 // Xtest score board rule functions
 // ==============================================================================
 
-void _xtest_scoreboard_update(xenv* test_env) {
+void _fossil_test_scoreboard_update(xenv* test_env) {
     // here we just update the scoreboard count
     // add one to total tested cases and remove
     // one from untested ghost cases.
@@ -547,41 +547,41 @@ void _xtest_scoreboard_update(xenv* test_env) {
     test_env->stats.expected_total_count++;
 }
 
-void _xtest_scoreboard_expected_rules(xenv* test_env) {
+void _fossil_test_scoreboard_expected_rules(xenv* test_env) {
     // nothing crazy here just updating the expected passed and failed
     // counts based on the test case results.
-    if (!_xtest_env.rule.should_pass) {
+    if (!_fossil_test_env.rule.should_pass) {
         test_env->stats.expected_failed_count++;
     } else {
         test_env->stats.expected_passed_count++;
     }
 }
 
-void _xtest_scoreboard_unexpected_rules(xenv* test_env) {
+void _fossil_test_scoreboard_unexpected_rules(xenv* test_env) {
     // here we handle unexpected rules for cases that play
     // the UNO reverse card on us.
-    if (_xtest_env.rule.should_pass) {
+    if (_fossil_test_env.rule.should_pass) {
         test_env->stats.unexpected_failed_count++;
     } else {
         test_env->stats.unexpected_passed_count++;
     }
 }
 
-void _xtest_scoreboard_feature_rules(xenv* test_env, xtest* test_case) {
+void _fossil_test_scoreboard_feature_rules(xenv* test_env, xtest* test_case) {
     // handling features for skip and timeouts
-    if (_xtest_env.rule.skipped == true && strcmp(test_case->marks->name, "skip") == 0) {
+    if (_fossil_test_env.rule.skipped == true && strcmp(test_case->marks->name, "skip") == 0) {
         test_env->stats.expected_skipped_count++;
-        _xtest_env.rule.skipped = false;
-    } else if (strcmp(test_case->tags->name, "fast") == 0 && _xtest_env.rule.should_timeout == true) {
+        _fossil_test_env.rule.skipped = false;
+    } else if (strcmp(test_case->tags->name, "fast") == 0 && _fossil_test_env.rule.should_timeout == true) {
         test_env->stats.expected_timeout_count++;
-        _xtest_env.rule.should_timeout = false; // Reset timeout flag
-    } else if (strcmp(test_case->tags->name, "slow") == 0 && _xtest_env.rule.should_timeout == true) {
+        _fossil_test_env.rule.should_timeout = false; // Reset timeout flag
+    } else if (strcmp(test_case->tags->name, "slow") == 0 && _fossil_test_env.rule.should_timeout == true) {
         test_env->stats.expected_timeout_count++;
-        _xtest_env.rule.timeout = false; // Reset timeout flag
-    } else if (!_xtest_env.rule.should_pass) {
+        _fossil_test_env.rule.timeout = false; // Reset timeout flag
+    } else if (!_fossil_test_env.rule.should_pass) {
         if (_xassert_info.should_fail) {
             test_env->stats.expected_passed_count++;
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else {
             test_env->stats.expected_failed_count++;
         }
@@ -590,105 +590,105 @@ void _xtest_scoreboard_feature_rules(xenv* test_env, xtest* test_case) {
     }
 }
 
-void _xtest_scoreboard(xenv* test_env, xtest* test_case) {
+void _fossil_test_scoreboard(xenv* test_env, xtest* test_case) {
     // here we handle the scoreboard logic for the test cases
     // based on the rules and features that are set.
     if (strcmp(test_case->marks->name, "default") != 0 || strcmp(test_case->tags->name, "default") != 0) {
         // Simply handling unique cases using marks and tags first
         // to ensure I catch the added features.
-        _xtest_scoreboard_feature_rules(test_env, test_case);
-    } else if (_xtest_env.rule.result) {
+        _fossil_test_scoreboard_feature_rules(test_env, test_case);
+    } else if (_fossil_test_env.rule.result) {
         // here we handle the expected and unexpected rules
         // using normal flow without worrying about the features
         // as used in marks and tags.
-        _xtest_scoreboard_expected_rules(test_env);
-    } else if (!_xtest_env.rule.result) {
+        _fossil_test_scoreboard_expected_rules(test_env);
+    } else if (!_fossil_test_env.rule.result) {
         // here we handle unexpected rules for cases that play
         // the UNO reverse card on us.
-        _xtest_scoreboard_unexpected_rules(test_env);
+        _fossil_test_scoreboard_unexpected_rules(test_env);
     }
 
     // here we just update the scoreboard count
     // add one to total tested cases and remove
     // one from untested ghost cases.
-    _xtest_scoreboard_update(test_env);
+    _fossil_test_scoreboard_update(test_env);
 }
 
 // ==============================================================================
 // Xtest internal handlers for tags and markers
 // ==============================================================================
 
-static void _xtest_assert_handle_tag_slow(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_slow(xtest* test_case) {
     clock_t end = clock();
     test_case->timer.elapsed = end - test_case->timer.start;
     test_case->timer.detail.milliseconds = (int64_t)((test_case->timer.elapsed - (int64_t)test_case->timer.elapsed) * 1000);
 
     if (test_case->timer.detail.milliseconds > MAX_EXPECTED_TIME_SLOW) {
         xconsole_out("red", "Test case exceeded the expected time for slow tag\n");
-        _xtest_env.rule.should_timeout = false;
-        _xtest_env.rule.should_pass    = false;
+        _fossil_test_env.rule.should_timeout = false;
+        _fossil_test_env.rule.should_pass    = false;
     }
 }
 
-static void _xtest_assert_handle_tag_fast(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_fast(xtest* test_case) {
     clock_t end = clock();
     test_case->timer.elapsed = end - test_case->timer.start;
     test_case->timer.detail.milliseconds = (int64_t)((test_case->timer.elapsed - (int64_t)test_case->timer.elapsed) * 1000);
 
     if (test_case->timer.detail.milliseconds > MAX_EXPECTED_TIME_FAST) {
         xconsole_out("red", "Test case exceeded the expected time for fast tag\n");
-        _xtest_env.rule.should_timeout = false;
-        _xtest_env.rule.should_pass    = false;
+        _fossil_test_env.rule.should_timeout = false;
+        _fossil_test_env.rule.should_pass    = false;
     }
 }
 
 // features to be added in a next release.
-static void _xtest_assert_handle_tag_bug(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_bug(xtest* test_case) {
     // Handle bug tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_feature(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_feature(xtest* test_case) {
     // Handle feature tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_security(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_security(xtest* test_case) {
     // Handle security tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_performance(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_performance(xtest* test_case) {
     // Handle performance tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_stress(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_stress(xtest* test_case) {
     // Handle stress tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_regression(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_regression(xtest* test_case) {
     // Handle regression tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_compatibility(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_compatibility(xtest* test_case) {
     // Handle compatibility tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_usability(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_usability(xtest* test_case) {
     // Handle usability tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_robustness(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_robustness(xtest* test_case) {
     // Handle robustness tag logic here
     (void)test_case;
 }
 
-static void _xtest_assert_handle_tag_corner_case(xtest* test_case) {
+static void _fossil_test_assert_handle_tag_corner_case(xtest* test_case) {
     // Handle corner case tag logic here
     (void)test_case;
 }
@@ -698,46 +698,46 @@ static void _xtest_assert_handle_tag_corner_case(xtest* test_case) {
 // Xtest basic utility functions
 // ==============================================================================
 
-void _xtest_assume_unit_apply_xtags(xtest* test_case) {
+void _fossil_test_assume_unit_apply_xtags(xtest* test_case) {
      if (strcmp(test_case->tags->name, "default") != 0) {
         if (strcmp(test_case->tags->name, "bug") == 0) {
-            _xtest_assert_handle_tag_bug(test_case);
+            _fossil_test_assert_handle_tag_bug(test_case);
         } else if (strcmp(test_case->tags->name, "feature") == 0) {
-            _xtest_assert_handle_tag_feature(test_case);
+            _fossil_test_assert_handle_tag_feature(test_case);
         } else if (strcmp(test_case->tags->name, "security") == 0) {
-            _xtest_assert_handle_tag_security(test_case);
+            _fossil_test_assert_handle_tag_security(test_case);
         } else if (strcmp(test_case->tags->name, "performance") == 0) {
-            _xtest_assert_handle_tag_performance(test_case);
+            _fossil_test_assert_handle_tag_performance(test_case);
         } else if (strcmp(test_case->tags->name, "stress") == 0) {
-            _xtest_assert_handle_tag_stress(test_case);
+            _fossil_test_assert_handle_tag_stress(test_case);
         } else if (strcmp(test_case->tags->name, "regression") == 0) {
-            _xtest_assert_handle_tag_regression(test_case);
+            _fossil_test_assert_handle_tag_regression(test_case);
         } else if (strcmp(test_case->tags->name, "compatibility") == 0) {
-            _xtest_assert_handle_tag_compatibility(test_case);
+            _fossil_test_assert_handle_tag_compatibility(test_case);
         } else if (strcmp(test_case->tags->name, "usability") == 0) {
-            _xtest_assert_handle_tag_usability(test_case);
+            _fossil_test_assert_handle_tag_usability(test_case);
         } else if (strcmp(test_case->tags->name, "robustness") == 0) {
-            _xtest_assert_handle_tag_robustness(test_case);
+            _fossil_test_assert_handle_tag_robustness(test_case);
         } else if (strcmp(test_case->tags->name, "corner case") == 0) {
-            _xtest_assert_handle_tag_corner_case(test_case);
+            _fossil_test_assert_handle_tag_corner_case(test_case);
         }
     }
 }
 
-void _xtest_assume_unit_apply_marks(xtest* test_case) {
+void _fossil_test_assume_unit_apply_marks(xtest* test_case) {
     if (strcmp(test_case->marks->name, "default") != 0) {
         if (strcmp(test_case->marks->name, "skip") == 0) {
-            _xtest_env.rule.skipped = true;
+            _fossil_test_env.rule.skipped = true;
         } else if (strcmp(test_case->marks->name, "fail") == 0) {
-            _xtest_env.rule.result = false;
+            _fossil_test_env.rule.result = false;
             _xassert_info.should_fail = true; // based on rules applyed from 'fail' mark
         } else if (strcmp(test_case->marks->name, "pass") == 0) {
-            _xtest_env.rule.result = true;
+            _fossil_test_env.rule.result = true;
         } else if (strcmp(test_case->marks->name, "timeout") == 0) {
-            _xtest_env.rule.timeout = true;
-            _xtest_env.rule.timeout = true;
+            _fossil_test_env.rule.timeout = true;
+            _fossil_test_env.rule.timeout = true;
         } else if (strcmp(test_case->marks->name, "error") == 0) {
-            _xtest_env.rule.error = true;
+            _fossil_test_env.rule.error = true;
         } else if (strcmp(test_case->marks->name, "none") == 0) {
             // Do nothing
         } else if (strcmp(test_case->marks->name, "only") == 0) {
@@ -746,17 +746,17 @@ void _xtest_assume_unit_apply_marks(xtest* test_case) {
     }
 }
 
-void _xtest_assume_unit_check_xtags(xtest* test_case) {
+void _fossil_test_assume_unit_check_xtags(xtest* test_case) {
     if (strcmp(test_case->tags->name, "default") != 0) {
         if (strcmp(test_case->tags->name, "fast") == 0) {
-            _xtest_assert_handle_tag_fast(test_case);
+            _fossil_test_assert_handle_tag_fast(test_case);
         } else if (strcmp(test_case->tags->name, "slow") == 0) {
-            _xtest_assert_handle_tag_slow(test_case);
+            _fossil_test_assert_handle_tag_slow(test_case);
         }
     }
 }
 
-void _xtest_assume_unit(xtest* test_case) {
+void _fossil_test_assume_unit(xtest* test_case) {
     if (test_case->fixture.setup) {
         test_case->fixture.setup();
     }
@@ -770,36 +770,36 @@ void _xtest_assume_unit(xtest* test_case) {
     }
 }
 
-void _xtest_assume_unit_runner(xtest* test_case) {
+void _fossil_test_assume_unit_runner(xtest* test_case) {
     test_case->timer.start = clock();
-    output_start_test(test_case, &_xtest_env);
+    output_start_test(test_case, &_fossil_test_env);
 
     // setting and restting the assert info
     _xassert_info.has_assert  = false; // Never assume the tester added an assert EVER!
     _xassert_info.expression  = true;  // Assume the expression is true until proven false
     _xassert_info.should_fail = false; // Assume the expression should pass until proven false
 
-    _xtest_assume_unit_apply_marks(test_case);
-    _xtest_assume_unit_apply_xtags(test_case);
+    _fossil_test_assume_unit_apply_marks(test_case);
+    _fossil_test_assume_unit_apply_xtags(test_case);
 
-    if (!_xtest_env.rule.skipped) {
+    if (!_fossil_test_env.rule.skipped) {
         if (!xcli.dry_run) {
-            _xtest_assume_unit(test_case);
+            _fossil_test_assume_unit(test_case);
         } else {
             xconsole_out("blue", "Simulating test case...\n");
         }
-        _xtest_assume_unit_check_xtags(test_case); // Check tags
+        _fossil_test_assume_unit_check_xtags(test_case); // Check tags
     }
 
     output_end_test(test_case);
-    _xtest_scoreboard(&_xtest_env, test_case);
+    _fossil_test_scoreboard(&_fossil_test_env, test_case);
 }
 
 // ==============================================================================
 // Xtest create and erase
 // ==============================================================================
 
-xenv _xtest_environment_create(int argc, xstring *argv) {
+xenv _fossil_test_environment_create(int argc, char* *argv) {
     xparser_parse_args(argc, argv);
     xenv new_env;
 
@@ -811,21 +811,21 @@ xenv _xtest_environment_create(int argc, xstring *argv) {
     new_env.timer.start = clock(); // Start the timer
 
     // as a safty mesure we provide an atexit handler to avoid memory leaks
-    atexit(_xtest_environment_erase); // Register cleanup function
+    atexit(_fossil_test_environment_erase); // Register cleanup function
     
     return new_env;
 }
 
-void _xtest_environment_erase(void) {
-    xqueue_erase(_xtest_env.queue);
+void _fossil_test_environment_erase(void) {
+    xqueue_erase(_fossil_test_env.queue);
 
     // ensure summary dosent print twice if we happen to call exit
-    if (!_xtest_env.rule.should_pass) {
-        _xtest_environment_summary();
+    if (!_fossil_test_env.rule.should_pass) {
+        _fossil_test_environment_summary();
     }
 }
 
-void _xtest_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture) {
+void _fossil_test_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture) {
     if (fixture != xnullptr && fixture->setup != xnullptr && fixture->teardown != xnullptr) {
         test_case->fixture.setup = fixture->setup;
         test_case->fixture.teardown = fixture->teardown;
@@ -839,22 +839,22 @@ void _xtest_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture)
     xqueue_enqueue(test_env->queue, test_case);
 }
 
-void _xtest_environment_run(void) {
-    while (!xqueue_is_empty(_xtest_env.queue)) {
-        xtest* current_test = xqueue_dequeue(_xtest_env.queue);
+void _fossil_test_environment_run(void) {
+    while (!xqueue_is_empty(_fossil_test_env.queue)) {
+        xtest* current_test = xqueue_dequeue(_fossil_test_env.queue);
         if (current_test != xnullptr) {
-            _xtest_assume_unit_runner(current_test);
+            _fossil_test_assume_unit_runner(current_test);
         }
     }
 }
 
-int _xtest_environment_summary(void) {
-    int result = (_xtest_env.stats.untested_count          + // Count of untested cases
-                  _xtest_env.stats.expected_failed_count   + // Count of expected failed cases
-                  _xtest_env.stats.unexpected_passed_count + // Count of unexpected passed cases
-                  _xtest_env.stats.expected_timeout_count  + // Count of expected timeout cases
-                  _xtest_env.stats.unexpected_failed_count); // Count of unexpected failed cases
-    output_summary_format(&_xtest_env);
+int _fossil_test_environment_summary(void) {
+    int result = (_fossil_test_env.stats.untested_count          + // Count of untested cases
+                  _fossil_test_env.stats.expected_failed_count   + // Count of expected failed cases
+                  _fossil_test_env.stats.unexpected_passed_count + // Count of unexpected passed cases
+                  _fossil_test_env.stats.expected_timeout_count  + // Count of expected timeout cases
+                  _fossil_test_env.stats.unexpected_failed_count); // Count of unexpected failed cases
+    output_summary_format(&_fossil_test_env);
     return result;
 }
 
@@ -871,7 +871,7 @@ static uint64_t start_time;
 static double frequency; // Variable to store the frequency for Windows
 #endif
 
-void xtest_start_benchmark(void) {
+void fossil_test_start_benchmark(void) {
 #if defined(_WIN32)
     LARGE_INTEGER freq;
     if (!QueryPerformanceFrequency(&freq)) {
@@ -896,7 +896,7 @@ void xtest_start_benchmark(void) {
 #endif
 }
 
-uint64_t xtest_stop_benchmark(void) {
+uint64_t fossil_test_stop_benchmark(void) {
 #if defined(_WIN32)
     LARGE_INTEGER end_time;
     if (!QueryPerformanceCounter(&end_time)) {
@@ -925,7 +925,7 @@ static void assume_duration(double expected, double actual, double unit) {
 }
 
 // Marks a test case as timeout with a specified time and prints it to stderr.
-void xbenchmark(xstring duration_type, double expected, double actual) {
+void xbenchmark(char* duration_type, double expected, double actual) {
     if (strcmp(duration_type, "minutes") == 0) {
         assume_duration(expected, actual, 60.0);
     } else if (strcmp(duration_type, "seconds") == 0) {
@@ -956,7 +956,7 @@ void xbenchmark(xstring duration_type, double expected, double actual) {
 // ==============================================================================
 
 // Function to apply priority to the test case based on a keyword
-void _xtest_apply_priority(xtest *test_case, xstring priority) {
+void _fossil_test_apply_priority(xtest *test_case, char* priority) {
     if (!test_case) {
         xconsole_out("red", "Error: Test case pointer is xnullptr\n");
         return;
@@ -996,7 +996,7 @@ void _xtest_apply_priority(xtest *test_case, xstring priority) {
     }
 }
 
-void _xtest_apply_xtag(xtest* test_case, xstring tag) {
+void _fossil_test_apply_xtag(xtest* test_case, char* tag) {
     if (!test_case) {
         xconsole_out("red", "Test case pointer is xnullptr\n");
         return;
@@ -1047,7 +1047,7 @@ void _xtest_apply_xtag(xtest* test_case, xstring tag) {
     }
 }
 
-void _xtest_apply_mark(xtest* test_case, xstring mark) {
+void _fossil_test_apply_mark(xtest* test_case, char* mark) {
     if (!test_case) {
         xconsole_out("red", "Test case pointer is xnullptr\n");
         return;
@@ -1090,118 +1090,118 @@ void _xtest_apply_mark(xtest* test_case, xstring mark) {
 // assertion classes should abort like normal without memory leaks
 
 // Custom assumptions function with optional message.
-void xtest_assert_impl_assume(bool expression, const xstring message, const xstring file, int line, const xstring func) {
-    if (_xtest_env.current_assume_count == XTEST_ASSUME_MAX) {
-        exit(XTEST_ABORT_FAIL);
+void fossil_test_assert_impl_assume(bool expression, const char* message, const char* file, int line, const char* func) {
+    if (_fossil_test_env.current_assume_count == FOSSIL_TEST_ASSUME_MAX) {
+        exit(FOSSIL_TEST_ABORT_FAIL);
         return;
     }
 
     if (!_xassert_info.should_fail) {
         if (!expression) {
-            _xtest_env.rule.should_pass = false;
-            _xtest_env.current_assume_count++;
+            _fossil_test_env.rule.should_pass = false;
+            _fossil_test_env.current_assume_count++;
             output_assume_format(message, file, line, func);
         }
     } else {
         if (!expression) {
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
-            _xtest_env.rule.should_pass = false;
-            _xtest_env.current_assume_count++;
+            _fossil_test_env.rule.should_pass = false;
+            _fossil_test_env.current_assume_count++;
             output_assume_format(message, file, line, func);
         }
     }
 } // end of func
 
 // Custom assertion function with optional message.
-void xtest_assert_impl_assert(bool expression, const xstring message, const xstring file, int line, const xstring func) {
+void fossil_test_assert_impl_assert(bool expression, const char* message, const char* file, int line, const char* func) {
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
-            exit(XTEST_ABORT_FAIL);
+            exit(FOSSIL_TEST_ABORT_FAIL);
         }
     } else {
         if (!expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
-            exit(XTEST_ABORT_FAIL);
+            exit(FOSSIL_TEST_ABORT_FAIL);
         }
     }
 } // end of func
 
 // Custom assertion function with optional message.
-void xtest_assert_impl_sanity(bool expression, const xstring message, const xstring file, int line, const xstring func) {
+void fossil_test_assert_impl_sanity(bool expression, const char* message, const char* file, int line, const char* func) {
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
-            exit(XTEST_ABORT_FAIL);
+            exit(FOSSIL_TEST_ABORT_FAIL);
         }
     } else {
         if (!expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
-            exit(XTEST_ABORT_FAIL);
+            exit(FOSSIL_TEST_ABORT_FAIL);
         }
     }
 } // end of func
 
 // Custom expectation function with optional message.
-void xtest_assert_impl_expect(bool expression, const xstring message, const xstring file, int line, const xstring func) {
+void fossil_test_assert_impl_expect(bool expression, const char* message, const char* file, int line, const char* func) {
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
         }
     } else {
         if (!expression) {
-            _xtest_env.rule.should_pass = false;
+            _fossil_test_env.rule.should_pass = false;
             output_assume_format(message, file, line, func);
         }
     }
 } // end of func
 
 // Custom expectation function with optional message.
-void xtest_assert_impl_except(bool expression, const xstring message, const xstring file, int line, const xstring func) {
-    if (_xtest_env.current_except_count == XTEST_EXCEPT_MAX) {
+void fossil_test_assert_impl_except(bool expression, const char* message, const char* file, int line, const char* func) {
+    if (_fossil_test_env.current_except_count == FOSSIL_TEST_EXCEPT_MAX) {
         return;
     }
 
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _xtest_env.rule.should_pass = true;
+            _fossil_test_env.rule.should_pass = true;
         } else {
-            _xtest_env.rule.should_pass = false;
-            _xtest_env.current_except_count++;
+            _fossil_test_env.rule.should_pass = false;
+            _fossil_test_env.current_except_count++;
             output_assume_format(message, file, line, func);
         }
     } else {
         if (!expression) {
-            _xtest_env.rule.should_pass = false;
-            _xtest_env.current_except_count++;
+            _fossil_test_env.rule.should_pass = false;
+            _fossil_test_env.current_except_count++;
             output_assume_format(message, file, line, func);
         }
     }
 } // end of func
 
-void _xtest_assert_class(bool expression, xassert_type_rule behavor, xstring message, xstring file, int line, xstring func) {
+void _fossil_test_assert_class(bool expression, xassert_type_rule behavor, char* message, char* file, int line, char* func) {
     if (behavor == TEST_ASSERT_AS_CLASS_ASSUME) {
-        xtest_assert_impl_assume(expression, message, file, line, func);
+        fossil_test_assert_impl_assume(expression, message, file, line, func);
     } else if (behavor == TEST_ASSERT_AS_CLASS_ASSERT) {
-        xtest_assert_impl_assert(expression, message, file, line, func);
+        fossil_test_assert_impl_assert(expression, message, file, line, func);
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
-        xtest_assert_impl_expect(expression, message, file, line, func);
+        fossil_test_assert_impl_expect(expression, message, file, line, func);
     } else if (behavor == TEST_ASSERT_AS_CLASS_SANITY) {
-        xtest_assert_impl_sanity(expression, message, file, line, func);
+        fossil_test_assert_impl_sanity(expression, message, file, line, func);
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXCEPT) {
-        xtest_assert_impl_except(expression, message, file, line, func);
+        fossil_test_assert_impl_except(expression, message, file, line, func);
     }
     _xassert_info.has_assert = true; // Make note of an assert being added in a given test case
 }

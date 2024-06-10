@@ -12,19 +12,19 @@ Description:
 */
 #include "fossil/mockup/fake.h"
 
-xmock_fake_t* xmock_fake_create(const char *function_name, void (*fake_function)(void)) {
-    xmock_fake_t *fake = (xmock_fake_t *)malloc(sizeof(xmock_fake_t));
+fossil_mockup_fake_t* fossil_mockup_fake_create(const char *function_name, void (*fake_function)(void)) {
+    fossil_mockup_fake_t *fake = (fossil_mockup_fake_t *)malloc(sizeof(fossil_mockup_fake_t));
     if (fake == NULL) {
         perror("Failed to allocate memory for fake");
         exit(EXIT_FAILURE);
     }
-    fake->function_name = _custom_xmock_core_strdup(function_name);
+    fake->function_name = _custom_fossil_mockup_core_strdup(function_name);
     fake->fake_function = fake_function;
     fake->next = NULL;
     return fake;
 }
 
-void xmock_fake_call(xmock_fake_t *fake) {
+void fossil_mockup_fake_call(fossil_mockup_fake_t *fake) {
     if (fake->fake_function) {
         fake->fake_function();
     } else {
@@ -32,7 +32,7 @@ void xmock_fake_call(xmock_fake_t *fake) {
     }
 }
 
-void xmock_fake_erase(xmock_fake_t *fake) {
+void fossil_mockup_fake_erase(fossil_mockup_fake_t *fake) {
     free(fake->function_name);
     free(fake);
 }
