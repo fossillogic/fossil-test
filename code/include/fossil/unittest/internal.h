@@ -15,10 +15,8 @@ Description:
 
 #include "fossil/_common/common.h"
 #include "fossil/_common/platform.h"
-#include "feature.h"
 #include "commands.h"
 #include "console.h"
-#include "benchmark.h"
 
 /**
  * Introspection Data in Fossil Test
@@ -99,28 +97,6 @@ typedef enum {
 } xassert_type_t;
 
 /**
- * @brief Enumeration representing different tag rules for test assertions.
- * 
- * This enum defines various tagging rules for test assertions, categorizing tests
- * based on their execution speed or default behavior.
- */
-typedef enum {
-    TEST_ASSERT_TAG_RULE_FAST,          /**< Tag for tests that are expected to run quickly. */
-    TEST_ASSERT_TAG_RULE_SLOW,          /**< Tag for tests that are expected to take a longer time to execute. */
-    TEST_ASSERT_TAG_RULE_DEFAULT,       /**< Default tag for tests with no specific speed category. */
-    TEST_ASSERT_TAG_RULE_BUG,           /**< Tag for tests that are expected to fail. */
-    TEST_ASSERT_TAG_RULE_FEATURE,       /**< Tag for tests that are expected to pass. */
-    TEST_ASSERT_TAG_RULE_SECURITY,      /**< Tag for tests that are expected to test security. */
-    TEST_ASSERT_TAG_RULE_PERFORMANCE,   /**< Tag for tests that are expected to test performance. */
-    TEST_ASSERT_TAG_RULE_STRESS,        /**< Tag for tests that are expected to test stress. */
-    TEST_ASSERT_TAG_RULE_REGRESSION,    /**< Tag for tests that are expected to test regression. */
-    TEST_ASSERT_TAG_RULE_COMPATIBILITY, /**< Tag for tests that are expected to test compatibility. */
-    TEST_ASSERT_TAG_RULE_USABILITY,     /**< Tag for tests that are expected to test usability. */
-    TEST_ASSERT_TAG_RULE_ROBUSTNESS,    /**< Tag for tests that are expected to test robustness. */
-    TEST_ASSERT_TAG_RULE_CORNER_CASE    /**< Tag for tests that are expected to test corner cases. */
-} xassert_tag_t;
-
-/**
  * @brief Enumeration representing different priority rules for test assertions.
  * 
  * This enum defines various priority rules for test assertions, indicating the importance
@@ -141,8 +117,6 @@ typedef enum {
  */
 typedef enum {
     TEST_ASSERT_MARK_RULE_SKIP,    /**< Mark for tests that should be skipped. */
-    TEST_ASSERT_MARK_RULE_FAIL,    /**< Mark for tests that are expected to fail. */
-    TEST_ASSERT_MARK_RULE_PASS,    /**< Mark for tests that are expected to pass. */
     TEST_ASSERT_MARK_RULE_DEFAULT, /**< Default mark for tests with no specific expected outcome. */
     TEST_ASSERT_MARK_RULE_TIMEOUT, /**< Mark for tests that are expected to timeout. */
     TEST_ASSERT_MARK_RULE_ERROR,   /**< Mark for tests that are expected to throw an error. */
@@ -165,25 +139,6 @@ typedef struct {
     bool timeout;  /**< Boolean indicating whether the test case timed out. */
     bool error;    /**< Boolean indicating whether the test case threw an error. */
 } fossil_test_rule_t;
-
-/**
- * Structure representing a mapping between a mark name and its rule type.
- * This structure contains the name and rule type for a mark associated with a test case.
- */
-typedef struct {
-    char* name; /**< Name of the mark. */
-    xassert_mark_t rule; /**< Rule type for the mark. */
-} fossil_test_mark_map_t;
-
-/**
- * Structure representing a mapping between a tag name and its rule type.
- * This structure contains the name and rule type for a tag associated with a test case.
- */
-typedef struct {
-    char* name; /**< Name of the tag. */
-    xassert_tag_t rule; /**< Rule type for the tag. */
-} fossil_test_xtag_map_t; // should have this set to have a max of three for tags and marks
-
 
 /**
  * @brief Structure to hold timing information for tests.
@@ -228,14 +183,14 @@ typedef struct {
 typedef struct fossil_test_t fossil_test_t;
 typedef struct fossil_test_t {
     const char* name;            /**< Name of the test case. */
-    void (*test_function)(void);   /**< Function pointer to the test case's implementation. */
-    fossil_test_xtag_map_t tags[1];              /**< Array of tags associated with the test case. */
-    fossil_test_mark_map_t marks[1];            /**< Array of marks associated with the test case. */
-    fossil_test_timer_t timer;                   /**< Timer for tracking the duration of the test case. */
-    fossil_fixture_t fixture;              /**< The fixture settings for setup and teardown functions. */
-    int32_t priority;              /**< Priority of the test case (higher value indicates higher priority). */
-    struct fossil_test_t *prev;            /**< Pointer to the previous fossil_test_t node in a linked list. */
-    struct fossil_test_t *next;            /**< Pointer to the next fossil_test_t node in a linked list. */
+    void (*test_function)(void); /**< Function pointer to the test case's implementation. */
+    char* tags;                  /**< Array of tags associated with the test case. */
+    char* marks;                 /**< Array of marks associated with the test case. */
+    fossil_test_timer_t timer;   /**< Timer for tracking the duration of the test case. */
+    fossil_fixture_t fixture;    /**< The fixture settings for setup and teardown functions. */
+    int32_t priority;            /**< Priority of the test case (higher value indicates higher priority). */
+    struct fossil_test_t *prev;  /**< Pointer to the previous fossil_test_t node in a linked list. */
+    struct fossil_test_t *next;  /**< Pointer to the next fossil_test_t node in a linked list. */
 } fossil_test_t;
 
 /**
@@ -309,10 +264,11 @@ extern xassert_info _xassert_info;
 // Function prototypes
 fossil_env_t* fossil_test_environment_create(int argc, char **argv);
 void fossil_test_environment_run(fossil_env_t *env);
-void fossil_test_environment_summary(fossil_env_t *env);
-void fossil_test_add(fossil_test_t *test, fossil_env_t *env);
+void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_fixture_t *fixture);
+int  fossil_test_environment_summary(fossil_env_t *env);
+
 void fossil_test_apply_mark(fossil_test_t *test, const char *mark);
-void fossil_test_apply_xtag(fossil_test_t *test, const char *xtag);
+void fossil_test_apply_xtag(fossil_test_t *test, const char *tag);
 void fossil_test_apply_priority(fossil_test_t *test, const char *priority);
 
 /**
@@ -337,7 +293,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param test_case The test case to which the priority is to be applied.
  * @param priority The priority to be applied.
  */
-#define _APPLY_PRIORITY(test_case, priority) fossil_test_apply_priority(test_case, priority)
+#define _APPLY_PRIORITY(test_case, priority) fossil_test_apply_priority(test_case, (char*)priority)
 
 /**
  * @brief Macro to apply a tag to a test case.
@@ -426,24 +382,84 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * 
  * @param name The name of the test case.
  */
-#define _FOSSIL_TEST(name)                                    \
-    void name##_fossil_test_t(void);                          \
-    fossil_test_t name = {                                    \
-        (char*)#name,                                         \
-        name##_fossil_test_t,                                 \
-        {                                                     \
-            {(char*)"default", TEST_ASSERT_TAG_RULE_DEFAULT}  \
-        },                                                    \
-        {                                                     \
-            {(char*)"default", TEST_ASSERT_MARK_RULE_DEFAULT} \
-        },                                                    \
-        {0, 0, 0, {0, 0, 0, 0, 0}},                           \
-        {xnull, xnull},                                       \
-        0,                                                    \
-        xnull,                                                \
-        xnull                                                 \
-    };                                                        \
-    void name##_fossil_test_t(void)
+#define _FOSSIL_TEST(name)          \
+    void name##_fossil_test(void);  \
+    fossil_test_t name = {          \
+        (char*)#name,               \
+        name##_fossil_test,         \
+        (char*)"fossil",            \
+        (char*)"fossil",            \
+        {0, 0, 0, {0, 0, 0, 0, 0}}, \
+        {xnull, xnull},             \
+        0,                          \
+        xnull,                      \
+        xnull                       \
+    };                              \
+    void name##_fossil_test(void)
+
+/**
+ * @brief Macro to define a test case with a priority.
+ * 
+ * This macro is used to define a test case with a priority. It is used in conjunction
+ * with the _FOSSIL_TEST macro to define the test case function.
+ * 
+ * @param name The name of the test case.
+ * @param priority The priority of the test case.
+ */
+#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary(_fossil_test_env)
+
+/** Macro to create the test environment.
+ * 
+ * This macro is used to create the test environment by calling the _fossil_test_environment_create function.
+ * 
+ * @param argc The number of command line arguments.
+ * @param argv The array of command line arguments.
+ */
+#define _FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = _fossil_test_environment_create(argc, argv)
+
+/** Macro to run the test environment.
+ * 
+ * This macro is used to run the test environment by calling the fossil_test_environment_run function.
+ */
+#define _FOSSIL_TEST_RUN() fossil_test_environment_run(_fossil_test_env)
+
+/**
+ * @brief Define macro for defining a test queue.
+ * 
+ * This macro is used to define a test queue function for a specific test group.
+ * It creates a function definition with the given group name and accepts a pointer
+ * to a TestRegistry structure as a parameter. This function typically registers
+ * all tests within the specified test group to the provided test registry.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_GROUP(group_name) void group_name(fossil_env_t* test_env)
+
+/**
+ * @brief Define macro for declaring an external test queue.
+ * 
+ * This macro is used to declare an external test queue function for a specific
+ * test group. It creates an external function declaration with the given group name
+ * and accepts a pointer to a TestRegistry structure as a parameter. This declaration
+ * allows the test queue function to be defined in a separate source file and linked
+ * with the test framework.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_EXPORT(group_name) extern void group_name(fossil_env_t* test_env)
+
+/**
+ * @brief Define macro for importing and executing a test queue.
+ * 
+ * This macro is used to import and execute a test queue function for a specific
+ * test group. It calls the test queue function with the provided TestRegistry
+ * structure, typically registering all tests within the specified test group
+ * to the test registry.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_IMPORT(group_name) group_name(&_fossil_test_env)
+
 
 #ifdef __cplusplus
 }

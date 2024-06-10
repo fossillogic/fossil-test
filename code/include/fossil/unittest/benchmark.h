@@ -14,7 +14,6 @@ Description:
 #define FOSSIL_TEST_BENCHMARK_H
 
 #include "fossil/_common/common.h"
-#include "types.h"
 
 #ifdef __cplusplus
 extern "C"
