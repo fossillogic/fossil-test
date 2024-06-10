@@ -17,27 +17,29 @@ Before getting started, make sure you have the following installed:
    python -m pip install --upgrade meson # to upgrade Meson
    ```
 
-2. **Adding Wrap File**: You can add a `.wrap`, first go into `subprojects` directory and create `fossil-test-c.wrap` next copy the defintion into the file:
+2. **Adding Wrap File**: You can add a `.wrap`, first go into `subprojects` directory and create `fossil-test.wrap` next copy the defintion into the file:
 
    ```ini
    # ======================
    # Git Wrap package definition
    # ======================
    [wrap-git]
-   url = https://github.com/dreamer-coding-555/fossil-test-c.git
+   url = https://github.com/dreamer-coding-555/fossil-test.git
    revision = v1.0.0
 
    [provide]
-   fossil-test-c = fossil_test_c_dep
+   fossil-test = fossil_test_dep
+   fossil-mock = fossil_mock_dep
    ```
 
 3. **Integrate the New Dependency**: After creating the dependency `.wrap` file, you need to integrate it into your Meson project. This typically involves adding the dependency to your `meson.build` file. Here's an example of how you might do that:
 
    ```ini
-   dep = dependency('fossil-test-c')
+   test_dep = dependency('fossil-test') # Fossil Test main framework
+   mock_dep = dependency('fossil-mock') # Fossil Test mockup framework
    ```
 
-   This line retrieves the `fossil-test-c` dependency, allowing you to use it in your project.
+   This line retrieves the `fossil-test` dependency, allowing you to use it in your project.
    
 ## Configure Options
 
