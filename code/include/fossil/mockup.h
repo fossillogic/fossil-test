@@ -36,7 +36,7 @@ extern "C"
 #endif
 
 /**
- * @def XMOCK_FUNC_DEF
+ * @def FOSSIL_MOCK_FUNC
  * @brief Macro for creating a mock function with the specified return type, name, and parameters.
  *
  * This macro simplifies the creation of mock functions by defining a function with the given return
@@ -48,10 +48,10 @@ extern "C"
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
-#define XMOCK_FUNC_DEF(return_type, name, ...) _XMOCK_FUNC_DEF(return_type, name, __VA_ARGS__)
+#define FOSSIL_MOCK_FUNC(return_type, name, ...) _FOSSIL_MOCK_FUNC(return_type, name, __VA_ARGS__)
 
 /**
- * @def XMOCK_TYPE_ALIAS
+ * @def FOSSIL_MOCK_ALIAS
  * @brief Macro for creating a type alias based on an existing type.
  *
  * This macro creates a type alias for a given existing type.
@@ -59,10 +59,10 @@ extern "C"
  * @param new_type       The name of the new type alias.
  * @param existing_type  The existing type to create an alias for.
  */
-#define XMOCK_TYPE_ALIAS(new_type, existing_type) _XMOCK_TYPE_ALIAS(new_type, existing_type)
+#define FOSSIL_MOCK_ALIAS(new_type, existing_type) _FOSSIL_MOCK_ALIAS(new_type, existing_type)
 
 /**
- * @def XMOCK_STRUCT_DEF
+ * @def FOSSIL_MOCK_STRUCT
  * @brief Macro for creating a mock struct with the specified name and members.
  *
  * This macro simplifies the creation of mock structs by defining a struct with the given name
@@ -71,7 +71,7 @@ extern "C"
  * @param name     The name of the mock struct.
  * @param ...      The members of the mock struct in the format: (type1 member1, type2 member2, ...).
  */
-#define XMOCK_STRUCT_DEF(name, ...) _XMOCK_STRUCT_DEF(name, __VA_ARGS__)
+#define FOSSIL_MOCK_STRUCT(name, ...) _FOSSIL_MOCK_STRUCT(name, __VA_ARGS__)
 
 
 #ifdef __cplusplus

@@ -13,183 +13,126 @@ Description:
 #ifndef FOSSIL_TEST_INTERNAL_H
 #define FOSSIL_TEST_INTERNAL_H
 
-#include "common.h"
-#include "introspect.h"
-#include "platform.h"
+#include "fossil/common/common.h"
+#include "fossil/common/platform.h"
+#include "types.h"
+#include "feature.h"
+#include "commands.h"
+
+/**
+ * Introspection Data in Fossil Test
+ *
+ * Introspection, in the context of Fossil Test, refers to the process of gathering
+ * detailed information about the testing environment. This information is crucial
+ * for ensuring test stability, reliability, and portability across different
+ * platforms and environments. Fossil Test relies heavily on introspection data to
+ * adapt its behavior dynamically based on the characteristics of the system where
+ * it runs.
+ *
+ * The importance of introspection data can be summarized as follows:
+ *
+ * 1. System Compatibility:
+ *    Introspection data allows Fossil Test to identify the underlying architecture,
+ *    operating system, CPU count, endianness, and memory size of the test environment.
+ *    This information is vital for ensuring that tests execute correctly on diverse
+ *    platforms, including ARM, Windows, macOS, and various POSIX-based systems.
+ *
+ * 2. Test Adaptation:
+ *    By analyzing introspection data, Fossil Test can adapt its behavior and configuration
+ *    to suit the characteristics of the current environment. For example, the console
+ *    output may be adjusted based on the console width and height, and color support
+ *    may be enabled or disabled depending on the capabilities of the terminal.
+ *
+ * 3. Performance Optimization:
+ *    Introspection data helps Fossil Test optimize test execution performance by providing
+ *    insights into system resources such as CPU count and memory size. This information
+ *    allows Fossil Test to allocate resources efficiently and prioritize test execution
+ *    based on available hardware resources.
+ *
+ * 4. Cross-Platform Testing:
+ *    With introspection data, Fossil Test can facilitate cross-platform testing by
+ *    identifying and handling platform-specific differences transparently. Whether
+ *    running on Windows, macOS, Linux, or other operating systems, Fossil Test can
+ *    leverage introspection data to ensure consistent test behavior and results.
+ *
+ * In conclusion, introspection data forms the foundation of Fossil Test's ability
+ * to operate effectively in diverse testing environments. By gathering and analyzing
+ * detailed information about the test environment, Fossil Test enhances compatibility,
+ * adaptability, performance, and cross-platform testing capabilities, thereby
+ * empowering developers to write robust and portable test suites.
+ */
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-static const char* FOSSIL_TEST_NAME = "Fossil Test";
-static const char* FOSSIL_TEST_VERSION = "3.0.0";
-static const char* FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)";
-static const char* FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing framework for C.";
-
-extern xenv _fossil_test_env;
+extern fossil_env_t _fossil_test_env;
 
 // =================================================================
 // Initial implementation
 // =================================================================
 
 // Internal functions for envirment logic
-xenv _fossil_test_environment_create(int argc, char* *argv);
+fossil_env_t _fossil_test_environment_create(int argc, char** argv);
 void _fossil_test_environment_erase(void);
-void _fossil_test_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture);
+void _fossil_test_environment_add(fossil_env_t* test_env, fossil_test_t* test_case, fossil_fixture_t* fixture);
 void _fossil_test_environment_run(void);
 int _fossil_test_environment_summary(void);
 
 // Internal functions for managing analysis of test cases
-void _fossil_test_scoreboard_update(xenv* test_env);
-void _fossil_test_scoreboard_expected_rules(xenv* test_env);
-void _fossil_test_scoreboard_unexpected_rules(xenv* test_envm);
-void _fossil_test_scoreboard_feature_rules(xenv* test_env, xtest* test_case);
-void _fossil_test_scoreboard(xenv* test_env, xtest* test_case);
+void _fossil_test_scoreboard_update(fossil_env_t* test_env);
+void _fossil_test_scoreboard_expected_rules(fossil_env_t* test_env);
+void _fossil_test_scoreboard_unexpected_rules(fossil_env_t* test_envm);
+void _fossil_test_scoreboard_feature_rules(fossil_env_t* test_env, fossil_test_t* test_case);
+void _fossil_test_scoreboard(fossil_env_t* test_env, fossil_test_t* test_case);
 
 // Internal functions for managing test cases
-void _fossil_test_assume_unit_apply_xtags(xtest* test_case);
-void _fossil_test_assume_unit_apply_marks(xtest* test_case);
-void _fossil_test_assume_unit(xtest* test_case);
-void _fossil_test_assume_unit_runner(xtest* test_case);
-
-// Runs a test case with a specified fixture within the testing engine
-void xbenchmark(char* duration_type, double expected, double actual);
-void fossil_test_start_benchmark(void);
-uint64_t fossil_test_stop_benchmark(void);
 
 /**
- * @brief Internal function for handling test assertions.
+ * @brief Applies xtags to a test case.
  * 
- * @param expression The expression to evaluate.
- * @param behavior The behavior of the assertion (e.g., ASSERT, EXPECT, ASSUME).
- * @param message The message associated with the assertion.
- * @param file The file name where the assertion occurred.
- * @param line The line number where the assertion occurred.
- * @param func The function name where the assertion occurred.
- */
-void _fossil_test_assert_class(bool expression, xassert_type_rule behavior, char* message, char* file, int line, char* func);
-
-/**
- * Applies an xtag to a test case.
- * 
- * This function applies the specified xtag to the given test case. 
+ * This function applies the specified xtags to the given test case. 
  * It modifies the test case's properties accordingly.
  * 
  * @param test_case A pointer to the test case structure.
- * @param tag The xtag to be applied, represented as an 'char*'.
  */
-void _fossil_test_apply_xtag(xtest* test_case, char* tag);
+void _fossil_test_assume_unit_apply_xtags(fossil_test_t* test_case);
 
 /**
- * Applies a mark to a test case.
+ * @brief Applies marks to a test case.
  * 
- * This function applies the specified mark to the given test case. 
+ * This function applies the specified marks to the given test case. 
  * It modifies the test case's properties accordingly.
  * 
  * @param test_case A pointer to the test case structure.
- * @param mark The mark to be applied, represented as an 'char*'.
  */
-void _fossil_test_apply_mark(xtest* test_case, char* mark);
+void _fossil_test_assume_unit_apply_marks(fossil_test_t* test_case);
 
 /**
- * Function to apply a priority to a test case.
- * This function is used to set the priority of a given test case.
- * It is intended to be called indirectly through the APPLY_PRIORITY macro.
+ * @brief Executes a unit test case with assumptions.
  * 
- * @param test_case A pointer to the xtest structure representing the test case.
- * @param priority An integer value representing the priority to be assigned to the test case.
+ * This function executes a unit test case with assumptions. It checks
+ * if the assumptions hold true before running the test case. If any
+ * assumption fails, the test case is skipped.
+ * 
+ * @param test_case A pointer to the test case structure.
  */
-void _fossil_test_apply_priority(xtest *test_case, char* priority);
+void _fossil_test_assume_unit(fossil_test_t* test_case);
+
+/**
+ * @brief Executes a unit test case runner with assumptions.
+ * 
+ * This function executes a unit test case runner with assumptions. It
+ * checks if the assumptions hold true before running the test case
+ * runner. If any assumption fails, the test case runner is skipped.
+ * 
+ * @param test_case A pointer to the test case structure.
+ */
+void _fossil_test_assume_unit_runner(fossil_test_t* test_case);
 
 // algorithms use for advanced assumtions
 bool _assume_regex_match(const char *pattern, const char *str);
-
-// Function to generate a random humorous comment about an empty test runner
-// becuse way not add a little sillyness.
-static inline char* empty_runner_comment(void) {
-    char* comments[] = { // add more to this
-        "Looks like the test runner is on a coffee break!",
-        "The test runner is feeling a bit empty today, like my coffee cup.",
-        "The test runner is as empty as a developer's coffee mug on Monday morning.",
-        "Did someone forget to load the tests? The runner seems quite empty!",
-        "The test runner is as empty as a promise to write documentation.",
-        "The test runner is emptier than a developer's promise to refactor code.",
-        "The test runner seems to be on a diet - it's looking quite empty!",
-        "Did the tests escape? The runner seems unusually empty!",
-        "The test runner is as empty as a JavaScript developer's promises.",
-        "The test runner seems as empty as my enthusiasm for Monday mornings.",
-        "The test runner is emptier than a meeting agenda without a clear purpose.",
-        "The test runner is looking as empty as a developer's patience with legacy code.",
-        "The test runner is as empty as a database without any data.",
-        "The test runner seems to be in stealth mode - it's quite empty!",
-        "The test runner is emptier than a startup's promise of equity.",
-        "The test runner is as empty as a meeting room during a free lunch seminar.",
-        "The test runner is looking as empty as a developer's snack stash on Friday afternoon.",
-        "The test runner seems to be as empty as a Git repository with no commits.",
-        "The test runner is emptier than a developer's memory after a long debugging session.",
-        "The test runner is looking as empty as a developer's inbox after vacation.",
-        "The test runner is as empty as a conference room during a fire drill.",
-        "The test runner seems to be as empty as a developer's coffee pot after a long night of coding.",
-        "The test runner is emptier than a developer's promise to write unit tests."
-    };
-
-    int num_comments = sizeof(comments) / sizeof(comments[0]);
-
-    srand(time(xnullptr));
-
-    // Generate a random index
-    int random_index = rand() % num_comments;
-
-    return comments[random_index];
-}
-
-// Function to generate a random tip for unit testing released tasks
-// as this would servse as a handy feature and be helpful for teaching
-// new developers how they can write good test cases.
-static inline char* helpful_tester_tip(void) {
-    char* tips[] = {
-        "Always write meaningful test names.",
-        "Test both positive and negative cases.",
-        "Use mocking for external dependencies.",
-        "Run tests frequently during development.",
-        "Ensure tests are isolated and independent.",
-        "Avoid hardcoding values in test cases.",
-        "Focus on testing the functionality, not the implementation.",
-        "Regularly update and maintain test cases.",
-        "Use code coverage tools to identify untested code.",
-        "Test edge cases and boundary conditions.",
-        "Keep unit tests fast and repeatable.",
-        "Use setup and teardown methods when necessary.",
-        "Automate the execution of tests.",
-        "Review and refactor tests regularly.",
-        "Write tests for both happy paths and error paths.",
-        "Test for performance and scalability where applicable.",
-        "Use assertions effectively to verify outcomes.",
-        "Consider using property-based testing for complex logic.",
-        "Document the purpose and expected run_as of each test.",
-        "Collaborate with the development team to identify test cases.",
-        "Prioritize and focus on critical and high-risk areas.",
-        "Write tests early in the development process.",
-        "Use version control for test code and test data.",
-        "Ensure that tests can run in different environments.",
-        "Consider the maintainability and readability of test code.",
-        "Use test frameworks and libraries to simplify testing.",
-        "Use test data generation tools to create test data.",
-        "Use test reporting tools to track test results.",
-        "Use test management tools to organize and execute tests.",
-        "Use continuous integration to automate test execution."
-    };
-
-    int num_tips = sizeof(tips) / sizeof(tips[0]);
-
-    srand(time(xnullptr));
-
-    // Generate a random index
-    int random_index = rand() % num_tips;
-
-    return tips[random_index];
-}
 
 /**
  * @brief Macro to apply a priority to a test case.
@@ -259,7 +202,7 @@ static inline char* helpful_tester_tip(void) {
 #define _FOSSIL_FIXTURE(fixture_name) \
     void setup_##fixture_name(void); \
     void teardown_##fixture_name(void); \
-    xfixture fixture_name = { setup_##fixture_name, teardown_##fixture_name }
+    fossil_fixture_t fixture_name = { setup_##fixture_name, teardown_##fixture_name }
 
 /**
  * @brief Macro to define a setup function for a fixture.
@@ -290,10 +233,10 @@ static inline char* helpful_tester_tip(void) {
  * @param name The name of the test case.
  */
 #define _FOSSIL_TEST(name)                                           \
-    void name##_xtest(void);                                  \
-    xtest name = {                                            \
+    void name##_fossil_test_t(void);                                  \
+    fossil_test_t name = {                                            \
         (char*)#name,                                       \
-        name##_xtest,                                         \
+        name##_fossil_test_t,                                         \
         {                                                     \
             {(char*)"default", TEST_ASSERT_TAG_RULE_DEFAULT}\
         },                                                    \
@@ -306,7 +249,7 @@ static inline char* helpful_tester_tip(void) {
         xnull,                                                \
         xnull                                                 \
     };                                                        \
-    void name##_xtest(void)
+    void name##_fossil_test_t(void)
 
 #ifdef __cplusplus
 }

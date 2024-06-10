@@ -18,7 +18,7 @@ extern "C"
 {
 #endif
 
-#include "unittest/internal.h" // internal header file for xtest
+#include "unittest/internal.h" // internal header file for fossil_test_t
 
 // =================================================================
 // XTest create and erase commands
@@ -27,7 +27,7 @@ extern "C"
 /**
  * Macro to create and initialize a test environment.
  * This macro simplifies the process of calling the function to create a test environment,
- * making the code more concise and readable. It initializes an xenv structure named `test_env`,
+ * making the code more concise and readable. It initializes an fossil_env_t structure named `test_env`,
  * which is used to manage the state and configuration of the test environment.
  * 
  * Usage: FOSSIL_TEST_CREATE(argc, argv)
@@ -251,13 +251,13 @@ extern "C"
 /**
  * Defines a test case with a given name and sets up its properties.
  * 
- * This macro generates a function prototype and an instance of an xtest struct 
+ * This macro generates a function prototype and an instance of an fossil_test_t struct 
  * for the specified test case name. It initializes the test case with default 
  * values for various properties, including mark and tag rules, description 
  * strings, and flags.
  * 
  * @param name The name of the test case. This name is used to generate the function
- *             prototype and the xtest struct instance.
+ *             prototype and the fossil_test_t struct instance.
  */
 #define FOSSIL_TEST(name) _FOSSIL_TEST(name)
 
@@ -265,7 +265,7 @@ extern "C"
  * @brief Define macro for a BDD style test case.
  * 
  * This macro is used to define a BDD style test case. It creates a function prototype
- * and an instance of an xtest struct for the specified test case name. It initializes
+ * and an instance of an fossil_test_t struct for the specified test case name. It initializes
  * the test case with default values for various properties, including mark and tag rules,
  * description strings, and flags. This macro is typically used for behavior-driven
  * development (BDD) style tests, where the test case is structured as a series of GIVEN,
@@ -289,7 +289,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_GROUP(group_name) void group_name(xenv* test_env)
+#define FOSSIL_TEST_GROUP(group_name) void group_name(fossil_env_t* test_env)
 
 /**
  * @brief Define macro for declaring an external test queue.
@@ -302,7 +302,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_EXTERN_POOL(group_name) extern void group_name(xenv* test_env)
+#define FOSSIL_TEST_EXPORT(group_name) extern void group_name(fossil_env_t* test_env)
 
 /**
  * @brief Define macro for importing and executing a test queue.
@@ -314,7 +314,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_IMPORT_POOL(group_name) group_name(&_fossil_test_env)
+#define FOSSIL_TEST_IMPORT(group_name) group_name(&_fossil_test_env)
 
 // =================================================================
 // BDD specific commands

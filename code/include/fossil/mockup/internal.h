@@ -19,6 +19,8 @@ Description:
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "fossil/common/common.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -161,26 +163,8 @@ bool fossil_mockup_ptr_comparator(void *expected, void *actual);
  */
 void fossil_mockup_log(const char *format, ...);
 
-// Custom implementation of strdup
-static inline char* _custom_fossil_mockup_core_strdup(const char* str) {
-    if (!str) return NULL; // Handle NULL pointer gracefully
-
-    size_t len = 0;
-    while (str[len] != '\0') len++; // Calculate the length of the string
-
-    char* dup = (char*)malloc((len + 1) * sizeof(char)); // Allocate memory for the duplicate string
-    if (!dup) return NULL; // Check if malloc failed
-
-    for (size_t i = 0; i < len; i++) {
-        dup[i] = str[i]; // Copy each character from the original string to the duplicate
-    }
-    dup[len] = '\0'; // Add null terminator to the end of the duplicate string
-
-    return dup;
-}
-
 /**
- * @def _XMOCK_FUNC_DEF
+ * @def _FOSSIL_MOCK_FUNC
  * @brief Macro for creating a mock function with the specified return type, name, and parameters.
  * 
  * This macro simplifies the creation of mock functions by defining a function with the given return
@@ -192,11 +176,11 @@ static inline char* _custom_fossil_mockup_core_strdup(const char* str) {
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
-#define _XMOCK_FUNC_DEF(return_type, name, ...) \
+#define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
     return_type fossil_mockup_##name(__VA_ARGS__)
 
 /**
- * @def _XMOCK_TYPE_ALIAS
+ * @def _FOSSIL_MOCK_ALIAS
  * @brief Macro for creating a type alias based on an existing type.
  * 
  * This macro creates a type alias for a given existing type.
@@ -204,12 +188,12 @@ static inline char* _custom_fossil_mockup_core_strdup(const char* str) {
  * @param new_type       The name of the new type alias.
  * @param existing_type  The existing type to create an alias for.
  */
-#define _XMOCK_TYPE_ALIAS(new_type, existing_type) \
+#define _FOSSIL_MOCK_ALIAS(new_type, existing_type) \
     typedef existing_type fossil_mockup_##new_type##_type; \
     fossil_mockup_##new_type##_type fossil_mockup_##new_type(void)
 
 /**
- * @def _XMOCK_STRUCT_DEF
+ * @def _FOSSIL_MOCK_STRUCT
  * @brief Macro for creating a mock struct with the specified name and members.
  * 
  * This macro simplifies the creation of mock structs by defining a struct with the given name
@@ -218,7 +202,7 @@ static inline char* _custom_fossil_mockup_core_strdup(const char* str) {
  * @param name  The name of the mock struct.
  * @param ...   The members of the mock struct in the format: type1 member1; type2 member2; ...
  */
-#define _XMOCK_STRUCT_DEF(name, ...) \
+#define _FOSSIL_MOCK_STRUCT(name, ...) \
     typedef struct { \
         __VA_ARGS__ \
     } fossil_mockup_##name;

@@ -84,4 +84,22 @@ Description:
     #endif
 #endif
 
+// Custom implementation of strdup
+static inline char* _custom_fossil_test_strdup(const char* str) {
+    if (!str) return xnull; // Handle NULL pointer gracefully
+
+    size_t len = 0;
+    while (str[len] != '\0') len++; // Calculate the length of the string
+
+    char* dup = (char*)malloc((len + 1) * sizeof(char)); // Allocate memory for the duplicate string
+    if (!dup) return xnull; // Check if malloc failed
+
+    for (size_t i = 0; i < len; i++) {
+        dup[i] = str[i]; // Copy each character from the original string to the duplicate
+    }
+    dup[len] = '\0'; // Add null terminator to the end of the duplicate string
+
+    return dup;
+}
+
 #endif
