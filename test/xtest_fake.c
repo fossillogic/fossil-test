@@ -24,7 +24,7 @@ Description:
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Mocked function to be replaced by the fake
-XMOCK_FUNC_DEF(void, mocked_function, void) {
+FOSSIL_MOCK_FUNC(void, mocked_function, void) {
     // Some mocked behavior
 }
 
