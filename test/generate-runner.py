@@ -47,7 +47,7 @@ class TestRunnerGenerator:
 // * Fossil Logic Test List
 // * * * * * * * * * * * * * * * * * * * * * * * *\n"""
 
-        extern_pools = '\n'.join([f"FOSSIL_TEST_EXTERN_POOL({group});" for group in test_groups])
+        extern_pools = '\n'.join([f"FOSSIL_TEST_EXPORT({group});" for group in test_groups])
 
         runner = """
 
@@ -72,7 +72,7 @@ int main(int argc, const char **argv) {
 int main(int argc, const char **argv) {
     FOSSIL_TEST_CREATE(argc, argv);\n\n"""
 
-        import_pools = '\n'.join([f"    FOSSIL_TEST_IMPORT_POOL({group});" for group in test_groups])
+        import_pools = '\n'.join([f"    FOSSIL_TEST_IMPORT({group});" for group in test_groups])
 
         footer = """
     FOSSIL_TEST_RUN();
