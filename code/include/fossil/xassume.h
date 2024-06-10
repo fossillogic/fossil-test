@@ -10,13 +10,24 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include "fossil/module.h"
+#ifndef FSCL_XTEST_ASSUME_H
+#define FSCL_XTEST_ASSUME_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-int add(int a, int b) {
-    return a + b;
-} // end of func
+#include "xassume/boolean.h"
+#include "xassume/floating.h"
+#include "xassume/numeric.h"
+#include "xassume/memory.h"
+#include "xassume/string.h"
+#include "xassume/letter.h"
+#include "xassume/within.h"
 
-int subtract(int a, int b) {
-    return a - b;
-} // end of func
+#ifdef __cplusplus
+}
+#endif
+
+#endif

@@ -1,19 +1,25 @@
 if get_option('with_test').enabled()
-    test_deps = [
-        dependency('fscl-xtest-c'),
-        dependency('fscl-xmock-c'),
-        dependency('fscl-xassume-c')
-    ]
-
     run_command(['python', 'generate-runner.py'], check: true)
 
     test_src = ['xunit_runner.c']
-    test_cubes = ['cases']
+    test_cubes = [
+        # Fossil Mockup cases
+        'spy', 'fake',
+        'stub', 'file',
+        'behavior', 'inject',
+        'network', 'output',
+        'input', 'internal',
+
+        # Fossil Test cases
+        'xfixture', 'bench',
+        'bdd', 'tdd',
+        'tags', 'markers'
+    ]
 
     foreach cube : test_cubes
         test_src += ['xtest_' + cube + '.c']
     endforeach
 
-    pizza = executable('xcli', test_src, include_directories: dir, dependencies: [test_deps, fscl_c_dep])
+    pizza = executable('xcli', test_src, include_directories: dir, dependencies: [fossil_test_c_dep])
     test('xunit_tests', pizza)  # Renamed the test target for clarity
 endif

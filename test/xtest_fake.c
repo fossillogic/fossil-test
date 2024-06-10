@@ -10,10 +10,11 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/module.h> // library under test
-
 #include <fossil/xtest.h>   // basic test tools
 #include <fossil/xassume.h> // extra asserts
+
+#include <fossil/mockup/fake.h> // library under test
+#include <fossil/xmock.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -22,7 +23,10 @@ Description:
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// placeholder
+// Mocked function to be replaced by the fake
+XMOCK_FUNC_DEF(void, mocked_function, void) {
+    // Some mocked behavior
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Cases
@@ -32,20 +36,33 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(lib_subtract_case) {
-    ASSUME_ITS_TRUE(subtract(4, 2) == 2);
-    ASSUME_ITS_FALSE(subtract(2, 55) == 2);
+XTEST(xmock_fake_create_and_erase) {
+    // Create a fake object
+    xmock_fake_t *fake = xmock_fake_create("mocked_function", xmock_mocked_function);
+    ASSUME_NOT_CNULL(fake);
+
+    // Erase the fake object
+    xmock_fake_erase(fake);
 }
 
-XTEST(lib_add_case) {
-    ASSUME_ITS_TRUE(add(2, 2) == 4);
-    ASSUME_ITS_FALSE(add(2, 3) == 42);
+XTEST(xmock_fake_called) {
+    // Create a fake object
+    xmock_fake_t *fake = xmock_fake_create("mocked_function", xmock_mocked_function);
+    ASSUME_NOT_CNULL(fake);
+
+    // Call the fake function
+    xmock_fake_call(fake);
+
+    // Additional asserts can be added to verify the behavior
+
+    // Erase the fake object
+    xmock_fake_erase(fake);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(basic_group) {
-    ADD_TEST(lib_subtract_case);
-    ADD_TEST(lib_add_case);
+XTEST_DEFINE_POOL(xmock_fake_group) {
+    ADD_TEST(xmock_fake_create_and_erase);
+    ADD_TEST(xmock_fake_called);
 } // end of fixture
