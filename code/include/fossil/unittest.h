@@ -18,7 +18,8 @@ extern "C"
 {
 #endif
 
-#include "unittest/internal.h" // internal header file for fossil_test_t
+#include "unittest/benchmark.h" // benchmarking functionaility
+#include "unittest/internal.h" // internal header file for fossil test
 
 // =================================================================
 // XTest create and erase commands
@@ -46,7 +47,7 @@ extern "C"
  *     return FOSSIL_TEST_ERASE();
  * }
  */
-#define FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = _fossil_test_environment_create(argc, argv)
+#define FOSSIL_TEST_CREATE(argc, argv) _FOSSIL_TEST_CREATE(argc, argv)
 
 /**
  * @brief Macro to start the execution of the test environment.
@@ -99,7 +100,7 @@ extern "C"
  *
  * @see _fossil_test_environment_run
  */
-#define FOSSIL_TEST_RUN() _fossil_test_environment_run()
+#define FOSSIL_TEST_RUN() _FOSSIL_TEST_RUN()
 
 /**
  * Macro to erase and clean up the test environment.
@@ -120,7 +121,7 @@ extern "C"
  *     return FOSSIL_TEST_ERASE();
  * }
  */
-#define FOSSIL_TEST_ERASE() _fossil_test_environment_summary()
+#define FOSSIL_TEST_ERASE() _FOSSIL_TEST_ERASE()
 
 // =================================================================
 // XTest run commands
@@ -289,7 +290,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_GROUP(group_name) void group_name(fossil_env_t* test_env)
+#define FOSSIL_TEST_GROUP(group_name) _FOSSIL_TEST_GROUP(group_name)
 
 /**
  * @brief Define macro for declaring an external test queue.
@@ -302,7 +303,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_EXPORT(group_name) extern void group_name(fossil_env_t* test_env)
+#define FOSSIL_TEST_EXPORT(group_name) _FOSSIL_TEST_EXPORT(group_name)
 
 /**
  * @brief Define macro for importing and executing a test queue.
@@ -314,7 +315,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define FOSSIL_TEST_IMPORT(group_name) group_name(&_fossil_test_env)
+#define FOSSIL_TEST_IMPORT(group_name) _FOSSIL_TEST_IMPORT(group_name)
 
 // =================================================================
 // BDD specific commands
@@ -330,7 +331,7 @@ extern "C"
  * 
  * @param description The description of the GIVEN condition.
  */
-#define GIVEN(description) printf("%s%s\n", "  > GIVEN ", description); if (true)
+#define GIVEN(description) fossil_test_cout("blue", "%s%s\n", "  > GIVEN ", description); if (true)
 
 /**
  * @brief Define macro for specifying a WHEN condition in a test scenario.
@@ -343,7 +344,7 @@ extern "C"
  * 
  * @param description The description of the WHEN condition.
  */
-#define WHEN(description) printf("%s%s\n", "  >\t WHEN ", description); if (true)
+#define WHEN(description) fossil_test_cout("blue", "%s%s\n", "  >\t WHEN ", description); if (true)
 
 /**
  * @brief Define macro for specifying a THEN condition in a test scenario.
@@ -355,7 +356,7 @@ extern "C"
  * 
  * @param description The description of the THEN condition.
  */
-#define THEN(description) printf("%s%s\n", "  >\t\t THEN ", description); if (true)
+#define THEN(description) fossil_test_cout("blue", "%s%s\n", "  >\t\t THEN ", description); if (true)
 
 // =================================================================
 // TDD specific commands
