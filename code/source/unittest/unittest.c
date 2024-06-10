@@ -249,7 +249,7 @@ void fossil_test_environment_run(fossil_env_t *env) {
 // Function to summarize the test environment
 int fossil_test_environment_summary(fossil_env_t *env) {
     if (env == xnullptr) {
-        return;
+        return -1;
     }
     fossil_test_io_summary(env);
     return (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.expected_timeout_count + env->stats.untested_count);
@@ -402,7 +402,7 @@ void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
         if (!expression) {
             _fossil_test_env.rule.should_pass = false;
             _fossil_test_env.current_assume_count++;
-            output_assume_format(assume);
+            fossil_test_io_asserted(assume);
         }
     } else {
         if (!expression) {
@@ -410,7 +410,7 @@ void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
         } else if (expression) {
             _fossil_test_env.rule.should_pass = false;
             _fossil_test_env.current_assume_count++;
-            output_assume_format(assume);
+            fossil_test_io_asserted(assume);
         }
     }
 } // end of func
