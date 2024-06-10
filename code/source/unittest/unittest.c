@@ -199,13 +199,32 @@ fossil_env_t* fossil_test_environment_create(int argc, char **argv) {
         env->current_except_count = 0;
         env->current_assume_count = 0;
     }
+    fossil_test_io_summary_start(env);
     return env;
+}
+
+void fossil_test_run_testcase(fossil_test_t *test) {
+    if (test == xnullptr) {
+        return;
+    }
+    fossil_test_io_unittest_start(test);
+    if (test->fixture.setup != xnullptr) {
+        test->fixture.setup();
+    }
+
+    // Run the test function
+    test->test_function();
+
+    if (test->fixture.teardown != xnullptr) {
+        test->fixture.teardown();
+    }
+
+    fossil_test_io_unittest_ended(test);
 }
 
 // Function to run the test environment
 void fossil_test_environment_run(fossil_env_t *env) {
     if (env == xnullptr || env->queue == xnullptr || env->queue->front == xnullptr) {
-        fossil_test_cout("blue", "No tests to run.\n");
         return;
     }
 
@@ -214,13 +233,9 @@ void fossil_test_environment_run(fossil_env_t *env) {
 
     // Iterate through the test queue and run each test
     fossil_test_t *current_test = env->queue->front;
-    while (current_test != NULL) {
+    while (current_test != xnullptr) {
         // Run the test function
-        current_test->test_function();
-
-        // Calculate and print elapsed time for the test
-        calculate_elapsed_time(&(current_test->timer));
-        print_elapsed_time(&(current_test->timer));
+        fossil_test_run_testcase(current_test);
 
         // Move to the next test
         current_test = current_test->next;
@@ -232,24 +247,19 @@ void fossil_test_environment_run(fossil_env_t *env) {
 }
 
 // Function to summarize the test environment
-void fossil_test_environment_summary(fossil_env_t *env) {
+int fossil_test_environment_summary(fossil_env_t *env) {
     if (env == xnullptr) {
         return;
     }
     fossil_test_io_summary(env);
-
-    // Print total elapsed time
-    fossil_test_cout("blue", "Total Elapsed Time: %ld milliseconds\n", (long)env->timer.elapsed);
+    return (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.expected_timeout_count + env->stats.untested_count);
 }
 
 // Function to add a test to the test environment
-void fossil_test_add(fossil_test_t *test, fossil_env_t *env) {
+void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_fixture_t *fixture) {
     if (test == xnullptr || env == xnullptr || env->queue == xnullptr) {
         return;
     }
-
-    // Update test statistics
-    env->stats.expected_total_count++;
 
     // Add the test to the queue
     if (env->queue->front == xnullptr) {
@@ -262,45 +272,127 @@ void fossil_test_add(fossil_test_t *test, fossil_env_t *env) {
         test->prev = env->queue->rear;
         env->queue->rear = test;
     }
+
+    if (fixture != xnullptr) {
+        test->fixture.setup = fixture->setup;
+        test->fixture.teardown = fixture->teardown;
+    }
+
+    // Update test statistics
+    env->stats.untested_count++;
+    fossil_test_queue_push_front(test, env->queue);
 }
+
+//
+// Feature function implementations
+//
 
 // Function to apply a mark to a test case
 void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
-    _fossil_test_apply_mark(test, mark);
+    if (!test) {
+        return;
+    } else if (!mark) {
+        return;
+    }
+
+    // we handle any rules for marks
+    if (strcmp(mark, "skip") == 0) {
+        test->marks = "skip";
+    } else if (strcmp(mark, "timeout") == 0) {
+        test->marks = "timeout";
+    } else if (strcmp(mark, "error") == 0) {
+        test->marks = "error";
+    } else if (strcmp(mark, "none") == 0) {
+        test->marks = "none";
+    } else if (strcmp(mark, "only") == 0) {
+        test->marks = "only";
+    } else {
+        fossil_test_cout("red", "Error: Invalid marker %s\n", mark);
+    }
 }
 
 // Function to apply an extended tag to a test case
-void fossil_test_apply_xtag(fossil_test_t *test, const char *xtag) {
-    _fossil_test_apply_xtag(test, xtag);
+void fossil_test_apply_xtag(fossil_test_t *test, const char *tag) {
+    if (!test) {
+        return;
+    } else if (!tag) {
+        return;
+    }
+
+    // we handle any rules for tags
+    if (strcmp(tag, "fast") == 0) {
+        test->tags = "fast";
+    } else if (strcmp(tag, "slow") == 0) {
+        test->tags = "slow";
+    } else if (strcmp(tag, "bug") == 0) {
+        test->tags = "bug";
+    } else if (strcmp(tag, "feature") == 0) {
+        test->tags = "feature";
+    } else if (strcmp(tag, "security") == 0) {
+        test->tags = "security";
+    } else if (strcmp(tag, "performance") == 0) {
+        test->tags = "performance";
+    } else if (strcmp(tag, "stress") == 0) {
+        test->tags = "stress";
+    } else if (strcmp(tag, "regression") == 0) {
+        test->tags = "regression";
+    } else if (strcmp(tag, "compatibility") == 0) {
+        test->tags = "compatibility";
+    } else if (strcmp(tag, "usability") == 0) {
+        test->tags = "usability";
+    } else if (strcmp(tag, "robustness") == 0) {
+        test->tags = "robustness";
+    } else if (strcmp(tag, "corner case") == 0) {
+        test->tags = "corner case";
+    } else {
+        fossil_test_cout("red", "Error: Invalid xtag %s\n", tag);
+    }
 }
 
 // Function to apply a priority to a test case
 void fossil_test_apply_priority(fossil_test_t *test, const char *priority) {
-    _fossil_test_apply_priority(test, priority);
+   if (!test) {
+        return;
+    } else if (!priority) {
+        return;
+    }
+
+    if (strcmp(priority, "lowest") == 0) {
+        test->priority = 0;
+    } else if (strcmp(priority, "very low") == 0) {
+        test->priority = 10;
+    } else if (strcmp(priority, "low") == 0) {
+        test->priority = 20;
+    } else if (strcmp(priority, "medium") == 0) {
+        test->priority = 50;
+    } else if (strcmp(priority, "high") == 0) {
+        test->priority = 70;
+    } else if (strcmp(priority, "very high") == 0) {
+        test->priority = 90;
+    } else if (strcmp(priority, "highest") == 0) {
+        test->priority = 100;
+    } else if (strcmp(priority, "urgent") == 0) {
+        test->priority = 95;
+    } else if (strcmp(priority, "critical") == 0) {
+        test->priority = 100;
+    } else if (strcmp(priority, "normal") == 0) {
+        test->priority = 50;
+    } else {
+        int priority_value = atoi(priority);
+        if (priority_value < 0 || priority_value > 100) {
+            return;
+        }
+
+        test->priority = priority_value;
+    }
 }
 
-// Internal function to calculate elapsed time for a test
-static void calculate_elapsed_time(fossil_test_timer_t *timer) {
-    // Calculate elapsed time
-    timer->elapsed = timer->end - timer->start;
-
-    // Convert elapsed time to different units
-    timer->detail.minutes = timer->elapsed / (CLOCKS_PER_SEC * 60);
-    timer->detail.seconds = (timer->elapsed / CLOCKS_PER_SEC) % 60;
-    timer->detail.milliseconds = (timer->elapsed * 1000) / CLOCKS_PER_SEC;
-    timer->detail.microseconds = (timer->elapsed * 1000000) / CLOCKS_PER_SEC;
-    timer->detail.nanoseconds = (timer->elapsed * 1000000000) / CLOCKS_PER_SEC;
-}
-
-// Internal function to print elapsed time for a test
-static void print_elapsed_time(fossil_test_timer_t *timer) {
-    fossil_test_cout("blue", "Elapsed Time: %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
-           timer->detail.minutes, timer->detail.seconds, timer->detail.milliseconds,
-           timer->detail.microseconds, timer->detail.nanoseconds);
-}
+//
+// Assertion function implementations
+//
 
 // Custom assumptions function with optional message.
-void fossil_test_assert_impl_assume(bool expression, const char* message, const char* file, int line, const char* func) {
+void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
     if (_fossil_test_env.current_assume_count == FOSSIL_TEST_ASSUME_MAX) {
         exit(FOSSIL_TEST_ABORT_FAIL);
         return;
@@ -310,7 +402,7 @@ void fossil_test_assert_impl_assume(bool expression, const char* message, const 
         if (!expression) {
             _fossil_test_env.rule.should_pass = false;
             _fossil_test_env.current_assume_count++;
-            output_assume_format(message, file, line, func);
+            output_assume_format(assume);
         }
     } else {
         if (!expression) {
@@ -318,54 +410,59 @@ void fossil_test_assert_impl_assume(bool expression, const char* message, const 
         } else if (expression) {
             _fossil_test_env.rule.should_pass = false;
             _fossil_test_env.current_assume_count++;
-            output_assume_format(message, file, line, func);
+            output_assume_format(assume);
         }
     }
 } // end of func
 
 // Custom assertion function with optional message.
-void fossil_test_assert_impl_assert(bool expression, const char* message, const char* file, int line, const char* func) {
+void fossil_test_assert_impl_assert(bool expression, xassert_info *assume) {
     if (_xassert_info.should_fail) {
         if (!expression) {
             _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
             _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
+            fossil_test_io_asserted(assume);
             exit(FOSSIL_TEST_ABORT_FAIL);
         }
     } else {
         if (!expression) {
             _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
+            fossil_test_io_asserted(assume);
             exit(FOSSIL_TEST_ABORT_FAIL);
         }
     }
 } // end of func
 
 // Custom expectation function with optional message.
-void fossil_test_assert_impl_expect(bool expression, const char* message, const char* file, int line, const char* func) {
+void fossil_test_assert_impl_expect(bool expression, xassert_info *assume) {
     if (_xassert_info.should_fail) {
         if (!expression) {
             _fossil_test_env.rule.should_pass = true;
         } else if (expression) {
             _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
+            fossil_test_io_asserted(assume);
         }
     } else {
         if (!expression) {
             _fossil_test_env.rule.should_pass = false;
-            output_assume_format(message, file, line, func);
+            fossil_test_io_asserted(assume);
         }
     }
 } // end of func
 
 void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* message, char* file, int line, char* func) {
+    _xassert_info.func = func;
+    _xassert_info.file = file;
+    _xassert_info.line = line;
+    _xassert_info.message = message;
+
     if (behavor == TEST_ASSERT_AS_CLASS_ASSUME) {
-        fossil_test_assert_impl_assume(expression, message, file, line, func);
+        fossil_test_assert_impl_assume(expression, &_xassert_info);
     } else if (behavor == TEST_ASSERT_AS_CLASS_ASSERT) {
-        fossil_test_assert_impl_assert(expression, message, file, line, func);
+        fossil_test_assert_impl_assert(expression, &_xassert_info);
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
-        fossil_test_assert_impl_expect(expression, message, file, line, func);
+        fossil_test_assert_impl_expect(expression, &_xassert_info);
     }
     _xassert_info.has_assert = true; // Make note of an assert being added in a given test case
 }
