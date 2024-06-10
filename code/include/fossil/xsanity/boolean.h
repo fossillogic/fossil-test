@@ -10,21 +10,30 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FOSSIL_TEST_ASSERT_H
-#define FOSSIL_TEST_ASSERT_H
+#ifndef FOSSIL_TEST_SANITY_BOOLEAN_TYPE_H
+#define FOSSIL_TEST_SANITY_BOOLEAN_TYPE_H
+
+#include <fossil/unittest.h> // using assurt rules from Fossil Test
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "xassert/boolean.h"
-#include "xassert/floating.h"
-#include "xassert/numeric.h"
-#include "xassert/memory.h"
-#include "xassert/string.h"
-#include "xassert/letter.h"
-#include "xassert/within.h"
+// Boolean ITS assertions
+#define SANITY_ITS_TRUE(actual) \
+    TEST_SANITY((actual), "Expected " #actual " to be true")
+
+#define SANITY_ITS_FALSE(actual) \
+    TEST_SANITY(!(actual), "Expected " #actual " to be false")
+
+// Boolean NOT assertions
+#define SANITY_NOT_TRUE(actual) \
+    TEST_SANITY(!(actual), "Expected " #actual " to not be true")
+
+#define SANITY_NOT_FALSE(actual) \
+    TEST_SANITY((actual), "Expected " #actual " to not be false")
 
 #ifdef __cplusplus
 }

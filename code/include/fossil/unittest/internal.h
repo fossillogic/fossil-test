@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_INTERNAL_H
-#define FSCL_XTEST_INTERNAL_H
+#ifndef FOSSIL_TEST_INTERNAL_H
+#define FOSSIL_TEST_INTERNAL_H
 
 #include "common.h"
 #include "introspect.h"
@@ -22,41 +22,41 @@ extern "C"
 {
 #endif
 
-static const xstring FOSSIL_TEST_NAME = "Fossil Test";
-static const xstring FOSSIL_TEST_VERSION = "3.0.0";
-static const xstring FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)";
-static const xstring FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing framework for C.";
+static const char* FOSSIL_TEST_NAME = "Fossil Test";
+static const char* FOSSIL_TEST_VERSION = "3.0.0";
+static const char* FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)";
+static const char* FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing framework for C.";
 
-extern xenv _xtest_env;
+extern xenv _fossil_test_env;
 
 // =================================================================
 // Initial implementation
 // =================================================================
 
 // Internal functions for envirment logic
-xenv _xtest_environment_create(int argc, xstring *argv);
-void _xtest_environment_erase(void);
-void _xtest_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture);
-void _xtest_environment_run(void);
-int _xtest_environment_summary(void);
+xenv _fossil_test_environment_create(int argc, char* *argv);
+void _fossil_test_environment_erase(void);
+void _fossil_test_environment_add(xenv* test_env, xtest* test_case, xfixture* fixture);
+void _fossil_test_environment_run(void);
+int _fossil_test_environment_summary(void);
 
 // Internal functions for managing analysis of test cases
-void _xtest_scoreboard_update(xenv* test_env);
-void _xtest_scoreboard_expected_rules(xenv* test_env);
-void _xtest_scoreboard_unexpected_rules(xenv* test_envm);
-void _xtest_scoreboard_feature_rules(xenv* test_env, xtest* test_case);
-void _xtest_scoreboard(xenv* test_env, xtest* test_case);
+void _fossil_test_scoreboard_update(xenv* test_env);
+void _fossil_test_scoreboard_expected_rules(xenv* test_env);
+void _fossil_test_scoreboard_unexpected_rules(xenv* test_envm);
+void _fossil_test_scoreboard_feature_rules(xenv* test_env, xtest* test_case);
+void _fossil_test_scoreboard(xenv* test_env, xtest* test_case);
 
 // Internal functions for managing test cases
-void _xtest_assume_unit_apply_xtags(xtest* test_case);
-void _xtest_assume_unit_apply_marks(xtest* test_case);
-void _xtest_assume_unit(xtest* test_case);
-void _xtest_assume_unit_runner(xtest* test_case);
+void _fossil_test_assume_unit_apply_xtags(xtest* test_case);
+void _fossil_test_assume_unit_apply_marks(xtest* test_case);
+void _fossil_test_assume_unit(xtest* test_case);
+void _fossil_test_assume_unit_runner(xtest* test_case);
 
 // Runs a test case with a specified fixture within the testing engine
-void xbenchmark(xstring duration_type, double expected, double actual);
-void xtest_start_benchmark(void);
-uint64_t xtest_stop_benchmark(void);
+void xbenchmark(char* duration_type, double expected, double actual);
+void fossil_test_start_benchmark(void);
+uint64_t fossil_test_stop_benchmark(void);
 
 /**
  * @brief Internal function for handling test assertions.
@@ -68,7 +68,7 @@ uint64_t xtest_stop_benchmark(void);
  * @param line The line number where the assertion occurred.
  * @param func The function name where the assertion occurred.
  */
-void _xtest_assert_class(bool expression, xassert_type_rule behavior, xstring message, xstring file, int line, xstring func);
+void _fossil_test_assert_class(bool expression, xassert_type_rule behavior, char* message, char* file, int line, char* func);
 
 /**
  * Applies an xtag to a test case.
@@ -77,9 +77,9 @@ void _xtest_assert_class(bool expression, xassert_type_rule behavior, xstring me
  * It modifies the test case's properties accordingly.
  * 
  * @param test_case A pointer to the test case structure.
- * @param tag The xtag to be applied, represented as an 'xstring'.
+ * @param tag The xtag to be applied, represented as an 'char*'.
  */
-void _xtest_apply_xtag(xtest* test_case, xstring tag);
+void _fossil_test_apply_xtag(xtest* test_case, char* tag);
 
 /**
  * Applies a mark to a test case.
@@ -88,9 +88,9 @@ void _xtest_apply_xtag(xtest* test_case, xstring tag);
  * It modifies the test case's properties accordingly.
  * 
  * @param test_case A pointer to the test case structure.
- * @param mark The mark to be applied, represented as an 'xstring'.
+ * @param mark The mark to be applied, represented as an 'char*'.
  */
-void _xtest_apply_mark(xtest* test_case, xstring mark);
+void _fossil_test_apply_mark(xtest* test_case, char* mark);
 
 /**
  * Function to apply a priority to a test case.
@@ -100,15 +100,15 @@ void _xtest_apply_mark(xtest* test_case, xstring mark);
  * @param test_case A pointer to the xtest structure representing the test case.
  * @param priority An integer value representing the priority to be assigned to the test case.
  */
-void _xtest_apply_priority(xtest *test_case, xstring priority);
+void _fossil_test_apply_priority(xtest *test_case, char* priority);
 
 // algorithms use for advanced assumtions
 bool _assume_regex_match(const char *pattern, const char *str);
 
 // Function to generate a random humorous comment about an empty test runner
 // becuse way not add a little sillyness.
-static inline xstring empty_runner_comment(void) {
-    xstring comments[] = { // add more to this
+static inline char* empty_runner_comment(void) {
+    char* comments[] = { // add more to this
         "Looks like the test runner is on a coffee break!",
         "The test runner is feeling a bit empty today, like my coffee cup.",
         "The test runner is as empty as a developer's coffee mug on Monday morning.",
@@ -147,8 +147,8 @@ static inline xstring empty_runner_comment(void) {
 // Function to generate a random tip for unit testing released tasks
 // as this would servse as a handy feature and be helpful for teaching
 // new developers how they can write good test cases.
-static inline xstring helpful_tester_tip(void) {
-    xstring tips[] = {
+static inline char* helpful_tester_tip(void) {
+    char* tips[] = {
         "Always write meaningful test names.",
         "Test both positive and negative cases.",
         "Use mocking for external dependencies.",
@@ -200,7 +200,7 @@ static inline xstring helpful_tester_tip(void) {
  * @param test_case The test case to which the priority is to be applied.
  * @param priority The priority to be applied.
  */
-#define _APPLY_PRIORITY(test_case, priority) _xtest_apply_priority(test_case, priority)
+#define _APPLY_PRIORITY(test_case, priority) _fossil_test_apply_priority(test_case, priority)
 
 /**
  * @brief Macro to apply a tag to a test case.
@@ -211,7 +211,7 @@ static inline xstring helpful_tester_tip(void) {
  * @param test_case The test case to which the tag is to be applied.
  * @param xtag The tag to be applied.
  */
-#define _APPLY_XTAG(test_case, xtag) _xtest_apply_xtag(&test_case, (xstring)xtag)
+#define _APPLY_XTAG(test_case, xtag) _fossil_test_apply_xtag(&test_case, (char*)xtag)
 
 /**
  * @brief Macro to apply a mark to a test case.
@@ -222,7 +222,7 @@ static inline xstring helpful_tester_tip(void) {
  * @param test_case The test case to which the mark is to be applied.
  * @param mark The mark to be applied.
  */
-#define _APPLY_MARK(test_case, mark) _xtest_apply_mark(&test_case, (xstring)mark)
+#define _APPLY_MARK(test_case, mark) _fossil_test_apply_mark(&test_case, (char*)mark)
 
 /**
  * @brief Macro to add a test case.
@@ -232,31 +232,31 @@ static inline xstring helpful_tester_tip(void) {
  * 
  * @param test_case The test case to be added.
  */
-#define _ADD_TEST(test_case) _xtest_environment_add(test_env, &test_case, xnullptr)
+#define _ADD_TEST(test_case) _fossil_test_environment_add(test_env, &test_case, xnullptr)
 
 /**
  * @brief Macro to add a test case with a fixture.
  * 
  * This macro is used to add a test case with a fixture. It is used in conjunction
- * with the _XFIXTURE macro to define the fixture structure.
+ * with the _FOSSIL_FIXTURE macro to define the fixture structure.
  * 
  * @param test_case The test case to be added.
  * @param fixture The fixture to be added.
  */
-#define _ADD_TESTF(test_case, fixture) _xtest_environment_add(test_env, &test_case, &fixture)
+#define _ADD_TESTF(test_case, fixture) _fossil_test_environment_add(test_env, &test_case, &fixture)
 
 /**
  * @brief Macro to define a fixture.
  * 
  * This macro is used to define a fixture. It is used in conjunction with the
- * _XSETUP and _XTEARDOWN macros to define the setup and teardown functions for
+ * _FOSSIL_SETUP and _FOSSIL_TEARDOWN macros to define the setup and teardown functions for
  * the fixture.
  * 
  * @param fixture_name The name of the fixture.
  * @param setup The setup function for the fixture.
  * @param teardown The teardown function for the fixture.
  */
-#define _XFIXTURE(fixture_name) \
+#define _FOSSIL_FIXTURE(fixture_name) \
     void setup_##fixture_name(void); \
     void teardown_##fixture_name(void); \
     xfixture fixture_name = { setup_##fixture_name, teardown_##fixture_name }
@@ -265,40 +265,40 @@ static inline xstring helpful_tester_tip(void) {
  * @brief Macro to define a setup function for a fixture.
  * 
  * This macro is used to define a setup function for a fixture. It is used in
- * conjunction with the _XFIXTURE macro to define the fixture structure.
+ * conjunction with the _FOSSIL_FIXTURE macro to define the fixture structure.
  * 
  * @param fixture_name The name of the fixture.
  */
-#define _XSETUP(fixture_name) void setup_##fixture_name(void)
+#define _FOSSIL_SETUP(fixture_name) void setup_##fixture_name(void)
 
 /**
  * @brief Macro to define a teardown function for a fixture.
  * 
  * This macro is used to define a teardown function for a fixture. It is used in
- * conjunction with the _XFIXTURE macro to define the fixture structure.
+ * conjunction with the _FOSSIL_FIXTURE macro to define the fixture structure.
  * 
  * @param fixture_name The name of the fixture.
  */
-#define _XTEARDOWN(fixture_name) void teardown_##fixture_name(void)
+#define _FOSSIL_TEARDOWN(fixture_name) void teardown_##fixture_name(void)
 
 /**
  * @brief Macro to define a test case.
  * 
  * This macro is used to define a test case. It is used in conjunction with the
- * _XTEST macro to define the test case function.
+ * _FOSSIL_TEST macro to define the test case function.
  * 
  * @param name The name of the test case.
  */
-#define _XTEST(name)                                           \
+#define _FOSSIL_TEST(name)                                           \
     void name##_xtest(void);                                  \
     xtest name = {                                            \
-        (xstring)#name,                                       \
+        (char*)#name,                                       \
         name##_xtest,                                         \
         {                                                     \
-            {(xstring)"default", TEST_ASSERT_TAG_RULE_DEFAULT}\
+            {(char*)"default", TEST_ASSERT_TAG_RULE_DEFAULT}\
         },                                                    \
         {                                                     \
-            {(xstring)"default", TEST_ASSERT_MARK_RULE_DEFAULT}\
+            {(char*)"default", TEST_ASSERT_MARK_RULE_DEFAULT}\
         },                                                    \
         {0, 0, 0, {0, 0, 0, 0, 0}},                           \
         {xnull, xnull},                                       \

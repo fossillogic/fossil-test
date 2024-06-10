@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_PLATFORM_H
-#define FSCL_XTEST_PLATFORM_H
+#ifndef FOSSIL_TEST_PLATFORM_H
+#define FOSSIL_TEST_PLATFORM_H
 
 #include "common.h" // for introspection data
 
@@ -21,7 +21,7 @@ extern "C"
 #endif
 
 // Utility function to get the architecture
-static inline char* _xtest_get_architecture(void) {
+static inline char* _fossil_test_get_architecture(void) {
     char* arch = malloc(10 * sizeof(char));
     if (arch == NULL) {
         return NULL;
@@ -59,7 +59,7 @@ static inline char* _xtest_get_architecture(void) {
 }
 
 // Utility function to get the OS name
-static inline char* _xtest_get_os_name(void) {
+static inline char* _fossil_test_get_os_name(void) {
     char* os_name = malloc(20 * sizeof(char));
     if (os_name == NULL) {
         return NULL;
@@ -79,13 +79,13 @@ static inline char* _xtest_get_os_name(void) {
 }
 
 // Utility function to check if the system is big endian
-static inline bool _xtest_assert_is_big_endian(void) {
+static inline bool _fossil_test_assert_is_big_endian(void) {
     uint16_t num = 0x1;
     return (*(uint8_t *)&num == 0);
 }
 
 // Utility function to get the number of CPUs
-static inline int _xtest_get_num_cpus(void) {
+static inline int _fossil_test_get_num_cpus(void) {
 #ifdef _WIN32
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
@@ -104,7 +104,7 @@ static inline int _xtest_get_num_cpus(void) {
 }
 
 // Utility function to get the total memory size in MB
-static inline int _xtest_get_memory_size(void) {
+static inline int _fossil_test_get_memory_size(void) {
 #ifdef _WIN32
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);

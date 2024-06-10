@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_FILE_H
-#define FSCL_XMOCK_FILE_H
+#ifndef FOSSIL_MOCK_FILE_H
+#define FOSSIL_MOCK_FILE_H
 
 #include "internal.h"
 
@@ -21,13 +21,13 @@ extern "C"
 #endif
 
 // File mock object type
-typedef struct xmock_file {
+typedef struct fossil_mockup_file {
     char *filename;
     char *content;
     size_t size;
     size_t position;
-    struct xmock_file *next; // for chaining files
-} xmock_file_t;
+    struct fossil_mockup_file *next; // for chaining files
+} fossil_mockup_file_t;
 
 /** 
  * Create a new file mock object
@@ -36,7 +36,7 @@ typedef struct xmock_file {
  * @param content The content of the file
  * @return A pointer to the created file mock object
  */
-xmock_file_t* xmock_file_create(const char *filename, const char *content);
+fossil_mockup_file_t* fossil_mockup_file_create(const char *filename, const char *content);
 
 /** 
  * Read from the mocked file
@@ -47,7 +47,7 @@ xmock_file_t* xmock_file_create(const char *filename, const char *content);
  * @param file Pointer to the file mock object
  * @return The total number of elements successfully read
  */
-size_t xmock_file_read(void *ptr, size_t size, size_t nmemb, xmock_file_t *file);
+size_t fossil_mockup_file_read(void *ptr, size_t size, size_t nmemb, fossil_mockup_file_t *file);
 
 /** 
  * Write to the mocked file
@@ -58,7 +58,7 @@ size_t xmock_file_read(void *ptr, size_t size, size_t nmemb, xmock_file_t *file)
  * @param file Pointer to the file mock object
  * @return The total number of elements successfully written
  */
-size_t xmock_file_write(const void *ptr, size_t size, size_t nmemb, xmock_file_t *file);
+size_t fossil_mockup_file_write(const void *ptr, size_t size, size_t nmemb, fossil_mockup_file_t *file);
 
 /** 
  * Seek to a position in the mocked file
@@ -68,21 +68,21 @@ size_t xmock_file_write(const void *ptr, size_t size, size_t nmemb, xmock_file_t
  * @param whence Position used as reference for the offset
  * @return 0 if successful, -1 otherwise
  */
-int xmock_file_seek(xmock_file_t *file, long offset, int whence);
+int fossil_mockup_file_seek(fossil_mockup_file_t *file, long offset, int whence);
 
 /** 
  * Reset the mocked file object for reuse
  * 
  * @param file Pointer to the file mock object
  */
-void xmock_file_reset(xmock_file_t *file);
+void fossil_mockup_file_reset(fossil_mockup_file_t *file);
 
 /** 
  * Erase the mocked file object
  * 
  * @param file Pointer to the file mock object
  */
-void xmock_file_erase(xmock_file_t *file);
+void fossil_mockup_file_erase(fossil_mockup_file_t *file);
 
 #ifdef __cplusplus
 }

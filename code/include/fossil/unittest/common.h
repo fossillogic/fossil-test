@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_COMMON_H
-#define FSCL_XTEST_COMMON_H
+#ifndef FOSSIL_TEST_COMMON_H
+#define FOSSIL_TEST_COMMON_H
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -49,10 +49,8 @@ Description:
 #endif
 
 // Used in floating-point asserts
-#define XTEST_FLOAT_EPSILON 1e-6
-#define XTEST_DOUBLE_EPSILON 1e-9
-
-typedef char *xstring;
+#define FOSSIL_TEST_FLOAT_EPSILON 1e-6
+#define FOSSIL_TEST_DOUBLE_EPSILON 1e-9
 
 #if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
 /**

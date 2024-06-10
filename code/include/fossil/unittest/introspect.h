@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_INTROSPECT_H
-#define FSCL_XTEST_INTROSPECT_H
+#ifndef FOSSIL_TEST_INTROSPECT_H
+#define FOSSIL_TEST_INTROSPECT_H
 
 #include "common.h"
 
@@ -176,12 +176,12 @@ typedef struct {
 } xrule;
 
 typedef struct {
-    xstring name;
+    char* name;
     xassert_mark_rule rule;
 } xmark_map;
 
 typedef struct {
-    xstring name;
+    char* name;
     xassert_tag_rule rule;
 } xtag_map; // should have this set to have a max of three for tags and marks
 
@@ -192,7 +192,7 @@ typedef struct {
  */
 typedef struct xtest xtest;
 typedef struct xtest {
-    const xstring name;            /**< Name of the test case. */
+    const char* name;            /**< Name of the test case. */
     void (*test_function)(void);   /**< Function pointer to the test case's implementation. */
     xtag_map tags[1];              /**< Array of tags associated with the test case. */
     xmark_map marks[1];            /**< Array of marks associated with the test case. */

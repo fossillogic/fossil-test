@@ -10,21 +10,21 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FOSSIL_TEST_ASSERT_H
-#define FOSSIL_TEST_ASSERT_H
+#ifndef FOSSIL_TEST_EXPECT_H
+#define FOSSIL_TEST_EXPECT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "xassert/boolean.h"
-#include "xassert/floating.h"
-#include "xassert/numeric.h"
-#include "xassert/memory.h"
-#include "xassert/string.h"
-#include "xassert/letter.h"
-#include "xassert/within.h"
+#include "xexpect/boolean.h"
+#include "xexpect/floating.h"
+#include "xexpect/numeric.h"
+#include "xexpect/memory.h"
+#include "xexpect/string.h"
+#include "xexpect/letter.h"
+#include "xexpect/within.h"
 
 #ifdef __cplusplus
 }

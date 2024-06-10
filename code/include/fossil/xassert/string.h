@@ -10,10 +10,10 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_ASSERT_STRING_TYPE_H
-#define FSCL_XTEST_ASSERT_STRING_TYPE_H
+#ifndef FOSSIL_TEST_ASSERT_STRING_TYPE_H
+#define FOSSIL_TEST_ASSERT_STRING_TYPE_H
 
-#include <fossil/xtest.h> // using assurt rules from Fossil Test
+#include <fossil/unittest.h> // using assurt rules from Fossil Test
 #include <wchar.h>
 #include <string.h>
 #include <stdint.h>

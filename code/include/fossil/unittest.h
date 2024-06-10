@@ -10,15 +10,15 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_H
-#define FSCL_XTEST_H
+#ifndef FOSSIL_TEST_H
+#define FOSSIL_TEST_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "xtest/internal.h" // internal header file for xtest
+#include "unittest/internal.h" // internal header file for xtest
 
 // =================================================================
 // XTest create and erase commands
@@ -30,7 +30,7 @@ extern "C"
  * making the code more concise and readable. It initializes an xenv structure named `test_env`,
  * which is used to manage the state and configuration of the test environment.
  * 
- * Usage: XTEST_CREATE(argc, argv)
+ * Usage: FOSSIL_TEST_CREATE(argc, argv)
  * 
  * @param argc The argument count from the command line. This is typically passed from the `main` function.
  * @param argv The argument vector from the command line. This is typically passed from the `main` function.
@@ -38,27 +38,27 @@ extern "C"
  * Example:
  * int main(int argc, char *argv[]) {
  *     // Initialize the test environment with command-line arguments
- *     XTEST_CREATE(argc, argv);
+ *     FOSSIL_TEST_CREATE(argc, argv);
  *     
  *     // Your test code here
  *     
  *     // Clean up the test environment before exiting
- *     return XTEST_ERASE();
+ *     return FOSSIL_TEST_ERASE();
  * }
  */
-#define XTEST_CREATE(argc, argv) _xtest_env = _xtest_environment_create(argc, argv)
+#define FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = _fossil_test_environment_create(argc, argv)
 
 /**
  * @brief Macro to start the execution of the test environment.
  *
  * This macro serves as the primary entry point to run all the tests
  * defined within the testing framework. When invoked, it calls the 
- * `_xtest_environment_run` function, which initializes the testing 
+ * `_fossil_test_environment_run` function, which initializes the testing 
  * environment, executes all the test cases, and provides a summary 
  * of the test results.
  *
  * @details
- * The `_xtest_environment_run` function performs several key tasks:
+ * The `_fossil_test_environment_run` function performs several key tasks:
  * 1. Initializes the test environment, which includes setting up
  *    necessary data structures, parsing command-line arguments,
  *    and preparing for test execution.
@@ -80,10 +80,10 @@ extern "C"
  * @code
  * int main(int argc, char *argv[]) {
  *     // Initialize the test suite and define test cases
- *     xtest_define_cases();
+ *     fossil_test_define_cases();
  * 
  *     // Run all defined test cases
- *     XTEST_RUN();
+ *     FOSSIL_TEST_RUN();
  * 
  *     return 0;
  * }
@@ -91,36 +91,36 @@ extern "C"
  *
  * Note:
  * - Ensure that all test cases are defined and properly configured
- *   before invoking `XTEST_RUN()`. Any test cases added after the 
+ *   before invoking `FOSSIL_TEST_RUN()`. Any test cases added after the 
  *   macro is called will not be executed.
  * - This macro abstracts the complexity of the underlying test 
  *   execution function, providing a clean and simple interface for 
  *   running the tests.
  *
- * @see _xtest_environment_run
+ * @see _fossil_test_environment_run
  */
-#define XTEST_RUN() _xtest_environment_run()
+#define FOSSIL_TEST_RUN() _fossil_test_environment_run()
 
 /**
  * Macro to erase and clean up the test environment.
  * This macro simplifies the process of calling the function to clean up the test environment,
  * ensuring that all allocated resources are properly released and the environment is reset.
- * It operates on the `test_env` variable that was initialized using the XTEST_CREATE macro.
+ * It operates on the `test_env` variable that was initialized using the FOSSIL_TEST_CREATE macro.
  * 
- * Usage: XTEST_ERASE()
+ * Usage: FOSSIL_TEST_ERASE()
  * 
  * Example:
  * int main(int argc, char *argv[]) {
  *     // Initialize the test environment with command-line arguments
- *     XTEST_CREATE(argc, argv);
+ *     FOSSIL_TEST_CREATE(argc, argv);
  *     
  *     // Your test code here
  *     
  *     // Clean up the test environment before exiting
- *     return XTEST_ERASE();
+ *     return FOSSIL_TEST_ERASE();
  * }
  */
-#define XTEST_ERASE() _xtest_environment_summary()
+#define FOSSIL_TEST_ERASE() _fossil_test_environment_summary()
 
 // =================================================================
 // XTest run commands
@@ -130,14 +130,14 @@ extern "C"
  * @brief Assign a mark to a test case.
  *
  * This macro is used to apply a mark to a given test case. It wraps the
- * _xtest_apply_mark function, providing a convenient way to mark test cases
+ * _fossil_test_apply_mark function, providing a convenient way to mark test cases
  * with specific attributes or states.
  *
  * @param test_case The test case to which the mark will be applied. This should
  *                  be a valid identifier for a registered test case.
  * @param mark      The mark to assign to the test case. This is typically a string
  *                  used to indicate specific attributes or states of the test case.
- *                  The mark is cast to xstring for compatibility.
+ *                  The mark is cast to char* for compatibility.
  *
  * Example usage:
  * 
@@ -152,14 +152,14 @@ extern "C"
  * @brief Assign an xtag to a test case.
  *
  * This macro is used to apply an xtag (extra tag) to a given test case. It wraps
- * the _xtest_apply_xtag function, providing a convenient way to tag test cases
+ * the _fossil_test_apply_xtag function, providing a convenient way to tag test cases
  * with additional metadata.
  *
  * @param test_case The test case to which the xtag will be applied. This should
  *                  be a valid identifier for a registered test case.
  * @param xtag      The xtag to assign to the test case. This is typically a string
  *                  used to add additional metadata or categorization to the test
- *                  case. The xtag is cast to xstring for compatibility.
+ *                  case. The xtag is cast to char* for compatibility.
  *
  * Example usage:
  * 
@@ -173,14 +173,14 @@ extern "C"
  * @brief Assign a priority to a test case.
  *
  * This macro is used to set the priority of a given test case. It wraps the
- * _xtest_apply_priority function, providing a more intuitive and convenient
+ * _fossil_test_apply_priority function, providing a more intuitive and convenient
  * way to specify test priorities in the code.
  *
  * @param test_case The test case to which the priority will be applied. This should
  *                  be a valid identifier for a registered test case.
  * @param priority  The priority level to assign to the test case. Higher values
  *                  typically indicate higher priority, though this depends on the
- *                  implementation details of _xtest_apply_priority.
+ *                  implementation details of _fossil_test_apply_priority.
  *
  * Example usage:
  * 
@@ -223,7 +223,7 @@ extern "C"
  * 
  * @param fixture_name The name of the test fixture.
  */
-#define XFIXTURE(fixture_name) _XFIXTURE(fixture_name)
+#define FOSSIL_FIXTURE(fixture_name) _FOSSIL_FIXTURE(fixture_name)
 
 /**
  * @brief Define macro for declaring a setup function for a test fixture.
@@ -235,7 +235,7 @@ extern "C"
  * 
  * @param fixture_name The name of the test fixture.
  */
-#define XSETUP(fixture_name) _XSETUP(fixture_name)
+#define FOSSIL_SETUP(fixture_name) _FOSSIL_SETUP(fixture_name)
 
 /**
  * @brief Define macro for declaring a teardown function for a test fixture.
@@ -246,7 +246,7 @@ extern "C"
  * 
  * @param fixture_name The name of the test fixture.
  */
-#define XTEARDOWN(fixture_name) _XTEARDOWN(fixture_name)
+#define FOSSIL_TEARDOWN(fixture_name) _FOSSIL_TEARDOWN(fixture_name)
 
 /**
  * Defines a test case with a given name and sets up its properties.
@@ -259,7 +259,7 @@ extern "C"
  * @param name The name of the test case. This name is used to generate the function
  *             prototype and the xtest struct instance.
  */
-#define XTEST(name) _XTEST(name)
+#define FOSSIL_TEST(name) _FOSSIL_TEST(name)
 
 /**
  * @brief Define macro for a BDD style test case.
@@ -273,7 +273,7 @@ extern "C"
  * 
  * @param name The name of the test case.
  */
-#define XSONIREO(name) _XTEST(name)
+#define FOSSIL_SONIREO(name) _FOSSIL_TEST(name)
 
 // =================================================================
 // Test pool commands
@@ -289,7 +289,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define XTEST_DEFINE_POOL(group_name) void group_name(xenv* test_env)
+#define FOSSIL_TEST_GROUP(group_name) void group_name(xenv* test_env)
 
 /**
  * @brief Define macro for declaring an external test queue.
@@ -302,7 +302,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define XTEST_EXTERN_POOL(group_name) extern void group_name(xenv* test_env)
+#define FOSSIL_TEST_EXTERN_POOL(group_name) extern void group_name(xenv* test_env)
 
 /**
  * @brief Define macro for importing and executing a test queue.
@@ -314,7 +314,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define XTEST_IMPORT_POOL(group_name) group_name(&_xtest_env)
+#define FOSSIL_TEST_IMPORT_POOL(group_name) group_name(&_fossil_test_env)
 
 // =================================================================
 // BDD specific commands
@@ -370,7 +370,7 @@ extern "C"
  * 
  * @param group_name The name of the test group.
  */
-#define XTEST_DATA(group_name) typedef struct group_name##_xdata group_name##_xdata; struct group_name##_xdata
+#define FOSSIL_TEST_DATA(group_name) typedef struct group_name##_xdata group_name##_xdata; struct group_name##_xdata
 
 /**
  * @brief Define macro for indicating that a test is not implemented yet.
@@ -379,7 +379,7 @@ extern "C"
  * the TEST_ASSUME macro with a false condition, indicating that the test
  * is not implemented, and includes a message indicating the same.
  */
-#define XTEST_NOT_IMPLEMENTED() TEST_ASSUME(false, (const xstring)"Test not implemented yet")
+#define FOSSIL_TEST_NOT_IMPLEMENTED() TEST_ASSUME(false, (const char*)"Test not implemented yet")
 
 // =================================================================
 // Bench specific commands
@@ -391,7 +391,7 @@ extern "C"
  * This macro is used to mark the start of a benchmark. It typically initializes
  * any necessary resources or variables required for benchmarking.
  */
-#define TEST_BENCHMARK() xtest_start_benchmark()
+#define TEST_BENCHMARK() fossil_test_start_benchmark()
 
 /**
  * @brief Define macro for getting the current time.
@@ -399,7 +399,7 @@ extern "C"
  * This macro is used to retrieve the current time, which is typically used
  * in conjunction with TEST_BENCHMARK to calculate the elapsed time for a benchmark.
  */
-#define TEST_CURRENT_TIME() xtest_stop_benchmark()
+#define TEST_CURRENT_TIME() fossil_test_stop_benchmark()
 
 /**
  * @brief Define macro for reporting test duration with a given timeout.
@@ -412,7 +412,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION(duration, elapsed, actual) xbenchmark((const xstring)duration, elapsed, actual)
+#define TEST_DURATION(duration, elapsed, actual) xbenchmark((const char*)duration, elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in minutes.
@@ -424,7 +424,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((const xstring)"minutes", elapsed, actual)
+#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((const char*)"minutes", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in seconds.
@@ -436,7 +436,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((const xstring)"seconds", elapsed, actual)
+#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((const char*)"seconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in milliseconds.
@@ -448,7 +448,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((const xstring)"milliseconds", elapsed, actual)
+#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((const char*)"milliseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in microseconds.
@@ -460,7 +460,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((const xstring)"microseconds", elapsed, actual)
+#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((const char*)"microseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in nanoseconds.
@@ -472,7 +472,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((const xstring)"nanoseconds", elapsed, actual)
+#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((const char*)"nanoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in picoseconds.
@@ -484,7 +484,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((const xstring)"picoseconds", elapsed, actual)
+#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((const char*)"picoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in femtoseconds.
@@ -496,7 +496,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((const xstring)"femtoseconds", elapsed, actual)
+#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((const char*)"femtoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in attoseconds.
@@ -508,7 +508,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((const xstring)"attoseconds", elapsed, actual)
+#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((const char*)"attoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in zeptoseconds.
@@ -520,7 +520,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((const xstring)"zeptoseconds", elapsed, actual)
+#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((const char*)"zeptoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in yoctoseconds.
@@ -532,7 +532,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((const xstring)"yoctoseconds", elapsed, actual)
+#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((const char*)"yoctoseconds", elapsed, actual)
 
 // =================================================================
 // Assertion specific commands
@@ -550,7 +550,7 @@ extern "C"
  * @param message The message to log if the assertion fails.
  */
 #define TEST_ASSERT(expression, message) \
-    _xtest_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSERT, (const xstring)message, (xstring)__FILE__, __LINE__, (const xstring)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSERT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
 
 /**
  * @brief Define macros for test expectations with expression and message.
@@ -564,7 +564,7 @@ extern "C"
  * @param message The message to log if the expectation fails.
  */
 #define TEST_EXPECT(expression, message) \
-    _xtest_assert_class(expression, TEST_ASSERT_AS_CLASS_EXPECT, (const xstring)message, (xstring)__FILE__, __LINE__, (const xstring)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXPECT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
 
 /**
  * @brief Define macros for test assumptions with expression and message.
@@ -579,7 +579,7 @@ extern "C"
  * @param message The message to log if the assumption fails.
  */
 #define TEST_ASSUME(expression, message) \
-    _xtest_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSUME, (const xstring)message, (xstring)__FILE__, __LINE__, (const xstring)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSUME, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
 
 /**
  * @brief Define macros for exception testing with expression and message.
@@ -593,7 +593,7 @@ extern "C"
  * @param message The message to log if the exception test fails.
  */
 #define TEST_EXCEPT(expression, message) \
-    _xtest_assert_class(expression, TEST_ASSERT_AS_CLASS_EXCEPT, (const xstring)message, (xstring)__FILE__, __LINE__, (const xstring)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXCEPT, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
 
 /**
  * @brief Define macros for sanity pen testing with expression and message.
@@ -608,7 +608,7 @@ extern "C"
  * @param message The message to log if the sanity test fails.
  */
 #define TEST_SANITY(expression, message) \
-    _xtest_assert_class(expression, TEST_ASSERT_AS_CLASS_SANITY, (const xstring)message, (xstring)__FILE__, __LINE__, (const xstring)__func__)
+    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_SANITY, (const char*)message, (char*)__FILE__, __LINE__, (const char*)__func__)
 
 #ifdef __cplusplus
 }

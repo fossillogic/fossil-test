@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_FAKE_H
-#define FSCL_XMOCK_FAKE_H
+#ifndef FOSSIL_MOCK_FAKE_H
+#define FOSSIL_MOCK_FAKE_H
 
 #include "internal.h"
 
@@ -21,11 +21,11 @@ extern "C"
 #endif
 
 // Fake object type
-typedef struct xmock_fake {
+typedef struct fossil_mockup_fake {
     char *function_name;
     void (*fake_function)(void);
-    struct xmock_fake *next; // for chaining fakes
-} xmock_fake_t;
+    struct fossil_mockup_fake *next; // for chaining fakes
+} fossil_mockup_fake_t;
 
 /**
  * @brief Create a new fake object.
@@ -37,7 +37,7 @@ typedef struct xmock_fake {
  *
  * @return A pointer to the newly created fake object.
  */
-xmock_fake_t* xmock_fake_create(const char *function_name, void (*fake_function)(void));
+fossil_mockup_fake_t* fossil_mockup_fake_create(const char *function_name, void (*fake_function)(void));
 
 /**
  * @brief Simulate calling the fake function.
@@ -46,7 +46,7 @@ xmock_fake_t* xmock_fake_create(const char *function_name, void (*fake_function)
  *
  * @param fake A pointer to the fake object.
  */
-void xmock_fake_call(xmock_fake_t *fake);
+void fossil_mockup_fake_call(fossil_mockup_fake_t *fake);
 
 /**
  * @brief Erase the fake object.
@@ -55,7 +55,7 @@ void xmock_fake_call(xmock_fake_t *fake);
  *
  * @param fake A pointer to the fake object.
  */
-void xmock_fake_erase(xmock_fake_t *fake);
+void fossil_mockup_fake_erase(fossil_mockup_fake_t *fake);
 
 #ifdef __cplusplus
 }

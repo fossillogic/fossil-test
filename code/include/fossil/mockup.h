@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_H
-#define FSCL_XMOCK_H
+#ifndef FOSSIL_MOCK_H
+#define FOSSIL_MOCK_H
 
 #ifdef __cplusplus
 #include <cstddef>
@@ -40,7 +40,7 @@ extern "C"
  * @brief Macro for creating a mock function with the specified return type, name, and parameters.
  *
  * This macro simplifies the creation of mock functions by defining a function with the given return
- * type, name, and parameters. The function name will be prefixed with "xmock_" to clearly indicate
+ * type, name, and parameters. The function name will be prefixed with "fossil_mockup_" to clearly indicate
  * that it is a mock function.
  *
  * @param return_type   The return type of the mock function.
@@ -66,7 +66,7 @@ extern "C"
  * @brief Macro for creating a mock struct with the specified name and members.
  *
  * This macro simplifies the creation of mock structs by defining a struct with the given name
- * and members. The struct name will be prefixed with "xmock_" to clearly indicate that it is a mock struct.
+ * and members. The struct name will be prefixed with "fossil_mockup_" to clearly indicate that it is a mock struct.
  *
  * @param name     The name of the mock struct.
  * @param ...      The members of the mock struct in the format: (type1 member1, type2 member2, ...).

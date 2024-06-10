@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_BEHAVIOR_H
-#define FSCL_XMOCK_BEHAVIOR_H
+#ifndef FOSSIL_MOCK_BEHAVIOR_H
+#define FOSSIL_MOCK_BEHAVIOR_H
 
 #include "internal.h"
 
@@ -21,12 +21,12 @@ extern "C"
 #endif
 
 // Behavior object type
-typedef struct xmock_behavior {
+typedef struct fossil_mockup_behavior {
     char *function_name;
     void **args;
     int32_t arg_count;
-    struct xmock_behavior *next; // for chaining behaviors
-} xmock_behavior_t;
+    struct fossil_mockup_behavior *next; // for chaining behaviors
+} fossil_mockup_behavior_t;
 
 /**
  * Create a new behavior object
@@ -35,7 +35,7 @@ typedef struct xmock_behavior {
  * @param arg_count The number of arguments
  * @return A pointer to the newly created behavior object
  */
-xmock_behavior_t* xmock_behavior_create(const char *function_name, int32_t arg_count);
+fossil_mockup_behavior_t* fossil_mockup_behavior_create(const char *function_name, int32_t arg_count);
 
 /**
  * Record a function call and its arguments
@@ -43,7 +43,7 @@ xmock_behavior_t* xmock_behavior_create(const char *function_name, int32_t arg_c
  * @param behavior The behavior object
  * @param ... The arguments of the function call
  */
-void xmock_behavior_record_call(xmock_behavior_t *behavior, ...);
+void fossil_mockup_behavior_record_call(fossil_mockup_behavior_t *behavior, ...);
 
 /**
  * Verify if a specific function was called with the given arguments
@@ -53,14 +53,14 @@ void xmock_behavior_record_call(xmock_behavior_t *behavior, ...);
  * @param ... The arguments to verify
  * @return true if the function was called with the given arguments, false otherwise
  */
-bool xmock_behavior_verify_call(xmock_behavior_t *behavior, int32_t arg_count, ...);
+bool fossil_mockup_behavior_verify_call(fossil_mockup_behavior_t *behavior, int32_t arg_count, ...);
 
 /**
  * Erase the behavior object
  * 
  * @param behavior The behavior object to erase
  */
-void xmock_behavior_erase(xmock_behavior_t *behavior);
+void fossil_mockup_behavior_erase(fossil_mockup_behavior_t *behavior);
 
 #ifdef __cplusplus
 }

@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XTEST_ASSUME_H
-#define FSCL_XTEST_ASSUME_H
+#ifndef FOSSIL_TEST_ASSUME_H
+#define FOSSIL_TEST_ASSUME_H
 
 #ifdef __cplusplus
 extern "C"

@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_STUB_H
-#define FSCL_XMOCK_STUB_H
+#ifndef FOSSIL_MOCK_STUB_H
+#define FOSSIL_MOCK_STUB_H
 
 #include "internal.h"
 
@@ -21,13 +21,13 @@ extern "C"
 #endif
 
 // Stub object type
-typedef struct xmock_stub {
+typedef struct fossil_mockup_stub {
     char *function_name;
     void **return_values;
     int32_t return_count;
     int32_t call_count;
-    struct xmock_stub *next; // for chaining stubs
-} xmock_stub_t;
+    struct fossil_mockup_stub *next; // for chaining stubs
+} fossil_mockup_stub_t;
 
 /**
  * @brief Create a new stub object.
@@ -37,7 +37,7 @@ typedef struct xmock_stub {
  * @param function_name The name of the function for which the stub object is created.
  * @return A pointer to the newly created stub object.
  */
-xmock_stub_t* xmock_stub_create(const char *function_name);
+fossil_mockup_stub_t* fossil_mockup_stub_create(const char *function_name);
 
 /**
  * @brief Set the return values for the stub.
@@ -49,7 +49,7 @@ xmock_stub_t* xmock_stub_create(const char *function_name);
  * @param count The number of return values provided.
  * @param ... The return values to be set for the stub object.
  */
-void xmock_stub_set_return_values(xmock_stub_t *stub, int32_t count, ...);
+void fossil_mockup_stub_set_return_values(fossil_mockup_stub_t *stub, int32_t count, ...);
 
 /**
  * @brief Simulate calling the stub function.
@@ -59,7 +59,7 @@ void xmock_stub_set_return_values(xmock_stub_t *stub, int32_t count, ...);
  * @param stub The stub object to be called.
  * @return The result of calling the stub function.
  */
-void* xmock_stub_call(xmock_stub_t *stub);
+void* fossil_mockup_stub_call(fossil_mockup_stub_t *stub);
 
 /**
  * @brief Verify the number of times the stub function was called.
@@ -70,7 +70,7 @@ void* xmock_stub_call(xmock_stub_t *stub);
  * @param expected_call_count The expected number of times the stub function should have been called.
  * @return true if the stub function was called the expected number of times, false otherwise.
  */
-bool xmock_stub_verify_call_count(xmock_stub_t *stub, int32_t expected_call_count);
+bool fossil_mockup_stub_verify_call_count(fossil_mockup_stub_t *stub, int32_t expected_call_count);
 
 /**
  * @brief Reset the stub object for reuse.
@@ -80,7 +80,7 @@ bool xmock_stub_verify_call_count(xmock_stub_t *stub, int32_t expected_call_coun
  *
  * @param stub The stub object to be reset.
  */
-void xmock_stub_reset(xmock_stub_t *stub);
+void fossil_mockup_stub_reset(fossil_mockup_stub_t *stub);
 
 /**
  * @brief Erase the stub object.
@@ -89,7 +89,7 @@ void xmock_stub_reset(xmock_stub_t *stub);
  *
  * @param stub The stub object to be erased.
  */
-void xmock_stub_erase(xmock_stub_t *stub);
+void fossil_mockup_stub_erase(fossil_mockup_stub_t *stub);
 
 #ifdef __cplusplus
 }

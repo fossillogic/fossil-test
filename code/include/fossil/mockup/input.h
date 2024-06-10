@@ -10,8 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#ifndef FSCL_XMOCK_INPUT_H
-#define FSCL_XMOCK_INPUT_H
+#ifndef FOSSIL_MOCK_INPUT_H
+#define FOSSIL_MOCK_INPUT_H
 
 #include "internal.h"
 
@@ -21,13 +21,13 @@ extern "C"
 #endif
 
 // Input mock object type
-typedef struct xmock_input {
+typedef struct fossil_mockup_input {
     char *function_name;
     void **mocked_inputs;
     int32_t input_count;
     int32_t call_count;
-    struct xmock_input *next; // for chaining inputs
-} xmock_input_t;
+    struct fossil_mockup_input *next; // for chaining inputs
+} fossil_mockup_input_t;
 
 /**
  * @brief Create a new input mock object.
@@ -37,7 +37,7 @@ typedef struct xmock_input {
  * @param function_name The name of the function to mock inputs for.
  * @return A pointer to the newly created input mock object.
  */
-xmock_input_t* xmock_input_create(const char *function_name);
+fossil_mockup_input_t* fossil_mockup_input_create(const char *function_name);
 
 /**
  * @brief Set the mocked inputs for the function.
@@ -48,7 +48,7 @@ xmock_input_t* xmock_input_create(const char *function_name);
  * @param count The number of inputs to set.
  * @param ... The variable number of inputs to set.
  */
-void xmock_input_set_inputs(xmock_input_t *input, int32_t count, ...);
+void fossil_mockup_input_set_inputs(fossil_mockup_input_t *input, int32_t count, ...);
 
 /**
  * @brief Simulate getting the mocked input for the function call.
@@ -58,7 +58,7 @@ void xmock_input_set_inputs(xmock_input_t *input, int32_t count, ...);
  * @param input The input mock object.
  * @return A pointer to the mocked input.
  */
-void* xmock_input_get(xmock_input_t *input);
+void* fossil_mockup_input_get(fossil_mockup_input_t *input);
 
 /**
  * @brief Verify the number of times the input function was called.
@@ -69,7 +69,7 @@ void* xmock_input_get(xmock_input_t *input);
  * @param expected_call_count The expected number of times the input function should have been called.
  * @return true if the number of calls matches the expected count, false otherwise.
  */
-bool xmock_input_verify_call_count(xmock_input_t *input, int32_t expected_call_count);
+bool fossil_mockup_input_verify_call_count(fossil_mockup_input_t *input, int32_t expected_call_count);
 
 /**
  * @brief Reset the input mock object for reuse.
@@ -78,7 +78,7 @@ bool xmock_input_verify_call_count(xmock_input_t *input, int32_t expected_call_c
  *
  * @param input The input mock object to reset.
  */
-void xmock_input_reset(xmock_input_t *input);
+void fossil_mockup_input_reset(fossil_mockup_input_t *input);
 
 /**
  * @brief Erase the input mock object.
@@ -87,7 +87,7 @@ void xmock_input_reset(xmock_input_t *input);
  *
  * @param input The input mock object to erase.
  */
-void xmock_input_erase(xmock_input_t *input);
+void fossil_mockup_input_erase(fossil_mockup_input_t *input);
 
 #ifdef __cplusplus
 }
