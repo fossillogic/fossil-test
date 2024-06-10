@@ -1,9 +1,0 @@
-# ======================
-# Git Wrap package definition
-# ======================
-[wrap-git]
-url = https://github.com/fossil-lib/fscl-mockup-c.git
-revision = v3.0.0
-
-[provide]
-fscl-mockup-c = fscl_fossil_mockup_c_dep
