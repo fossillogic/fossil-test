@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_TYPES_H
 #define FOSSIL_TEST_TYPES_H
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -121,15 +121,6 @@ typedef struct {
     bool slow;     /**< Boolean indicating whether the test case is categorized as a slow test. */
     bool timeout;  /**< Boolean indicating whether the test case timed out. */
     bool error;    /**< Boolean indicating whether the test case threw an error. */
-} fossil_test_rule_t;
-
-/**
- * Structure representing a rule for test cases.
- * This structure contains the name and rule type for a test case rule.
- */
-typedef struct {
-    char* name; /**< Name of the test case rule. */
-    xassert_mark_t rule; /**< Rule type for the test case. */
 } fossil_test_rule_t;
 
 /**

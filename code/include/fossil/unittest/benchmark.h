@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_BENCHMARK_H
 #define FOSSIL_TEST_BENCHMARK_H
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 #include "types.h"
 
 #ifdef __cplusplus
@@ -21,9 +21,25 @@ extern "C"
 {
 #endif
 
-// Runs a test case with a specified fixture within the testing engine
-void xbenchmark(char* duration_type, double expected, double actual);
+/**
+ * Function to test benchmark with specified duration type, expected value, and actual value.
+ * 
+ * @param duration_type The duration type to test.
+ * @param expected The expected value.
+ * @param actual The actual value.
+ */
+void fossil_test_benchmark(char* duration_type, double expected, double actual);
+
+/**
+ * Function to start the benchmark.
+ */
 void fossil_test_start_benchmark(void);
+
+/**
+ * Function to stop the benchmark and return the elapsed time in nanoseconds.
+ * 
+ * @return The elapsed time in nanoseconds.
+ */
 uint64_t fossil_test_stop_benchmark(void);
 
 #ifdef __cplusplus

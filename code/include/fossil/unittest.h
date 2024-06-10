@@ -412,7 +412,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION(duration, elapsed, actual) xbenchmark((const char*)duration, elapsed, actual)
+#define TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((const char*)duration, elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in minutes.

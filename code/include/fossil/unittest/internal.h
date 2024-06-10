@@ -13,11 +13,12 @@ Description:
 #ifndef FOSSIL_TEST_INTERNAL_H
 #define FOSSIL_TEST_INTERNAL_H
 
-#include "fossil/common/common.h"
-#include "fossil/common/platform.h"
+#include "fossil/_common/common.h"
+#include "fossil/_common/platform.h"
 #include "types.h"
 #include "feature.h"
 #include "commands.h"
+#include "console.h"
 
 /**
  * Introspection Data in Fossil Test
@@ -74,17 +75,115 @@ extern fossil_env_t _fossil_test_env;
 // =================================================================
 
 // Internal functions for envirment logic
+/**
+ * @brief Creates the test environment.
+ * 
+ * This function creates the test environment by initializing the necessary
+ * data structures and setting up the environment based on the command line
+ * arguments.
+ * 
+ * @param argc The number of command line arguments.
+ * @param argv The array of command line arguments.
+ * @return The created test environment.
+ */
 fossil_env_t _fossil_test_environment_create(int argc, char** argv);
+
+/**
+ * @brief Erases the test environment.
+ * 
+ * This function erases the test environment by freeing the allocated memory
+ * and cleaning up any resources used by the environment.
+ */
 void _fossil_test_environment_erase(void);
+
+/**
+ * @brief Adds a test case to the test environment.
+ * 
+ * This function adds a test case to the test environment. It associates the
+ * test case with the specified fixture, if provided.
+ * 
+ * @param test_env The test environment.
+ * @param test_case The test case to be added.
+ * @param fixture The fixture associated with the test case.
+ */
 void _fossil_test_environment_add(fossil_env_t* test_env, fossil_test_t* test_case, fossil_fixture_t* fixture);
+
+/**
+ * @brief Runs the test environment.
+ * 
+ * This function runs the test environment by executing all the test cases
+ * added to the environment.
+ */
 void _fossil_test_environment_run(void);
+
+/**
+ * @brief Summarizes the test environment.
+ * 
+ * This function summarizes the test environment by providing a summary of
+ * the test results, including the number of passed, failed, and skipped
+ * test cases.
+ * 
+ * @return The test summary.
+ */
 int _fossil_test_environment_summary(void);
 
 // Internal functions for managing analysis of test cases
+
+/**
+ * @brief Updates the scoreboard based on the test results.
+ * 
+ * This function updates the scoreboard based on the test results. It
+ * calculates the number of passed, failed, and skipped test cases and
+ * updates the corresponding counters in the scoreboard.
+ * 
+ * @param test_env The test environment.
+ */
 void _fossil_test_scoreboard_update(fossil_env_t* test_env);
+
+/**
+ * @brief Checks the expected rules against the test results.
+ * 
+ * This function checks the expected rules against the test results. It
+ * compares the actual test results with the expected results specified
+ * in the test case and updates the scoreboard accordingly.
+ * 
+ * @param test_env The test environment.
+ */
 void _fossil_test_scoreboard_expected_rules(fossil_env_t* test_env);
+
+/**
+ * @brief Checks the unexpected rules against the test results.
+ * 
+ * This function checks the unexpected rules against the test results. It
+ * compares the actual test results with the unexpected results specified
+ * in the test case and updates the scoreboard accordingly.
+ * 
+ * @param test_env The test environment.
+ */
 void _fossil_test_scoreboard_unexpected_rules(fossil_env_t* test_envm);
+
+/**
+ * @brief Checks the feature rules against the test results.
+ * 
+ * This function checks the feature rules against the test results. It
+ * compares the actual test results with the feature rules specified
+ * in the test case and updates the scoreboard accordingly.
+ * 
+ * @param test_env The test environment.
+ * @param test_case The test case.
+ */
 void _fossil_test_scoreboard_feature_rules(fossil_env_t* test_env, fossil_test_t* test_case);
+
+/**
+ * @brief Updates the scoreboard based on the test case results.
+ * 
+ * This function updates the scoreboard based on the test case results. It
+ * calculates the number of passed, failed, and skipped test cases and
+ * updates the corresponding counters in the scoreboard.
+ * 
+ * @param test_env The test environment.
+ * @param test_case The test case.
+ */
 void _fossil_test_scoreboard(fossil_env_t* test_env, fossil_test_t* test_case);
 
 // Internal functions for managing test cases

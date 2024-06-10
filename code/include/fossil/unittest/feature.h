@@ -66,7 +66,7 @@ Description:
  * effective testing process, enhancing software quality and reliability.
  */
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 #include "types.h"
 
 #ifdef __cplusplus

@@ -19,7 +19,7 @@ Description:
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 
 #ifdef __cplusplus
 extern "C"

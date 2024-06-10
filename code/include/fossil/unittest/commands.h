@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_COMMANDS_H
 #define FOSSIL_TEST_COMMANDS_H
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 #include "types.h"
 
 typedef struct {
@@ -29,23 +29,33 @@ extern "C"
 {
 #endif
 
-#define COMMAND_COUNT (sizeof(commands) / sizeof(commands[0]))
-
+/**
+ * Array of available commands.
+ */
 extern fossil_test_command_t commands[];
 
 /**
- * Create a new command object
- * 
- * @param description The description of the command
- * @param long_name The long name of the command
- * @param short_name The short name of the command
- * @param valid_args The valid arguments of the command
- * @param flag The flag of the command
- * @return A pointer to the newly created command object
+ * Parses the command line arguments and populates the provided `fossil_test_command_t` structure.
+ *
+ * @param argc The number of command line arguments.
+ * @param argv An array of strings representing the command line arguments.
+ * @param commands A pointer to the `fossil_test_command_t` structure to be populated.
  */
-
 void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *commands);
+
+/**
+ * Displays the help information for the available commands.
+ *
+ * @param commands A pointer to the `fossil_test_command_t` structure containing the commands.
+ */
 void fossil_test_cli_show_help(fossil_test_command_t *commands);
+
+/**
+ * Handles the execution of a specific command with the provided argument.
+ *
+ * @param command A pointer to the `fossil_test_command_t` structure representing the command to be executed.
+ * @param arg A string representing the argument for the command.
+ */
 void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg);
 
 #ifdef __cplusplus

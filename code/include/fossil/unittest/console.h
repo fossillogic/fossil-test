@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_CONSOLE_H
 #define FOSSIL_TEST_CONSOLE_H
 
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 #include "types.h"
 
 #ifdef __cplusplus
@@ -21,7 +21,14 @@ extern "C"
 {
 #endif
 
-void fossil_console_out(const char* color_name, const char* format, ...);
+/**
+ * Function to print a message to the console with a specific color.
+ * 
+ * @param color_name The name of the color
+ * @param format The format string
+ * @param ... The arguments to format
+ */
+void fossil_test_cout(const char* color_name, const char* format, ...);
 
 #ifdef __cplusplus
 }
