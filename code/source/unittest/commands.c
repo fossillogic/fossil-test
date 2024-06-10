@@ -12,6 +12,7 @@ Description:
 */
 #include "fossil/unittest/commands.h"
 #include "fossil/unittest/internal.h"
+#include "fossil/unittest/console.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -61,13 +62,13 @@ void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *comman
 
 void fossil_test_cli_show_help(fossil_test_command_t *commands) {
     size_t command_count = sizeof(commands) / sizeof(commands[0]);
-    xconsole_out("blue", "Usage: Fossil Runner [options] %s\n", current_datetime());
-    xconsole_out("blue", "Options: ");
-    xconsole_out("yellow",   "{help,version,tip,console,priority,color,dry-run,repeat}\n\n");
+    fossil_test_cout("blue", "Usage: Fossil Runner [options] %s\n", current_datetime());
+    fossil_test_cout("blue", "Options: ");
+    fossil_test_cout("yellow",   "{help,version,tip,console,priority,color,dry-run,repeat}\n\n");
     
     for (int i = 0; i < command_count; i++) {
         const char *color = (i % 2 == 0) ? "bright blue" : "dark blue";
-        xconsole_out(color, "\t%s, %s : %s :\n", commands[i].short_name, commands[i].long_name, commands[i].description);
+        fossil_test_cout(color, "\t%s, %s : %s :\n", commands[i].short_name, commands[i].long_name, commands[i].description);
     }
 }
 

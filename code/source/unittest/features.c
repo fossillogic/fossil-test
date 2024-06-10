@@ -24,7 +24,7 @@ void _fossil_test_assert_handle_tag_slow(fossil_test_t* test_case) {
     test_case->timer.detail.milliseconds = (int64_t)((test_case->timer.elapsed - (int64_t)test_case->timer.elapsed) * 1000);
 
     if (test_case->timer.detail.milliseconds > MAX_EXPECTED_TIME_SLOW) {
-        xconsole_out("red", "Test case exceeded the expected time for slow tag\n");
+        fossil_test_cout("red", "Test case exceeded the expected time for slow tag\n");
         _fossil_test_env.rule.should_timeout = false;
         _fossil_test_env.rule.should_pass    = false;
     }
@@ -36,7 +36,7 @@ void _fossil_test_assert_handle_tag_fast(fossil_test_t* test_case) {
     test_case->timer.detail.milliseconds = (int64_t)((test_case->timer.elapsed - (int64_t)test_case->timer.elapsed) * 1000);
 
     if (test_case->timer.detail.milliseconds > MAX_EXPECTED_TIME_FAST) {
-        xconsole_out("red", "Test case exceeded the expected time for fast tag\n");
+        fossil_test_cout("red", "Test case exceeded the expected time for fast tag\n");
         _fossil_test_env.rule.should_timeout = false;
         _fossil_test_env.rule.should_pass    = false;
     }
@@ -185,7 +185,7 @@ void _fossil_test_assume_unit_runner(fossil_test_t* test_case) {
         if (!xcli.dry_run) {
             _fossil_test_assume_unit(test_case);
         } else {
-            xconsole_out("blue", "Simulating test case...\n");
+            fossil_test_cout("blue", "Simulating test case...\n");
         }
         _fossil_test_assume_unit_check_xtags(test_case); // Check tags
     }
@@ -201,10 +201,10 @@ void _fossil_test_assume_unit_runner(fossil_test_t* test_case) {
 // Function to apply priority to the test case based on a keyword
 void _fossil_test_apply_priority(fossil_test_t *test_case, char* priority) {
     if (!test_case) {
-        xconsole_out("red", "Error: Test case pointer is xnullptr\n");
+        fossil_test_cout("red", "Error: Test case pointer is xnullptr\n");
         return;
     } else if (!priority) {
-        xconsole_out("red", "Error: Invalid priority\n");
+        fossil_test_cout("red", "Error: Invalid priority\n");
         return;
     }
 
@@ -241,10 +241,10 @@ void _fossil_test_apply_priority(fossil_test_t *test_case, char* priority) {
 
 void _fossil_test_apply_xtag(fossil_test_t* test_case, char* tag) {
     if (!test_case) {
-        xconsole_out("red", "Test case pointer is xnullptr\n");
+        fossil_test_cout("red", "Test case pointer is xnullptr\n");
         return;
     } else if (!tag) {
-        xconsole_out("red", "Error: Invalid xtag %s\n", tag);
+        fossil_test_cout("red", "Error: Invalid xtag %s\n", tag);
         return;
     }
 
@@ -286,16 +286,16 @@ void _fossil_test_apply_xtag(fossil_test_t* test_case, char* tag) {
         test_case->tags->name = "corner case";
         test_case->tags->rule = TEST_ASSERT_TAG_RULE_CORNER_CASE;
     } else {
-        xconsole_out("red", "Error: Invalid xtag %s\n", tag);
+        fossil_test_cout("red", "Error: Invalid xtag %s\n", tag);
     }
 }
 
 void _fossil_test_apply_mark(fossil_test_t* test_case, char* mark) {
     if (!test_case) {
-        xconsole_out("red", "Test case pointer is xnullptr\n");
+        fossil_test_cout("red", "Test case pointer is xnullptr\n");
         return;
     } else if (!mark) {
-        xconsole_out("red", "Error: Invalid marker %s\n", mark);
+        fossil_test_cout("red", "Error: Invalid marker %s\n", mark);
         return;
     }
 
@@ -322,6 +322,6 @@ void _fossil_test_apply_mark(fossil_test_t* test_case, char* mark) {
         test_case->marks->name = "only";
         test_case->marks->rule = TEST_ASSERT_MARK_RULE_ONLY;
     } else {
-        xconsole_out("red", "Error: Invalid marker %s\n", mark);
+        fossil_test_cout("red", "Error: Invalid marker %s\n", mark);
     }
 }

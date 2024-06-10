@@ -11,7 +11,7 @@ Description:
 ==============================================================================
 */
 #include "fossil/unittest/internal.h"
-#include "fossil/common/common.h"
+#include "fossil/_common/common.h"
 #include <stdarg.h>
 
 fossil_env_t _fossil_test_env;
@@ -27,7 +27,7 @@ void fossil_test_run_queue(fossil_env_t* test_env);
 fossil_test_queue_t* fossil_test_queue_t_create(void) {
     fossil_test_queue_t* queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
     if (!queue) {
-        xconsole_out("red", "Failed to allocate memory for queue\n");
+        fossil_test_cout("red", "Failed to allocate memory for queue\n");
         return xnullptr;
     }
     queue->front = xnullptr;
@@ -37,7 +37,7 @@ fossil_test_queue_t* fossil_test_queue_t_create(void) {
 
 bool fossil_test_queue_t_is_empty(fossil_test_queue_t* queue) {
     if (!queue) {
-        xconsole_out("red", "Queue pointer is xnullptr\n");
+        fossil_test_cout("red", "Queue pointer is xnullptr\n");
         return true; // Consider an invalid queue as empty
     }
     return queue->front == xnullptr;
@@ -105,7 +105,7 @@ fossil_test_t* fossil_test_queue_t_peek_rear(fossil_test_queue_t* queue) {
 
 void fossil_test_queue_t_enqueue(fossil_test_queue_t* queue, fossil_test_t* test) {
     if (!queue || !test) {
-        xconsole_out("red", "Queue or test pointer is xnullptr\n");
+        fossil_test_cout("red", "Queue or test pointer is xnullptr\n");
         return;
     }
 
@@ -161,7 +161,7 @@ fossil_test_t* fossil_test_queue_t_dequeue(fossil_test_queue_t* queue) {
 
 void fossil_test_queue_t_erase(fossil_test_queue_t* queue) {
     if (!queue) {
-        xconsole_out("red", "Queue pointer is xnullptr\n");
+        fossil_test_cout("red", "Queue pointer is xnullptr\n");
         return;
     }
 
@@ -265,7 +265,7 @@ void _fossil_test_scoreboard(fossil_env_t* test_env, fossil_test_t* test_case) {
 // ==============================================================================
 
 fossil_env_t _fossil_test_environment_create(int argc, char* *argv) {
-    fossil_test_cli_parse(argc, argv, commands, COMMAND_COUNT); // Parse command line arguments
+    fossil_test_cli_parse(argc, argv, commands); // Parse command line arguments
     fossil_env_t new_env;
 
     new_env.stats = (fossil_test_score_t){0, 0, 0, 0, 0, 0, 0, 0};

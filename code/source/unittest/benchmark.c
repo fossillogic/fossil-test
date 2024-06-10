@@ -81,7 +81,7 @@ void assume_duration(double expected, double actual, double unit) {
 }
 
 // Marks a test case as timeout with a specified time and prints it to stderr.
-void xbenchmark(char* duration_type, double expected, double actual) {
+void fossil_test_benchmark(char* duration_type, double expected, double actual) {
     if (strcmp(duration_type, "minutes") == 0) {
         assume_duration(expected, actual, 60.0);
     } else if (strcmp(duration_type, "seconds") == 0) {
@@ -103,6 +103,6 @@ void xbenchmark(char* duration_type, double expected, double actual) {
     } else if (strcmp(duration_type, "yoctoseconds") == 0) {
         assume_duration(expected, actual, 1e-24);
     } else {
-        xconsole_out("red", "Unknown option: %s\n", duration_type);
+        fossil_test_cout("red", "Unknown option: %s\n", duration_type);
     }
 } // end of func
