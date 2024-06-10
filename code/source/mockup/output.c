@@ -19,7 +19,7 @@ fossil_mockup_output_t* fossil_mockup_output_create(const char *function_name) {
         perror("Failed to allocate memory for output mock");
         exit(EXIT_FAILURE);
     }
-    output->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    output->function_name = _custom_fossil_test_strdup(function_name);
     output->captured_outputs = NULL;
     output->output_count = 0;
     output->call_count = 0;
@@ -30,7 +30,7 @@ fossil_mockup_output_t* fossil_mockup_output_create(const char *function_name) {
 void fossil_mockup_output_capture(fossil_mockup_output_t *output, const char *captured_output) {
     output->call_count++;
     output->captured_outputs = (char **)realloc(output->captured_outputs, output->call_count * sizeof(char *));
-    output->captured_outputs[output->call_count - 1] = _custom_fossil_mockup_core_strdup(captured_output);
+    output->captured_outputs[output->call_count - 1] = _custom_fossil_test_strdup(captured_output);
     output->output_count = output->call_count;
 }
 

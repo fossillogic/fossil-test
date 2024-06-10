@@ -19,9 +19,9 @@ fossil_mockup_network_t* fossil_mockup_network_create(const char *host, const ch
         perror("Failed to allocate memory for network mock");
         exit(EXIT_FAILURE);
     }
-    network->host = _custom_fossil_mockup_core_strdup(host);
-    network->request = _custom_fossil_mockup_core_strdup(request);
-    network->response = _custom_fossil_mockup_core_strdup(response);
+    network->host = _custom_fossil_test_strdup(host);
+    network->request = _custom_fossil_test_strdup(request);
+    network->response = _custom_fossil_test_strdup(response);
     network->next = NULL;
     return network;
 }

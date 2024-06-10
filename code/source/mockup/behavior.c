@@ -20,7 +20,7 @@ fossil_mockup_behavior_t* fossil_mockup_behavior_create(const char *function_nam
         perror("Failed to allocate memory for behavior");
         exit(EXIT_FAILURE);
     }
-    behavior->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    behavior->function_name = _custom_fossil_test_strdup(function_name);
     behavior->arg_count = arg_count;
     behavior->args = (void **)malloc(arg_count * sizeof(void *));
     behavior->next = NULL;

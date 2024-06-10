@@ -19,7 +19,7 @@ fossil_mockup_t* fossil_mockup_create(const char *function_name, int32_t num_arg
         perror("Failed to allocate memory for mock");
         exit(EXIT_FAILURE);
     }
-    mock->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    mock->function_name = _custom_fossil_test_strdup(function_name);
     mock->num_args = num_args;
     mock->expected_args = (void **)malloc(num_args * sizeof(void *));
     mock->comparators = (fossil_mockup_comparator_t *)calloc(num_args, sizeof(fossil_mockup_comparator_t));

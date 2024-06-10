@@ -19,7 +19,7 @@ fossil_mockup_stub_t* fossil_mockup_stub_create(const char *function_name) {
         perror("Failed to allocate memory for stub");
         exit(EXIT_FAILURE);
     }
-    stub->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    stub->function_name = _custom_fossil_test_strdup(function_name);
     stub->return_values = NULL;
     stub->return_count = 0;
     stub->call_count = 0;

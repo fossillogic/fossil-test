@@ -19,7 +19,7 @@ fossil_mockup_input_t* fossil_mockup_input_create(const char *function_name) {
         perror("Failed to allocate memory for input mock");
         exit(EXIT_FAILURE);
     }
-    input->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    input->function_name = _custom_fossil_test_strdup(function_name);
     input->mocked_inputs = NULL;
     input->input_count = 0;
     input->call_count = 0;

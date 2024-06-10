@@ -19,8 +19,8 @@ fossil_mockup_file_t* fossil_mockup_file_create(const char *filename, const char
         perror("Failed to allocate memory for file mock");
         exit(EXIT_FAILURE);
     }
-    file->filename = _custom_fossil_mockup_core_strdup(filename);
-    file->content = _custom_fossil_mockup_core_strdup(content);
+    file->filename = _custom_fossil_test_strdup(filename);
+    file->content = _custom_fossil_test_strdup(content);
     file->size = strlen(content);
     file->position = 0;
     file->next = NULL;

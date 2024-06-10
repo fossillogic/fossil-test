@@ -19,7 +19,7 @@ fossil_mockup_spy_t* fossil_mockup_spy_create(const char *function_name, int32_t
         perror("Failed to allocate memory for spy");
         exit(EXIT_FAILURE);
     }
-    spy->function_name = _custom_fossil_mockup_core_strdup(function_name);
+    spy->function_name = _custom_fossil_test_strdup(function_name);
     spy->num_args = num_args;
     spy->recorded_args = (void **)malloc(num_args * sizeof(void *));
     spy->call_count = 0;
