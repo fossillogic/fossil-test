@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -19,20 +19,20 @@ Description:
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST_DATA(sample_data) {
+FOSSIL_TEST_DATA(sample_data) {
     int x;
     int y;
 } sample_data;
 
 // Fixture setup and teardown procedures
-XFIXTURE(sample_fixture);
+FOSSIL_FIXTURE(sample_fixture);
 
-XSETUP(sample_fixture) {
+FOSSIL_SETUP(sample_fixture) {
     sample_data.x = 42;
     sample_data.y = 20;
 } // end of setup
 
-XTEARDOWN(sample_fixture) {
+FOSSIL_TEARDOWN(sample_fixture) {
     // Teardown code goes here
 } // end of teardown
 
@@ -44,7 +44,7 @@ XTEARDOWN(sample_fixture) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xassert_with_fixture_run_of_int) {
+FOSSIL_TEST(xassert_with_fixture_run_of_int) {
     // Test cases
     TEST_ASSERT(sample_data.x == 42, "Should have passed the test case");
     TEST_ASSERT(sample_data.y == 20, "Should have passed the test case");
@@ -53,7 +53,7 @@ XTEST(xassert_with_fixture_run_of_int) {
     TEST_ASSERT(sample_data.y <= sample_data.x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_with_fixture_run_of_int8) {
+FOSSIL_TEST(xassert_with_fixture_run_of_int8) {
     TEST_ASSERT((int8_t)sample_data.x == 42, "Should have passed the test case");
     TEST_ASSERT((int8_t)sample_data.y == 20, "Should have passed the test case");
     TEST_ASSERT((int8_t)sample_data.x != (int8_t)sample_data.y, "Should have passed the test case");
@@ -61,7 +61,7 @@ XTEST(xassert_with_fixture_run_of_int8) {
     TEST_ASSERT((int8_t)sample_data.y <= (int8_t)sample_data.x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_with_fixture_run_of_int16) {
+FOSSIL_TEST(xassert_with_fixture_run_of_int16) {
     TEST_ASSERT((int16_t)sample_data.x == 42, "Should have passed the test case");
     TEST_ASSERT((int16_t)sample_data.y == 20, "Should have passed the test case");
     TEST_ASSERT((int16_t)sample_data.x != (int16_t)sample_data.y, "Should have passed the test case");
@@ -69,7 +69,7 @@ XTEST(xassert_with_fixture_run_of_int16) {
     TEST_ASSERT((int16_t)sample_data.y <= (int16_t)sample_data.x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_with_fixture_run_of_int32) {
+FOSSIL_TEST(xassert_with_fixture_run_of_int32) {
     TEST_ASSERT((int32_t)sample_data.x == 42, "Should have passed the test case");
     TEST_ASSERT((int32_t)sample_data.y == 20, "Should have passed the test case");
     TEST_ASSERT((int32_t)sample_data.x != (int32_t)sample_data.y, "Should have passed the test case");
@@ -77,7 +77,7 @@ XTEST(xassert_with_fixture_run_of_int32) {
     TEST_ASSERT((int32_t)sample_data.y <= (int32_t)sample_data.x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_with_fixture_run_of_int64) {
+FOSSIL_TEST(xassert_with_fixture_run_of_int64) {
     TEST_ASSERT((int64_t)sample_data.x == 42, "Should have passed the test case");
     TEST_ASSERT((int64_t)sample_data.y == 20, "Should have passed the test case");
     TEST_ASSERT((int64_t)sample_data.x != (int64_t)sample_data.y, "Should have passed the test case");
@@ -88,7 +88,7 @@ XTEST(xassert_with_fixture_run_of_int64) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(fixture_test_group) {
+FOSSIL_TEST_GROUP(fixture_test_group) {
     ADD_TESTF(xassert_with_fixture_run_of_int, sample_fixture);
     ADD_TESTF(xassert_with_fixture_run_of_int8, sample_fixture);
     ADD_TESTF(xassert_with_fixture_run_of_int16, sample_fixture);

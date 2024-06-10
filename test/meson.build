@@ -9,15 +9,14 @@ if get_option('with_test').enabled()
         'behavior', 'inject',
         'network', 'output',
         'input', 'internal',
-
         # Fossil Test cases
         'xfixture', 'bench',
         'bdd', 'tdd',
-        'tags', 'markers'
+        'tags', 'markers',
     ]
 
     foreach cube : test_cubes
-        test_src += ['xtest_' + cube + '.c']
+        test_src += ['fossil_test_' + cube + '.c']
     endforeach
 
     pizza = executable('xcli', test_src, include_directories: dir, dependencies: [fossil_test_c_dep])

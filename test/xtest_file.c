@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>   // basic test tools
+#include <fossil/unittest.h>   // basic test tools
 #include <fossil/xassume.h> // extra asserts
 
 #include <fossil/mockup/file.h> // library under test
@@ -32,9 +32,9 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xmock_try_file_create_and_erase) {
+FOSSIL_TEST(fossil_mockup_try_file_create_and_erase) {
     // Create a file mock object
-    xmock_file_t *file = xmock_file_create("test_file.txt", "Hello, World!");
+    fossil_mockup_file_t *file = fossil_mockup_file_create("test_file.txt", "Hello, World!");
     ASSUME_NOT_CNULL(file);
 
     // Check the filename and content
@@ -42,16 +42,16 @@ XTEST(xmock_try_file_create_and_erase) {
     ASSUME_ITS_EQUAL_CSTR("Hello, World!", file->content);
 
     // Erase the file mock object
-    xmock_file_erase(file);
+    fossil_mockup_file_erase(file);
 }
 
-XTEST(xmock_try_file_read) {
+FOSSIL_TEST(fossil_mockup_try_file_read) {
     // Create a file mock object
-    xmock_file_t *file = xmock_file_create("test_file.txt", "Hello, World!");
+    fossil_mockup_file_t *file = fossil_mockup_file_create("test_file.txt", "Hello, World!");
     ASSUME_NOT_CNULL(file);
 
     char buffer[20];
-    size_t read_size = xmock_file_read(buffer, 1, 5, file);
+    size_t read_size = fossil_mockup_file_read(buffer, 1, 5, file);
     buffer[read_size] = '\0'; // Null-terminate the read string
 
     // Verify the read content
@@ -59,36 +59,36 @@ XTEST(xmock_try_file_read) {
     ASSUME_ITS_EQUAL_CSTR("Hello", buffer);
 
     // Erase the file mock object
-    xmock_file_erase(file);
+    fossil_mockup_file_erase(file);
 }
 
-XTEST(xmock_try_file_write) {
+FOSSIL_TEST(fossil_mockup_try_file_write) {
     // Create a file mock object
-    xmock_file_t *file = xmock_file_create("test_file.txt", "");
+    fossil_mockup_file_t *file = fossil_mockup_file_create("test_file.txt", "");
     ASSUME_NOT_CNULL(file);
 
     const char *write_content = "Hello";
-    size_t write_size = xmock_file_write(write_content, 1, strlen(write_content), file);
+    size_t write_size = fossil_mockup_file_write(write_content, 1, strlen(write_content), file);
 
     // Verify the written content
     ASSUME_ITS_EQUAL_SIZE(strlen(write_content), write_size);
     ASSUME_ITS_EQUAL_CSTR("Hello", file->content);
 
     // Erase the file mock object
-    xmock_file_erase(file);
+    fossil_mockup_file_erase(file);
 }
 
-XTEST(xmock_try_file_seek_and_read) {
+FOSSIL_TEST(fossil_mockup_try_file_seek_and_read) {
     // Create a file mock object
-    xmock_file_t *file = xmock_file_create("test_file.txt", "Hello, World!");
+    fossil_mockup_file_t *file = fossil_mockup_file_create("test_file.txt", "Hello, World!");
     ASSUME_NOT_CNULL(file);
 
     // Seek to position 7 (after "Hello, ")
-    int seek_result = xmock_file_seek(file, 7, SEEK_SET);
+    int seek_result = fossil_mockup_file_seek(file, 7, SEEK_SET);
     ASSUME_ITS_EQUAL_I32(0, seek_result);
 
     char buffer[20];
-    size_t read_size = xmock_file_read(buffer, 1, 5, file);
+    size_t read_size = fossil_mockup_file_read(buffer, 1, 5, file);
     buffer[read_size] = '\0'; // Null-terminate the read string
 
     // Verify the read content
@@ -96,16 +96,16 @@ XTEST(xmock_try_file_seek_and_read) {
     ASSUME_ITS_EQUAL_CSTR("World", buffer);
 
     // Erase the file mock object
-    xmock_file_erase(file);
+    fossil_mockup_file_erase(file);
 }
 
-XTEST(xmock_try_file_reset) {
+FOSSIL_TEST(fossil_mockup_try_file_reset) {
     // Create a file mock object
-    xmock_file_t *file = xmock_file_create("test_file.txt", "Hello, World!");
+    fossil_mockup_file_t *file = fossil_mockup_file_create("test_file.txt", "Hello, World!");
     ASSUME_NOT_CNULL(file);
 
     char buffer[20];
-    size_t read_size = xmock_file_read(buffer, 1, 5, file);
+    size_t read_size = fossil_mockup_file_read(buffer, 1, 5, file);
     buffer[read_size] = '\0'; // Null-terminate the read string
 
     // Verify the read content
@@ -113,25 +113,25 @@ XTEST(xmock_try_file_reset) {
     ASSUME_ITS_EQUAL_CSTR("Hello", buffer);
 
     // Reset the file object
-    xmock_file_reset(file);
+    fossil_mockup_file_reset(file);
 
     // Verify that the file position is reset
-    read_size = xmock_file_read(buffer, 1, 5, file);
+    read_size = fossil_mockup_file_read(buffer, 1, 5, file);
     buffer[read_size] = '\0'; // Null-terminate the read string
     ASSUME_ITS_EQUAL_SIZE(5, read_size);
     ASSUME_ITS_EQUAL_CSTR("Hello", buffer);
 
     // Erase the file mock object
-    xmock_file_erase(file);
+    fossil_mockup_file_erase(file);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(xmock_file_group) {
-    ADD_TEST(xmock_try_file_create_and_erase);
-    ADD_TEST(xmock_try_file_read);
-    ADD_TEST(xmock_try_file_write);
-    ADD_TEST(xmock_try_file_seek_and_read);
-    ADD_TEST(xmock_try_file_reset);
+FOSSIL_TEST_GROUP(fossil_mockup_file_group) {
+    ADD_TEST(fossil_mockup_try_file_create_and_erase);
+    ADD_TEST(fossil_mockup_try_file_read);
+    ADD_TEST(fossil_mockup_try_file_write);
+    ADD_TEST(fossil_mockup_try_file_seek_and_read);
+    ADD_TEST(fossil_mockup_try_file_reset);
 } // end of fixture

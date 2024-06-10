@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -30,7 +30,7 @@ Description:
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 
-XTEST(testing_marker_fake) {
+FOSSIL_TEST(testing_marker_fake) {
     TEST_ASSERT(true, "This test case should have passeed");
 } // end case
 
@@ -43,28 +43,28 @@ XTEST(testing_marker_fake) {
 // or when the test is not applicable to the current environment or configuration.
 // It allows testers to focus on relevant test cases and avoid unnecessary execution
 // of tests that may not provide meaningful results in a particular context.
-XTEST(testing_marker_skip) {
+FOSSIL_TEST(testing_marker_skip) {
     bool skip = true; // the condtion is false but the skip marker prevents this test from running
     TEST_ASSERT(false == skip, "This shouldn't have run because of the marker 'skip'");
 } // end case
 
-XTEST(testing_marker_pass) {
+FOSSIL_TEST(testing_marker_pass) {
     TEST_ASSERT(true, "This test case should have passeed");
 } // end case
 
-XTEST(testing_marker_fail) {
+FOSSIL_TEST(testing_marker_fail) {
    bool sky_is_blue = true;
    TEST_ASSUME(sky_is_blue == false, "This test case should have passeed");
 } // end case
 
-XTEST(testing_marker_none) {
+FOSSIL_TEST(testing_marker_none) {
     TEST_ASSERT(true, "This test case should have passeed");
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(markers_test_group) {
+FOSSIL_TEST_GROUP(markers_test_group) {
     // Should do nothing beyond show an error message that the marker does not exist
     APPLY_MARK(testing_marker_fake, "does not exist");
     ADD_TEST(testing_marker_fake);

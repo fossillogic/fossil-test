@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -29,7 +29,7 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XSONIREO(xbdd_logic_test) {
+FOSSIL_SONIREO(xbdd_logic_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -50,7 +50,7 @@ XSONIREO(xbdd_logic_test) {
     }
 } // end of case
 
-XSONIREO(xbdd_user_account) {
+FOSSIL_SONIREO(xbdd_user_account) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -72,7 +72,7 @@ XSONIREO(xbdd_user_account) {
     }
 } // end of case
 
-XSONIREO(xbdd_empty_cart) {
+FOSSIL_SONIREO(xbdd_empty_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -90,16 +90,16 @@ XSONIREO(xbdd_empty_cart) {
     }
 } // end of case
 
-XSONIREO(xbdd_valid_login) {
+FOSSIL_SONIREO(xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
-        const xstring validUsername = "user123";
-        const xstring validPassword = "pass456";
+        const char* validUsername = "user123";
+        const char* validPassword = "pass456";
 
         WHEN("the user provides correct username and password") {
             // Perform the action of user login
-            const xstring inputUsername = "user123";
-            const xstring inputPassword = "pass456";
+            const char* inputUsername = "user123";
+            const char* inputPassword = "pass456";
 
             THEN("the login should be successful") {
                 // Check the expected outcome
@@ -111,8 +111,8 @@ XSONIREO(xbdd_valid_login) {
 
         WHEN("the user provides incorrect password") {
             // Perform the action of user login
-            const xstring inputUsername = "user123";
-            const xstring inputPassword = "wrongpass";
+            const char* inputUsername = "user123";
+            const char* inputPassword = "wrongpass";
 
             THEN("the login should fail with an error message") {
                 // Check the expected outcome
@@ -127,7 +127,7 @@ XSONIREO(xbdd_valid_login) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(bdd_test_group) {
+FOSSIL_TEST_GROUP(bdd_test_group) {
     ADD_TEST(xbdd_logic_test);
     ADD_TEST(xbdd_user_account);
     ADD_TEST(xbdd_empty_cart);

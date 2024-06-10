@@ -10,11 +10,11 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>   // basic test tools
+#include <fossil/unittest.h>   // basic test tools
 #include <fossil/xassume.h> // extra asserts
 
 #include <fossil/mockup/fake.h> // library under test
-#include <fossil/xmock.h>
+#include <fossil/mockup.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -36,33 +36,33 @@ XMOCK_FUNC_DEF(void, mocked_function, void) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xmock_fake_create_and_erase) {
+FOSSIL_TEST(fossil_mockup_fake_create_and_erase) {
     // Create a fake object
-    xmock_fake_t *fake = xmock_fake_create("mocked_function", xmock_mocked_function);
+    fossil_mockup_fake_t *fake = fossil_mockup_fake_create("mocked_function", fossil_mockup_mocked_function);
     ASSUME_NOT_CNULL(fake);
 
     // Erase the fake object
-    xmock_fake_erase(fake);
+    fossil_mockup_fake_erase(fake);
 }
 
-XTEST(xmock_fake_called) {
+FOSSIL_TEST(fossil_mockup_fake_called) {
     // Create a fake object
-    xmock_fake_t *fake = xmock_fake_create("mocked_function", xmock_mocked_function);
+    fossil_mockup_fake_t *fake = fossil_mockup_fake_create("mocked_function", fossil_mockup_mocked_function);
     ASSUME_NOT_CNULL(fake);
 
     // Call the fake function
-    xmock_fake_call(fake);
+    fossil_mockup_fake_call(fake);
 
     // Additional asserts can be added to verify the behavior
 
     // Erase the fake object
-    xmock_fake_erase(fake);
+    fossil_mockup_fake_erase(fake);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(xmock_fake_group) {
-    ADD_TEST(xmock_fake_create_and_erase);
-    ADD_TEST(xmock_fake_called);
+FOSSIL_TEST_GROUP(fossil_mockup_fake_group) {
+    ADD_TEST(fossil_mockup_fake_create_and_erase);
+    ADD_TEST(fossil_mockup_fake_called);
 } // end of fixture

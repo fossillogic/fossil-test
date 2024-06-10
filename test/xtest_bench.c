@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>   // basic test tools
+#include <fossil/unittest.h>   // basic test tools
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -70,7 +70,7 @@ void selection_sort(int *array, size_t size) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Test cases for Bubble Sort
-XTEST(bubble_sort_case_1) {
+FOSSIL_TEST(bubble_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -79,7 +79,7 @@ XTEST(bubble_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(bubble_sort_case_2) {
+FOSSIL_TEST(bubble_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -88,7 +88,7 @@ XTEST(bubble_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(bubble_sort_case_3) {
+FOSSIL_TEST(bubble_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -98,7 +98,7 @@ XTEST(bubble_sort_case_3) {
 }
 
 // Test cases for Insertion Sort
-XTEST(insertion_sort_case_1) {
+FOSSIL_TEST(insertion_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8, 6, 3, 7};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -107,7 +107,7 @@ XTEST(insertion_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(insertion_sort_case_2) {
+FOSSIL_TEST(insertion_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1, 5, 2, 4};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -116,7 +116,7 @@ XTEST(insertion_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(insertion_sort_case_3) {
+FOSSIL_TEST(insertion_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7, 5, 9, 3};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -126,7 +126,7 @@ XTEST(insertion_sort_case_3) {
 }
 
 // Test cases for Selection Sort
-XTEST(selection_sort_case_1) {
+FOSSIL_TEST(selection_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8, 6, 3, 7, 9};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -135,7 +135,7 @@ XTEST(selection_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(selection_sort_case_2) {
+FOSSIL_TEST(selection_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1, 5, 2, 4, 8};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -144,7 +144,7 @@ XTEST(selection_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-XTEST(selection_sort_case_3) {
+FOSSIL_TEST(selection_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7, 5, 9, 3, 6};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -154,7 +154,7 @@ XTEST(selection_sort_case_3) {
 }
 
 // XUNIT-GROUP
-XTEST_DEFINE_POOL(benchmark_group) {
+FOSSIL_TEST_GROUP(benchmark_group) {
     ADD_TEST(bubble_sort_case_1);
     ADD_TEST(bubble_sort_case_2);
     ADD_TEST(bubble_sort_case_3);

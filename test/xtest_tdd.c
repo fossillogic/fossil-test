@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -29,7 +29,7 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xassert_run_of_int) {
+FOSSIL_TEST(xassert_run_of_int) {
     int x = 42;
     int y = 20;
 
@@ -41,7 +41,7 @@ XTEST(xassert_run_of_int) {
     TEST_ASSERT(y <= x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_run_of_int8) {
+FOSSIL_TEST(xassert_run_of_int8) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -53,7 +53,7 @@ XTEST(xassert_run_of_int8) {
     TEST_ASSERT((int8_t)y <= (int8_t)x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_run_of_int16) {
+FOSSIL_TEST(xassert_run_of_int16) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -65,7 +65,7 @@ XTEST(xassert_run_of_int16) {
     TEST_ASSERT((int16_t)y <= (int16_t)x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_run_of_int32) {
+FOSSIL_TEST(xassert_run_of_int32) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -77,7 +77,7 @@ XTEST(xassert_run_of_int32) {
     TEST_ASSERT((int32_t)y <= (int32_t)x, "Should have passed the test case");
 } // end case
 
-XTEST(xassert_run_of_int64) {
+FOSSIL_TEST(xassert_run_of_int64) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -92,7 +92,7 @@ XTEST(xassert_run_of_int64) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(tdd_test_group) {
+FOSSIL_TEST_GROUP(tdd_test_group) {
     ADD_TEST(xassert_run_of_int);
     ADD_TEST(xassert_run_of_int8);
     ADD_TEST(xassert_run_of_int16);

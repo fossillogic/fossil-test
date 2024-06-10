@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>   // basic test tools
+#include <fossil/unittest.h>   // basic test tools
 #include <fossil/xassume.h> // extra asserts
 
 #include <fossil/mockup/network.h> // library under test
@@ -32,9 +32,9 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xmock_try_network_create_and_erase) {
+FOSSIL_TEST(fossil_mockup_try_network_create_and_erase) {
     // Create a network mock object
-    xmock_network_t *network = xmock_network_create("test_assume_host", "GET /", "200 OK");
+    fossil_mockup_network_t *network = fossil_mockup_network_create("test_assume_host", "GET /", "200 OK");
     ASSUME_NOT_CNULL(network);
 
     // Check the host, request, and response
@@ -43,40 +43,40 @@ XTEST(xmock_try_network_create_and_erase) {
     ASSUME_ITS_EQUAL_CSTR("200 OK", network->response);
 
     // Erase the network mock object
-    xmock_network_erase(network);
+    fossil_mockup_network_erase(network);
 }
 
-XTEST(xmock_try_network_request) {
+FOSSIL_TEST(fossil_mockup_try_network_request) {
     // Create a network mock object
-    xmock_network_t *network = xmock_network_create("test_assume_host", "GET /", "200 OK");
+    fossil_mockup_network_t *network = fossil_mockup_network_create("test_assume_host", "GET /", "200 OK");
     ASSUME_NOT_CNULL(network);
 
     // Perform a network request
-    const char *response = xmock_network_request(network, "GET /");
+    const char *response = fossil_mockup_network_request(network, "GET /");
     ASSUME_ITS_EQUAL_CSTR("200 OK", response);
 
     // Erase the network mock object
-    xmock_network_erase(network);
+    fossil_mockup_network_erase(network);
 }
 
-XTEST(xmock_try_network_request_with_different_request) {
+FOSSIL_TEST(fossil_mockup_try_network_request_with_different_request) {
     // Create a network mock object
-    xmock_network_t *network = xmock_network_create("test_assume_host", "POST /", "201 Created");
+    fossil_mockup_network_t *network = fossil_mockup_network_create("test_assume_host", "POST /", "201 Created");
     ASSUME_NOT_CNULL(network);
 
     // Perform a network request
-    const char *response = xmock_network_request(network, "POST /");
+    const char *response = fossil_mockup_network_request(network, "POST /");
     ASSUME_ITS_EQUAL_CSTR("201 Created", response);
 
     // Erase the network mock object
-    xmock_network_erase(network);
+    fossil_mockup_network_erase(network);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(xmock_network_group) {
-    ADD_TEST(xmock_try_network_create_and_erase);
-    ADD_TEST(xmock_try_network_request);
-    ADD_TEST(xmock_try_network_request_with_different_request);
+FOSSIL_TEST_GROUP(fossil_mockup_network_group) {
+    ADD_TEST(fossil_mockup_try_network_create_and_erase);
+    ADD_TEST(fossil_mockup_try_network_request);
+    ADD_TEST(fossil_mockup_try_network_request_with_different_request);
 } // end of fixture

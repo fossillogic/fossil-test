@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>   // basic test tools
+#include <fossil/unittest.h>   // basic test tools
 #include <fossil/xassume.h> // extra asserts
 
 #include <fossil/mockup/inject.h> // library under test
@@ -32,10 +32,10 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(xmock_try_inject_create_and_erase) {
+FOSSIL_TEST(fossil_mockup_try_inject_create_and_erase) {
     // Create an injected dependency object
     int replacement_object = 42;
-    xmock_inject_t *inject = xmock_inject_create("test_dependency", &replacement_object);
+    fossil_mockup_inject_t *inject = fossil_mockup_inject_create("test_dependency", &replacement_object);
     ASSUME_NOT_CNULL(inject);
 
     // Check the dependency name and replacement object
@@ -43,27 +43,27 @@ XTEST(xmock_try_inject_create_and_erase) {
     ASSUME_ITS_EQUAL_PTR(&replacement_object, inject->replacement_object);
 
     // Erase the injected dependency object
-    xmock_inject_erase(inject);
+    fossil_mockup_inject_erase(inject);
 }
 
-XTEST(xmock_try_inject_get_replacement) {
+FOSSIL_TEST(fossil_mockup_try_inject_get_replacement) {
     // Create an injected dependency object
     int replacement_object = 42;
-    xmock_inject_t *inject = xmock_inject_create("test_dependency", &replacement_object);
+    fossil_mockup_inject_t *inject = fossil_mockup_inject_create("test_dependency", &replacement_object);
     ASSUME_NOT_CNULL(inject);
 
     // Get the replacement object
-    void *retrieved_object = xmock_inject_get_replacement(inject);
+    void *retrieved_object = fossil_mockup_inject_get_replacement(inject);
     ASSUME_ITS_EQUAL_PTR(&replacement_object, retrieved_object);
 
     // Erase the injected dependency object
-    xmock_inject_erase(inject);
+    fossil_mockup_inject_erase(inject);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(xmock_inject_group) {
-    ADD_TEST(xmock_try_inject_create_and_erase);
-    ADD_TEST(xmock_try_inject_get_replacement);
+FOSSIL_TEST_GROUP(fossil_mockup_inject_group) {
+    ADD_TEST(fossil_mockup_try_inject_create_and_erase);
+    ADD_TEST(fossil_mockup_try_inject_get_replacement);
 } // end of fixture

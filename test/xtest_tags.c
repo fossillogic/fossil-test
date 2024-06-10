@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/xtest.h>
+#include <fossil/unittest.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -29,7 +29,7 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-XTEST(testing_slow_tags) {
+FOSSIL_TEST(testing_slow_tags) {
     int x = 42;
     int y = 20;
 
@@ -41,7 +41,7 @@ XTEST(testing_slow_tags) {
     TEST_ASSERT(y <= x, "Should have passed the test case");
 } // end case
 
-XTEST(testing_fast_tags) {
+FOSSIL_TEST(testing_fast_tags) {
     int x = 42;
     int y = 20;
 
@@ -53,7 +53,7 @@ XTEST(testing_fast_tags) {
     TEST_ASSERT(y <= x, "Should have passed the test case");
 } // end case
 
-XTEST(testing_no_tags) {
+FOSSIL_TEST(testing_no_tags) {
     int x = 42;
     int y = 20;
 
@@ -65,7 +65,7 @@ XTEST(testing_no_tags) {
     TEST_ASSERT(y <= x, "Should have passed the test case");
 } // end case
 
-XTEST(testing_fake_tags) {
+FOSSIL_TEST(testing_fake_tags) {
     int x = 42;
     int y = 20;
 
@@ -80,7 +80,7 @@ XTEST(testing_fake_tags) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-XTEST_DEFINE_POOL(tags_test_group) {
+FOSSIL_TEST_GROUP(tags_test_group) {
     // Should do nothing beyond show an error message that the tag does not exist
     APPLY_XTAG(testing_fake_tags, "pizza pizza pizza");
     ADD_TEST(testing_fake_tags);
