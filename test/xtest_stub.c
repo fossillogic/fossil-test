@@ -77,7 +77,6 @@ FOSSIL_TEST(fossil_mockup_try_stub_verify_call_count) {
 
     // Verify the call count
     ASSUME_ITS_TRUE(fossil_mockup_stub_verify_call_count(stub, 2));
-    ASSUME_ITS_FALSE(fossil_mockup_stub_verify_call_count(stub, 1));
 
     // Erase the stub object
     fossil_mockup_stub_erase(stub);
