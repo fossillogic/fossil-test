@@ -205,7 +205,6 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.timer.detail.nanoseconds = 0;
 
     // Initialize test queue
-    env.queue = (fossil_test_queue_t *){xnull, xnull};
     fossil_test_queue_create(&env.queue);
     atexit(fossil_test_environment_erase); // ensure memory leaks do not occur
 
