@@ -239,13 +239,16 @@ static char* replace_underscore(const char* str) {
 }
 
 // Define color codes
-#define COLOR_RED        "\033[1;31m"
-#define COLOR_GREEN      "\033[1;32m"
-#define COLOR_YELLOW     "\033[1;33m"
-#define COLOR_BLUE       "\033[1;34m"
+#define COLOR_RED         "\033[1;31m"
+#define COLOR_GREEN       "\033[1;32m"
+#define COLOR_YELLOW      "\033[1;33m"
+#define COLOR_BLUE        "\033[1;34m"
 #define COLOR_BRIGHT_BLUE "\033[1;94m"
-#define COLOR_DARK_BLUE  "\033[0;34m"
-#define COLOR_RESET      "\033[0m"
+#define COLOR_DARK_BLUE   "\033[0;34m"
+#define COLOR_MAGENTA     "\033[1;35m"
+#define COLOR_CYAN        "\033[1;36m"
+#define COLOR_WHITE       "\033[1;37m"
+#define COLOR_RESET       "\033[0m"
 
 // Define a structure to map color names to their corresponding codes
 typedef struct {
@@ -253,9 +256,7 @@ typedef struct {
     const char* code;
 } ColorMap;
 
-// printf has its use cases but to handle multable general purpose features without
-// forgetting to change a printf this would servse as the internal prinf with color
-// and potintal for additnal output releated functionality.
+// Custom print function with color support
 void fossil_test_cout(const char* color_name, const char* format, ...) {
     static const ColorMap color_map[] = {
         {"red", COLOR_RED},
@@ -264,7 +265,10 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
         {"blue", COLOR_BLUE},
         {"bright blue", COLOR_BRIGHT_BLUE},
         {"dark blue", COLOR_DARK_BLUE},
-        {xnullptr, COLOR_RESET} // Default color
+        {"magenta", COLOR_MAGENTA},
+        {"cyan", COLOR_CYAN},
+        {"white", COLOR_WHITE},
+        {NULL, COLOR_RESET} // Default color
     };
 
     va_list args;
@@ -276,7 +280,7 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
         const char* color_code = COLOR_RESET;
 
         // Find the corresponding color code
-        for (int i = 0; color_map[i].name != xnull; i++) {
+        for (int i = 0; color_map[i].name != NULL; i++) {
             if (strcmp(color_name, color_map[i].name) == 0) {
                 color_code = color_map[i].code;
                 break;
@@ -313,19 +317,19 @@ void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
     _fossil_test_env.stats.expected_total_count + 1, "===");
-    fossil_test_cout("blue", "test name : -> %s\n", replace_underscore(test->name));
-    fossil_test_cout("blue", "priority  : -> %d\n", test->priority);
-    fossil_test_cout("blue", "tags      : -> %s\n", test->tags);
-    fossil_test_cout("blue", "marker    : -> %s\n", test->marks);
+    fossil_test_cout("blue", "test name : " COLOR_CYAN " -> %s\n", replace_underscore(test->name));
+    fossil_test_cout("blue", "priority  : " COLOR_CYAN " -> %d\n", test->priority);
+    fossil_test_cout("blue", "tags      : " COLOR_CYAN " -> %s\n", test->tags);
+    fossil_test_cout("blue", "marker    : " COLOR_CYAN " -> %s\n", test->marks);
 }
 
 void fossil_test_io_unittest_step(xassert_info *assume) {
-    fossil_test_cout("blue", "has assert: -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+    fossil_test_cout("blue", "has assert: " COLOR_CYAN " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
 }
 
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
-    fossil_test_cout("blue", "timestamp : -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+    fossil_test_cout("blue", "timestamp : " COLOR_CYAN " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
            (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
            (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
     fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
@@ -365,9 +369,9 @@ void fossil_test_io_summary_ended(fossil_env_t *env) {
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "%s", " message: ");
     fossil_test_cout(color, "%s\n", summary_message(env));
-    fossil_test_cout("blue", "  Expected Passed: %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
-    fossil_test_cout("blue", "Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
-    fossil_test_cout("blue", "    Timeout Cases: %3d     Skipped Cases: %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count);
+    fossil_test_cout("cyan", "  Expected Passed: %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("cyan", "Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("cyan", "    Timeout Cases: %3d     Skipped Cases: %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count);
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "Total Tests: %d\n", env->stats.expected_total_count);
     fossil_test_cout("blue", "Total Ghost: %d\n", env->stats.untested_count);
