@@ -12,6 +12,7 @@ Description:
 */
 #include "fossil/unittest/console.h"
 #include "fossil/unittest/internal.h"
+#include "fossil/unittest/commands.h"
 #include <stdarg.h>
 
 static const char* FOSSIL_TEST_NAME = "Fossil Test";
@@ -270,7 +271,7 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
     va_start(args, format);
 
     // Check if color output is enabled
-    if (strcmp(commands->long_name, "--color") && commands->flag == true) {
+    if (fossil_test_cli_get(commands, "--color", 1)) {
         // Default color code
         const char* color_code = COLOR_RESET;
 

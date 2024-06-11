@@ -248,7 +248,7 @@ int fossil_test_environment_summary(fossil_env_t *env) {
     if (env == xnullptr) {
         return -1;
     }
-    fossil_test_io_summary(env);
+    fossil_test_io_summary_ended(env);
     return (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.expected_timeout_count + env->stats.untested_count);
 }
 

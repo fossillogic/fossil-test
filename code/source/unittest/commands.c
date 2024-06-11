@@ -27,8 +27,11 @@ fossil_test_command_t commands[] = {
     {"Do a simple pass of the test runner to ensure it works", "--dry-run", NULL, 1}
 };
 
+enum {
+    FOSSIL_TEST_COMMAND_COUNT = 8
+};
+
 void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *commands) {
-    size_t command_count = sizeof(commands) / sizeof(commands[0]);
     if (argc < 2) {
         fossil_test_cli_show_help(commands);
         exit(EXIT_FAILURE);
@@ -36,7 +39,7 @@ void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *comman
 
     for (int i = 1; i < argc; i++) {
         bool command_found = false;
-        for (int j = 0; j < command_count; j++) {
+        for (int j = 0; j < FOSSIL_TEST_COMMAND_COUNT; j++) {
             if (strcmp(argv[i], commands[j].long_name) == 0 || strcmp(argv[i], commands[j].short_name) == 0) {
                 command_found = true;
                 if (commands[j].flag) {
@@ -61,12 +64,11 @@ void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *comman
 }
 
 void fossil_test_cli_show_help(fossil_test_command_t *commands) {
-    size_t command_count = sizeof(commands) / sizeof(commands[0]);
-    fossil_test_cout("blue", "Usage: Fossil Runner [options] %s\n", current_datetime());
+    fossil_test_cout("blue", "Usage: Fossil Runner [options]\n");
     fossil_test_cout("blue", "Options: ");
     fossil_test_cout("yellow",   "{help,version,tip,console,priority,color,dry-run,repeat}\n\n");
     
-    for (int i = 0; i < command_count; i++) {
+    for (int i = 0; i < FOSSIL_TEST_COMMAND_COUNT; i++) {
         const char *color = (i % 2 == 0) ? "bright blue" : "dark blue";
         fossil_test_cout(color, "\t%s, %s : %s :\n", commands[i].short_name, commands[i].long_name, commands[i].description);
     }
@@ -139,8 +141,7 @@ void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg) {
 }
 
 int fossil_test_cli_get(fossil_test_command_t *commands, const char *command_name, int32_t value) {
-    size_t command_count = sizeof(commands) / sizeof(commands[0]);
-    for (size_t i = 0; i < command_count; i++) {
+    for (size_t i = 0; i < FOSSIL_TEST_COMMAND_COUNT; i++) {
         if (strcmp(commands[i].long_name, command_name) == 0 && commands[i].flag == 0) {
             return commands[i].flag;
         }
