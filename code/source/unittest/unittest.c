@@ -176,7 +176,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 //
 
 void fossil_test_environment_erase(void) {
-    fossil_test_queue_erase(&_fossil_test_env.queue);
+    fossil_test_queue_erase(_fossil_test_env.queue);
 }
 
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
@@ -205,7 +205,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.timer.detail.nanoseconds = 0;
 
     // Initialize test queue
-    fossil_test_queue_create(&env.queue);
+    fossil_test_queue_create(env.queue);
     atexit(fossil_test_environment_erase); // ensure memory leaks do not occur
 
     // Initialize exception and assumption counts
