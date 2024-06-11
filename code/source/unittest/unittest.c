@@ -277,7 +277,7 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     if (_TEST_ENV.rule.skipped == true && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
-    } else if (!_xassert_info.has_assert) {
+    } else if (!_xassert_info.has_assert && strcmp(test_case->marks, "tofu") == 0) {
         _TEST_ENV.stats.expected_empty_count++;
     } else if (_TEST_ENV.rule.should_timeout == true) {
         _TEST_ENV.stats.expected_timeout_count++;
@@ -418,9 +418,8 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
     if (strcmp(mark, "skip") == 0) {
         test->marks = "skip";
         _TEST_ENV.rule.skipped = true;
-    } else if (strcmp(mark, "timeout") == 0) {
-        test->marks = "timeout";
-        _TEST_ENV.rule.timeout = true;
+    } else if (strcmp(mark, "tofu") == 0) {
+        test->marks = "tofu";
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
         _TEST_ENV.rule.should_pass = false;
