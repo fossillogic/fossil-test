@@ -249,7 +249,9 @@ void _fossil_test_scoreboard_expected_rules(void) {
     // counts based on the test case results.
     if (!_xassert_info.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
-    } else if (!_TEST_ENV.rule.should_pass) {
+    }
+
+    if (!_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.expected_failed_count++;
         _TEST_ENV.rule.should_pass = false;
     } else {
@@ -262,7 +264,9 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
     // the UNO reverse card on us.
     if (!_xassert_info.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
-    } else if (_TEST_ENV.rule.should_pass) {
+    }
+
+    if (_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.unexpected_failed_count++;
         _TEST_ENV.rule.should_pass = false;
     } else {
@@ -277,7 +281,7 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     if (_TEST_ENV.rule.skipped == true && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
-    } else if (!_xassert_info.has_assert && strcmp(test_case->marks, "tofu") == 0) {
+    } else if (!_xassert_info.has_assert && strcmp(test_case->marks, "ghost") == 0) {
         _TEST_ENV.stats.expected_empty_count++;
     } else if (_TEST_ENV.rule.should_timeout == true) {
         _TEST_ENV.stats.expected_timeout_count++;
@@ -418,8 +422,8 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
     if (strcmp(mark, "skip") == 0) {
         test->marks = "skip";
         _TEST_ENV.rule.skipped = true;
-    } else if (strcmp(mark, "tofu") == 0) {
-        test->marks = "tofu";
+    } else if (strcmp(mark, "ghost") == 0) {
+        test->marks = "ghost"; // remember to call the ghostbusters whena team member marks an empty case.
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
         _TEST_ENV.rule.should_pass = false;
@@ -444,6 +448,7 @@ void fossil_test_apply_xtag(fossil_test_t *test, const char *tag) {
     }
 
     // we handle any rules for tags
+    // to be used in a run via tag feature.
     if (strcmp(tag, "fast") == 0) {
         test->tags = "fast";
     } else if (strcmp(tag, "slow") == 0) {
