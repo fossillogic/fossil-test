@@ -68,7 +68,6 @@ void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queu
     if (test == xnullptr || queue == xnullptr) {
         return;
     }
-    fossil_test_cout("green", "Running passing null scan...\n");
 
     if (queue->front == xnullptr) {
         // The queue is empty
@@ -187,7 +186,6 @@ void fossil_test_environment_erase(void) {
     if (_fossil_test_env.queue != xnullptr) {
         fossil_test_queue_erase(_fossil_test_env.queue);
         free(_fossil_test_env.queue);
-        _fossil_test_env.queue = xnullptr;
     }
 }
 
@@ -241,17 +239,21 @@ void fossil_test_environment_scoareboard(fossil_env_t *env, fossil_test_t *test)
     } else if (strcmp(test->marks, "timeout") == 0) {
         env->stats.expected_timeout_count++;
         _fossil_test_env.rule.timeout = false;
+
     } else if (env->rule.should_pass) {
         if (env->rule.should_pass) {
             env->stats.expected_passed_count++;
         } else {
             env->stats.expected_failed_count++;
+            env->rule.should_pass = false;
         }
     } else if (!env->rule.should_pass) {
         if (env->rule.should_pass) {
             env->stats.unexpected_passed_count++;
+            env->rule.should_pass = false;
         } else {
             env->stats.unexpected_failed_count++;
+            env->rule.should_pass = false;
         }
     }
 
@@ -359,6 +361,7 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
         _fossil_test_env.rule.timeout = true;
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
+        _fossil_test_env.rule.should_pass = false;
     } else if (strcmp(mark, "none") == 0) {
         test->marks = "none";
     } else if (strcmp(mark, "only") == 0) {
