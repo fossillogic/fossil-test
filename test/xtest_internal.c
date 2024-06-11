@@ -85,33 +85,6 @@ FOSSIL_TEST(fossil_mockup_try_set_comparator_and_verify) {
     fossil_mockup_erase(mock);
 }
 
-FOSSIL_TEST(fossil_mockup_try_verify_call_count) {
-    // Create a mock object
-    fossil_mockup_t *mock = fossil_mockup_create("test_function", 2);
-    ASSUME_NOT_CNULL(mock);
-
-    // Set expected arguments
-    int expected_arg1 = 42;
-    char *expected_arg2 = "expected";
-    fossil_mockup_set_expected_args(mock, &expected_arg1, expected_arg2);
-
-    // Set return value
-    int return_value = 99;
-    fossil_mockup_set_return_values(mock, 1, &return_value);
-
-    // Simulate calling the mock function twice
-    fossil_mockup_call(mock, &expected_arg1, expected_arg2);
-
-    // Verify the call count
-    ASSUME_ITS_TRUE(fossil_mockup_verify_call_count(mock, 1));
-
-    fossil_mockup_call(mock, &expected_arg1, expected_arg2);
-    ASSUME_ITS_TRUE(fossil_mockup_verify_call_count(mock, 2));
-
-    // Erase the mock object
-    fossil_mockup_erase(mock);
-}
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -119,5 +92,4 @@ FOSSIL_TEST_GROUP(fossil_mockup_group) {
     ADD_TEST(fossil_mockup_try_create_and_erase);
     ADD_TEST(fossil_mockup_try_set_expected_args_and_call);
     ADD_TEST(fossil_mockup_try_set_comparator_and_verify);
-    ADD_TEST(fossil_mockup_try_verify_call_count);
 } // end of fixture

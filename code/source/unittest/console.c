@@ -315,28 +315,35 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
 
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
+    
     fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
-    _fossil_test_env.stats.expected_total_count + 1, "===");
-    fossil_test_cout("blue", "test name : " COLOR_CYAN " -> %s\n", replace_underscore(test->name));
-    fossil_test_cout("blue", "priority  : " COLOR_CYAN " -> %d\n", test->priority);
-    fossil_test_cout("blue", "tags      : " COLOR_CYAN " -> %s\n", test->tags);
-    fossil_test_cout("blue", "marker    : " COLOR_CYAN " -> %s\n", test->marks);
+    _TEST_ENV.stats.expected_total_count + 1, "===");
+    fossil_test_cout("blue", "test name : ");
+    fossil_test_cout("cyan", " -> %s\n", replace_underscore(test->name));
+    fossil_test_cout("blue", "priority  : ");
+    fossil_test_cout("cyan", " -> %d\n", test->priority);
+    fossil_test_cout("blue", "tags      : ");
+    fossil_test_cout("cyan", " -> %s\n", test->tags);
+    fossil_test_cout("blue", "marker    : ");
+    fossil_test_cout("cyan", " -> %s\n", test->marks);
 }
 
 void fossil_test_io_unittest_step(xassert_info *assume) {
-    fossil_test_cout("blue", "has assert: " COLOR_CYAN " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+    fossil_test_cout("blue", "has assert: ");
+    fossil_test_cout("cyan", " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
 }
 
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
-    fossil_test_cout("blue", "timestamp : " COLOR_CYAN " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
-           (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
-           (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
+    fossil_test_cout("blue", "timestamp : ");
+    fossil_test_cout("cyan", " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+        (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
+        (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
     fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
 
     // Check for timeout
     if (test->timer.elapsed >= (2 * 60 * CLOCKS_PER_SEC)) {
-        _fossil_test_env.rule.timeout = true;
+        _TEST_ENV.rule.timeout = true;
     }
 }
 
@@ -369,9 +376,9 @@ void fossil_test_io_summary_ended(fossil_env_t *env) {
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "%s", " message: ");
     fossil_test_cout(color, "%s\n", summary_message(env));
-    fossil_test_cout("cyan", "  Expected Passed: %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
-    fossil_test_cout("cyan", "Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
-    fossil_test_cout("cyan", "    Timeout Cases: %3d     Skipped Cases: %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count);
+    fossil_test_cout("cyan", "> Expected Passed  : %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("cyan", "> Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
+    fossil_test_cout("cyan", "> Timeout: %3d Skipped: %3d Empty: %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count, env->stats.expected_empty_count);
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "Total Tests: %d\n", env->stats.expected_total_count);
     fossil_test_cout("blue", "Total Ghost: %d\n", env->stats.untested_count);

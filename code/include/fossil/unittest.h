@@ -332,7 +332,7 @@ extern "C"
  * 
  * @param description The description of the GIVEN condition.
  */
-#define GIVEN(description) fossil_test_cout("blue", "%s%s\n", "  > GIVEN ", description); if (true)
+#define GIVEN(description) fossil_test_cout("magenta", "%s%s\n", "          : GIVEN ", description); if (true)
 
 /**
  * @brief Define macro for specifying a WHEN condition in a test scenario.
@@ -345,7 +345,7 @@ extern "C"
  * 
  * @param description The description of the WHEN condition.
  */
-#define WHEN(description) fossil_test_cout("blue", "%s%s\n", "  >\t WHEN ", description); if (true)
+#define WHEN(description) fossil_test_cout("magenta", "%s%s\n", "          : \tWHEN ", description); if (true)
 
 /**
  * @brief Define macro for specifying a THEN condition in a test scenario.
@@ -357,7 +357,7 @@ extern "C"
  * 
  * @param description The description of the THEN condition.
  */
-#define THEN(description) fossil_test_cout("blue", "%s%s\n", "  >\t\t THEN ", description); if (true)
+#define THEN(description) fossil_test_cout("magenta", "%s%s\n", "          : \t\tTHEN ", description); if (true)
 
 // =================================================================
 // TDD specific commands

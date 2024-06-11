@@ -20,10 +20,11 @@ fossil_test_command_t commands[] = {
     {"Display this help message", "--help", "-h", (char*[]){xnull}, 1},
     {"Display program version", "--version", "-v", (char*[]){xnull}, 1},
     {"Display a helpful tip", "--tip", "-t", (char*[]){xnull}, 1},
+    {"Display verbose output for test case steps", "--verbose", "-v", (char*[]){xnull}, 0},
     {"Set IO mode for runner ('human'/cutback/turbo)", "--console", "-c", (char*[]){"human", "cutback", "turbo", xnull}, 0},
     {"Set priority threshold for test cases (1-100)", "--priority", "-p", (char*[]){xnull}, 0},
     {"Set a given repeat for a number of times (1-100)", "--repeat", "-r", (char*[]){xnull}, 0},
-    {"Enable colored output", "--color", "-c", (char*[]){xnull}, 1},
+    {"Enable colored output", "--color", "-c", (char*[]){xnull}, 0},
     {"Do a simple pass of the test runner to ensure it works", "--dry-run", "", (char*[]){xnull}, 1}
 };
 
@@ -143,6 +144,9 @@ void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg) {
 int fossil_test_cli_get(fossil_test_command_t *commands, const char *command_name, int32_t value) {
     for (size_t i = 0; i < FOSSIL_TEST_COMMAND_COUNT; i++) {
         if (strcmp(commands[i].long_name, command_name) == 0 && commands[i].flag == value) {
+            if (commands[i].flag == value) {
+                return value;
+            }
             return commands[i].flag;
         }
     }

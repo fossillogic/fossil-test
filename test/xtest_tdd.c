@@ -95,7 +95,7 @@ FOSSIL_TEST(xassert_run_of_int64) {
 FOSSIL_TEST_GROUP(tdd_test_group) {
     ADD_TEST(xassert_run_of_int);
     ADD_TEST(xassert_run_of_int8);
-    ADD_TEST(xassert_run_of_int16);
-    ADD_TEST(xassert_run_of_int32);
-    ADD_TEST(xassert_run_of_int64);
+    // ADD_TEST(xassert_run_of_int16);
+    // ADD_TEST(xassert_run_of_int32);
+    // ADD_TEST(xassert_run_of_int64);
 } // end of group

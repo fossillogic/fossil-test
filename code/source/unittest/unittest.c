@@ -16,7 +16,7 @@ Description:
 #include "fossil/unittest/commands.h"
 #include <stdarg.h>
 
-fossil_env_t _fossil_test_env;
+fossil_env_t _TEST_ENV;
 xassert_info _xassert_info;
 
 // Function to add a test to the front of the queue
@@ -162,6 +162,7 @@ void fossil_test_queue_clear(fossil_test_queue_t *queue) {
 
 // Function to add a test to the queue based on priority
 void add_test_to_queue(fossil_test_t *test, fossil_test_queue_t *queue) {
+    _TEST_ENV.stats.untested_count++;
     fossil_test_queue_push_back(test, queue);
 }
 
@@ -183,9 +184,9 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 //
 
 void fossil_test_environment_erase(void) {
-    if (_fossil_test_env.queue != xnullptr) {
-        fossil_test_queue_erase(_fossil_test_env.queue);
-        free(_fossil_test_env.queue);
+    if (_TEST_ENV.queue != xnullptr) {
+        fossil_test_queue_erase(_TEST_ENV.queue);
+        free(_TEST_ENV.queue);
     }
 }
 
@@ -200,6 +201,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.stats.unexpected_passed_count = 0;
     env.stats.unexpected_failed_count = 0;
     env.stats.expected_skipped_count = 0;
+    env.stats.expected_empty_count = 0;
     env.stats.expected_timeout_count = 0;
     env.stats.expected_total_count = 0;
     env.stats.untested_count = 0;
@@ -227,39 +229,97 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     return env;
 }
 
-void fossil_test_environment_scoareboard(fossil_env_t *env, fossil_test_t *test) {
-    if (env == xnullptr) {
-        return;
+void _fossil_test_scoreboard_update(void) {
+    // here we just update the scoreboard count
+    // add one to total tested cases and remove
+    // one from untested ghost cases.
+    //
+    // The main goal is to ensure ghost cases are removed
+    // accordingly and the total tested cases are updated.
+    //
+    // However in the event exit is called we will have
+    // record of test that are tested and those that are
+    // not tested.
+    _TEST_ENV.stats.untested_count--;
+    _TEST_ENV.stats.expected_total_count++;
+}
+
+void _fossil_test_scoreboard_expected_rules(void) {
+    // nothing crazy here just updating the expected passed and failed
+    // counts based on the test case results.
+    if (!_xassert_info.has_assert) {
+        _TEST_ENV.stats.expected_empty_count++;
+    } else if (!_TEST_ENV.rule.should_pass) {
+        _TEST_ENV.stats.expected_failed_count++;
+        _TEST_ENV.rule.should_pass = false;
+    } else {
+        _TEST_ENV.stats.expected_passed_count++;
+    }
+}
+
+void _fossil_test_scoreboard_unexpected_rules(void) {
+    // here we handle unexpected rules for cases that play
+    // the UNO reverse card on us.
+    if (!_xassert_info.has_assert) {
+        _TEST_ENV.stats.expected_empty_count++;
+    } else if (_TEST_ENV.rule.should_pass) {
+        _TEST_ENV.stats.unexpected_failed_count++;
+        _TEST_ENV.rule.should_pass = false;
+    } else {
+        _TEST_ENV.stats.unexpected_passed_count++;
+        _TEST_ENV.rule.should_pass = false;
+
+    }
+}
+
+void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
+    // handling features for skip and timeouts
+    if (_TEST_ENV.rule.skipped == true && strcmp(test_case->marks, "skip") == 0) {
+        _TEST_ENV.stats.expected_skipped_count++;
+        _TEST_ENV.rule.skipped = false;
+    } else if (!_xassert_info.has_assert) {
+        _TEST_ENV.stats.expected_empty_count++;
+    } else if (_TEST_ENV.rule.should_timeout == true) {
+        _TEST_ENV.stats.expected_timeout_count++;
+        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
+    } else if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
+        if (_xassert_info.should_fail) {
+            _TEST_ENV.stats.expected_passed_count++;
+            _TEST_ENV.rule.should_pass = true;
+        } else {
+            _TEST_ENV.stats.expected_failed_count++;
+        }
+    } else {
+        _TEST_ENV.stats.expected_passed_count++;
+    }
+}
+
+void _fossil_test_scoreboard(fossil_test_t *test_case) {
+    // here we handle the scoreboard logic for the test cases
+    // based on the rules and features that are set.
+    if (strcmp(test_case->marks, "fossil") != 0 || strcmp(test_case->tags, "fossil") != 0) {
+        // Simply handling unique cases using marks and tags first
+        // to ensure I catch the added features.
+        _fossil_test_scoreboard_feature_rules(test_case);
+    } else if (_TEST_ENV.rule.result) {
+        // here we handle the expected and unexpected rules
+        // using normal flow without worrying about the features
+        // as used in marks and tags.
+        _fossil_test_scoreboard_expected_rules();
+    } else if (!_TEST_ENV.rule.result) {
+        // here we handle unexpected rules for cases that play
+        // the UNO reverse card on us.
+        _fossil_test_scoreboard_unexpected_rules();
     }
 
-    // Update test statistics
-    if (_fossil_test_env.rule.skipped && strcmp(test->marks, "skip") == 0) {
-        env->stats.expected_skipped_count++;
-        _fossil_test_env.rule.skipped = false;
+    // here we just update the scoreboard count
+    // add one to total tested cases and remove
+    // one from untested ghost cases.
+    _fossil_test_scoreboard_update();
+}
 
-    } else if (_fossil_test_env.rule.timeout) {
-        env->stats.expected_timeout_count++;
-        _fossil_test_env.rule.timeout = false;
-
-    } else if (!env->rule.should_pass && strcmp(test->marks, "fail") == 0) {
-        if (!env->rule.should_pass) {
-            env->stats.expected_passed_count++;
-            env->rule.should_pass = false;
-        } else {
-            env->stats.unexpected_failed_count++;
-            env->rule.should_pass = false;
-        }
-    } else if (env->rule.should_pass) {
-        if (env->rule.should_pass) {
-            env->stats.expected_passed_count++;
-        } else {
-            env->stats.expected_failed_count++;
-            env->rule.should_pass = false;
-        }
-    }
-
-    env->stats.untested_count--;
-    env->stats.expected_total_count++;
+void fossil_test_environment_scoareboard(fossil_test_t *test) {
+    _fossil_test_scoreboard(test);
 }
 
 void fossil_test_run_testcase(fossil_test_t *test) {
@@ -267,10 +327,10 @@ void fossil_test_run_testcase(fossil_test_t *test) {
         return;
     }
 
-    if (_fossil_test_env.rule.skipped && strcmp(test->marks, "skip") == 0) {
+    if (_TEST_ENV.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
-    } else if (_fossil_test_env.rule.skipped && strcmp(test->marks, "fail") == 0) {
-        _fossil_test_env.rule.should_pass = false;
+    } else if (_TEST_ENV.rule.skipped && strcmp(test->marks, "fail") == 0) {
+        _TEST_ENV.rule.should_pass = false;
     }
 
     fossil_test_io_unittest_start(test);
@@ -287,7 +347,7 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     }
 
     fossil_test_io_unittest_ended(test);
-    fossil_test_environment_scoareboard(&_fossil_test_env, test);
+    fossil_test_environment_scoareboard(test);
 }
 
 // Function to run the test environment
@@ -339,7 +399,6 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
     }
 
     // Update test statistics
-    env->stats.untested_count++;
     add_test_to_queue(test, env->queue);
 }
 
@@ -358,16 +417,16 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
     // we handle any rules for marks
     if (strcmp(mark, "skip") == 0) {
         test->marks = "skip";
-        _fossil_test_env.rule.skipped = true;
+        _TEST_ENV.rule.skipped = true;
     } else if (strcmp(mark, "timeout") == 0) {
         test->marks = "timeout";
-        _fossil_test_env.rule.timeout = true;
+        _TEST_ENV.rule.timeout = true;
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
-        _fossil_test_env.rule.should_pass = false;
+        _TEST_ENV.rule.should_pass = false;
     } else if (strcmp(mark, "fail") == 0){
         test->marks = "fail";
-        _fossil_test_env.rule.should_pass = false;
+        _TEST_ENV.rule.should_pass = false;
     } else if (strcmp(mark, "none") == 0) {
         test->marks = "none";
     } else if (strcmp(mark, "only") == 0) {
@@ -459,23 +518,23 @@ void fossil_test_apply_priority(fossil_test_t *test, const char *priority) {
 
 // Custom assumptions function with optional message.
 void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
-    if (_fossil_test_env.current_assume_count == FOSSIL_TEST_ASSUME_MAX) {
+    if (_TEST_ENV.current_assume_count == FOSSIL_TEST_ASSUME_MAX) {
         exit(FOSSIL_TEST_ABORT_FAIL);
         return;
     }
 
     if (!_xassert_info.should_fail) {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = false;
-            _fossil_test_env.current_assume_count++;
+            _TEST_ENV.rule.should_pass = false;
+            _TEST_ENV.current_assume_count++;
             fossil_test_io_asserted(assume);
         }
     } else {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = true;
+            _TEST_ENV.rule.should_pass = true;
         } else if (expression) {
-            _fossil_test_env.rule.should_pass = false;
-            _fossil_test_env.current_assume_count++;
+            _TEST_ENV.rule.should_pass = false;
+            _TEST_ENV.current_assume_count++;
             fossil_test_io_asserted(assume);
         }
     }
@@ -485,15 +544,15 @@ void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
 void fossil_test_assert_impl_assert(bool expression, xassert_info *assume) {
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = true;
+            _TEST_ENV.rule.should_pass = true;
         } else if (expression) {
-            _fossil_test_env.rule.should_pass = false;
+            _TEST_ENV.rule.should_pass = false;
             fossil_test_io_asserted(assume);
             exit(FOSSIL_TEST_ABORT_FAIL);
         }
     } else {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = false;
+            _TEST_ENV.rule.should_pass = false;
             fossil_test_io_asserted(assume);
             exit(FOSSIL_TEST_ABORT_FAIL);
         }
@@ -504,14 +563,14 @@ void fossil_test_assert_impl_assert(bool expression, xassert_info *assume) {
 void fossil_test_assert_impl_expect(bool expression, xassert_info *assume) {
     if (_xassert_info.should_fail) {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = true;
+            _TEST_ENV.rule.should_pass = true;
         } else if (expression) {
-            _fossil_test_env.rule.should_pass = false;
+            _TEST_ENV.rule.should_pass = false;
             fossil_test_io_asserted(assume);
         }
     } else {
         if (!expression) {
-            _fossil_test_env.rule.should_pass = false;
+            _TEST_ENV.rule.should_pass = false;
             fossil_test_io_asserted(assume);
         }
     }

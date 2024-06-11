@@ -211,6 +211,7 @@ typedef struct {
     uint16_t unexpected_passed_count; /**< Number of unexpected passed tests. */
     uint16_t unexpected_failed_count; /**< Number of unexpected failed tests. */
     uint16_t expected_skipped_count;  /**< Number of skipped tests. */
+    uint16_t expected_empty_count;    /**< Number of empty tests. */
     uint16_t expected_timeout_count;  /**< Number of tests that timed out. */
     uint16_t expected_total_count;    /**< Total number of unit tests that were run. */
     uint16_t untested_count;          /**< Total number of untested cases when exit or abort is called 
@@ -252,7 +253,7 @@ extern "C"
 {
 #endif
 
-extern fossil_env_t _fossil_test_env;
+extern fossil_env_t _TEST_ENV;
 extern xassert_info _xassert_info;
 
 // =================================================================
@@ -404,7 +405,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param name The name of the test case.
  * @param priority The priority of the test case.
  */
-#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary(&_fossil_test_env)
+#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary(&_TEST_ENV)
 
 /** Macro to create the test environment.
  * 
@@ -413,13 +414,13 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param argc The number of command line arguments.
  * @param argv The array of command line arguments.
  */
-#define _FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = fossil_test_environment_create(argc, argv)
+#define _FOSSIL_TEST_CREATE(argc, argv) _TEST_ENV = fossil_test_environment_create(argc, argv)
 
 /** Macro to run the test environment.
  * 
  * This macro is used to run the test environment by calling the fossil_test_environment_run function.
  */
-#define _FOSSIL_TEST_RUN() fossil_test_environment_run(&_fossil_test_env)
+#define _FOSSIL_TEST_RUN() fossil_test_environment_run(&_TEST_ENV)
 
 /**
  * @brief Define macro for defining a test queue.
@@ -456,7 +457,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * 
  * @param group_name The name of the test group.
  */
-#define _FOSSIL_TEST_IMPORT(group_name) group_name(&_fossil_test_env)
+#define _FOSSIL_TEST_IMPORT(group_name) group_name(&_TEST_ENV)
 
 
 #ifdef __cplusplus
