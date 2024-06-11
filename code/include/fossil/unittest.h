@@ -381,7 +381,7 @@ extern "C"
  * the TEST_ASSUME macro with a false condition, indicating that the test
  * is not implemented, and includes a message indicating the same.
  */
-#define FOSSIL_TEST_NOT_IMPLEMENTED() TEST_ASSUME(false, (const char*)"Test not implemented yet")
+#define FOSSIL_TEST_NOT_IMPLEMENTED() TEST_ASSUME(false, (char*)"Test not implemented yet")
 
 // =================================================================
 // Bench specific commands
@@ -414,7 +414,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((const char*)duration, elapsed, actual)
+#define TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((char*)duration, elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in minutes.
@@ -426,7 +426,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((const char*)"minutes", elapsed, actual)
+#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((char*)"minutes", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in seconds.
@@ -438,7 +438,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((const char*)"seconds", elapsed, actual)
+#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((char*)"seconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in milliseconds.
@@ -450,7 +450,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((const char*)"milliseconds", elapsed, actual)
+#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((char*)"milliseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in microseconds.
@@ -462,7 +462,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((const char*)"microseconds", elapsed, actual)
+#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((char*)"microseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in nanoseconds.
@@ -474,7 +474,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((const char*)"nanoseconds", elapsed, actual)
+#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((char*)"nanoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in picoseconds.
@@ -486,7 +486,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((const char*)"picoseconds", elapsed, actual)
+#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((char*)"picoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in femtoseconds.
@@ -498,7 +498,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((const char*)"femtoseconds", elapsed, actual)
+#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((char*)"femtoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in attoseconds.
@@ -510,7 +510,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((const char*)"attoseconds", elapsed, actual)
+#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((char*)"attoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in zeptoseconds.
@@ -522,7 +522,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((const char*)"zeptoseconds", elapsed, actual)
+#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((char*)"zeptoseconds", elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in yoctoseconds.
@@ -534,7 +534,7 @@ extern "C"
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((const char*)"yoctoseconds", elapsed, actual)
+#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
 
 
 // =================================================================
