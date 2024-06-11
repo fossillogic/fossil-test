@@ -254,7 +254,7 @@ extern "C"
 #endif
 
 extern fossil_env_t _TEST_ENV;
-extern xassert_info _xassert_info;
+extern xassert_info _ASSERT_INFO;
 
 // =================================================================
 // Initial implementation

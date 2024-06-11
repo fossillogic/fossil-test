@@ -17,7 +17,7 @@ Description:
 #include <stdarg.h>
 
 fossil_env_t _TEST_ENV;
-xassert_info _xassert_info;
+xassert_info _ASSERT_INFO;
 
 // // Function to add a test to the front of the queue
 // void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue);
@@ -61,7 +61,7 @@ void fossil_test_queue_erase(fossil_test_queue_t* queue) {
 
     queue->front = xnullptr;
     queue->rear = xnullptr;
-}//
+}
 
 // Function to add a test to the front of the queue
 void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue) {
@@ -245,9 +245,7 @@ void _fossil_test_scoreboard_update(void) {
 }
 
 void _fossil_test_scoreboard_expected_rules(void) {
-    // nothing crazy here just updating the expected passed and failed
-    // counts based on the test case results.
-    if (!_xassert_info.has_assert) {
+    if (!_ASSERT_INFO.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
     }
 
@@ -260,9 +258,7 @@ void _fossil_test_scoreboard_expected_rules(void) {
 }
 
 void _fossil_test_scoreboard_unexpected_rules(void) {
-    // here we handle unexpected rules for cases that play
-    // the UNO reverse card on us.
-    if (!_xassert_info.has_assert) {
+    if (!_ASSERT_INFO.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
     }
 
@@ -272,7 +268,6 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
     } else {
         _TEST_ENV.stats.unexpected_passed_count++;
         _TEST_ENV.rule.should_pass = false;
-
     }
 }
 
@@ -281,13 +276,13 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     if (_TEST_ENV.rule.skipped == true && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
-    } else if (!_xassert_info.has_assert && strcmp(test_case->marks, "ghost") == 0) {
+    } else if (!_ASSERT_INFO.has_assert && strcmp(test_case->marks, "ghost") == 0) {
         _TEST_ENV.stats.expected_empty_count++;
     } else if (_TEST_ENV.rule.should_timeout == true) {
         _TEST_ENV.stats.expected_timeout_count++;
         _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
     } else if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
-        if (_xassert_info.should_fail) {
+        if (_ASSERT_INFO.should_fail) {
             _TEST_ENV.stats.expected_passed_count++;
             _TEST_ENV.rule.should_pass = true;
         } else {
@@ -298,19 +293,19 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     }
 }
 
-void _fossil_test_scoreboard(fossil_test_t *test_case) {
+void fossil_test_environment_scoareboard(fossil_test_t *test) {
     // here we handle the scoreboard logic for the test cases
     // based on the rules and features that are set.
-    if (strcmp(test_case->marks, "fossil") != 0 || strcmp(test_case->tags, "fossil") != 0) {
+    if (strcmp(test->marks, "fossil") != 0) {
         // Simply handling unique cases using marks and tags first
         // to ensure I catch the added features.
-        _fossil_test_scoreboard_feature_rules(test_case);
-    } else if (_TEST_ENV.rule.result) {
+        _fossil_test_scoreboard_feature_rules(test);
+    } else if (_TEST_ENV.rule.should_pass) {
         // here we handle the expected and unexpected rules
         // using normal flow without worrying about the features
         // as used in marks and tags.
         _fossil_test_scoreboard_expected_rules();
-    } else if (!_TEST_ENV.rule.result) {
+    } else if (!_TEST_ENV.rule.should_pass) {
         // here we handle unexpected rules for cases that play
         // the UNO reverse card on us.
         _fossil_test_scoreboard_unexpected_rules();
@@ -322,19 +317,19 @@ void _fossil_test_scoreboard(fossil_test_t *test_case) {
     _fossil_test_scoreboard_update();
 }
 
-void fossil_test_environment_scoareboard(fossil_test_t *test) {
-    _fossil_test_scoreboard(test);
-}
-
 void fossil_test_run_testcase(fossil_test_t *test) {
     if (test == xnullptr) {
         return;
     }
+    // set and reset step for assert scanning
+    _ASSERT_INFO.has_assert     = false;
+    _ASSERT_INFO.should_fail    = false;
+    _ASSERT_INFO.shoudl_timeout = false;
 
     if (_TEST_ENV.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
     } else if (_TEST_ENV.rule.skipped && strcmp(test->marks, "fail") == 0) {
-        _TEST_ENV.rule.should_pass = false;
+        _ASSERT_INFO.should_fail = false;
     }
 
     fossil_test_io_unittest_start(test);
@@ -344,7 +339,7 @@ void fossil_test_run_testcase(fossil_test_t *test) {
 
     // Run the test function
     test->test_function();
-    fossil_test_io_unittest_step(&_xassert_info);
+    fossil_test_io_unittest_step(&_ASSERT_INFO);
 
     if (test->fixture.teardown != xnullptr) {
         test->fixture.teardown();
@@ -527,7 +522,7 @@ void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
         return;
     }
 
-    if (!_xassert_info.should_fail) {
+    if (!_ASSERT_INFO.should_fail) {
         if (!expression) {
             _TEST_ENV.rule.should_pass = false;
             _TEST_ENV.current_assume_count++;
@@ -546,7 +541,7 @@ void fossil_test_assert_impl_assume(bool expression, xassert_info *assume) {
 
 // Custom assertion function with optional message.
 void fossil_test_assert_impl_assert(bool expression, xassert_info *assume) {
-    if (_xassert_info.should_fail) {
+    if (_ASSERT_INFO.should_fail) {
         if (!expression) {
             _TEST_ENV.rule.should_pass = true;
         } else if (expression) {
@@ -565,7 +560,7 @@ void fossil_test_assert_impl_assert(bool expression, xassert_info *assume) {
 
 // Custom expectation function with optional message.
 void fossil_test_assert_impl_expect(bool expression, xassert_info *assume) {
-    if (_xassert_info.should_fail) {
+    if (_ASSERT_INFO.should_fail) {
         if (!expression) {
             _TEST_ENV.rule.should_pass = true;
         } else if (expression) {
@@ -581,17 +576,17 @@ void fossil_test_assert_impl_expect(bool expression, xassert_info *assume) {
 } // end of func
 
 void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* message, char* file, int line, char* func) {
-    _xassert_info.func = func;
-    _xassert_info.file = file;
-    _xassert_info.line = line;
-    _xassert_info.message = message;
+    _ASSERT_INFO.func = func;
+    _ASSERT_INFO.file = file;
+    _ASSERT_INFO.line = line;
+    _ASSERT_INFO.message = message;
 
     if (behavor == TEST_ASSERT_AS_CLASS_ASSUME) {
-        fossil_test_assert_impl_assume(expression, &_xassert_info);
+        fossil_test_assert_impl_assume(expression, &_ASSERT_INFO);
     } else if (behavor == TEST_ASSERT_AS_CLASS_ASSERT) {
-        fossil_test_assert_impl_assert(expression, &_xassert_info);
+        fossil_test_assert_impl_assert(expression, &_ASSERT_INFO);
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
-        fossil_test_assert_impl_expect(expression, &_xassert_info);
+        fossil_test_assert_impl_expect(expression, &_ASSERT_INFO);
     }
-    _xassert_info.has_assert = true; // Make note of an assert being added in a given test case
+    _ASSERT_INFO.has_assert = true; // Make note of an assert being added in a given test case
 }
