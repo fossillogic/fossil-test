@@ -344,9 +344,17 @@ void fossil_test_io_summary_start(void) {
 }
 
 void fossil_test_io_summary_ended(fossil_env_t *env) {
+    char *color = "green";
+    if (env->stats.expected_failed_count > 0) {
+        color = "red";
+    } else if (env->stats.expected_passed_count == 0) {
+        color = "yellow";
+    }
+
     fossil_test_cout("blue", "\n%s %s: %s\n\n", FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, FOSSIL_TEST_INFO);
     fossil_test_cout("blue", "=============================================================================================\n");
-    fossil_test_cout("blue", " message: %s\n", summary_message(env));
+    fossil_test_cout("blue", "%s", " message: ");
+    fossil_test_cout(color, "%s\n", summary_message(env));
     fossil_test_cout("blue", "  Expected Passed: %3d   Expected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
     fossil_test_cout("blue", "Unexpected Passed: %3d Unexpected Failed: %3d\n", env->stats.expected_passed_count, env->stats.expected_failed_count);
     fossil_test_cout("blue", "    Timeout Cases: %3d     Skipped Cases: %3d\n", env->stats.expected_timeout_count, env->stats.expected_skipped_count);
