@@ -156,47 +156,41 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 // Fossil Test Environment functions
 //
 
-// Function to create a new test environment
-fossil_env_t* fossil_test_environment_create(int argc, char **argv) {
+fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
-    fossil_env_t *env = (fossil_env_t*)malloc(sizeof(fossil_env_t));
-    if (env != xnullptr) {
-        // Initialize test statistics
-        env->stats.expected_passed_count = 0;
-        env->stats.expected_failed_count = 0;
-        env->stats.unexpected_passed_count = 0;
-        env->stats.unexpected_failed_count = 0;
-        env->stats.expected_skipped_count = 0;
-        env->stats.expected_timeout_count = 0;
-        env->stats.expected_total_count = 0;
-        env->stats.untested_count = 0;
+    
+    fossil_env_t env = {0}; // Zero-initialize the environment
 
-        // Initialize test timer
-        env->timer.start = 0;
-        env->timer.end = 0;
-        env->timer.elapsed = 0;
-        env->timer.detail.minutes = 0;
-        env->timer.detail.seconds = 0;
-        env->timer.detail.milliseconds = 0;
-        env->timer.detail.microseconds = 0;
-        env->timer.detail.nanoseconds = 0;
+    // Initialize test statistics
+    env.stats.expected_passed_count = 0;
+    env.stats.expected_failed_count = 0;
+    env.stats.unexpected_passed_count = 0;
+    env.stats.unexpected_failed_count = 0;
+    env.stats.expected_skipped_count = 0;
+    env.stats.expected_timeout_count = 0;
+    env.stats.expected_total_count = 0;
+    env.stats.untested_count = 0;
 
-        // Initialize test queue
-        env->queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-        if (env->queue != xnullptr) {
-            env->queue->front = xnullptr;
-            env->queue->rear = xnullptr;
-        } else {
-            // Handle memory allocation failure
-            free(env);
-            env = xnullptr;
-        }
+    // Initialize test timer
+    env.timer.start = 0;
+    env.timer.end = 0;
+    env.timer.elapsed = 0;
+    env.timer.detail.minutes = 0;
+    env.timer.detail.seconds = 0;
+    env.timer.detail.milliseconds = 0;
+    env.timer.detail.microseconds = 0;
+    env.timer.detail.nanoseconds = 0;
 
-        // Initialize exception and assumption counts
-        env->current_except_count = 0;
-        env->current_assume_count = 0;
-    }
+    // Initialize test queue
+    env.queue->front = xnullptr;
+    env.queue->rear = xnullptr;
+
+    // Initialize exception and assumption counts
+    env.current_except_count = 0;
+    env.current_assume_count = 0;
+
     fossil_test_io_summary_start();
+    
     return env;
 }
 
