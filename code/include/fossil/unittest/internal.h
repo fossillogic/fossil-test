@@ -264,7 +264,7 @@ extern xassert_info _ASSERT_INFO;
 fossil_env_t fossil_test_environment_create(int argc, char **argv);
 void fossil_test_environment_run(fossil_env_t *env);
 void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_fixture_t *fixture);
-int  fossil_test_environment_summary(fossil_env_t *env);
+int  fossil_test_environment_summary(void);
 
 void fossil_test_apply_mark(fossil_test_t *test, const char *mark);
 void fossil_test_apply_xtag(fossil_test_t *test, const char *tag);
@@ -405,7 +405,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param name The name of the test case.
  * @param priority The priority of the test case.
  */
-#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary(&_TEST_ENV)
+#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary()
 
 /** Macro to create the test environment.
  * 

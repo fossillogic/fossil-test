@@ -34,17 +34,14 @@ xassert_info _ASSERT_INFO;
 // // Function to clear the queue
 // void fossil_test_queue_clear(fossil_test_queue_t *queue);
 
-//
-// Double ended priority queue functions
-
 void fossil_test_queue_create(fossil_test_queue_t** queue) {
     *queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-    if (*queue != xnullptr) {
-        (*queue)->front = xnullptr;
-        (*queue)->rear = xnullptr;
+    if (*queue != NULL) {
+        (*queue)->front = NULL;
+        (*queue)->rear = NULL;
     } else {
         // Handle memory allocation failure
-        // You might want to log an error message here
+        perror("Failed to allocate memory for queue");
         exit(EXIT_FAILURE);
     }
 }
@@ -53,23 +50,23 @@ void fossil_test_queue_erase(fossil_test_queue_t* queue) {
     fossil_test_t* current = queue->front;
     fossil_test_t* next;
 
-    while (current != xnullptr) {
+    while (current != NULL) {
         next = current->next;
         free(current);
         current = next;
     }
 
-    queue->front = xnullptr;
-    queue->rear = xnullptr;
+    queue->front = NULL;
+    queue->rear = NULL;
 }
 
 // Function to add a test to the front of the queue
 void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue) {
-    if (test == xnullptr || queue == xnullptr) {
+    if (test == NULL || queue == NULL) {
         return;
     }
 
-    if (queue->front == xnullptr) {
+    if (queue->front == NULL) {
         // The queue is empty
         queue->front = test;
         queue->rear = test;
@@ -79,15 +76,16 @@ void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queu
         queue->front->prev = test;
         queue->front = test;
     }
+    test->prev = NULL; // Ensure previous pointer of new front is NULL
 }
 
 // Function to add a test to the rear of the queue
 void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue) {
-    if (test == xnullptr || queue == xnullptr) {
+    if (test == NULL || queue == NULL) {
         return;
     }
 
-    if (queue->rear == xnullptr) {
+    if (queue->rear == NULL) {
         // The queue is empty
         queue->front = test;
         queue->rear = test;
@@ -97,24 +95,25 @@ void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue
         test->prev = queue->rear;
         queue->rear = test;
     }
+    test->next = NULL; // Ensure next pointer of new rear is NULL
 }
 
 // Function to remove and return the test from the front of the queue
 fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue) {
-    if (queue == xnullptr || queue->front == xnullptr) {
-        return xnullptr;
+    if (queue == NULL || queue->front == NULL) {
+        return NULL;
     }
 
     fossil_test_t *front_test = queue->front;
 
     if (queue->front == queue->rear) {
         // The queue has only one test
-        queue->front = xnullptr;
-        queue->rear = xnullptr;
+        queue->front = NULL;
+        queue->rear = NULL;
     } else {
         // Remove test from the front
         queue->front = queue->front->next;
-        queue->front->prev = xnullptr;
+        queue->front->prev = NULL;
     }
 
     return front_test;
@@ -122,20 +121,20 @@ fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue) {
 
 // Function to remove and return the test from the rear of the queue
 fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue) {
-    if (queue == xnullptr || queue->rear == xnullptr) {
-        return xnullptr;
+    if (queue == NULL || queue->rear == NULL) {
+        return NULL;
     }
 
     fossil_test_t *rear_test = queue->rear;
 
     if (queue->front == queue->rear) {
         // The queue has only one test
-        queue->front = xnullptr;
-        queue->rear = xnullptr;
+        queue->front = NULL;
+        queue->rear = NULL;
     } else {
         // Remove test from the rear
         queue->rear = queue->rear->prev;
-        queue->rear->next = xnullptr;
+        queue->rear->next = NULL;
     }
 
     return rear_test;
@@ -143,26 +142,25 @@ fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue) {
 
 // Function to clear the queue
 void fossil_test_queue_clear(fossil_test_queue_t *queue) {
-    if (queue == xnullptr) {
+    if (queue == NULL) {
         return;
     }
 
     // Free memory occupied by the tests in the queue
     fossil_test_t *current_test = queue->front;
-    while (current_test != xnullptr) {
+    while (current_test != NULL) {
         fossil_test_t *temp = current_test;
         current_test = current_test->next;
         free(temp);
     }
 
     // Reset queue pointers
-    queue->front = xnullptr;
-    queue->rear = xnullptr;
+    queue->front = NULL;
+    queue->rear = NULL;
 }
 
 // Function to add a test to the queue based on priority
 void add_test_to_queue(fossil_test_t *test, fossil_test_queue_t *queue) {
-    _TEST_ENV.stats.untested_count++;
     fossil_test_queue_push_back(test, queue);
 }
 
@@ -178,7 +176,6 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
     return fossil_test_queue_pop_back(queue);
 }
 
-
 //
 // Fossil Test Environment functions
 //
@@ -186,7 +183,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 void fossil_test_environment_erase(void) {
     if (_TEST_ENV.queue != xnullptr) {
         fossil_test_queue_erase(_TEST_ENV.queue);
-        free(_TEST_ENV.queue);
+        //free(_TEST_ENV.queue);
     }
 }
 
@@ -374,14 +371,19 @@ void fossil_test_environment_run(fossil_env_t *env) {
 }
 
 // Function to summarize the test environment
-int fossil_test_environment_summary(fossil_env_t *env) {
-    if (env == xnullptr) {
-        return -1;
-    }
-    int result = (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.unexpected_passed_count + env->stats.expected_timeout_count + env->stats.untested_count);
-
-    fossil_test_io_summary_ended(env);
+int fossil_test_environment_summary(void) {
+    // if (env == xnullptr) {
+    //     return -1;
+    // }
+    int result = (_TEST_ENV.stats.expected_failed_count   +
+                  _TEST_ENV.stats.unexpected_failed_count +
+                  _TEST_ENV.stats.unexpected_passed_count +
+                  _TEST_ENV.stats.expected_timeout_count  +
+                  _TEST_ENV.stats.untested_count);
+    fossil_test_cout("green", "%i\n", _TEST_ENV.stats.untested_count);
+    fossil_test_io_summary_ended();
     fossil_test_environment_erase();
+    fossil_test_cout("green", "%i\n", result);
 
     return result;
 }
@@ -396,9 +398,11 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
         test->fixture.setup = fixture->setup;
         test->fixture.teardown = fixture->teardown;
     }
+    fossil_test_cout("green", "%i\n", _TEST_ENV.stats.untested_count);
 
     // Update test statistics
     add_test_to_queue(test, env->queue);
+    _TEST_ENV.stats.untested_count++;
 }
 
 //
