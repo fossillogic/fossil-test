@@ -159,7 +159,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
-    fossil_env_t env = {0}; // Zero-initialize the environment
+    fossil_env_t env;
 
     // Initialize test statistics
     env.stats.expected_passed_count = 0;
