@@ -329,6 +329,11 @@ void fossil_test_io_unittest_ended(fossil_test_t *test) {
            (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
            (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
     fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
+
+    // Check for timeout
+    if (test->timer.elapsed >= (2 * 60 * CLOCKS_PER_SEC)) {
+        _fossil_test_env.rule.timeout = true;
+    }
 }
 
 void fossil_test_io_asserted(xassert_info *assume) {

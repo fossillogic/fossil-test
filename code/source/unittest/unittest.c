@@ -233,26 +233,27 @@ void fossil_test_environment_scoareboard(fossil_env_t *env, fossil_test_t *test)
     }
 
     // Update test statistics
-    if (strcmp(test->marks, "skip") == 0) {
+    if (_fossil_test_env.rule.skipped && strcmp(test->marks, "skip") == 0) {
         env->stats.expected_skipped_count++;
         _fossil_test_env.rule.skipped = false;
-    } else if (strcmp(test->marks, "timeout") == 0) {
+
+    } else if (_fossil_test_env.rule.timeout) {
         env->stats.expected_timeout_count++;
         _fossil_test_env.rule.timeout = false;
 
+    } else if (!env->rule.should_pass && strcmp(test->marks, "fail") == 0) {
+        if (!env->rule.should_pass) {
+            env->stats.expected_passed_count++;
+            env->rule.should_pass = false;
+        } else {
+            env->stats.unexpected_failed_count++;
+            env->rule.should_pass = false;
+        }
     } else if (env->rule.should_pass) {
         if (env->rule.should_pass) {
             env->stats.expected_passed_count++;
         } else {
             env->stats.expected_failed_count++;
-            env->rule.should_pass = false;
-        }
-    } else if (!env->rule.should_pass) {
-        if (env->rule.should_pass) {
-            env->stats.unexpected_passed_count++;
-            env->rule.should_pass = false;
-        } else {
-            env->stats.unexpected_failed_count++;
             env->rule.should_pass = false;
         }
     }
@@ -268,6 +269,8 @@ void fossil_test_run_testcase(fossil_test_t *test) {
 
     if (_fossil_test_env.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
+    } else if (_fossil_test_env.rule.skipped && strcmp(test->marks, "fail") == 0) {
+        _fossil_test_env.rule.should_pass = false;
     }
 
     fossil_test_io_unittest_start(test);
@@ -361,6 +364,9 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
         _fossil_test_env.rule.timeout = true;
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
+        _fossil_test_env.rule.should_pass = false;
+    } else if (strcmp(mark, "fail") == 0){
+        test->marks = "fail";
         _fossil_test_env.rule.should_pass = false;
     } else if (strcmp(mark, "none") == 0) {
         test->marks = "none";
