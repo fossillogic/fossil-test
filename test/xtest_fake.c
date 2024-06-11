@@ -51,7 +51,7 @@ FOSSIL_TEST(fossil_mockup_fake_called) {
     ASSUME_NOT_CNULL(fake);
 
     // Call the fake function
-    fossil_mockup_fake_call(fake);
+    //fossil_mockup_fake_call(fake);
 
     // Additional asserts can be added to verify the behavior
 

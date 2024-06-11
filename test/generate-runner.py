@@ -11,7 +11,7 @@ class TestRunnerGenerator:
 
         for root, _, files in os.walk(self.directory):
             for file in files:
-                if file.startswith('fossil_test_') and file.endswith('.' + extension):
+                if file.startswith('xtest_') and file.endswith('.' + extension):
                     with open(os.path.join(root, file), 'r') as f:
                         content = f.read()
                         matches = re.findall(pattern, content)

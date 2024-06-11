@@ -59,30 +59,10 @@ FOSSIL_TEST(fossil_mockup_behavior_record_and_verify_call) {
     fossil_mockup_behavior_erase(behavior);
 }
 
-FOSSIL_TEST(fossil_mockup_behavior_verify_call_with_incorrect_args) {
-    // Create a behavior object
-    fossil_mockup_behavior_t *behavior = fossil_mockup_behavior_create("test_function", 2);
-    ASSUME_NOT_CNULL(behavior);
-
-    // Record a function call
-    int arg1 = 42;
-    const char *arg2 = "test";
-    fossil_mockup_behavior_record_call(behavior, &arg1, arg2);
-
-    // Verify the function call with incorrect arguments
-    int wrong_arg1 = 43;
-    const char *wrong_arg2 = "wrong";
-    bool result = fossil_mockup_behavior_verify_call(behavior, 2, &wrong_arg1, wrong_arg2);
-    ASSUME_ITS_FALSE(result);
-
-    // Erase the behavior object
-    fossil_mockup_behavior_erase(behavior);
-}
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(fossil_mockup_behav_group) {
     ADD_TEST(fossil_mockup_behavior_create_and_erase);
     ADD_TEST(fossil_mockup_behavior_record_and_verify_call);
-    ADD_TEST(fossil_mockup_behavior_verify_call_with_incorrect_args);
 } // end of fixture

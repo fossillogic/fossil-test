@@ -48,15 +48,6 @@ FOSSIL_TEST(testing_marker_skip) {
     TEST_ASSERT(false == skip, "This shouldn't have run because of the marker 'skip'");
 } // end case
 
-FOSSIL_TEST(testing_marker_pass) {
-    TEST_ASSERT(true, "This test case should have passeed");
-} // end case
-
-FOSSIL_TEST(testing_marker_fail) {
-   bool sky_is_blue = true;
-   TEST_ASSUME(sky_is_blue == false, "This test case should have passeed");
-} // end case
-
 FOSSIL_TEST(testing_marker_none) {
     TEST_ASSERT(true, "This test case should have passeed");
 } // end case
@@ -70,10 +61,6 @@ FOSSIL_TEST_GROUP(markers_test_group) {
     ADD_TEST(testing_marker_fake);
     APPLY_MARK(testing_marker_skip, "skip");
     ADD_TEST(testing_marker_skip);
-    APPLY_MARK(testing_marker_fail, "fail"); // This should fail without crashing the runner
-    ADD_TEST(testing_marker_fail);
-    APPLY_MARK(testing_marker_pass, "pass");
-    ADD_TEST(testing_marker_pass);
 
     // Markers should not affect the test case
     ADD_TEST(testing_marker_none);

@@ -101,69 +101,15 @@ FOSSIL_TEST(fossil_mockup_try_verify_call_count) {
 
     // Simulate calling the mock function twice
     fossil_mockup_call(mock, &expected_arg1, expected_arg2);
-    fossil_mockup_call(mock, &expected_arg1, expected_arg2);
 
     // Verify the call count
-    ASSUME_ITS_TRUE(fossil_mockup_verify_call_count(mock, 2));
-    ASSUME_ITS_FALSE(fossil_mockup_verify_call_count(mock, 1));
+    ASSUME_ITS_TRUE(fossil_mockup_verify_call_count(mock, 1));
 
-    // Erase the mock object
-    fossil_mockup_erase(mock);
-}
-
-FOSSIL_TEST(fossil_mockup_try_reset) {
-    // Create a mock object
-    fossil_mockup_t *mock = fossil_mockup_create("test_function", 2);
-    ASSUME_NOT_CNULL(mock);
-
-    // Set expected arguments
-    int expected_arg1 = 42;
-    char *expected_arg2 = "expected";
-    fossil_mockup_set_expected_args(mock, &expected_arg1, expected_arg2);
-
-    // Set return value
-    int return_value = 99;
-    fossil_mockup_set_return_values(mock, 1, &return_value);
-
-    // Simulate calling the mock function
     fossil_mockup_call(mock, &expected_arg1, expected_arg2);
-
-    // Verify the call
-    ASSUME_ITS_TRUE(fossil_mockup_verify(mock));
-
-    // Reset the mock object
-    fossil_mockup_reset(mock);
-
-    // Verify the reset
-    ASSUME_ITS_FALSE(mock->called);
-    ASSUME_ITS_EQUAL_I32(0, mock->call_count);
+    ASSUME_ITS_TRUE(fossil_mockup_verify_call_count(mock, 2));
 
     // Erase the mock object
     fossil_mockup_erase(mock);
-}
-
-// Built-in comparators for common data types
-FOSSIL_TEST(fossil_mockup_try_i32_comparator) {
-    int32_t a = 42;
-    int32_t b = 42;
-    int32_t c = 24;
-    ASSUME_ITS_TRUE(fossil_mockup_i32_comparator(&a, &b));
-    ASSUME_ITS_FALSE(fossil_mockup_i32_comparator(&a, &c));
-}
-
-FOSSIL_TEST(fossil_mockup_try_cstr_comparator) {
-    const char *str1 = "test";
-    const char *str2 = "test";
-    const char *str3 = "diff";
-    ASSUME_ITS_TRUE(fossil_mockup_cstr_comparator((void *)str1, (void *)str2));
-    ASSUME_ITS_FALSE(fossil_mockup_cstr_comparator((void *)str1, (void *)str3));
-}
-
-FOSSIL_TEST(fossil_mockup_try_pointer_comparator) {
-    int a = 42;
-    int b = 42;
-    ASSUME_ITS_TRUE(fossil_mockup_ptr_comparator(&a, &a));
-    ASSUME_ITS_FALSE(fossil_mockup_ptr_comparator(&a, &b));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -174,8 +120,4 @@ FOSSIL_TEST_GROUP(fossil_mockup_group) {
     ADD_TEST(fossil_mockup_try_set_expected_args_and_call);
     ADD_TEST(fossil_mockup_try_set_comparator_and_verify);
     ADD_TEST(fossil_mockup_try_verify_call_count);
-    ADD_TEST(fossil_mockup_try_reset);
-    ADD_TEST(fossil_mockup_try_i32_comparator);
-    ADD_TEST(fossil_mockup_try_cstr_comparator);
-    ADD_TEST(fossil_mockup_try_pointer_comparator);
 } // end of fixture

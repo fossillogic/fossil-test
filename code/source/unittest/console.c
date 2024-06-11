@@ -297,6 +297,7 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
 
 // Internal function to calculate elapsed time for a test
 static void calculate_elapsed_time(fossil_test_timer_t *timer) {
+    timer->end = clock();
     // Calculate elapsed time
     timer->elapsed = timer->end - timer->start;
 
@@ -310,20 +311,24 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
 
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
-    fossil_test_cout("blue", "%s\n", "=[started case]==============================================================================");
-    fossil_test_cout("blue", "test name : -> %s\n", test->name);
-    fossil_test_cout("blue", "test case : -> %s\n", replace_underscore(test->name));
+    fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
+    _fossil_test_env.stats.expected_total_count + 1, "===");
+    fossil_test_cout("blue", "test name : -> %s\n", replace_underscore(test->name));
     fossil_test_cout("blue", "priority  : -> %d\n", test->priority);
     fossil_test_cout("blue", "tags      : -> %s\n", test->tags);
     fossil_test_cout("blue", "marker    : -> %s\n", test->marks);
 }
 
+void fossil_test_io_unittest_step(xassert_info *assume) {
+    fossil_test_cout("blue", "has assert: -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+}
+
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
-    fossil_test_cout("blue", "time: %2ld minutes, %2ld seconds, %3ld milliseconds, %6ld microseconds, %9ld nanoseconds\n",
-           test->timer.detail.minutes, test->timer.detail.seconds, test->timer.detail.milliseconds,
-           test->timer.detail.microseconds, test->timer.detail.nanoseconds);
-    fossil_test_cout("blue", "%s\n", "=[ ended case ]=============================================================================");
+    fossil_test_cout("blue", "timestamp : -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+           (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
+           (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
+    fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
 }
 
 void fossil_test_io_asserted(xassert_info *assume) {
@@ -362,5 +367,8 @@ void fossil_test_io_summary_ended(fossil_env_t *env) {
     fossil_test_cout("blue", "Total Tests: %d\n", env->stats.expected_total_count);
     fossil_test_cout("blue", "Total Ghost: %d\n", env->stats.untested_count);
     fossil_test_cout("blue", "=============================================================================================\n");
-    fossil_test_cout("blue", "Total Elapsed Time: %ld milliseconds\n", (long)env->timer.elapsed);
+    calculate_elapsed_time(&env->timer);
+    fossil_test_cout("yellow", "timestamp : -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+           (uint32_t)env->timer.detail.minutes, (uint32_t)env->timer.detail.seconds, (uint32_t)env->timer.detail.milliseconds,
+           (uint32_t)env->timer.detail.microseconds, (uint32_t)env->timer.detail.nanoseconds);
 }

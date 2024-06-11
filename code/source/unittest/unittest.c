@@ -68,6 +68,7 @@ void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queu
     if (test == xnullptr || queue == xnullptr) {
         return;
     }
+    fossil_test_cout("green", "Running passing null scan...\n");
 
     if (queue->front == xnullptr) {
         // The queue is empty
@@ -228,10 +229,45 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     return env;
 }
 
+void fossil_test_environment_scoareboard(fossil_env_t *env, fossil_test_t *test) {
+    if (env == xnullptr) {
+        return;
+    }
+
+    // Update test statistics
+    if (strcmp(test->marks, "skip") == 0) {
+        env->stats.expected_skipped_count++;
+        _fossil_test_env.rule.skipped = false;
+    } else if (strcmp(test->marks, "timeout") == 0) {
+        env->stats.expected_timeout_count++;
+        _fossil_test_env.rule.timeout = false;
+    } else if (env->rule.should_pass) {
+        if (env->rule.should_pass) {
+            env->stats.expected_passed_count++;
+        } else {
+            env->stats.expected_failed_count++;
+        }
+    } else if (!env->rule.should_pass) {
+        if (env->rule.should_pass) {
+            env->stats.unexpected_passed_count++;
+        } else {
+            env->stats.unexpected_failed_count++;
+        }
+    }
+
+    env->stats.untested_count--;
+    env->stats.expected_total_count++;
+}
+
 void fossil_test_run_testcase(fossil_test_t *test) {
     if (test == xnullptr) {
         return;
     }
+
+    if (_fossil_test_env.rule.skipped && strcmp(test->marks, "skip") == 0) {
+        return;
+    }
+
     fossil_test_io_unittest_start(test);
     if (test->fixture.setup != xnullptr) {
         test->fixture.setup();
@@ -239,17 +275,19 @@ void fossil_test_run_testcase(fossil_test_t *test) {
 
     // Run the test function
     test->test_function();
+    fossil_test_io_unittest_step(&_xassert_info);
 
     if (test->fixture.teardown != xnullptr) {
         test->fixture.teardown();
     }
 
     fossil_test_io_unittest_ended(test);
+    fossil_test_environment_scoareboard(&_fossil_test_env, test);
 }
 
 // Function to run the test environment
 void fossil_test_environment_run(fossil_env_t *env) {
-    if (env == xnullptr || env->queue == xnullptr || env->queue->front == xnullptr) {
+    if (env == xnullptr) {
         return;
     }
 
@@ -290,18 +328,6 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
         return;
     }
 
-    // Add the test to the queue
-    if (env->queue->front == xnullptr) {
-        // The queue is empty
-        env->queue->front = test;
-        env->queue->rear = test;
-    } else {
-        // Append the test to the end of the queue
-        env->queue->rear->next = test;
-        test->prev = env->queue->rear;
-        env->queue->rear = test;
-    }
-
     if (fixture != xnullptr) {
         test->fixture.setup = fixture->setup;
         test->fixture.teardown = fixture->teardown;
@@ -309,7 +335,7 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
 
     // Update test statistics
     env->stats.untested_count++;
-    fossil_test_queue_push_front(test, env->queue);
+    add_test_to_queue(test, env->queue);
 }
 
 //
@@ -327,8 +353,10 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
     // we handle any rules for marks
     if (strcmp(mark, "skip") == 0) {
         test->marks = "skip";
+        _fossil_test_env.rule.skipped = true;
     } else if (strcmp(mark, "timeout") == 0) {
         test->marks = "timeout";
+        _fossil_test_env.rule.timeout = true;
     } else if (strcmp(mark, "error") == 0) {
         test->marks = "error";
     } else if (strcmp(mark, "none") == 0) {
