@@ -32,10 +32,10 @@ enum {
 };
 
 void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *commands) {
-    if (argc < 2) {
-        fossil_test_cli_show_help(commands);
-        exit(EXIT_FAILURE);
-    }
+    // if (argc < 2) {
+    //     fossil_test_cli_show_help(commands);
+    //     exit(EXIT_FAILURE);
+    // }
 
     for (int i = 1; i < argc; i++) {
         bool command_found = false;
