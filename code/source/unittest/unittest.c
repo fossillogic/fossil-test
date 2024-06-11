@@ -190,10 +190,6 @@ void fossil_test_environment_erase(void) {
     }
 }
 
-void fossil_test_environment_erase(void) {
-    fossil_test_queue_erase(_fossil_test_env.queue);
-}
-
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
