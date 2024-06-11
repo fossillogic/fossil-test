@@ -413,13 +413,13 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param argc The number of command line arguments.
  * @param argv The array of command line arguments.
  */
-#define _FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = _fossil_test_environment_create(argc, argv)
+#define _FOSSIL_TEST_CREATE(argc, argv) _fossil_test_env = fossil_test_environment_create(argc, argv)
 
 /** Macro to run the test environment.
  * 
  * This macro is used to run the test environment by calling the fossil_test_environment_run function.
  */
-#define _FOSSIL_TEST_RUN() fossil_test_environment_run(_fossil_test_env)
+#define _FOSSIL_TEST_RUN() fossil_test_environment_run(&_fossil_test_env)
 
 /**
  * @brief Define macro for defining a test queue.
