@@ -20,6 +20,11 @@ fossil_mockup_input_t* fossil_mockup_input_create(const char *function_name) {
         exit(EXIT_FAILURE);
     }
     input->function_name = _custom_fossil_test_strdup(function_name);
+    if (input->function_name == NULL) {
+        perror("Failed to duplicate function name");
+        free(input);
+        exit(EXIT_FAILURE);
+    }
     input->mocked_inputs = NULL;
     input->input_count = 0;
     input->call_count = 0;
@@ -28,13 +33,24 @@ fossil_mockup_input_t* fossil_mockup_input_create(const char *function_name) {
 }
 
 void fossil_mockup_input_set_inputs(fossil_mockup_input_t *input, int32_t count, ...) {
-    input->mocked_inputs = (void **)malloc(count * sizeof(void *));
+    void **mocked_inputs = (void **)malloc(count * sizeof(void *));
+    if (mocked_inputs == NULL) {
+        perror("Failed to allocate memory for mocked inputs");
+        exit(EXIT_FAILURE);
+    }
+
     va_list args;
     va_start(args, count);
     for (int32_t i = 0; i < count; i++) {
-        input->mocked_inputs[i] = va_arg(args, void *);
+        mocked_inputs[i] = va_arg(args, void *);
     }
     va_end(args);
+
+    if (input->mocked_inputs) {
+        free(input->mocked_inputs);
+    }
+
+    input->mocked_inputs = mocked_inputs;
     input->input_count = count;
 }
 

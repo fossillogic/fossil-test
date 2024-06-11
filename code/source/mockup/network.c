@@ -19,9 +19,31 @@ fossil_mockup_network_t* fossil_mockup_network_create(const char *host, const ch
         perror("Failed to allocate memory for network mock");
         exit(EXIT_FAILURE);
     }
+
     network->host = _custom_fossil_test_strdup(host);
+    if (network->host == NULL) {
+        perror("Failed to duplicate host string");
+        free(network);
+        exit(EXIT_FAILURE);
+    }
+
     network->request = _custom_fossil_test_strdup(request);
+    if (network->request == NULL) {
+        perror("Failed to duplicate request string");
+        free(network->host);
+        free(network);
+        exit(EXIT_FAILURE);
+    }
+
     network->response = _custom_fossil_test_strdup(response);
+    if (network->response == NULL) {
+        perror("Failed to duplicate response string");
+        free(network->request);
+        free(network->host);
+        free(network);
+        exit(EXIT_FAILURE);
+    }
+
     network->next = NULL;
     return network;
 }

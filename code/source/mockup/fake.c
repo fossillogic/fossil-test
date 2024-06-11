@@ -18,7 +18,14 @@ fossil_mockup_fake_t* fossil_mockup_fake_create(const char *function_name, void 
         perror("Failed to allocate memory for fake");
         exit(EXIT_FAILURE);
     }
+
     fake->function_name = _custom_fossil_test_strdup(function_name);
+    if (fake->function_name == NULL) {
+        perror("Failed to duplicate function name");
+        free(fake);
+        exit(EXIT_FAILURE);
+    }
+
     fake->fake_function = fake_function;
     fake->next = NULL;
     return fake;

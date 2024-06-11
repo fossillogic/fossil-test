@@ -19,7 +19,14 @@ fossil_mockup_stub_t* fossil_mockup_stub_create(const char *function_name) {
         perror("Failed to allocate memory for stub");
         exit(EXIT_FAILURE);
     }
+
     stub->function_name = _custom_fossil_test_strdup(function_name);
+    if (stub->function_name == NULL) {
+        perror("Failed to duplicate function name");
+        free(stub);
+        exit(EXIT_FAILURE);
+    }
+
     stub->return_values = NULL;
     stub->return_count = 0;
     stub->call_count = 0;
@@ -29,6 +36,13 @@ fossil_mockup_stub_t* fossil_mockup_stub_create(const char *function_name) {
 
 void fossil_mockup_stub_set_return_values(fossil_mockup_stub_t *stub, int32_t count, ...) {
     stub->return_values = (void **)malloc(count * sizeof(void *));
+    if (stub->return_values == NULL) {
+        perror("Failed to allocate memory for return values");
+        free(stub->function_name);
+        free(stub);
+        exit(EXIT_FAILURE);
+    }
+
     va_list args;
     va_start(args, count);
     for (int32_t i = 0; i < count; i++) {

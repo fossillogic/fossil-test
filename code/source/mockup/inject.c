@@ -19,7 +19,14 @@ fossil_mockup_inject_t* fossil_mockup_inject_create(const char *dependency_name,
         perror("Failed to allocate memory for injected dependency");
         exit(EXIT_FAILURE);
     }
+    
     inject->dependency_name = _custom_fossil_test_strdup(dependency_name);
+    if (inject->dependency_name == NULL) {
+        perror("Failed to duplicate dependency name");
+        free(inject);
+        exit(EXIT_FAILURE);
+    }
+
     inject->replacement_object = replacement_object;
     inject->next = NULL;
     return inject;

@@ -19,20 +19,20 @@ Description:
 fossil_env_t _TEST_ENV;
 xassert_info _xassert_info;
 
-// Function to add a test to the front of the queue
-void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue);
+// // Function to add a test to the front of the queue
+// void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue);
 
-// Function to add a test to the rear of the queue
-void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue);
+// // Function to add a test to the rear of the queue
+// void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue);
 
-// Function to remove and return the test from the front of the queue
-fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue);
+// // Function to remove and return the test from the front of the queue
+// fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue);
 
-// Function to remove and return the test from the rear of the queue
-fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue);
+// // Function to remove and return the test from the rear of the queue
+// fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue);
 
-// Function to clear the queue
-void fossil_test_queue_clear(fossil_test_queue_t *queue);
+// // Function to clear the queue
+// void fossil_test_queue_clear(fossil_test_queue_t *queue);
 
 //
 // Double ended priority queue functions

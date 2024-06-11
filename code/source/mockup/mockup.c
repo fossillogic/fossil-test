@@ -19,11 +19,42 @@ fossil_mockup_t* fossil_mockup_create(const char *function_name, int32_t num_arg
         perror("Failed to allocate memory for mock");
         exit(EXIT_FAILURE);
     }
+
     mock->function_name = _custom_fossil_test_strdup(function_name);
+    if (mock->function_name == NULL) {
+        perror("Failed to duplicate function name");
+        free(mock);
+        exit(EXIT_FAILURE);
+    }
+
     mock->num_args = num_args;
     mock->expected_args = (void **)malloc(num_args * sizeof(void *));
+    if (mock->expected_args == NULL) {
+        perror("Failed to allocate memory for expected args");
+        free(mock->function_name);
+        free(mock);
+        exit(EXIT_FAILURE);
+    }
+
     mock->comparators = (fossil_mockup_comparator_t *)calloc(num_args, sizeof(fossil_mockup_comparator_t));
+    if (mock->comparators == NULL) {
+        perror("Failed to allocate memory for comparators");
+        free(mock->expected_args);
+        free(mock->function_name);
+        free(mock);
+        exit(EXIT_FAILURE);
+    }
+
     mock->actual_args = (void **)malloc(num_args * sizeof(void *));
+    if (mock->actual_args == NULL) {
+        perror("Failed to allocate memory for actual args");
+        free(mock->comparators);
+        free(mock->expected_args);
+        free(mock->function_name);
+        free(mock);
+        exit(EXIT_FAILURE);
+    }
+
     mock->return_values = NULL;
     mock->return_count = 0;
     mock->call_count = 0;
@@ -48,7 +79,14 @@ void fossil_mockup_set_comparator(fossil_mockup_t *mock, int32_t arg_index, foss
 }
 
 void fossil_mockup_set_return_values(fossil_mockup_t *mock, int32_t count, ...) {
+    if (mock->return_values) {
+        free(mock->return_values);
+    }
     mock->return_values = (void **)malloc(count * sizeof(void *));
+    if (mock->return_values == NULL) {
+        perror("Failed to allocate memory for return values");
+        exit(EXIT_FAILURE);
+    }
     va_list args;
     va_start(args, count);
     for (int32_t i = 0; i < count; i++) {
