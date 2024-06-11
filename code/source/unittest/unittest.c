@@ -37,9 +37,16 @@ void fossil_test_queue_clear(fossil_test_queue_t *queue);
 //
 // Double ended priority queue functions
 
-void fossil_test_queue_create(fossil_test_queue_t* queue) {
-    queue->front = xnullptr;
-    queue->rear = xnullptr;
+void fossil_test_queue_create(fossil_test_queue_t** queue) {
+    *queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
+    if (*queue != xnullptr) {
+        (*queue)->front = xnullptr;
+        (*queue)->rear = xnullptr;
+    } else {
+        // Handle memory allocation failure
+        // You might want to log an error message here
+        exit(EXIT_FAILURE);
+    }
 }
 
 void fossil_test_queue_erase(fossil_test_queue_t* queue) {
@@ -176,13 +183,21 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 //
 
 void fossil_test_environment_erase(void) {
+    if (_fossil_test_env.queue != xnullptr) {
+        fossil_test_queue_erase(_fossil_test_env.queue);
+        free(_fossil_test_env.queue);
+        _fossil_test_env.queue = xnullptr;
+    }
+}
+
+void fossil_test_environment_erase(void) {
     fossil_test_queue_erase(_fossil_test_env.queue);
 }
 
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
-    fossil_env_t env = {0}; // Zero-initialize the environment
+    fossil_env_t env;
 
     // Initialize test statistics
     env.stats.expected_passed_count = 0;
@@ -205,7 +220,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.timer.detail.nanoseconds = 0;
 
     // Initialize test queue
-    fossil_test_queue_create(env.queue);
+    fossil_test_queue_create(&env.queue);
     atexit(fossil_test_environment_erase); // ensure memory leaks do not occur
 
     // Initialize exception and assumption counts
