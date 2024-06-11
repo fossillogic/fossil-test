@@ -33,7 +33,7 @@ void fossil_test_cout(const char* color_name, const char* format, ...);
 void fossil_test_io_unittest_start(fossil_test_t *test);
 void fossil_test_io_unittest_ended(fossil_test_t *test);
 void fossil_test_io_asserted(xassert_info *assume);
-void fossil_test_io_summary_start(fossil_env_t *env);
+void fossil_test_io_summary_start(void);
 void fossil_test_io_summary_ended(fossil_env_t *env);
 
 #ifdef __cplusplus

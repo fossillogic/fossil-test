@@ -335,7 +335,7 @@ void fossil_test_io_asserted(xassert_info *assume) {
     fossil_test_cout("red", "=========================================================================================[F]=\n");
 }
 
-void fossil_test_io_summary_start(fossil_env_t *env) {
+void fossil_test_io_summary_start(void) {
     fossil_test_cout("blue", "\n%s %s: %s\n\n", FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, FOSSIL_TEST_INFO);
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "%s\n", "platform meta data about the host system:");

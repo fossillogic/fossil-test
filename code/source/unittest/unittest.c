@@ -196,7 +196,7 @@ fossil_env_t* fossil_test_environment_create(int argc, char **argv) {
         env->current_except_count = 0;
         env->current_assume_count = 0;
     }
-    fossil_test_io_summary_start(env);
+    fossil_test_io_summary_start();
     return env;
 }
 
