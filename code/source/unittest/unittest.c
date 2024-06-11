@@ -182,8 +182,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.timer.detail.nanoseconds = 0;
 
     // Initialize test queue
-    env.queue->front = xnullptr;
-    env.queue->rear = xnullptr;
+    env.queue = (fossil_test_queue_t *){xnull, xnull};
 
     // Initialize exception and assumption counts
     env.current_except_count = 0;
