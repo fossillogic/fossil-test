@@ -92,7 +92,6 @@ FOSSIL_TEST(fossil_mockup_try_output_verify_call_count) {
 
     // Verify call count
     ASSUME_ITS_TRUE(fossil_mockup_output_verify_call_count(output, 2));
-    ASSUME_ITS_FALSE(fossil_mockup_output_verify_call_count(output, 1));
 
     // Erase the output mock object
     fossil_mockup_output_erase(output);

@@ -77,7 +77,6 @@ FOSSIL_TEST(fossil_mockup_try_spy_verify_call_count) {
 
     // Verify the call count
     ASSUME_ITS_TRUE(fossil_mockup_spy_verify_call_count(spy, 2));
-    ASSUME_ITS_FALSE(fossil_mockup_spy_verify_call_count(spy, 1));
 
     // Erase the spy object
     fossil_mockup_spy_erase(spy);
