@@ -201,7 +201,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.stats.expected_empty_count = 0;
     env.stats.expected_timeout_count = 0;
     env.stats.expected_total_count = 0;
-    env.stats.untested_count = 0;
+    env.stats.untested_count = -1;
 
     // Initialize test timer
     env.timer.start = 0;
