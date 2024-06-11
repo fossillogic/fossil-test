@@ -36,7 +36,26 @@ void fossil_test_queue_clear(fossil_test_queue_t *queue);
 
 //
 // Double ended priority queue functions
-//
+
+void fossil_test_queue_create(fossil_test_queue_t* queue) {
+    queue->front = xnullptr;
+    queue->rear = xnullptr;
+}
+
+void fossil_test_queue_erase(fossil_test_queue_t* queue) {
+    fossil_test_t* current = queue->front;
+    fossil_test_t* next;
+
+    while (current != xnullptr) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+
+    queue->front = xnullptr;
+    queue->rear = xnullptr;
+}//
+
 // Function to add a test to the front of the queue
 void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue) {
     if (test == xnullptr || queue == xnullptr) {
@@ -156,6 +175,10 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 // Fossil Test Environment functions
 //
 
+void fossil_test_environment_erase(void) {
+    fossil_test_queue_erase(&_fossil_test_env.queue);
+}
+
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
@@ -183,6 +206,8 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
 
     // Initialize test queue
     env.queue = (fossil_test_queue_t *){xnull, xnull};
+    fossil_test_queue_create(&env.queue);
+    atexit(fossil_test_environment_erase); // ensure memory leaks do not occur
 
     // Initialize exception and assumption counts
     env.current_except_count = 0;
@@ -241,8 +266,12 @@ int fossil_test_environment_summary(fossil_env_t *env) {
     if (env == xnullptr) {
         return -1;
     }
+    int result = (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.expected_timeout_count + env->stats.untested_count);
+
     fossil_test_io_summary_ended(env);
-    return (env->stats.expected_failed_count + env->stats.unexpected_failed_count + env->stats.expected_timeout_count + env->stats.untested_count);
+    fossil_test_environment_erase();
+
+    return result;
 }
 
 // Function to add a test to the test environment

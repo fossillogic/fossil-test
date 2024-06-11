@@ -336,10 +336,9 @@ void fossil_test_io_asserted(xassert_info *assume) {
 }
 
 void fossil_test_io_summary_start(void) {
-    fossil_test_cout("blue", "\n%s %s: %s\n\n", FOSSIL_TEST_NAME, FOSSIL_TEST_VERSION, FOSSIL_TEST_INFO);
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "%s\n", "platform meta data about the host system:");
-    fossil_test_cout("blue", "endian(%6s) cpus(%4i) memory(%4i) os(%s) arch(%s)\n",
+    fossil_test_cout("blue", "endian(%6s) cpus(%2i) memory(%4i) os(%s) arch(%s)\n",
     _fossil_test_assert_is_big_endian() ? "big" : "little", _fossil_test_get_num_cpus(), _fossil_test_get_memory_size(), _fossil_test_get_os_name(), _fossil_test_get_architecture());
     fossil_test_cout("blue", "=============================================================================================\n");
 }
