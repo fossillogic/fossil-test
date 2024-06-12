@@ -253,7 +253,7 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
 void fossil_test_environment_scoreboard(fossil_test_t *test) {
     // for the first part we check if the given test case
     // has any feature flags or rules triggered.
-    if (!strcmp(test->marks, "fossil") != 0) {
+    if (strcmp(test->marks, "fossil") != 0) {
         _fossil_test_scoreboard_feature_rules(test);
     }
     
@@ -326,7 +326,6 @@ int fossil_test_environment_summary(void) {
                   _TEST_ENV.stats.unexpected_passed_count +
                   _TEST_ENV.stats.expected_timeout_count  +
                   _TEST_ENV.stats.untested_count);
-    fossil_test_environment_erase();
 
     return result;
 }
