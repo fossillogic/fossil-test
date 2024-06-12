@@ -55,7 +55,79 @@ Before getting started, make sure you have the following installed:
    ```
 
    This line retrieves the `fossil-test` dependency, allowing you to use it in your project.
-   
+
+## Fossil Test CLI Usage
+
+The Fossil Test CLI is a command-line tool designed to help you run and manage your test suite efficiently. Below are the available commands and options:
+
+### Commands and Options
+
+| Command                         | Description                                                                                   |
+|---------------------------------|-----------------------------------------------------------------------------------------------|
+| `--version`                     | Displays the version of the Fossil Test CLI.                                                  |
+| `--help`                        | Shows the help message with usage instructions.                                               |
+| `--tip`                         | Provides a tip or hint about using the Fossil Test CLI.                                       |
+| `--info`                        | Displays information about the test runner.                                                   |
+| `--author`                      | Shows information about the author of the test runner.                                        |
+| `only=<tag>` or `only=<tags>`   | Runs only the tests tagged with the specified tag(s). Tags should be comma-separated for multiple tags. |
+| `reverse [enable/disable]`      | Enables or disables the reverse order of test execution.                                      |
+| `repeat=<number>`               | Repeats the test suite for the specified number of times.                                     |
+| `shuffle [enable/disable]`      | Enables or disables the shuffling of test execution order.                                    |
+| `verbose [cutback/normal/verbose]` | Sets the verbosity level of the output. Options are `cutback`, `normal`, and `verbose`.     |
+| `list`                          | Lists all available tests.                                                                    |
+| `summary [enable/disable]`      | Enables or disables the summary of test results after execution.                              |
+| `color [enable/disable]`        | Enables or disables colored output in the terminal.                                           |
+| `sanity [enable/disable]`       | Enables or disables sanity checks before running the tests.                                   |
+
+### Examples
+
+- Display version information:
+  ```sh
+  fossil_cli --version
+  ```
+
+- Show help message:
+  ```sh
+  fossil_cli --help
+  ```
+
+- Run only tests tagged with "unit" and "integration":
+  ```sh
+  fossil_cli only=unit,integration
+  ```
+
+- Enable reverse order of test execution:
+  ```sh
+  fossil_cli reverse enable
+  ```
+
+- Repeat the test suite 5 times:
+  ```sh
+  fossil_cli repeat=5
+  ```
+
+- Enable verbose output:
+  ```sh
+  fossil_cli verbose verbose
+  ```
+
+- List all available tests:
+  ```sh
+  fossil_cli list
+  ```
+
+- Enable test result summary:
+  ```sh
+  fossil_cli summary enable
+  ```
+
+- Enable colored output:
+  ```sh
+  fossil_cli color enable
+  ```
+
+Feel free to explore and use the various commands and options to tailor the test runner to your needs. For further assistance, refer to the `--help` command.
+
 ## Configure Options
 
 You have options when configuring the build, each serving a different purpose:
