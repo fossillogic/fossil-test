@@ -19,7 +19,7 @@ Description:
 fossil_options_t _CLI;
 
 // Initialize the options structure
-fossil_options_t init_options() {
+fossil_options_t init_options(void) {
     fossil_options_t options;
     options.show_version = false;
     options.show_help = false;
