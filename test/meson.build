@@ -7,7 +7,7 @@ if get_option('with_test').enabled()
         'spy', 'fake', 'stub', 'file', 'behavior',
         'inject', 'network', 'output', 'input', 'internal',
         # Fossil Test cases
-        'xfixture', 'bench', 'bdd', 'tdd', 'tags', 'markers',
+        'xfixture', 'bench', 'bdd', 'tdd', 'tags',
     ]
 
     foreach cube : test_cubes

@@ -397,7 +397,6 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
         test->fixture.setup = fixture->setup;
         test->fixture.teardown = fixture->teardown;
     }
-    fossil_test_cout("green", "%i\n", _TEST_ENV.stats.untested_count);
 
     // Update test statistics
     add_test_to_queue(test, env->queue);
@@ -432,8 +431,6 @@ void fossil_test_apply_mark(fossil_test_t *test, const char *mark) {
         test->marks = "none";
     } else if (strcmp(mark, "only") == 0) {
         test->marks = "only";
-    } else {
-        fossil_test_cout("red", "Error: Invalid marker %s\n", mark);
     }
 }
 
@@ -471,8 +468,48 @@ void fossil_test_apply_xtag(fossil_test_t *test, const char *tag) {
         test->tags = "robustness";
     } else if (strcmp(tag, "corner case") == 0) {
         test->tags = "corner case";
-    } else {
-        fossil_test_cout("red", "Error: Invalid xtag %s\n", tag);
+    } else if (strcmp(tag, "edge case") == 0) {
+        test->tags = "edge case";
+    } else if (strcmp(tag, "boundary case") == 0) {
+        test->tags = "boundary case";
+    } else if (strcmp(tag, "negative case") == 0) {
+        test->tags = "negative case";
+    } else if (strcmp(tag, "positive case") == 0) {
+        test->tags = "positive case";
+    } else if (strcmp(tag, "sanity") == 0) {
+        test->tags = "sanity";
+    } else if (strcmp(tag, "smoke") == 0) {
+        test->tags = "smoke";
+    } else if (strcmp(tag, "acceptance") == 0) {
+        test->tags = "acceptance";
+    } else if (strcmp(tag, "regression") == 0) {
+        test->tags = "regression";
+    } else if (strcmp(tag, "functional") == 0) {
+        test->tags = "functional";
+    } else if (strcmp(tag, "integration") == 0) {
+        test->tags = "integration";
+    } else if (strcmp(tag, "system") == 0) {
+        test->tags = "system";
+    } else if (strcmp(tag, "end-to-end") == 0) {
+        test->tags = "end-to-end";
+    } else if (strcmp(tag, "unit") == 0) {
+        test->tags = "unit";
+    } else if (strcmp(tag, "component") == 0) {
+        test->tags = "component";
+    } else if (strcmp(tag, "module") == 0) {
+        test->tags = "module";
+    } else if (strcmp(tag, "api") == 0) {
+        test->tags = "api";
+    } else if (strcmp(tag, "ui") == 0) {
+        test->tags = "ui";
+    } else if (strcmp(tag, "usability") == 0) {
+        test->tags = "usability";
+    } else if (strcmp(tag, "performance") == 0) {
+        test->tags = "performance";
+    } else if (strcmp(tag, "security") == 0) {
+        test->tags = "security";
+    } else if (strcmp(tag, "stress") == 0) {
+        test->tags = "stress";
     }
 }
 
