@@ -34,11 +34,11 @@ xassert_info _ASSERT_INFO;
 // // Function to clear the queue
 // void fossil_test_queue_clear(fossil_test_queue_t *queue);
 
-void fossil_test_queue_create(fossil_test_queue_t** queue) {
-    *queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-    if (*queue != NULL) {
-        (*queue)->front = NULL;
-        (*queue)->rear = NULL;
+void fossil_test_queue_create(fossil_test_queue_t* queue) {
+    queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
+    if (queue != NULL) {
+        queue->front = NULL;
+        queue->rear = NULL;
     } else {
         // Handle memory allocation failure
         perror("Failed to allocate memory for queue");
@@ -183,7 +183,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 void fossil_test_environment_erase(void) {
     if (_TEST_ENV.queue != xnullptr) {
         fossil_test_queue_erase(_TEST_ENV.queue);
-        //free(_TEST_ENV.queue);
+        free(_TEST_ENV.queue);
     }
 }
 
@@ -220,7 +220,7 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.timer.detail.nanoseconds = 0;
 
     // Initialize test queue
-    fossil_test_queue_create(&env.queue);
+    fossil_test_queue_create(env.queue);
     atexit(fossil_test_environment_erase); // ensure memory leaks do not occur
 
     // Initialize exception and assumption counts
