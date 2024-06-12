@@ -283,7 +283,7 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     }
 
     // Run the test function
-    for (size_t iter = 0; iter < _CLI.repeat_count; iter++) {
+    for (int32_t iter = 0; iter < _CLI.repeat_count; iter++) {
         test->test_function();
     }
     fossil_test_io_unittest_step(&_ASSERT_INFO);
