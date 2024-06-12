@@ -151,7 +151,7 @@ fossil_test_t* fossil_test_queue_search_by_tag(fossil_test_queue_t *queue, const
 
     fossil_test_t *current = queue->front;
     while (current != xnullptr) {
-        if (strcmp(current->tag, tag) == 0) {
+        if (strcmp(current->tags, tag) == 0) {
             return current;
         }
         current = current->next;
@@ -420,14 +420,39 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     fossil_test_environment_scoreboard(test);
 }
 
+void fossil_test_environment_algorithms(fossil_env_t *env) {
+    if (env == xnullptr) {
+        return;
+    }
+    // Start the timer
+    env->timer.start = clock();
+
+    if (_CLI.shuffle_enabled) {
+        fossil_test_queue_shuffle(env->queue);
+    }
+
+    if (_CLI.reverse) {
+        fossil_test_queue_reverse(env->queue);
+    }
+
+    if (_CLI.only_tags) {
+        fossil_test_t *test = fossil_test_queue_search_by_tag(env->queue, _CLI.only_tags_value);
+        if (test != xnullptr) {
+            fossil_test_queue_erase(env->queue);
+            add_test_to_queue(test, env->queue);
+        }
+    }
+}
+
 // Function to run the test environment
 void fossil_test_environment_run(fossil_env_t *env) {
     if (env == xnullptr) {
         return;
     }
+    // Apply the test environment algorithms for the given test cases
+    fossil_test_environment_algorithms(env);
 
-    // Start the timer
-    env->timer.start = clock();
+    
 
     // Iterate through the test queue and run each test
     fossil_test_t *current_test = env->queue->front;
