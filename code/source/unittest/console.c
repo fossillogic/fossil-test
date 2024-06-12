@@ -352,7 +352,7 @@ void fossil_test_io_information(void) {
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
         _TEST_ENV.stats.expected_total_count + 1, "===");
         fossil_test_cout("blue", "test name : ");
@@ -363,38 +363,38 @@ void fossil_test_io_unittest_start(fossil_test_t *test) {
         fossil_test_cout("cyan", " -> %s\n", test->tags);
         fossil_test_cout("blue", "marker    : ");
         fossil_test_cout("cyan", " -> %s\n", test->marks);
-    } else {
+    } else if (_CLI.verbose_level == 1) {
         fossil_test_cout("blue", "[start] ");
-        fossil_test_cout("cyan", "%.4: %s tag: %s mark: %s\n", _TEST_ENV.stats.expected_total_count + 1, replace_underscore(test->name), test->tags, test->marks);
+        fossil_test_cout("cyan", "%.4d: %s tag: %s mark: %s\n", _TEST_ENV.stats.expected_total_count + 1, replace_underscore(test->name), test->tags, test->marks);
     }
 }
 
 void fossil_test_io_unittest_given(char *description) {
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "          : ");
         fossil_test_cout("magenta", "%s%s\n", "GIVEN ", description);
     }
 }
 
 void fossil_test_io_unittest_when(char *description) {
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "          : ");
         fossil_test_cout("magenta", "%s%s\n", "\tWHEN ", description);
     }
 }
 
 void fossil_test_io_unittest_then(char *description) {
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "          : ");
         fossil_test_cout("magenta", "%s%s\n", "\t\tTHEN ", description);
     }
 }
 
 void fossil_test_io_unittest_step(xassert_info *assume) {
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "has assert: ");
         fossil_test_cout("cyan", " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
-    } else {
+    } else if (_CLI.verbose_level == 1) {
         fossil_test_cout("blue", "[intro] has_assert: ");
         fossil_test_cout("cyan", "%s\n", assume->has_assert ? COLOR_GREEN "yes" COLOR_RESET : COLOR_RED "no" COLOR_RESET);
     }
@@ -403,13 +403,13 @@ void fossil_test_io_unittest_step(xassert_info *assume) {
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
 
-    if (_CLI.verbose_level >= 2) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("blue", "timestamp : ");
         fossil_test_cout("cyan", " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
             (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
             (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
         fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
-    } else {
+    } else if (_CLI.verbose_level == 1) {
         fossil_test_cout("blue", "[ended] time: ");
         fossil_test_cout("cyan", "%ld:%ld:%ld:%ld:%ld\n",
             (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
@@ -423,15 +423,17 @@ void fossil_test_io_unittest_ended(fossil_test_t *test) {
 }
 
 void fossil_test_io_asserted(xassert_info *assume) {
-    if (_CLI.verbose_level >= 1) {
+    if (_CLI.verbose_level == 2) {
         fossil_test_cout("red", "=[F]=[assertion failed]======================================================================\n");
         fossil_test_cout("red", "message  : -> %s\n", assume->message);
         fossil_test_cout("red", "file name: -> %s\n", assume->file);
         fossil_test_cout("red", "line num : -> %d\n", assume->line);
         fossil_test_cout("red", "function : -> %s\n", assume->func);
         fossil_test_cout("red", "=========================================================================================[F]=\n");
-    } else {
+    } else if (_CLI.verbose_level == 1) {
         fossil_test_cout("red", "name: %s line: -> %d msg: -> %s", assume->func, assume->line, assume->message);
+    } else {
+        fossil_test_cout("red", "[#]");
     }
 }
 
