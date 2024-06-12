@@ -313,6 +313,21 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
     timer->detail.nanoseconds = (timer->elapsed * 1000000000) / CLOCKS_PER_SEC;
 }
 
+void fossil_test_io_information(void) {
+    if (_CLI.show_version) {
+        fossil_test_cout("blue", "%s\n", FOSSIL_TEST_VERSION);
+    } else if (_CLI.show_info) {
+        fossil_test_cout("blue", "%s\n", FOSSIL_TEST_INFO);
+    } else if (_CLI.show_tip) {
+        fossil_test_cout("blue", "%s\n", helpful_tester_tip());
+    } else if (_CLI.show_author) {
+        fossil_test_cout("blue", "%s\n", FOSSIL_TEST_AUTH);
+    } else if (_CLI.show_help) {
+        // help messsage
+    }
+    exit(0);
+}
+
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     
