@@ -50,8 +50,7 @@ Before getting started, make sure you have the following installed:
 3. **Integrate the New Dependency**: After creating the dependency `.wrap` file, you need to integrate it into your Meson project. This typically involves adding the dependency to your `meson.build` file. Here's an example of how you might do that:
 
    ```ini
-   test_dep = dependency('fossil-test') # Fossil Test main framework
-   mock_dep = dependency('fossil-mock') # Fossil Test mockup framework
+   dep = dependency('fossil-test')
    ```
 
    This line retrieves the `fossil-test` dependency, allowing you to use it in your project.
