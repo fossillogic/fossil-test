@@ -16,6 +16,7 @@ Description:
 #include <stdarg.h>
 
 static const char* FOSSIL_TEST_NAME = "Fossil Test";
+static const char* FOSSIL_TEST_AUTH = "Michael Gene Brockus (Dreamer)";
 static const char* FOSSIL_TEST_VERSION = "1.0.0";
 static const char* FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing/mockup framework for C/C++.";
 
@@ -313,6 +314,7 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
     timer->detail.nanoseconds = (timer->elapsed * 1000000000) / CLOCKS_PER_SEC;
 }
 
+// Function to handle CLI information output
 void fossil_test_io_information(void) {
     if (_CLI.show_version) {
         fossil_test_cout("blue", "%s\n", FOSSIL_TEST_VERSION);
@@ -323,7 +325,22 @@ void fossil_test_io_information(void) {
     } else if (_CLI.show_author) {
         fossil_test_cout("blue", "%s\n", FOSSIL_TEST_AUTH);
     } else if (_CLI.show_help) {
-        // help messsage
+        fossil_test_cout("blue", "Usage: fossil_test_cli [options]\n");
+        fossil_test_cout("blue", "Options:\n");
+        fossil_test_cout("cyan", "  --version                         Displays the version of the Fossil Test CLI\n");
+        fossil_test_cout("cyan", "  --help                            Shows the help message with usage instructions\n");
+        fossil_test_cout("cyan", "  --tip                             Provides a tip or hint about using the Fossil Test CLI\n");
+        fossil_test_cout("cyan", "  --info                            Displays information about the test runner\n");
+        fossil_test_cout("cyan", "  --author                          Shows information about the author of the test runner\n");
+        fossil_test_cout("cyan", "  only=<tag> or only=<tags>         Runs only the tests tagged with the specified tag(s)\n");
+        fossil_test_cout("cyan", "  reverse [enable/disable]          Enables or disables the reverse order of test execution\n");
+        fossil_test_cout("cyan", "  repeat=<number>                   Repeats the test suite for the specified number of times\n");
+        fossil_test_cout("cyan", "  shuffle [enable/disable]          Enables or disables the shuffling of test execution order\n");
+        fossil_test_cout("cyan", "  verbose [cutback/normal/verbose]  Sets the verbosity level of the output\n");
+        fossil_test_cout("cyan", "  list                              Lists all available tests\n");
+        fossil_test_cout("cyan", "  summary [enable/disable]          Enables or disables the summary of test results after execution\n");
+        fossil_test_cout("cyan", "  color [enable/disable]            Enables or disables colored output in the terminal\n");
+        fossil_test_cout("cyan", "  sanity [enable/disable]           Enables or disables sanity checks before running the tests\n");
     }
     exit(0);
 }
