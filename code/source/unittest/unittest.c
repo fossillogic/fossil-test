@@ -155,6 +155,7 @@ void fossil_test_environment_erase(void) {
 
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     _CLI = fossil_options_parse(argc, argv);
+    fossil_test_io_information(); // checkpoint for simple commands
     
     fossil_env_t env;
 
