@@ -414,6 +414,8 @@ void fossil_test_io_unittest_ended(fossil_test_t *test) {
         fossil_test_cout("cyan", "%ld:%ld:%ld:%ld:%ld\n",
             (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
             (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
+    } else if (_CLI.verbose_level == 0 && !_ASSERT_INFO.should_fail) {
+        fossil_test_cout("green", "[#]");
     }
 
     // Check for timeout
