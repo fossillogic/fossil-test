@@ -19,30 +19,15 @@ Description:
 fossil_env_t _TEST_ENV;
 xassert_info _ASSERT_INFO;
 
-// // Function to add a test to the front of the queue
-// void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue);
-
-// // Function to add a test to the rear of the queue
-// void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue);
-
-// // Function to remove and return the test from the front of the queue
-// fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue);
-
-// // Function to remove and return the test from the rear of the queue
-// fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue);
-
-// // Function to clear the queue
-// void fossil_test_queue_clear(fossil_test_queue_t *queue);
-
 fossil_test_queue_t* fossil_test_queue_create(void) {
     fossil_test_queue_t* queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-    if (queue != xnullptr) {
-        queue->front = xnullptr;
-        queue->rear = xnullptr;
+    if (queue != NULL) {
+        queue->front = NULL;
+        queue->rear = NULL;
     } else {
         // Handle memory allocation failure
         perror("Failed to allocate memory for queue");
-        return xnullptr;
+        return NULL;
     }
     return queue;
 }
@@ -141,25 +126,6 @@ fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue) {
     return rear_test;
 }
 
-// Function to clear the queue
-void fossil_test_queue_clear(fossil_test_queue_t *queue) {
-    if (queue == NULL) {
-        return;
-    }
-
-    // Free memory occupied by the tests in the queue
-    fossil_test_t *current_test = queue->front;
-    while (current_test != NULL) {
-        fossil_test_t *temp = current_test;
-        current_test = current_test->next;
-        free(temp);
-    }
-
-    // Reset queue pointers
-    queue->front = NULL;
-    queue->rear = NULL;
-}
-
 // Function to add a test to the queue based on priority
 void add_test_to_queue(fossil_test_t *test, fossil_test_queue_t *queue) {
     fossil_test_queue_push_back(test, queue);
@@ -182,9 +148,8 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 //
 
 void fossil_test_environment_erase(void) {
-    if (_TEST_ENV.queue != xnullptr) {
-        fossil_test_queue_clear(_TEST_ENV.queue);
-        //free(_TEST_ENV.queue);
+    if (_TEST_ENV.queue != NULL) {
+        free(_TEST_ENV.queue);  // Fix memory leak by uncommenting free statement
     }
 }
 
@@ -285,32 +250,15 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     }
 }
 
-void fossil_test_environment_scoareboard(fossil_test_t *test) {
+void fossil_test_environment_scoreboard(fossil_test_t *test) {
     // for the first part we check if the given test case
-    // has any feature flags or rules triggerd.
-    if (!_ASSERT_INFO.has_assert) {
-        _TEST_ENV.stats.expected_empty_count++;
-    }
-    if (_TEST_ENV.rule.timeout) {
-        _TEST_ENV.stats.expected_timeout_count++;
-        _TEST_ENV.rule.timeout = false; // Reset timeout flag
-    }
-
-    // then we handle the marker specific test cases for features
-    // that would normaly be macro functions in other test frameworks.
-    if (strcmp(test->marks, "fossil") != 0) {
+    // has any feature flags or rules triggered.
+    if (!strcmp(test->marks, "fossil") != 0) {
         _fossil_test_scoreboard_feature_rules(test);
-
-    } else if (_TEST_ENV.rule.should_pass) {
-        _fossil_test_scoreboard_expected_rules();
-
-    } else if (!_TEST_ENV.rule.should_pass) {
-        _fossil_test_scoreboard_unexpected_rules();
     }
-
-    // here we just update the scoreboard count
-    // add one to total tested cases and remove
-    // one from untested ghost cases.
+    
+    // we just need to update the total scoreboard
+    // so it is accurate for the fossil test.
     _fossil_test_scoreboard_update();
 }
 
@@ -343,7 +291,7 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     }
 
     fossil_test_io_unittest_ended(test);
-    fossil_test_environment_scoareboard(test);
+    fossil_test_environment_scoreboard(test);
 }
 
 // Function to run the test environment
@@ -372,9 +320,6 @@ void fossil_test_environment_run(fossil_env_t *env) {
 
 // Function to summarize the test environment
 int fossil_test_environment_summary(void) {
-    // if (env == xnullptr) {
-    //     return -1;
-    // }
     fossil_test_io_summary_ended();
     int result = (_TEST_ENV.stats.expected_failed_count   +
                   _TEST_ENV.stats.unexpected_failed_count +
