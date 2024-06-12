@@ -333,21 +333,21 @@ void fossil_test_io_unittest_start(fossil_test_t *test) {
 void fossil_test_io_unittest_given(char *description) {
     if (_CLI.verbose_level >= 2) {
         fossil_test_cout("blue", "          : ");
-        fossil_test_cout("magenta", "%s%s\n", "          : GIVEN ", description)
+        fossil_test_cout("magenta", "%s%s\n", "GIVEN ", description)
     }
 }
 
 void fossil_test_io_unittest_when(char *description) {
     if (_CLI.verbose_level >= 2) {
         fossil_test_cout("blue", "          : ");
-        fossil_test_cout("magenta", "%s%s\n", "          : \tWHEN ", description)
+        fossil_test_cout("magenta", "%s%s\n", "\tWHEN ", description)
     }
 }
 
 void fossil_test_io_unittest_then(char *description) {
     if (_CLI.verbose_level >= 2) {
         fossil_test_cout("blue", "          : ");
-        fossil_test_cout("magenta", "%s%s\n", "          : \t\tTHEN ", description)
+        fossil_test_cout("magenta", "%s%s\n", "\t\tTHEN ", description)
     }
 }
 
