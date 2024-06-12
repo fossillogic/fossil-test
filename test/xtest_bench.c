@@ -155,15 +155,24 @@ FOSSIL_TEST(selection_sort_case_3) {
 
 // XUNIT-GROUP
 FOSSIL_TEST_GROUP(benchmark_group) {
+    APPLY_MARK(bubble_sort_case_1, "ghost");
     ADD_TEST(bubble_sort_case_1);
+    APPLY_MARK(bubble_sort_case_2, "ghost");
     ADD_TEST(bubble_sort_case_2);
+    APPLY_MARK(bubble_sort_case_3, "ghost");
     ADD_TEST(bubble_sort_case_3);
 
+    APPLY_MARK(insertion_sort_case_1, "ghost");
     ADD_TEST(insertion_sort_case_1);
+    APPLY_MARK(insertion_sort_case_2, "ghost");
     ADD_TEST(insertion_sort_case_2);
+    APPLY_MARK(insertion_sort_case_3, "ghost");
     ADD_TEST(insertion_sort_case_3);
 
+    APPLY_MARK(selection_sort_case_1, "ghost");
     ADD_TEST(selection_sort_case_1);
+    APPLY_MARK(selection_sort_case_2, "ghost");
     ADD_TEST(selection_sort_case_2);
+    APPLY_MARK(selection_sort_case_3, "ghost");
     ADD_TEST(selection_sort_case_3);
 }
