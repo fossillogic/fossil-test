@@ -455,6 +455,9 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  */
 #define _FOSSIL_TEST_IMPORT(group_name) group_name(&_TEST_ENV)
 
+#define _GIVEN(description) fossil_test_io_unittest_given(description); if (true)
+#define _WHEN(description) fossil_test_io_unittest_when(description);   if (true)
+#define _THEN(description) fossil_test_io_unittest_then(description);   if (true)
 
 #ifdef __cplusplus
 }
