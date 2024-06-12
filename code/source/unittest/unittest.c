@@ -283,7 +283,9 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     }
 
     // Run the test function
-    test->test_function();
+    for (size_t iter = 0; iter < _CLI.repeat_count; iter++) {
+        test->test_function();
+    }
     fossil_test_io_unittest_step(&_ASSERT_INFO);
 
     if (test->fixture.teardown != xnullptr) {
