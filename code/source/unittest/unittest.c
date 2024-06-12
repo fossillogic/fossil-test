@@ -380,10 +380,9 @@ int fossil_test_environment_summary(void) {
                   _TEST_ENV.stats.unexpected_passed_count +
                   _TEST_ENV.stats.expected_timeout_count  +
                   _TEST_ENV.stats.untested_count);
-    fossil_test_cout("green", "%i\n", _TEST_ENV.stats.untested_count);
+
     fossil_test_io_summary_ended();
     fossil_test_environment_erase();
-    fossil_test_cout("green", "%i\n", result);
 
     return result;
 }
