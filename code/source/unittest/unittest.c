@@ -226,10 +226,8 @@ void _fossil_test_scoreboard_expected_rules(void) {
 void _fossil_test_scoreboard_unexpected_rules(void) {
     if (_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.unexpected_failed_count++;
-        //_TEST_ENV.rule.should_pass = false;
     } else {
         _TEST_ENV.stats.unexpected_passed_count++;
-        //_TEST_ENV.rule.should_pass = false;
     }
 }
 
@@ -237,6 +235,9 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
+    }
+    if (!_ASSERT_INFO.has_assert && strcmp(test_case->marks, "tofu") != 0) {
+        _TEST_ENV.stats.expected_empty_count++;
     }
 
     // handling features for skip and timeouts
