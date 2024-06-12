@@ -184,7 +184,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 void fossil_test_environment_erase(void) {
     if (_TEST_ENV.queue != xnullptr) {
         fossil_test_queue_erase(_TEST_ENV.queue);
-        free(_TEST_ENV.queue);
+        //free(_TEST_ENV.queue);
     }
 }
 
