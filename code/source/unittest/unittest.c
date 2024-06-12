@@ -143,6 +143,126 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
     return fossil_test_queue_pop_back(queue);
 }
 
+// Function to search for a test by tag in the queue
+fossil_test_t* fossil_test_queue_search_by_tag(fossil_test_queue_t *queue, const char *tag) {
+    if (queue == xnullptr || tag == xnullptr) {
+        return xnullptr;
+    }
+
+    fossil_test_t *current = queue->front;
+    while (current != xnullptr) {
+        if (strcmp(current->tag, tag) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return xnullptr;
+}
+
+// Function to search for a test by name in the queue
+fossil_test_t* fossil_test_queue_search_by_name(fossil_test_queue_t *queue, const char *name) {
+    if (queue == xnullptr || name == xnullptr) {
+        return xnullptr;
+    }
+
+    fossil_test_t *current = queue->front;
+    while (current != xnullptr) {
+        if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return xnullptr;
+}
+
+void fossil_test_queue_reverse(fossil_test_queue_t *queue) {
+    if (queue == xnullptr) {
+        return;
+    }
+
+    fossil_test_t *current = queue->front;
+    fossil_test_t *temp = xnullptr;
+
+    // Swap the next and prev pointers for each node
+    while (current != xnullptr) {
+        temp = current->prev;
+        current->prev = current->next;
+        current->next = temp;
+        current = current->prev;
+    }
+
+    // Swap the front and rear pointers of the queue
+    if (temp != xnullptr) {
+        temp = queue->front;
+        queue->front = queue->rear;
+        queue->rear = temp;
+    }
+}
+
+// Function to convert queue to an array
+fossil_test_t** queue_to_array(fossil_test_queue_t *queue, int *size) {
+    if (queue == xnullptr) {
+        return xnullptr;
+    }
+
+    int count = 0;
+    fossil_test_t *current = queue->front;
+    while (current != xnullptr) {
+        count++;
+        current = current->next;
+    }
+
+    fossil_test_t **array = (fossil_test_t**)malloc(count * sizeof(fossil_test_t*));
+    current = queue->front;
+    for (int i = 0; i < count; i++) {
+        array[i] = current;
+        current = current->next;
+    }
+
+    *size = count;
+    return array;
+}
+
+// Function to convert array to a queue
+void array_to_queue(fossil_test_t **array, int size, fossil_test_queue_t *queue) {
+    if (queue == xnullptr || array == xnullptr) {
+        return;
+    }
+
+    queue->front = xnullptr;
+    queue->rear = xnullptr;
+
+    for (int i = 0; i < size; i++) {
+        array[i]->next = xnullptr;
+        array[i]->prev = xnullptr;
+        fossil_test_queue_push_back(array[i], queue);
+    }
+}
+
+// Fisher-Yates shuffle algorithm
+void fossil_test_queue_shuffle(fossil_test_queue_t *queue) {
+    if (queue == xnullptr) {
+        return;
+    }
+
+    int size;
+    fossil_test_t **array = queue_to_array(queue, &size);
+    if (array == xnullptr) {
+        return;
+    }
+
+    srand(time(xnullptr));
+    for (int i = size - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        fossil_test_t *temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    array_to_queue(array, size, queue);
+    free(array);
+}
+
 //
 // Fossil Test Environment functions
 //
