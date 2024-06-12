@@ -318,12 +318,16 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
 void fossil_test_io_information(void) {
     if (_CLI.show_version) {
         fossil_test_cout("blue", "%s\n", FOSSIL_TEST_VERSION);
+        exit(0);
     } else if (_CLI.show_info) {
         fossil_test_cout("blue", "%s\n", FOSSIL_TEST_INFO);
+        exit(0);
     } else if (_CLI.show_tip) {
         fossil_test_cout("blue", "%s\n", helpful_tester_tip());
+        exit(0);
     } else if (_CLI.show_author) {
         fossil_test_cout("blue", "%s\n", FOSSIL_TEST_AUTH);
+        exit(0);
     } else if (_CLI.show_help) {
         fossil_test_cout("blue", "Usage: fossil_test_cli [options]\n");
         fossil_test_cout("blue", "Options:\n");
@@ -341,8 +345,8 @@ void fossil_test_io_information(void) {
         fossil_test_cout("cyan", "  summary [enable/disable]          Enables or disables the summary of test results after execution\n");
         fossil_test_cout("cyan", "  color [enable/disable]            Enables or disables colored output in the terminal\n");
         fossil_test_cout("cyan", "  sanity [enable/disable]           Enables or disables sanity checks before running the tests\n");
+        exit(0);
     }
-    exit(0);
 }
 
 void fossil_test_io_unittest_start(fossil_test_t *test) {
