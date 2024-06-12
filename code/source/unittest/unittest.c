@@ -256,10 +256,8 @@ void fossil_test_environment_scoreboard(fossil_test_t *test) {
     // has any feature flags or rules triggered.
     if (strcmp(test->marks, "fossil") != 0) {
         _fossil_test_scoreboard_feature_rules(test);
-    } else if (_ASSERT_INFO.should_fail) {
-        _fossil_test_scoreboard_expected_rules();
     } else {
-        _fossil_test_scoreboard_unexpected_rules();
+        _fossil_test_scoreboard_expected_rules();
     }
     
     // we just need to update the total scoreboard
