@@ -316,7 +316,7 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     
-    if (_CLI.verbose_level == 2) {
+    if (_CLI.verbose_level >= 2) {
         fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
         _TEST_ENV.stats.expected_total_count + 1, "===");
         fossil_test_cout("blue", "test name : ");
@@ -330,15 +330,38 @@ void fossil_test_io_unittest_start(fossil_test_t *test) {
     }
 }
 
+void fossil_test_io_unittest_given(char *description) {
+    if (_CLI.verbose_level >= 2) {
+        fossil_test_cout("blue", "          : ");
+        fossil_test_cout("magenta", " -> %s\n", description);
+    }
+}
+
+void fossil_test_io_unittest_when(char *description) {
+    if (_CLI.verbose_level >= 2) {
+        fossil_test_cout("blue", "          : ");
+        fossil_test_cout("magenta", " -> %s\n", description);
+    }
+}
+
+void fossil_test_io_unittest_then(char *description) {
+    if (_CLI.verbose_level >= 2) {
+        fossil_test_cout("blue", "          : ");
+        fossil_test_cout("magenta", " -> %s\n", description);
+    }
+}
+
 void fossil_test_io_unittest_step(xassert_info *assume) {
-    fossil_test_cout("blue", "has assert: ");
-    fossil_test_cout("cyan", " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+    if (_CLI.verbose_level >= 2) {
+        fossil_test_cout("blue", "has assert: ");
+        fossil_test_cout("cyan", " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+    }
 }
 
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
 
-    if (_CLI.verbose_level == 2) {
+    if (_CLI.verbose_level >= 2) {
         fossil_test_cout("blue", "timestamp : ");
         fossil_test_cout("cyan", " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
             (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
