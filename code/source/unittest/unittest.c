@@ -267,7 +267,7 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
 }
 
 void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
-    if (_TEST_ENV.rule.skipped) {
+    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
     }
@@ -275,10 +275,9 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     // handling features for skip and timeouts
     if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
         if (_ASSERT_INFO.should_fail) {
-            _TEST_ENV.stats.expected_passed_count++;
-            _TEST_ENV.rule.should_pass = true;
+            _fossil_test_scoreboard_expected_rules();
         } else {
-            _TEST_ENV.stats.expected_failed_count++;
+            _fossil_test_scoreboard_unexpected_rules();
         }
     } else {
         _TEST_ENV.stats.expected_passed_count++;
@@ -305,7 +304,7 @@ void fossil_test_environment_scoareboard(fossil_test_t *test) {
         _fossil_test_scoreboard_expected_rules();
 
     } else if (!_TEST_ENV.rule.should_pass) {
-        //_fossil_test_scoreboard_unexpected_rules();
+        _fossil_test_scoreboard_unexpected_rules();
     }
 
     // here we just update the scoreboard count
