@@ -384,7 +384,7 @@ int fossil_test_environment_summary(void) {
     fossil_test_io_summary_ended();
     fossil_test_environment_erase();
 
-    return result;
+    return !result;
 }
 
 // Function to add a test to the test environment
