@@ -1,23 +1,38 @@
-# Fossil Test - `C`
+# ***Fossil Test: Unit Testing/Mocking Framework*** - `C/C++`
 
-Fossil Test is a robust unit testing framework designed to ensure the reliability and correctness of your software. With its user-friendly interface and comprehensive suite of tools, Fossil Test streamlines the process of writing, running, and analyzing tests for your applications. It supports a wide range of programming languages and integrates seamlessly with various development environments, making it an ideal choice for both novice and experienced developers. Fossil Test provides advanced features such as test automation, code coverage analysis, and detailed reporting, enabling you to identify and fix bugs efficiently. Its modular architecture allows for easy extension and customization, catering to the specific needs of your projects. Trust Fossil Test to enhance the quality of your code and boost your productivity.
+**Overview:**
+Fossil Test is a robust unit testing and mocking framework developed by Fossil Logic, designed to facilitate the creation of high-quality test cases across any C or C++ project. The framework supports both Behavior-Driven Development (BDD) and Test-Driven Development (TDD) styles, providing a flexible and comprehensive solution for ensuring software reliability and correctness.
 
-## Prerequisites
+**Key Features:**
+
+| Feature                  | Description                                                                                                                                                     |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **BDD and TDD Support**  | Allows developers to write tests in both BDD and TDD styles, catering to various development and testing preferences.                                            |
+| **Unit Testing**         | Provides a complete suite of tools for writing and executing unit tests, ensuring that individual units of code perform as expected.                             |
+| **Mocking Capabilities** | Includes powerful mocking features that enable developers to simulate the behavior of complex dependencies, ensuring focused and reliable unit tests.            |
+| **Test Case Management** | Supports organizing and managing test cases efficiently, with features for categorizing, prioritizing, and tagging tests.                                        |
+| **Detailed Reporting**   | Generates detailed reports on test execution, including information on passed, failed, skipped, and timed-out tests, helping developers quickly address issues.  |
+| **Performance Tracking** | Tracks the performance of each test case with built-in timing information, allowing developers to monitor and optimize test execution time.                      |
+| **Assertion Detection**  | Detects whether assertions are used within the code, ensuring that critical conditions are enforced and identifying areas that may lack proper validation.        |
+| **Command-Line Interface (CLI)** | Includes a powerful CLI for running tests, generating reports, and managing the test suite from the command line, enhancing automation and integration.  |
+| **Extensible and Configurable** | Designed to be extensible and configurable, allowing developers to tailor the framework to their specific needs, from reporting formats to tool integration.|
+
+## ***Prerequisites***
 
 Before getting started, make sure you have the following installed:
 
 - **Meson Build System**: This project relies on Meson. If you don't have Meson installed, visit the official [Meson website](https://mesonbuild.com/Getting-meson.html) for installation instructions.
 
-## Adding dependency
+## Adding Dependency
 
 1. **Install Meson Build System**: Before integrating the dependency, ensure you have Meson `1.2` or newer installed on your host system. You can install it with this command.
 
-   ```ini
+   ```sh
    python -m pip install meson           # to install Meson
    python -m pip install --upgrade meson # to upgrade Meson
    ```
 
-2. **Adding Wrap File**: You can add a `.wrap`, first go into `subprojects` directory and create `fossil-test.wrap` next copy the defintion into the file:
+2. **Adding Wrap File**: You can add a `.wrap` file by first navigating to the `subprojects` directory and creating `fossil-test.wrap`. Next, copy the definition into the file:
 
    ```ini
    # ======================
@@ -49,10 +64,14 @@ You have options when configuring the build, each serving a different purpose:
 
 Example:
 
-```python
+```sh
 meson setup builddir -Dwith_test=enabled
 ```
 
-## Contributing and Support
+## ***Contributing and Support***
 
 If you're interested in contributing to this project, encounter any issues, have questions, or would like to provide feedback, don't hesitate to open an issue or visit the [Fossil Logic Docs](https://fossillogic.com/docs) for more information.
+
+## ***Conclusion:***
+
+Fossil Test is a comprehensive solution for C and C++ developers aiming to ensure the quality and reliability of their code. By supporting both BDD and TDD, along with powerful mocking, assertion detection, detailed reporting, and a robust CLI, Fossil Test empowers developers to create robust and maintainable test suites. Its flexibility and extensibility make it a valuable tool for projects of any size and complexity, fostering a culture of quality and continuous improvement.
