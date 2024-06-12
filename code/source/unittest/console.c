@@ -275,7 +275,7 @@ void fossil_test_cout(const char* color_name, const char* format, ...) {
     va_start(args, format);
 
     // Check if color output is enabled
-    if (fossil_test_cli_get(commands, "--color", 1)) {
+    if (_CLI.color_enabled) {
         // Default color code
         const char* color_code = COLOR_RESET;
 
@@ -316,16 +316,18 @@ static void calculate_elapsed_time(fossil_test_timer_t *timer) {
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     
-    fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
-    _TEST_ENV.stats.expected_total_count + 1, "===");
-    fossil_test_cout("blue", "test name : ");
-    fossil_test_cout("cyan", " -> %s\n", replace_underscore(test->name));
-    fossil_test_cout("blue", "priority  : ");
-    fossil_test_cout("cyan", " -> %d\n", test->priority);
-    fossil_test_cout("blue", "tags      : ");
-    fossil_test_cout("cyan", " -> %s\n", test->tags);
-    fossil_test_cout("blue", "marker    : ");
-    fossil_test_cout("cyan", " -> %s\n", test->marks);
+    if (_CLI.verbose_level == 2) {
+        fossil_test_cout("blue", "%s[%.4d]%s\n", "=[started case]=====================================================================",
+        _TEST_ENV.stats.expected_total_count + 1, "===");
+        fossil_test_cout("blue", "test name : ");
+        fossil_test_cout("cyan", " -> %s\n", replace_underscore(test->name));
+        fossil_test_cout("blue", "priority  : ");
+        fossil_test_cout("cyan", " -> %d\n", test->priority);
+        fossil_test_cout("blue", "tags      : ");
+        fossil_test_cout("cyan", " -> %s\n", test->tags);
+        fossil_test_cout("blue", "marker    : ");
+        fossil_test_cout("cyan", " -> %s\n", test->marks);
+    }
 }
 
 void fossil_test_io_unittest_step(xassert_info *assume) {
@@ -335,11 +337,14 @@ void fossil_test_io_unittest_step(xassert_info *assume) {
 
 void fossil_test_io_unittest_ended(fossil_test_t *test) {
     calculate_elapsed_time(&test->timer);
-    fossil_test_cout("blue", "timestamp : ");
-    fossil_test_cout("cyan", " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
-        (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
-        (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
-    fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
+
+    if (_CLI.verbose_level == 2) {
+        fossil_test_cout("blue", "timestamp : ");
+        fossil_test_cout("cyan", " -> %ld minutes, %ld seconds, %ld milliseconds, %ld microseconds, %ld nanoseconds\n",
+            (uint32_t)test->timer.detail.minutes, (uint32_t)test->timer.detail.seconds, (uint32_t)test->timer.detail.milliseconds,
+            (uint32_t)test->timer.detail.microseconds, (uint32_t)test->timer.detail.nanoseconds);
+        fossil_test_cout("blue", "%s\n", "=[ ended case ]==============================================================================");
+    }
 
     // Check for timeout
     if (test->timer.elapsed >= (2 * 60 * CLOCKS_PER_SEC)) {

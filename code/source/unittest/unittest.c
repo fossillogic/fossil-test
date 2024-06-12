@@ -154,7 +154,7 @@ void fossil_test_environment_erase(void) {
 }
 
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
-    fossil_test_cli_parse(argc, argv, commands);
+    _CLI = fossil_options_parse(argc, argv);
     
     fossil_env_t env;
 

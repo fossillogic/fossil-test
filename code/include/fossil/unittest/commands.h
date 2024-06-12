@@ -20,56 +20,35 @@ extern "C"
 {
 #endif
 
-/**
- * Structure representing a command for a test.
- * This structure contains the description, long name, short name, valid arguments, and flag for a test command.
- */
+// Define the structure to hold parsed options
 typedef struct {
-    char *description; /**< Description of the command. */
-    char *long_name; /**< Long name of the command. */
-    char *short_name; /**< Short name of the command. */
-    char **valid_args; /**< Array of valid arguments for the command. */
-    int32_t flag; /**< Flag indicating whether the command is set. */
-} fossil_test_command_t;
+    bool show_version;
+    bool show_help;
+    bool show_tip;
+    bool show_info;
+    bool show_author;
+    bool only_tags;
+    char only_tags_value[256];
+    bool reverse;
+    bool repeat_enabled;
+    int repeat_count;
+    bool shuffle_enabled;
+    bool verbose_enabled;
+    int verbose_level; // 0 for cutback, 1 for normal, 2 for verbose
+    bool list_tests;
+    bool summary_enabled;
+    bool color_enabled;
+    bool sanity_enabled;
+} fossil_options_t;
+
+extern fossil_options_t _CLI;
 
 /**
- * Array of available commands.
+ * Function to initialize the options structure.
+ * 
+ * @return The options structure
  */
-extern fossil_test_command_t commands[];
-
-/**
- * Parses the command line arguments and populates the provided `fossil_test_command_t` structure.
- *
- * @param argc The number of command line arguments.
- * @param argv An array of strings representing the command line arguments.
- * @param commands A pointer to the `fossil_test_command_t` structure to be populated.
- */
-void fossil_test_cli_parse(int argc, char *argv[], fossil_test_command_t *commands);
-
-/**
- * Displays the help information for the available commands.
- *
- * @param commands A pointer to the `fossil_test_command_t` structure containing the commands.
- */
-void fossil_test_cli_show_help(fossil_test_command_t *commands);
-
-/**
- * Handles the execution of a specific command with the provided argument.
- *
- * @param command A pointer to the `fossil_test_command_t` structure representing the command to be executed.
- * @param arg A string representing the argument for the command.
- */
-void fossil_test_cli_handle_command(fossil_test_command_t *command, char *arg);
-
-/**
- * Gets the value of a specific command.
- *
- * @param commands An array of `fossil_test_command_t` structures representing the available commands.
- * @param command_name A string representing the name of the command.
- * @param value A pointer to an integer to store the value of the command.
- * @return 0 if the command was found, -1 otherwise.
- */
-int fossil_test_cli_get(fossil_test_command_t *commands, const char *command_name, int32_t value);
+fossil_options_t fossil_options_parse(int argc, char **argv);
 
 #ifdef __cplusplus
 }
