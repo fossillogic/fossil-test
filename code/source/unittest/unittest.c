@@ -201,7 +201,13 @@ fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     env.stats.expected_empty_count = 0;
     env.stats.expected_timeout_count = 0;
     env.stats.expected_total_count = 0;
-    env.stats.untested_count = -1;
+    env.stats.untested_count = 0;
+
+    // Initialize test rules
+    env.rule.should_pass = true;
+    env.rule.skipped     = false;
+    env.rule.timeout     = false;
+    env.rule.error       = false;
 
     // Initialize test timer
     env.timer.start = 0;
@@ -242,18 +248,6 @@ void _fossil_test_scoreboard_update(void) {
 }
 
 void _fossil_test_scoreboard_expected_rules(void) {
-    if (!_ASSERT_INFO.has_assert) {
-        _TEST_ENV.stats.expected_empty_count++;
-    }
-    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
-        _TEST_ENV.stats.expected_skipped_count++;
-        _TEST_ENV.rule.skipped = false;
-    }
-    if (_TEST_ENV.rule.should_timeout) {
-        _TEST_ENV.stats.expected_timeout_count++;
-        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
-    }
-
     if (!_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.expected_failed_count++;
         _TEST_ENV.rule.should_pass = false;
@@ -263,18 +257,6 @@ void _fossil_test_scoreboard_expected_rules(void) {
 }
 
 void _fossil_test_scoreboard_unexpected_rules(void) {
-    if (!_ASSERT_INFO.has_assert) {
-        _TEST_ENV.stats.expected_empty_count++;
-    }
-    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
-        _TEST_ENV.stats.expected_skipped_count++;
-        _TEST_ENV.rule.skipped = false;
-    }
-    if (_TEST_ENV.rule.should_timeout) {
-        _TEST_ENV.stats.expected_timeout_count++;
-        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
-    }
-
     if (_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.unexpected_failed_count++;
         _TEST_ENV.rule.should_pass = false;
@@ -285,19 +267,12 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
 }
 
 void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
-    // handling features for skip and timeouts
-    if (!_ASSERT_INFO.has_assert) {
-        _TEST_ENV.stats.expected_empty_count++;
-    }
-    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
+    if (_TEST_ENV.rule.skipped) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
     }
-    if (_TEST_ENV.rule.should_timeout) {
-        _TEST_ENV.stats.expected_timeout_count++;
-        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
-    }
 
+    // handling features for skip and timeouts
     if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
         if (_ASSERT_INFO.should_fail) {
             _TEST_ENV.stats.expected_passed_count++;
@@ -311,21 +286,26 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
 }
 
 void fossil_test_environment_scoareboard(fossil_test_t *test) {
-    // here we handle the scoreboard logic for the test cases
-    // based on the rules and features that are set.
+    // for the first part we check if the given test case
+    // has any feature flags or rules triggerd.
+    if (!_ASSERT_INFO.has_assert) {
+        _TEST_ENV.stats.expected_empty_count++;
+    }
+    if (_TEST_ENV.rule.timeout) {
+        _TEST_ENV.stats.expected_timeout_count++;
+        _TEST_ENV.rule.timeout = false; // Reset timeout flag
+    }
+
+    // then we handle the marker specific test cases for features
+    // that would normaly be macro functions in other test frameworks.
     if (strcmp(test->marks, "fossil") != 0) {
-        // Simply handling unique cases using marks and tags first
-        // to ensure I catch the added features.
         _fossil_test_scoreboard_feature_rules(test);
+
     } else if (_TEST_ENV.rule.should_pass) {
-        // here we handle the expected and unexpected rules
-        // using normal flow without worrying about the features
-        // as used in marks and tags.
         _fossil_test_scoreboard_expected_rules();
+
     } else if (!_TEST_ENV.rule.should_pass) {
-        // here we handle unexpected rules for cases that play
-        // the UNO reverse card on us.
-        _fossil_test_scoreboard_unexpected_rules();
+        //_fossil_test_scoreboard_unexpected_rules();
     }
 
     // here we just update the scoreboard count

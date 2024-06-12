@@ -377,7 +377,7 @@ void fossil_test_io_summary_ended(void) {
     fossil_test_cout("blue", "%s", " message: ");
     fossil_test_cout(color, "%s\n", summary_message(&_TEST_ENV));
     fossil_test_cout("cyan", "> Expected Passed  : %3d   Expected Failed: %3d\n", _TEST_ENV.stats.expected_passed_count, _TEST_ENV.stats.expected_failed_count);
-    fossil_test_cout("cyan", "> Unexpected Passed: %3d Unexpected Failed: %3d\n", _TEST_ENV.stats.expected_passed_count, _TEST_ENV.stats.expected_failed_count);
+    fossil_test_cout("cyan", "> Unexpected Passed: %3d Unexpected Failed: %3d\n", _TEST_ENV.stats.unexpected_passed_count, _TEST_ENV.stats.expected_failed_count);
     fossil_test_cout("cyan", "> Timeout: %3d Skipped: %3d Empty: %3d\n", _TEST_ENV.stats.expected_timeout_count, _TEST_ENV.stats.expected_skipped_count, _TEST_ENV.stats.expected_empty_count);
     fossil_test_cout("blue", "=============================================================================================\n");
     fossil_test_cout("blue", "Total Tests: %d\n", _TEST_ENV.stats.expected_total_count);

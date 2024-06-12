@@ -128,12 +128,8 @@ typedef enum {
  * such as whether it passed, was skipped, or was categorized as fast or slow.
  */
 typedef struct {
-    bool should_timeout; /**< Boolean indicating whether the test case should timeout. */
     bool should_pass;    /**< Boolean indicating whether the test case passed. */
     bool skipped;  /**< Boolean indicating whether the test case was skipped. */
-    bool result;   /**< Boolean indicating the result of the test case (true for pass, false for fail). */
-    bool fast;     /**< Boolean indicating whether the test case is categorized as a fast test. */
-    bool slow;     /**< Boolean indicating whether the test case is categorized as a slow test. */
     bool timeout;  /**< Boolean indicating whether the test case timed out. */
     bool error;    /**< Boolean indicating whether the test case threw an error. */
 } fossil_test_rule_t;
