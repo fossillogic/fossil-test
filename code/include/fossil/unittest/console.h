@@ -30,6 +30,10 @@ extern "C"
  */
 void fossil_test_cout(const char* color_name, const char* format, ...);
 
+void fossil_test_io_unittest_given(char *description);
+void fossil_test_io_unittest_when(char *description);
+void fossil_test_io_unittest_then(char *description);
+
 void fossil_test_io_unittest_start(fossil_test_t *test);
 void fossil_test_io_unittest_step(xassert_info *assume);
 void fossil_test_io_unittest_ended(fossil_test_t *test);
