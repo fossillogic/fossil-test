@@ -1,4 +1,4 @@
-project('Fossil Test', 'c', 'cpp',
+project('Fossil Test', 'c',
     meson_version: '>=1.2.0',
     license: 'MPL-2.0',
     version: '1.0.0',
