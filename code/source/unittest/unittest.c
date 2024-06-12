@@ -245,6 +245,14 @@ void _fossil_test_scoreboard_expected_rules(void) {
     if (!_ASSERT_INFO.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
     }
+    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
+        _TEST_ENV.stats.expected_skipped_count++;
+        _TEST_ENV.rule.skipped = false;
+    }
+    if (_TEST_ENV.rule.should_timeout) {
+        _TEST_ENV.stats.expected_timeout_count++;
+        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
+    }
 
     if (!_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.expected_failed_count++;
@@ -258,6 +266,14 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
     if (!_ASSERT_INFO.has_assert) {
         _TEST_ENV.stats.expected_empty_count++;
     }
+    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
+        _TEST_ENV.stats.expected_skipped_count++;
+        _TEST_ENV.rule.skipped = false;
+    }
+    if (_TEST_ENV.rule.should_timeout) {
+        _TEST_ENV.stats.expected_timeout_count++;
+        _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
+    }
 
     if (_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.unexpected_failed_count++;
@@ -270,15 +286,19 @@ void _fossil_test_scoreboard_unexpected_rules(void) {
 
 void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     // handling features for skip and timeouts
-    if (_TEST_ENV.rule.skipped == true && strcmp(test_case->marks, "skip") == 0) {
+    if (!_ASSERT_INFO.has_assert) {
+        _TEST_ENV.stats.expected_empty_count++;
+    }
+    if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
-    } else if (!_ASSERT_INFO.has_assert && strcmp(test_case->marks, "ghost") == 0) {
-        _TEST_ENV.stats.expected_empty_count++;
-    } else if (_TEST_ENV.rule.should_timeout == true) {
+    }
+    if (_TEST_ENV.rule.should_timeout) {
         _TEST_ENV.stats.expected_timeout_count++;
         _TEST_ENV.rule.should_timeout = false; // Reset timeout flag
-    } else if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
+    }
+
+    if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
         if (_ASSERT_INFO.should_fail) {
             _TEST_ENV.stats.expected_passed_count++;
             _TEST_ENV.rule.should_pass = true;
