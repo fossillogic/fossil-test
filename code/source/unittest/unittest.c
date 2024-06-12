@@ -21,13 +21,13 @@ xassert_info _ASSERT_INFO;
 
 fossil_test_queue_t* fossil_test_queue_create(void) {
     fossil_test_queue_t* queue = (fossil_test_queue_t*)malloc(sizeof(fossil_test_queue_t));
-    if (queue != NULL) {
-        queue->front = NULL;
-        queue->rear = NULL;
+    if (queue != xnullptr) {
+        queue->front = xnullptr;
+        queue->rear = xnullptr;
     } else {
         // Handle memory allocation failure
         perror("Failed to allocate memory for queue");
-        return NULL;
+        return xnullptr;
     }
     return queue;
 }
@@ -36,23 +36,23 @@ void fossil_test_queue_erase(fossil_test_queue_t* queue) {
     fossil_test_t* current = queue->front;
     fossil_test_t* next;
 
-    while (current != NULL) {
+    while (current != xnullptr) {
         next = current->next;
         free(current);
         current = next;
     }
 
-    queue->front = NULL;
-    queue->rear = NULL;
+    queue->front = xnullptr;
+    queue->rear = xnullptr;
 }
 
 // Function to add a test to the front of the queue
 void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queue) {
-    if (test == NULL || queue == NULL) {
+    if (test == xnullptr || queue == xnullptr) {
         return;
     }
 
-    if (queue->front == NULL) {
+    if (queue->front == xnullptr) {
         // The queue is empty
         queue->front = test;
         queue->rear = test;
@@ -62,16 +62,16 @@ void fossil_test_queue_push_front(fossil_test_t *test, fossil_test_queue_t *queu
         queue->front->prev = test;
         queue->front = test;
     }
-    test->prev = NULL; // Ensure previous pointer of new front is NULL
+    test->prev = xnullptr; // Ensure previous pointer of new front is NULL
 }
 
 // Function to add a test to the rear of the queue
 void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue) {
-    if (test == NULL || queue == NULL) {
+    if (test == xnullptr || queue == xnullptr) {
         return;
     }
 
-    if (queue->rear == NULL) {
+    if (queue->rear == xnullptr) {
         // The queue is empty
         queue->front = test;
         queue->rear = test;
@@ -81,25 +81,25 @@ void fossil_test_queue_push_back(fossil_test_t *test, fossil_test_queue_t *queue
         test->prev = queue->rear;
         queue->rear = test;
     }
-    test->next = NULL; // Ensure next pointer of new rear is NULL
+    test->next = xnullptr; // Ensure next pointer of new rear is NULL
 }
 
 // Function to remove and return the test from the front of the queue
 fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue) {
-    if (queue == NULL || queue->front == NULL) {
-        return NULL;
+    if (queue == xnullptr || queue->front == xnullptr) {
+        return xnullptr;
     }
 
     fossil_test_t *front_test = queue->front;
 
     if (queue->front == queue->rear) {
         // The queue has only one test
-        queue->front = NULL;
-        queue->rear = NULL;
+        queue->front = xnullptr;
+        queue->rear = xnullptr;
     } else {
         // Remove test from the front
         queue->front = queue->front->next;
-        queue->front->prev = NULL;
+        queue->front->prev = xnullptr;
     }
 
     return front_test;
@@ -107,20 +107,20 @@ fossil_test_t* fossil_test_queue_pop_front(fossil_test_queue_t *queue) {
 
 // Function to remove and return the test from the rear of the queue
 fossil_test_t* fossil_test_queue_pop_back(fossil_test_queue_t *queue) {
-    if (queue == NULL || queue->rear == NULL) {
-        return NULL;
+    if (queue == xnullptr || queue->rear == xnullptr) {
+        return xnullptr;
     }
 
     fossil_test_t *rear_test = queue->rear;
 
     if (queue->front == queue->rear) {
         // The queue has only one test
-        queue->front = NULL;
-        queue->rear = NULL;
+        queue->front = xnullptr;
+        queue->rear = xnullptr;
     } else {
         // Remove test from the rear
         queue->rear = queue->rear->prev;
-        queue->rear->next = NULL;
+        queue->rear->next = xnullptr;
     }
 
     return rear_test;
@@ -148,7 +148,7 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 //
 
 void fossil_test_environment_erase(void) {
-    if (_TEST_ENV.queue != NULL) {
+    if (_TEST_ENV.queue != xnullptr) {
         free(_TEST_ENV.queue);  // Fix memory leak by uncommenting free statement
     }
 }
