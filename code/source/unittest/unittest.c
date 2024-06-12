@@ -183,14 +183,14 @@ fossil_test_t* get_lowest_priority_test(fossil_test_queue_t *queue) {
 void fossil_test_environment_erase(void) {
     if (_TEST_ENV.queue != xnullptr) {
         fossil_test_queue_erase(_TEST_ENV.queue);
-        // free(_TEST_ENV.queue);
+        free(_TEST_ENV.queue);
     }
 }
 
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
-    fossil_env_t env = {0};
+    fossil_env_t env;
 
     // Initialize test statistics
     env.stats.expected_passed_count = 0;
