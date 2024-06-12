@@ -375,16 +375,15 @@ int fossil_test_environment_summary(void) {
     // if (env == xnullptr) {
     //     return -1;
     // }
+    fossil_test_io_summary_ended();
     int result = (_TEST_ENV.stats.expected_failed_count   +
                   _TEST_ENV.stats.unexpected_failed_count +
                   _TEST_ENV.stats.unexpected_passed_count +
                   _TEST_ENV.stats.expected_timeout_count  +
                   _TEST_ENV.stats.untested_count);
-
-    fossil_test_io_summary_ended();
     fossil_test_environment_erase();
 
-    return !result;
+    return result;
 }
 
 // Function to add a test to the test environment
