@@ -260,10 +260,10 @@ void _fossil_test_scoreboard_expected_rules(void) {
 void _fossil_test_scoreboard_unexpected_rules(void) {
     if (_TEST_ENV.rule.should_pass) {
         _TEST_ENV.stats.unexpected_failed_count++;
-        _TEST_ENV.rule.should_pass = false;
+        //_TEST_ENV.rule.should_pass = false;
     } else {
         _TEST_ENV.stats.unexpected_passed_count++;
-        _TEST_ENV.rule.should_pass = false;
+        //_TEST_ENV.rule.should_pass = false;
     }
 }
 
