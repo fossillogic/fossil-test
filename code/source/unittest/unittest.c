@@ -190,7 +190,7 @@ void fossil_test_environment_erase(void) {
 fossil_env_t fossil_test_environment_create(int argc, char **argv) {
     fossil_test_cli_parse(argc, argv, commands);
     
-    fossil_env_t env;
+    fossil_env_t env = {0};
 
     // Initialize test statistics
     env.stats.expected_passed_count = 0;
