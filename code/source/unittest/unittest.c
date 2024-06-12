@@ -152,7 +152,7 @@ void fossil_test_queue_clear(fossil_test_queue_t *queue) {
     while (current_test != NULL) {
         fossil_test_t *temp = current_test;
         current_test = current_test->next;
-        // free(temp);
+        free(temp);
     }
 
     // Reset queue pointers
