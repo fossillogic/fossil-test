@@ -349,6 +349,16 @@ void fossil_test_io_information(void) {
     }
 }
 
+void fossil_test_io_sanity_load(fossil_test_t *test) {
+    if (_CLI.verbose_level == 2) {
+        fossil_test_cout("blue", "load test: ");
+        fossil_test_cout("cyan", " -> id: %.4d, tag: %s: %s\n", _TEST_ENV.stats.expected_total_count + 1, test->tags, replace_underscore(test->name));
+    } else if (_CLI.verbose_level == 1) {
+        fossil_test_cout("blue", "[loaded] test: ");
+        fossil_test_cout("cyan", " -> %.4d %s\n", _TEST_ENV.stats.expected_total_count + 1, replace_underscore(test->name));
+    }
+}
+
 void fossil_test_io_unittest_start(fossil_test_t *test) {
     test->timer.start = clock();
     
