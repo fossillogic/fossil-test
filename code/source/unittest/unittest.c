@@ -495,6 +495,7 @@ void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_
     // Update test statistics
     add_test_to_queue(test, env->queue);
     _TEST_ENV.stats.untested_count++;
+    fossil_test_io_sanity_load(test);
 }
 
 //
