@@ -355,13 +355,9 @@ void _fossil_test_scoreboard_feature_rules(fossil_test_t *test_case) {
     if (_TEST_ENV.rule.skipped && strcmp(test_case->marks, "skip") == 0) {
         _TEST_ENV.stats.expected_skipped_count++;
         _TEST_ENV.rule.skipped = false;
-    }
-    if (!_ASSERT_INFO.has_assert && strcmp(test_case->marks, "tofu") != 0) {
+    } else if (!_ASSERT_INFO.has_assert && strcmp(test_case->marks, "tofu") != 0) {
         _TEST_ENV.stats.expected_empty_count++;
-    }
-
-    // handling features for skip and timeouts
-    if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
+    } else if (!_TEST_ENV.rule.should_pass && strcmp(test_case->marks, "fail") == 0) {
         if (_ASSERT_INFO.should_fail) {
             _fossil_test_scoreboard_expected_rules();
         } else {
