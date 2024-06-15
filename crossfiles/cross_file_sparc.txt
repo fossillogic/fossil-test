@@ -1,0 +1,11 @@
+[binaries]
+c = 'sparc-linux-gnu-gcc'
+cpp = 'sparc-linux-gnu-g++'
+ar = 'sparc-linux-gnu-ar'
+strip = 'sparc-linux-gnu-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'sparc'
+cpu = 'sparc'
+endian = 'big'
