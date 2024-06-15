@@ -13,9 +13,6 @@ RUN pacman -Syu --noconfirm && \
     llvm \
     rust \
     cargo \
-    dub \
-    vala \
-    jdk11-openjdk \
     wget \
     python \
     python-pip \
