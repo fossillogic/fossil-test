@@ -210,7 +210,7 @@ jobs:
           path: builddir/meson-logs/testlog.txt
 
   build_posix:
-    name: Building on POSIX systems with Meson v${{ matrix.meson_version }}
+    name: Building on ${{ matrix.os }} with Meson v${{ matrix.meson_version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -248,7 +248,7 @@ jobs:
           path: builddir/meson-logs/testlog.txt
 
   build_cross:
-    name: Building on Cross-Compilation Targets with Meson v${{ matrix.meson_version }}
+    name: Building on ${{ matrix.architecture }} with Meson v${{ matrix.meson_version }}
     runs-on: ubuntu-latest  # Using Ubuntu as the base system for cross-compilation
 
     strategy:
@@ -312,17 +312,17 @@ jobs:
           python -m pip install meson==${{ matrix.meson_version }} ninja
 
       - name: Configure
-        run: meson setup builddir_cross --cross-file $CROSS_FILE --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
+        run: meson setup builddir_${{ matrix.architecture }} --cross-file $CROSS_FILE --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Compile
-        run: meson compile -C builddir_cross
+        run: meson compile -C builddir_${{ matrix.architecture }}
 
       - name: Run Tests
-        run: meson test -C builddir_cross -v
+        run: meson test -C builddir_${{ matrix.architecture }} -v
 
       - name: Upload Test Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: cross_${{ matrix.architecture }}_meson_testlog
-          path: builddir_cross/meson-logs/testlog.txt
+          path: builddir_${{ matrix.architecture }}/meson-logs/testlog.txt
