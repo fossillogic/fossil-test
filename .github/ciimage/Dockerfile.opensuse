@@ -10,13 +10,10 @@ RUN zypper --non-interactive install \
     llvm \
     rust \
     cargo \
-    dub \
     wget \
     python3 \
     python3-pip \
-    git \
-    meson \
-    ninja && \
+    git && \
     zypper clean -a
 
 # Set environment variables
@@ -26,6 +23,9 @@ ENV LD_LIBRARY_PATH=/usr/local/lib64
 
 # Set working directory
 WORKDIR /workspace
+
+# Install meson and ninja using pip
+RUN pip3 install meson ninja
 
 # Default command
 CMD ["bash"]
