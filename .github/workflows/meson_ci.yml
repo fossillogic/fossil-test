@@ -210,12 +210,55 @@ jobs:
           path: builddir/meson-logs/testlog.txt
 
   build_posix:
-    name: Building on POSIX systems with Meson v${{ matrix.meson_version }}
-    runs-on: ${{ matrix.os }}
+    name: Build on Linux ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
-        meson_version: ["1.2.0", "1.3.0", "1.4.0"]
+        distro: [ubuntu, debian, fedora, archlinux]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.distro }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --file .github/ciimage/Dockerfile.${{ matrix.distro }} \
+            --tag ${GITHUB_REPOSITORY}:${{ matrix.distro }} .
+
+      - name: Run Meson Build in Docker Container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
+            /bin/bash -c "
+              meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3 -Dc_std=c17
+              meson compile -C builddir
+              meson test -C builddir -v"
+
+  build_cross:
+    name: Building on Bedrock ${{ matrix.architecture }}
+    runs-on: ubuntu-latest  # Using Ubuntu as the base system for cross-compilation
+
+    strategy:
+      matrix:
+        architecture: [arm, arm64, mips, mipsel, riscv64, ppc, ppc64le, sparc64, s390x]
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -227,22 +270,77 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Meson and Ninja
+      - name: Install Cross-Compilation Toolchain
         run: |
-          python -m pip install meson==${{ matrix.meson_version }} ninja
+          sudo apt-get update
+          if [ "${{ matrix.architecture }}" == "arm" ]; then
+            sudo apt-get install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+          elif [ "${{ matrix.architecture }}" == "arm64" ]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "mips" ]; then
+            sudo apt-get install -y gcc-mips-linux-gnu g++-mips-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "mipsel" ]; then
+            sudo apt-get install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "riscv64" ]; then
+            sudo apt-get install -y gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "ppc" ]; then
+            sudo apt-get install -y gcc-powerpc-linux-gnu g++-powerpc-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "ppc64le" ]; then
+            sudo apt-get install -y gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "sparc64" ]; then
+            sudo apt-get install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
+          elif [ "${{ matrix.architecture }}" == "s390x" ]; then
+            sudo apt-get install -y gcc-s390x-linux-gnu g++-s390x-linux-gnu
+          fi
 
-      - name: Configure
-        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
+      - name: Set Cross-Compilation Environment Variables
+        run: |
+          if [ "${{ matrix.architecture }}" == "arm" ]; then
+            echo "CC=arm-linux-gnueabi-gcc" >> $GITHUB_ENV
+            echo "CXX=arm-linux-gnueabi-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/arm.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "arm64" ]; then
+            echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=aarch64-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/arm64.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "mips" ]; then
+            echo "CC=mips-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=mips-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/mips.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "mipsel" ]; then
+            echo "CC=mipsel-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=mipsel-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/mipsel.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "riscv64" ]; then
+            echo "CC=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=riscv64-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/riscv64.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "ppc" ]; then
+            echo "CC=powerpc-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=powerpc-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/ppc.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "ppc64le" ]; then
+            echo "CC=powerpc64le-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=powerpc64le-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/ppc64le.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "sparc64" ]; then
+            echo "CC=sparc64-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=sparc64-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/sparc64.txt" >> $GITHUB_ENV
+          elif [ "${{ matrix.architecture }}" == "s390x" ]; then
+            echo "CC=s390x-linux-gnu-gcc" >> $GITHUB_ENV
+            echo "CXX=s390x-linux-gnu-g++" >> $GITHUB_ENV
+            echo "CROSS_FILE=.github/crossfiles/s390x.txt" >> $GITHUB_ENV
+          fi
 
-      - name: Compile
-        run: meson compile -C builddir
+      - name: Install Meson
+        run: |
+          python -m pip install meson ninja
 
-      - name: Run Tests
-        run: meson test -C builddir -v
+      - name: Configure the Project
+        run: |
+          meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3 --cross-file $CROSS_FILE
 
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: posix_${{ matrix.os }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
+      - name: Build the Project
+        run: |
+          meson compile -C builddir

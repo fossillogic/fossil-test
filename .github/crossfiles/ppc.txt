@@ -1,0 +1,11 @@
+[binaries]
+c = 'powerpc-linux-gnu-gcc'
+cpp = 'powerpc-linux-gnu-g++'
+ar = 'powerpc-linux-gnu-ar'
+strip = 'powerpc-linux-gnu-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'ppc'
+cpu = 'powerpc'
+endian = 'big'
