@@ -1,6 +1,36 @@
+# Use a specific Arch Linux base image
 FROM archlinux:latest
-RUN pacman -Syu --noconfirm \
-    base-devel \
-    python3 python-pip \
-    && pip install meson ninja \
-    && pacman -Scc --noconfirm
+
+# Set environment variables to avoid interaction
+ENV TZ=UTC
+
+# Update and install system dependencies
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+    gcc \
+    clang \
+    gdb \
+    llvm \
+    rust \
+    cargo \
+    dub \
+    vala \
+    jdk11-openjdk \
+    wget \
+    python \
+    python-pip \
+    git \
+    meson \
+    ninja && \
+    pacman -Scc --noconfirm
+
+# Set environment variables
+ENV CC=/usr/bin/clang
+ENV CXX=/usr/bin/clang++
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+# Set working directory
+WORKDIR /workspace
+
+# Default command
+CMD ["bash"]
