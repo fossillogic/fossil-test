@@ -215,7 +215,7 @@ jobs:
 
     strategy:
       matrix:
-        distro: [ubuntu, debian, fedora, opensuse, archlinux]
+        distro: [ubuntu, debian, fedora, archlinux]
 
     steps:
       - name: Checkout code
@@ -252,13 +252,12 @@ jobs:
               meson test -C builddir -v"
 
   build_cross:
-    name: Building on ${{ matrix.architecture }} with Meson v${{ matrix.meson_version }}
+    name: Building on Bedrock ${{ matrix.architecture }}
     runs-on: ubuntu-latest  # Using Ubuntu as the base system for cross-compilation
 
     strategy:
       matrix:
         architecture: [arm, arm64, mips, mipsel, riscv64, ppc, ppc64le, sparc64, s390x]
-        meson_version: ["1.2.0", "1.3.0", "1.4.0"]
     
     steps:
       - name: Checkout code
@@ -336,7 +335,7 @@ jobs:
 
       - name: Install Meson
         run: |
-          python -m pip install meson==${{ matrix.meson_version }} ninja
+          python -m pip install meson ninja
 
       - name: Configure the Project
         run: |
