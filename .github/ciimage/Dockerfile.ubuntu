@@ -21,8 +21,6 @@ RUN apt-get update && \
     rustc \
     cargo \
     dub \
-    valac \
-    openjdk-11-jdk \
     wget \
     python3 \
     python3-pip \
