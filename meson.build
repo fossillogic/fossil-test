@@ -5,6 +5,5 @@ project('Fossil Test', 'c', 'cpp',
     default_options: ['c_std=c18', 'cpp_std=c++20'],)
 
 
-
 subdir('code')
 subdir('test')
