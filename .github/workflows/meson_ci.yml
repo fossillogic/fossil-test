@@ -290,8 +290,6 @@ jobs:
             sudo apt-get install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "s390x" ]; then
             sudo apt-get install -y gcc-s390x-linux-gnu g++-s390x-linux-gnu
-          elif [[ "${{ matrix.architecture }}" == ios_* ]]; then
-            sudo xcode-select --install
           fi
 
       - name: Set Cross-Compilation Environment Variables
@@ -336,14 +334,6 @@ jobs:
             echo "CC=s390x-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=s390x-linux-gnu-g++" >> $GITHUB_ENV
             echo "CROSS_FILE=crossfiles/cross_file_s390x.txt" >> $GITHUB_ENV
-          elif [ "${{ matrix.architecture }}" == "ios_arm64" ]; then
-            echo "CC=xcrun -sdk iphoneos clang" >> $GITHUB_ENV
-            echo "CXX=xcrun -sdk iphoneos clang++" >> $GITHUB_ENV
-            echo "CROSS_FILE=crossfiles/cross_file_ios_arm64.txt" >> $GITHUB_ENV
-          elif [ "${{ matrix.architecture }}" == "ios_x86_64" ]; then
-            echo "CC=xcrun -sdk iphonesimulator clang" >> $GITHUB_ENV
-            echo "CXX=xcrun -sdk iphonesimulator clang++" >> $GITHUB_ENV
-            echo "CROSS_FILE=crossfiles/cross_file_ios_x86_64.txt" >> $GITHUB_ENV
           fi
 
       - name: Install Meson
