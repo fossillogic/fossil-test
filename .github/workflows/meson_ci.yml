@@ -287,23 +287,23 @@ jobs:
           if [ "${{ matrix.architecture }}" == "arm" ]; then
             echo "CC=arm-linux-gnueabi-gcc" >> $GITHUB_ENV
             echo "CXX=arm-linux-gnueabi-g++" >> $GITHUB_ENV
-            CROSS_FILE=cross_file_arm.txt
+            CROSS_FILE=crossfiles/cross_file_arm.txt
           elif [ "${{ matrix.architecture }}" == "arm64" ]; then
             echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=aarch64-linux-gnu-g++" >> $GITHUB_ENV
-            CROSS_FILE=cross_file_arm64.txt
+            CROSS_FILE=crossfiles/cross_file_arm64.txt
           elif [ "${{ matrix.architecture }}" == "mips" ]; then
             echo "CC=mips-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=mips-linux-gnu-g++" >> $GITHUB_ENV
-            CROSS_FILE=cross_file_mips.txt
+            CROSS_FILE=crossfiles/cross_file_mips.txt
           elif [ "${{ matrix.architecture }}" == "mipsel" ]; then
             echo "CC=mipsel-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=mipsel-linux-gnu-g++" >> $GITHUB_ENV
-            CROSS_FILE=cross_file_mipsel.txt
+            CROSS_FILE=crossfiles/cross_file_mipsel.txt
           elif [ "${{ matrix.architecture }}" == "riscv64" ]; then
             echo "CC=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=riscv64-linux-gnu-g++" >> $GITHUB_ENV
-            CROSS_FILE=cross_file_riscv64.txt
+            CROSS_FILE=crossfiles/cross_file_riscv64.txt
           fi
           echo "CROSS_FILE=$CROSS_FILE" >> $GITHUB_ENV
 
