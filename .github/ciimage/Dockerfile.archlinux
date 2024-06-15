@@ -1,0 +1,6 @@
+FROM archlinux:latest
+RUN pacman -Syu --noconfirm \
+    base-devel \
+    python3 python-pip \
+    && pip install meson ninja \
+    && pacman -Scc --noconfirm
