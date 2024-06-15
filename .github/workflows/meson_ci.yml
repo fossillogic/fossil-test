@@ -284,8 +284,6 @@ jobs:
             sudo apt-get install -y gcc-powerpc-linux-gnu g++-powerpc-linux-gnu
           elif [ "${{ matrix.architecture }}" == "ppc64le" ]; then
             sudo apt-get install -y gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu
-          elif [ "${{ matrix.architecture }}" == "sparc" ]; then
-            sudo apt-get install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "sparc64" ]; then
             sudo apt-get install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "s390x" ]; then
@@ -322,10 +320,6 @@ jobs:
             echo "CC=powerpc64le-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=powerpc64le-linux-gnu-g++" >> $GITHUB_ENV
             echo "CROSS_FILE=crossfiles/cross_file_ppc64le.txt" >> $GITHUB_ENV
-          elif [ "${{ matrix.architecture }}" == "sparc" ]; then
-            echo "CC=sparc-linux-gnu-gcc" >> $GITHUB_ENV
-            echo "CXX=sparc-linux-gnu-g++" >> $GITHUB_ENV
-            echo "CROSS_FILE=crossfiles/cross_file_sparc.txt" >> $GITHUB_ENV
           elif [ "${{ matrix.architecture }}" == "sparc64" ]; then
             echo "CC=sparc64-linux-gnu-gcc" >> $GITHUB_ENV
             echo "CXX=sparc64-linux-gnu-g++" >> $GITHUB_ENV
