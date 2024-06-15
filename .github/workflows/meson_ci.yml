@@ -338,16 +338,16 @@ jobs:
 
       - name: Install Meson
         run: |
-          python -m pip install meson==${{ matrix.meson_version }}
+          python -m pip install meson==${{ matrix.meson_version }} ninja
 
       - name: Configure the Project
         run: |
-          meson setup build --cross-file $CROSS_FILE
+          meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3 --cross-file $CROSS_FILE
 
       - name: Build the Project
         run: |
-          meson compile -C build
+          meson compile -C builddir
 
       - name: Test the Project
         run: |
-          meson test -C build
+          meson test -C builddir -v
