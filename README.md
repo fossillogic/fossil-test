@@ -40,7 +40,7 @@ Before getting started, make sure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/dreamer-coding-555/fossil-test.git
-   revision = v1.0.0
+   revision = v1.0.1
 
    [provide]
    fossil-test = fossil_test_dep
