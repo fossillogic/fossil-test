@@ -443,7 +443,7 @@ void fossil_test_io_asserted(xassert_info *assume) {
         fossil_test_cout("red", "function : -> %s\n", assume->func);
         fossil_test_cout("red", "=========================================================================================[F]=\n");
     } else if (_CLI.verbose_level == 1) {
-        fossil_test_cout("red", "name: %s line: -> %d msg: -> %s", assume->func, assume->line, assume->message);
+        fossil_test_cout("red", "name: %s line: -> %d msg: -> %s\n", assume->func, assume->line, assume->message);
     } else {
         fossil_test_cout("red", "[#]");
     }
