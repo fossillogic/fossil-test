@@ -380,6 +380,7 @@ void fossil_test_environment_scoreboard(fossil_test_t *test) {
     // we just need to update the total scoreboard
     // so it is accurate for the fossil test.
     _fossil_test_scoreboard_update();
+    _TEST_ENV.rule.should_pass = true; // reset counter for next test
 }
 
 void fossil_test_run_testcase(fossil_test_t *test) {
@@ -393,8 +394,8 @@ void fossil_test_run_testcase(fossil_test_t *test) {
 
     if (_TEST_ENV.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
-    } else if (_TEST_ENV.rule.skipped && strcmp(test->marks, "fail") == 0) {
-        _ASSERT_INFO.should_fail = false;
+    } else if (!_ASSERT_INFO.should_fail && strcmp(test->marks, "fail") == 0) {
+        _ASSERT_INFO.should_fail = true;
     }
 
     fossil_test_io_unittest_start(test);
