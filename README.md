@@ -39,7 +39,7 @@ Before getting started, make sure you have the following installed:
    # Git Wrap package definition
    # ======================
    [wrap-git]
-   url = https://github.com/dreamer-coding-555/fossil-test.git
+   url = https://github.com/fossillogic/fossil-test.git
    revision = v1.0.1
 
    [provide]
@@ -53,7 +53,7 @@ Before getting started, make sure you have the following installed:
    dep = dependency('fossil-test')
    ```
 
-   This line retrieves the `fossil-test` dependency, allowing you to use it in your project. **Releases Page**: Head over to the [Fossil Test Releases](https://github.com/dreamer-coding-555/fossil-test/releases) to find any preferred version of the framework. For the best experience with Fossil Test, it is recommended to always use the latest release.
+   This line retrieves the `fossil-test` dependency, allowing you to use it in your project. **Releases Page**: Head over to the [Fossil Test Releases](https://github.com/fossillogic/fossil-test/releases) to find any preferred version of the framework. For the best experience with Fossil Test, it is recommended to always use the latest release.
 
 ## Fossil Test CLI Usage
 
