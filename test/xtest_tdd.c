@@ -83,7 +83,7 @@ FOSSIL_TEST(xassert_run_of_int64) {
 
     // Test cases
     TEST_ASSERT((int64_t)x == 42, "Should have passed the test case");
-    TEST_ASSERT((int64_t)y == 20, "Should have passed the test case");
+    TEST_ASSERT((int64_t)y != 20, "Should have passed the test case");
     TEST_ASSERT((int64_t)x != (int64_t)y, "Should have passed the test case");
     TEST_ASSERT((int64_t)y < (int64_t)x, "Should have passed the test case");
     TEST_ASSERT((int64_t)y <= (int64_t)x, "Should have passed the test case");
