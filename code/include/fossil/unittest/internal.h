@@ -224,6 +224,7 @@ typedef struct {
     bool shoudl_timeout;   /**< Flag indicating whether the test case should timeout (1 for true, 0 for false). */
     bool should_fail;      /**< Flag indicating whether the test case should fail (1 for true, 0 for false). */
     bool has_assert;       /**< Flag indicating if an assertion occurred (1 for true, 0 for false). */
+    bool same_assert;      /**< Flag indicating if the test case is the same (1 for true, 0 for false). */
     int32_t num_asserts;   /**< Number of assertions that occurred. */
     int32_t line;          /**< Line number where the assertion occurred. */
     char *func;            /**< Function name where the assertion occurred. */

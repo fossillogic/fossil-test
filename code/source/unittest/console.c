@@ -409,6 +409,8 @@ void fossil_test_io_unittest_step(xassert_info *assume) {
     } else if (_CLI.verbose_level == 1) {
         fossil_test_cout("blue", "[intro] has_assert : ");
         fossil_test_cout("cyan", "%s\n", assume->has_assert ? COLOR_GREEN "yes" COLOR_RESET : COLOR_RED "no" COLOR_RESET);
+        fossil_test_cout("blue", "[intro] same_assert: ");
+        fossil_test_cout("cyan", "%s\n", assume->same_assert ? COLOR_RED "yes" COLOR_RESET : COLOR_GREEN "no" COLOR_RESET);
         fossil_test_cout("blue", "[intro] num_asserts: ");
         fossil_test_cout("cyan", COLOR_GREEN "%3i\n" COLOR_RESET , assume->num_asserts);
     }
