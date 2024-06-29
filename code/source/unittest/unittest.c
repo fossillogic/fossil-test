@@ -391,6 +391,7 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     _ASSERT_INFO.has_assert     = false;
     _ASSERT_INFO.should_fail    = false;
     _ASSERT_INFO.shoudl_timeout = false;
+    _ASSERT_INFO.num_asserts    = 0;
 
     if (_TEST_ENV.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
@@ -720,5 +721,6 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* me
     } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
         fossil_test_assert_impl_expect(expression, &_ASSERT_INFO);
     }
+    _ASSERT_INFO.num_asserts++; // increment the number of asserts
     _ASSERT_INFO.has_assert = true; // Make note of an assert being added in a given test case
 }

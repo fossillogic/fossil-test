@@ -402,11 +402,15 @@ void fossil_test_io_unittest_then(char *description) {
 
 void fossil_test_io_unittest_step(xassert_info *assume) {
     if (_CLI.verbose_level == 2) {
-        fossil_test_cout("blue", "has assert: ");
+        fossil_test_cout("blue", "has assert  : ");
         fossil_test_cout("cyan", " -> %s\n", assume->has_assert ? COLOR_GREEN "has assertions" COLOR_RESET : COLOR_RED "missing assertions" COLOR_RESET);
+        fossil_test_cout("blue", "asserts used: ");
+        fossil_test_cout("cyan", COLOR_GREEN "%3i\n" COLOR_RESET , assume->num_asserts);
     } else if (_CLI.verbose_level == 1) {
-        fossil_test_cout("blue", "[intro] has_assert: ");
+        fossil_test_cout("blue", "[intro] has_assert : ");
         fossil_test_cout("cyan", "%s\n", assume->has_assert ? COLOR_GREEN "yes" COLOR_RESET : COLOR_RED "no" COLOR_RESET);
+        fossil_test_cout("blue", "[intro] num_asserts: ");
+        fossil_test_cout("cyan", COLOR_GREEN "%3i\n" COLOR_RESET , assume->num_asserts);
     }
 }
 
