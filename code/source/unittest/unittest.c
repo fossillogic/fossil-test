@@ -24,6 +24,7 @@ typedef struct {
     char* message;
     char* file;
     int line;
+    unsigned long fingerprint;
     char* func;
 } assert_history_t;
 
@@ -737,10 +738,42 @@ bool is_assert_in_history(bool expression, xassert_type_t behavior, char* messag
     return false;
 }
 
+unsigned long generate_fingerprint(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func) {
+    unsigned long hash = 5381;
+    int c;
+
+    hash = ((hash << 5) + hash) + expression;
+    hash = ((hash << 5) + hash) + behavior;
+
+    while ((c = *message++))
+        hash = ((hash << 5) + hash) + c;
+
+    while ((c = *file++))
+        hash = ((hash << 5) + hash) + c;
+
+    hash = ((hash << 5) + hash) + line;
+
+    while ((c = *func++))
+        hash = ((hash << 5) + hash) + c;
+
+    return hash;
+}
+
+bool is_assert_similar_in_history(unsigned long fingerprint) {
+    for (int i = 0; i < assert_history_count; i++) {
+        if (assert_history[i].fingerprint == fingerprint) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func) {
-    if (is_assert_in_history(expression, behavior, message, file, line, func)) {
-        // Skip the assertion as it has already been executed
-        _ASSERT_INFO.same_assert = true;
+    unsigned long fingerprint = generate_fingerprint(expression, behavior, message, file, line, func);
+
+    if (is_assert_similar_in_history(fingerprint)) {
+        // Skip the assertion as a similar one has already been executed
+         _ASSERT_INFO.same_assert = true;
         return;
     }
 
@@ -760,7 +793,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
     _ASSERT_INFO.num_asserts++; // increment the number of asserts
     _ASSERT_INFO.has_assert = true; // Make note of an assert being added in a given test case
 
-    // Add the assertion to the history
+    // Add the assertion to the history with its fingerprint
     if (assert_history_count < MAX_ASSERT_HISTORY) {
         assert_history[assert_history_count].expression = expression;
         assert_history[assert_history_count].behavior = behavior;
@@ -768,6 +801,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
         assert_history[assert_history_count].file = file;
         assert_history[assert_history_count].line = line;
         assert_history[assert_history_count].func = func;
+        assert_history[assert_history_count].fingerprint = fingerprint;
         assert_history_count++;
     }
 }
