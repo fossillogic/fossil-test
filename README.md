@@ -1,4 +1,4 @@
-# ***Fossil Test: Unit Testing/Mocking Framework*** - `C/C++`
+# ***Fossil Test: Unit Testing/Mocking Framework*** - `C, C++`
 
 **Overview:**
 Fossil Test is a robust unit testing and mocking framework developed by Fossil Logic, designed to facilitate the creation of high-quality test cases across any C or C++ project. The framework supports both Behavior-Driven Development (BDD) and Test-Driven Development (TDD) styles, providing a flexible and comprehensive solution for ensuring software reliability and correctness.
@@ -40,7 +40,7 @@ Before getting started, make sure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.0.1
+   revision = v1.0.2
 
    [provide]
    fossil-test = fossil_test_dep

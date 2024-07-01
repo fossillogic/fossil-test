@@ -16,6 +16,21 @@ Description:
 #include "fossil/unittest/commands.h"
 #include <stdarg.h>
 
+#define MAX_ASSERT_HISTORY 100
+
+typedef struct {
+    bool expression;
+    xassert_type_t behavior;
+    char* message;
+    char* file;
+    int line;
+    unsigned long fingerprint;
+    char* func;
+} assert_history_t;
+
+static assert_history_t assert_history[MAX_ASSERT_HISTORY];
+static int assert_history_count = 0;
+
 fossil_env_t _TEST_ENV;
 xassert_info _ASSERT_INFO;
 
@@ -391,6 +406,8 @@ void fossil_test_run_testcase(fossil_test_t *test) {
     _ASSERT_INFO.has_assert     = false;
     _ASSERT_INFO.should_fail    = false;
     _ASSERT_INFO.shoudl_timeout = false;
+    _ASSERT_INFO.num_asserts    = 0;
+    _ASSERT_INFO.same_assert    = false;
 
     if (_TEST_ENV.rule.skipped && strcmp(test->marks, "skip") == 0) {
         return;
@@ -707,18 +724,84 @@ void fossil_test_assert_impl_expect(bool expression, xassert_info *assume) {
     }
 } // end of func
 
-void _fossil_test_assert_class(bool expression, xassert_type_t behavor, char* message, char* file, int line, char* func) {
+bool is_assert_in_history(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func) {
+    for (int i = 0; i < assert_history_count; i++) {
+        if (assert_history[i].expression == expression &&
+            assert_history[i].behavior == behavior &&
+            strcmp(assert_history[i].message, message) == 0 &&
+            strcmp(assert_history[i].file, file) == 0 &&
+            assert_history[i].line == line &&
+            strcmp(assert_history[i].func, func) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+unsigned long generate_fingerprint(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func) {
+    unsigned long hash = 5381;
+    int c;
+
+    hash = ((hash << 5) + hash) + expression;
+    hash = ((hash << 5) + hash) + behavior;
+
+    while ((c = *message++))
+        hash = ((hash << 5) + hash) + c;
+
+    while ((c = *file++))
+        hash = ((hash << 5) + hash) + c;
+
+    hash = ((hash << 5) + hash) + line;
+
+    while ((c = *func++))
+        hash = ((hash << 5) + hash) + c;
+
+    return hash;
+}
+
+bool is_assert_similar_in_history(unsigned long fingerprint) {
+    for (int i = 0; i < assert_history_count; i++) {
+        if (assert_history[i].fingerprint == fingerprint) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func) {
+    unsigned long fingerprint = generate_fingerprint(expression, behavior, message, file, line, func);
+
+    if (is_assert_similar_in_history(fingerprint)) {
+        // Skip the assertion as a similar one has already been executed
+         _ASSERT_INFO.same_assert = true;
+        return;
+    }
+
     _ASSERT_INFO.func = func;
     _ASSERT_INFO.file = file;
     _ASSERT_INFO.line = line;
     _ASSERT_INFO.message = message;
 
-    if (behavor == TEST_ASSERT_AS_CLASS_ASSUME) {
+    if (behavior == TEST_ASSERT_AS_CLASS_ASSUME) {
         fossil_test_assert_impl_assume(expression, &_ASSERT_INFO);
-    } else if (behavor == TEST_ASSERT_AS_CLASS_ASSERT) {
+    } else if (behavior == TEST_ASSERT_AS_CLASS_ASSERT) {
         fossil_test_assert_impl_assert(expression, &_ASSERT_INFO);
-    } else if (behavor == TEST_ASSERT_AS_CLASS_EXPECT) {
+    } else if (behavior == TEST_ASSERT_AS_CLASS_EXPECT) {
         fossil_test_assert_impl_expect(expression, &_ASSERT_INFO);
     }
+
+    _ASSERT_INFO.num_asserts++; // increment the number of asserts
     _ASSERT_INFO.has_assert = true; // Make note of an assert being added in a given test case
+
+    // Add the assertion to the history with its fingerprint
+    if (assert_history_count < MAX_ASSERT_HISTORY) {
+        assert_history[assert_history_count].expression = expression;
+        assert_history[assert_history_count].behavior = behavior;
+        assert_history[assert_history_count].message = message;
+        assert_history[assert_history_count].file = file;
+        assert_history[assert_history_count].line = line;
+        assert_history[assert_history_count].func = func;
+        assert_history[assert_history_count].fingerprint = fingerprint;
+        assert_history_count++;
+    }
 }
