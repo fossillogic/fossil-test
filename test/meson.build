@@ -3,11 +3,7 @@ if get_option('with_test').enabled()
 
     test_src = ['xunit_runner.c']
     test_cubes = [
-        # Fossil Mockup cases
-        'spy', 'fake', 'stub', 'file', 'behavior',
-        'inject', 'network', 'output', 'input', 'internal',
-        # Fossil Test cases
-        'xfixture', 'bench', 'bdd', 'tdd', 'tags',
+        'mocks', 'xfixture', 'bench', 'bdd', 'tdd', 'tags',
     ]
 
     foreach cube : test_cubes
