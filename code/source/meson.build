@@ -15,15 +15,6 @@ fossil_test_dep = declare_dependency(
 
 
 mock_code = [
-    'mockup' / 'spy.c',
-    'mockup' / 'fake.c',
-    'mockup' / 'stub.c',
-    'mockup' / 'file.c',
-    'mockup' / 'behavior.c',
-    'mockup' / 'inject.c',
-    'mockup' / 'network.c',
-    'mockup' / 'output.c',
-    'mockup' / 'input.c',
     'mockup' / 'mockup.c']
 
 fossil_mock_lib = library('fossil-mock',
@@ -33,4 +24,17 @@ fossil_mock_lib = library('fossil-mock',
 
 fossil_mock_dep = declare_dependency(
     link_with: fossil_mock_lib,
+    include_directories: dir)
+
+
+mark_code = [
+    'benchmark' / 'benchmark.c']
+
+fossil_mark_lib = library('fossil-mark',
+    mark_code,
+    install: true,
+    include_directories: dir)
+
+fossil_mark_dep = declare_dependency(
+    link_with: fossil_mark_lib,
     include_directories: dir)

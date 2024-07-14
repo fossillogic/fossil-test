@@ -10,6 +10,6 @@ if get_option('with_test').enabled()
         test_src += ['xtest_' + cube + '.c']
     endforeach
 
-    pizza = executable('xcli', test_src, include_directories: dir, dependencies: [fossil_test_dep, fossil_mock_dep])
+    pizza = executable('xcli', test_src, include_directories: dir, dependencies: [fossil_test_dep, fossil_mock_dep, fossil_mark_dep])
     test('fossil_tests', pizza)  # Renamed the test target for clarity
 endif
