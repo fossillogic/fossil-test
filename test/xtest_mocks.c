@@ -10,10 +10,10 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/unittest.h>   // basic test tools
-#include <fossil/xassume.h> // extra asserts
+#include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/xassert.h> // extra asserts
 
-#include <fossil/mockup/behavior.h> // library under test
+#include <fossil/mockup/framework.h> // library under test
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -32,37 +32,29 @@ Description:
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST(fossil_mockup_behavior_create_and_erase) {
-    // Create a behavior object
-    fossil_mockup_behavior_t *behavior = fossil_mockup_behavior_create("test_function", 2);
-    ASSUME_NOT_CNULL(behavior);
+// Test Case for Mocking a Function
+FOSSIL_TEST(mock_function_test) {
+    MockCallList mock;
+    MOCK_INIT(mock);
 
-    // Erase the behavior object
-    fossil_mockup_behavior_erase(behavior);
-}
+    // Simulating function calls
+    char *args1[] = {"arg1", "arg2"};
+    MOCK_ADD_CALL(mock, "mock_function", args1, 2);
 
-FOSSIL_TEST(fossil_mockup_behavior_record_and_verify_call) {
-    // Create a behavior object
-    fossil_mockup_behavior_t *behavior = fossil_mockup_behavior_create("test_function", 2);
-    ASSUME_NOT_CNULL(behavior);
+    char *args2[] = {"arg3", "arg4"};
+    MOCK_ADD_CALL(mock, "mock_function", args2, 2);
 
-    // Record a function call
-    int arg1 = 42;
-    const char *arg2 = "test";
-    fossil_mockup_behavior_record_call(behavior, &arg1, arg2);
+    // Validate that the calls were recorded
+    printf("Mock function calls:\n");
+    MOCK_PRINT(mock);
 
-    // Verify the function call
-    bool result = fossil_mockup_behavior_verify_call(behavior, 2, &arg1, arg2);
-    ASSUME_ITS_TRUE(result);
-
-    // Erase the behavior object
-    fossil_mockup_behavior_erase(behavior);
+    MOCK_DESTROY(mock);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(fossil_mockup_behav_group) {
-    ADD_TEST(fossil_mockup_behavior_create_and_erase);
-    ADD_TEST(fossil_mockup_behavior_record_and_verify_call);
-} // end of fixture
+
+FOSSIL_TEST_GROUP(test_using_mock_group) {
+    ADD_TEST(mock_function_test);
+}

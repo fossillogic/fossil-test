@@ -10,7 +10,8 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include <fossil/unittest.h>   // basic test tools
+#include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/benchmark/framework.h>  // benchmark tools
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
