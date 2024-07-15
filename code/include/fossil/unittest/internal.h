@@ -15,8 +15,6 @@ Description:
 
 #include "fossil/_common/common.h"
 #include "fossil/_common/platform.h"
-#include "console.h"
-#include "commands.h"
 
 /**
  * Introspection Data in Fossil Test
