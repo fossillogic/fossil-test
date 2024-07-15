@@ -6,13 +6,13 @@ class TestRunnerGenerator:
     def __init__(self):
         self.directory = os.getcwd()
 
-    def find_test_groups(self, extension):
+    def find_test_groups(self):
         test_groups = set()
         pattern = r"FOSSIL_TEST_GROUP\((\w+)\)"
 
         for root, _, files in os.walk(self.directory):
             for file in files:
-                if file.startswith("xtest_") and file.endswith("." + extension):
+                if file.startswith("test_") and file.endswith(".c"):
                     with open(os.path.join(root, file), "r") as f:
                         content = f.read()
                         matches = re.findall(pattern, content)
@@ -20,26 +20,13 @@ class TestRunnerGenerator:
 
         return list(test_groups)
 
-    def generate_test_runner(self, test_groups, extension):
+    def generate_test_runner(self, test_groups):
         header = """
 // Generated Fossil Logic Test
 """
 
-        if extension == "c":
-            header += """
+        header += """
 #include <fossil/unittest/framework.h>
-"""
-        elif extension == "cpp":
-            header += """
-#include <fossil/unittest.h>
-"""
-        elif extension == "m":
-            header += """
-#import <fossil/unittest.h>
-"""
-        elif extension == "mm":
-            header += """
-#import <fossil/unittest.h>
 """
 
         header += """
@@ -58,22 +45,9 @@ class TestRunnerGenerator:
 // * Fossil Logic Test Runner
 // * * * * * * * * * * * * * * * * * * * * * * * *"""
 
-        if extension == "c":
-            runner += """
+        runner += """
 int main(int argc, char **argv) {
     FOSSIL_TEST_CREATE(argc, argv);\n"""
-        elif extension == "cpp":
-            runner += """
-int main(int argc, char **argv) {
-    FOSSIL_TEST_CREATE(argc, argv);\n"""
-        elif extension == "m":
-            runner += """
-int main(int argc, const char **argv) {
-    FOSSIL_TEST_CREATE(argc, argv);\n\n"""
-        elif extension == "mm":
-            runner += """
-int main(int argc, const char **argv) {
-    FOSSIL_TEST_CREATE(argc, argv);\n\n"""
 
         import_pools = "\n".join(
             [f"    FOSSIL_TEST_IMPORT({group});" for group in test_groups]
@@ -85,7 +59,7 @@ int main(int argc, const char **argv) {
 } // end of func
 """
 
-        with open(f"xunit_runner.{extension}", "w") as file:
+        with open("unit_runner.c", "w") as file:
             file.write(header)
             file.write("\n")
             file.write(extern_pools)
@@ -96,7 +70,5 @@ int main(int argc, const char **argv) {
 
 
 generator = TestRunnerGenerator()
-extensions = ["c"]
-for ext in extensions:
-    test_groups = generator.find_test_groups(ext)
-    generator.generate_test_runner(test_groups, ext)
+test_groups = generator.find_test_groups()
+generator.generate_test_runner(test_groups)

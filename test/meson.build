@@ -1,13 +1,13 @@
 if get_option('with_test').enabled()
     run_command(['python3', 'generate-runner.py'], check: true)
 
-    test_src = ['xunit_runner.c']
+    test_src = ['unit_runner.c']
     test_cubes = [
-        'mocks', 'xfixture', 'bench', 'bdd', 'tdd', 'tags',
+        'mocks', 'marks', 'xfixture', 'bdd', 'tdd', 'tags',
     ]
 
     foreach cube : test_cubes
-        test_src += ['xtest_' + cube + '.c']
+        test_src += ['test_' + cube + '.c']
     endforeach
 
     pizza = executable('xcli', test_src, include_directories: dir, dependencies: [fossil_test_dep, fossil_mock_dep, fossil_mark_dep])
