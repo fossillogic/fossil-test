@@ -31,7 +31,7 @@ Before getting started, make sure you have the following installed:
 
 ## Adding Dependency
 
-1. **Install Meson Build System**: Before integrating the dependency, ensure you have Meson `1.2` or newer installed on your host system. You can install it with this command.
+1. **Install Meson Build System**: Before integrating the dependency, ensure you have Meson `1.3` or newer installed on your host system. You can install it with this command.
 
    ```sh
    python -m pip install meson           # to install Meson
@@ -46,7 +46,7 @@ Before getting started, make sure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.0.2
+   revision = v1.0.3
 
    [provide]
    fossil-test = fossil_test_dep

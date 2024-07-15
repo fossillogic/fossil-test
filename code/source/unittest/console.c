@@ -17,7 +17,7 @@ Description:
 
 static const char* FOSSIL_TEST_NAME = "Fossil Test";
 static const char* FOSSIL_TEST_AUTH = "Michael Gene Brockus (Dreamer)";
-static const char* FOSSIL_TEST_VERSION = "1.0.2";
+static const char* FOSSIL_TEST_VERSION = "1.0.3";
 static const char* FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing/mockup framework for C/C++.";
 
 // ==============================================================================
