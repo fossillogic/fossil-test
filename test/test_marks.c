@@ -12,6 +12,7 @@ Description:
 */
 #include <fossil/unittest/framework.h>   // basic test tools
 #include <fossil/benchmark/framework.h>  // benchmark tools
+#include <fossil/xassume.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -237,10 +238,7 @@ FOSSIL_TEST_GROUP(benchmark_group) {
     APPLY_MARK(selection_sort_case_3, "ghost");
     ADD_TEST(selection_sort_case_3);
 
-    APPLY_MARK(benchmark_bubble_sort_small, "ghost");
     ADD_TEST(benchmark_bubble_sort_small);
-    APPLY_MARK(benchmark_bubble_sort_medium, "ghost");
     ADD_TEST(benchmark_bubble_sort_medium);
-    APPLY_MARK(benchmark_bubble_sort_large, "ghost");
     ADD_TEST(benchmark_bubble_sort_large);
 }
