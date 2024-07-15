@@ -11,7 +11,7 @@ Description:
 ==============================================================================
 */
 #include "fossil/unittest/console.h"
-#include "fossil/unittest/internal.h"
+#include "fossil/unittest/framework.h"
 #include "fossil/unittest/commands.h"
 #include <stdarg.h>
 

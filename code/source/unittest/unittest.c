@@ -10,7 +10,7 @@ Description:
     feel free to contact Michael at michaelbrockus@gmail.com.
 ==============================================================================
 */
-#include "fossil/unittest/internal.h"
+#include "fossil/unittest/framework.h"
 #include "fossil/_common/common.h"
 #include "fossil/unittest/console.h"
 #include "fossil/unittest/commands.h"

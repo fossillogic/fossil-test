@@ -1,5 +1,4 @@
 test_code = [
-    'unittest' / 'benchmark.c',
     'unittest' / 'commands.c',
     'unittest' / 'console.c',
     'unittest' / 'unittest.c']
