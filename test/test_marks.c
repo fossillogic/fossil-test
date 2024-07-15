@@ -154,6 +154,66 @@ FOSSIL_TEST(selection_sort_case_3) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
+// Test Case for Bubble Sort with Small Input
+FOSSIL_TEST(benchmark_bubble_sort_small) {
+    const int size = 100;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_small);
+    {
+        MARK_SCOPED(bench_bubble_sort_small);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_small);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
+// Test Case for Bubble Sort with Medium Input
+FOSSIL_TEST(benchmark_bubble_sort_medium) {
+    const int size = 1000;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_medium);
+    {
+        MARK_SCOPED(bench_bubble_sort_medium);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_medium);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
+// Test Case for Bubble Sort with Large Input
+FOSSIL_TEST(benchmark_bubble_sort_large) {
+    const int size = 10000;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_large);
+    {
+        MARK_SCOPED(bench_bubble_sort_large);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_large);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
 // XUNIT-GROUP
 FOSSIL_TEST_GROUP(benchmark_group) {
     APPLY_MARK(bubble_sort_case_1, "ghost");
@@ -176,4 +236,11 @@ FOSSIL_TEST_GROUP(benchmark_group) {
     ADD_TEST(selection_sort_case_2);
     APPLY_MARK(selection_sort_case_3, "ghost");
     ADD_TEST(selection_sort_case_3);
+
+    APPLY_MARK(benchmark_bubble_sort_small, "ghost");
+    ADD_TEST(benchmark_bubble_sort_small);
+    APPLY_MARK(benchmark_bubble_sort_medium, "ghost");
+    ADD_TEST(benchmark_bubble_sort_medium);
+    APPLY_MARK(benchmark_bubble_sort_large, "ghost");
+    ADD_TEST(benchmark_bubble_sort_large);
 }
