@@ -14,6 +14,7 @@ Description:
 #define FOSSIL_TEST_COMMANDS_H
 
 #include "fossil/_common/common.h"
+#include "internal.h"
 
 #ifdef __cplusplus
 extern "C"

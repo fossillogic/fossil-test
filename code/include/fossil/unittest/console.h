@@ -14,7 +14,7 @@ Description:
 #define FOSSIL_TEST_CONSOLE_H
 
 #include "fossil/_common/common.h"
-#include "framework.h"
+#include "internal.h"
 
 #ifdef __cplusplus
 extern "C"
