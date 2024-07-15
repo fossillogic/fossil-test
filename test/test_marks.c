@@ -1,16 +1,20 @@
 /*
-==============================================================================
-Author: Michael Gene Brockus (Dreamer)
-Email: michaelbrockus@gmail.com
-Organization: Fossil Logic
-Description: 
-    This file is part of the Fossil Logic project, where innovation meets
-    excellence in software development. Michael Gene Brockus, also known as
-    "Dreamer," is a dedicated contributor to this project. For any inquiries,
-    feel free to contact Michael at michaelbrockus@gmail.com.
-==============================================================================
-*/
-#include <fossil/unittest.h>   // basic test tools
+ * -----------------------------------------------------------------------------
+ * Project: Fossil Logic
+ *
+ * This file is part of the Fossil Logic project, which aims to develop high-
+ * performance, cross-platform applications and libraries. The code contained
+ * herein is subject to the terms and conditions defined in the project license.
+ *
+ * Author: Michael Gene Brockus (Dreamer)
+ * Date: 07/01/2024
+ *
+ * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * -----------------------------------------------------------------------------
+ */
+#include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/benchmark/framework.h>  // benchmark tools
+#include <fossil/xassume.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -153,6 +157,66 @@ FOSSIL_TEST(selection_sort_case_3) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
+// Test Case for Bubble Sort with Small Input
+FOSSIL_TEST(benchmark_bubble_sort_small) {
+    const int size = 100;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_small);
+    {
+        MARK_SCOPED(bench_bubble_sort_small);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_small);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
+// Test Case for Bubble Sort with Medium Input
+FOSSIL_TEST(benchmark_bubble_sort_medium) {
+    const int size = 1000;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_medium);
+    {
+        MARK_SCOPED(bench_bubble_sort_medium);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_medium);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
+// Test Case for Bubble Sort with Large Input
+FOSSIL_TEST(benchmark_bubble_sort_large) {
+    const int size = 10000;
+    int arr[size];
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand();
+    }
+    
+    MARK_BENCHMARK(bench_bubble_sort_large);
+    {
+        MARK_SCOPED(bench_bubble_sort_large);
+        bubble_sort(arr, size);
+    }
+    MARK_REPORT(bench_bubble_sort_large);
+
+    for (int i = 0; i < size - 1; ++i) {
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
+    }
+}
+
 // XUNIT-GROUP
 FOSSIL_TEST_GROUP(benchmark_group) {
     APPLY_MARK(bubble_sort_case_1, "ghost");
@@ -175,4 +239,8 @@ FOSSIL_TEST_GROUP(benchmark_group) {
     ADD_TEST(selection_sort_case_2);
     APPLY_MARK(selection_sort_case_3, "ghost");
     ADD_TEST(selection_sort_case_3);
+
+    ADD_TEST(benchmark_bubble_sort_small);
+    ADD_TEST(benchmark_bubble_sort_medium);
+    ADD_TEST(benchmark_bubble_sort_large);
 }

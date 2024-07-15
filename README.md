@@ -1,7 +1,13 @@
 # ***Fossil Test: Unit Testing/Mocking Framework*** - `C, C++`
 
 **Overview:**
-Fossil Test is a robust unit testing and mocking framework developed by Fossil Logic, designed to facilitate the creation of high-quality test cases across any C or C++ project. The framework supports both Behavior-Driven Development (BDD) and Test-Driven Development (TDD) styles, providing a flexible and comprehensive solution for ensuring software reliability and correctness.
+Fossil Test is a robust unit testing and mocking framework developed by Fossil Logic. It is designed to facilitate the creation of high-quality test cases across any C and C++ project. The framework supports Behavior-Driven Development (BDD), Domain Driven Development (DDD), and Test-Driven Development (TDD) styles, providing a flexible and comprehensive solution for ensuring software reliability and correctness.
+
+In addition to Fossil Test, Fossil Logic also offers two additional frameworks: Fossil Mark and Fossil Mock. Fossil Mark is a powerful benchmarking framework that allows developers to measure the performance of their code and identify areas for optimization. With built-in timing information and detailed reporting, developers can easily track the execution time of each test case and make informed decisions to improve the efficiency of their software.
+
+Fossil Mock, on the other hand, provides powerful mocking capabilities that enable developers to simulate the behavior of complex dependencies. This ensures focused and reliable unit tests, as developers can create mock objects that mimic the behavior of real dependencies, allowing for thorough testing of different scenarios.
+
+By combining the features of Fossil Test, Fossil Mark, and Fossil Mock, developers can create robust and performant code, ensuring the quality and reliability of their software projects.
 
 **Key Features:**
 
@@ -25,7 +31,7 @@ Before getting started, make sure you have the following installed:
 
 ## Adding Dependency
 
-1. **Install Meson Build System**: Before integrating the dependency, ensure you have Meson `1.2` or newer installed on your host system. You can install it with this command.
+1. **Install Meson Build System**: Before integrating the dependency, ensure you have Meson `1.3` or newer installed on your host system. You can install it with this command.
 
    ```sh
    python -m pip install meson           # to install Meson
@@ -40,11 +46,12 @@ Before getting started, make sure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.0.2
+   revision = v1.0.3
 
    [provide]
    fossil-test = fossil_test_dep
    fossil-mock = fossil_mock_dep
+   fossil-mark = fossil_mark_dep
    ```
 
 3. **Integrate the New Dependency**: After creating the dependency `.wrap` file, you need to integrate it into your Meson project. This typically involves adding the dependency to your `meson.build` file. Here's an example of how you might do that:

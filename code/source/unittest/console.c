@@ -1,23 +1,25 @@
 /*
-==============================================================================
-Author: Michael Gene Brockus (Dreamer)
-Email: michaelbrockus@gmail.com
-Organization: Fossil Logic
-Description: 
-    This file is part of the Fossil Logic project, where innovation meets
-    excellence in software development. Michael Gene Brockus, also known as
-    "Dreamer," is a dedicated contributor to this project. For any inquiries,
-    feel free to contact Michael at michaelbrockus@gmail.com.
-==============================================================================
-*/
+ * -----------------------------------------------------------------------------
+ * Project: Fossil Logic
+ *
+ * This file is part of the Fossil Logic project, which aims to develop high-
+ * performance, cross-platform applications and libraries. The code contained
+ * herein is subject to the terms and conditions defined in the project license.
+ *
+ * Author: Michael Gene Brockus (Dreamer)
+ * Date: 07/01/2024
+ *
+ * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * -----------------------------------------------------------------------------
+ */
 #include "fossil/unittest/console.h"
-#include "fossil/unittest/internal.h"
+#include "fossil/unittest/framework.h"
 #include "fossil/unittest/commands.h"
 #include <stdarg.h>
 
 static const char* FOSSIL_TEST_NAME = "Fossil Test";
 static const char* FOSSIL_TEST_AUTH = "Michael Gene Brockus (Dreamer)";
-static const char* FOSSIL_TEST_VERSION = "1.0.2";
+static const char* FOSSIL_TEST_VERSION = "1.0.3";
 static const char* FOSSIL_TEST_INFO = "Fossil Test is a next-generation unit testing/mockup framework for C/C++.";
 
 // ==============================================================================

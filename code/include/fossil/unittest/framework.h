@@ -1,26 +1,242 @@
 /*
-==============================================================================
-Author: Michael Gene Brockus (Dreamer)
-Email: michaelbrockus@gmail.com
-Organization: Fossil Logic
-Description: 
-    This file is part of the Fossil Logic project, where innovation meets
-    excellence in software development. Michael Gene Brockus, also known as
-    "Dreamer," is a dedicated contributor to this project. For any inquiries,
-    feel free to contact Michael at michaelbrockus@gmail.com.
-==============================================================================
-*/
-#ifndef FOSSIL_TEST_H
-#define FOSSIL_TEST_H
+ * -----------------------------------------------------------------------------
+ * Project: Fossil Logic
+ *
+ * This file is part of the Fossil Logic project, which aims to develop high-
+ * performance, cross-platform applications and libraries. The code contained
+ * herein is subject to the terms and conditions defined in the project license.
+ *
+ * Author: Michael Gene Brockus (Dreamer)
+ * Date: 07/01/2024
+ *
+ * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * -----------------------------------------------------------------------------
+ */
+#ifndef FOSSIL_TEST_FRAMEWORK_H
+#define FOSSIL_TEST_FRAMEWORK_H
+
+#include "fossil/_common/common.h"
+#include "fossil/_common/platform.h"
+#include "internal.h"
+#include "console.h"
+#include "commands.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "unittest/benchmark.h" // benchmarking functionaility
-#include "unittest/internal.h" // internal header file for fossil test
-#include "unittest/console.h"
+extern fossil_env_t _TEST_ENV;
+extern xassert_info _ASSERT_INFO;
+
+// =================================================================
+// Initial implementation
+// =================================================================
+
+// Function prototypes
+fossil_env_t fossil_test_environment_create(int argc, char **argv);
+void fossil_test_environment_run(fossil_env_t *env);
+void fossil_test_environment_add(fossil_env_t *env, fossil_test_t *test, fossil_fixture_t *fixture);
+int  fossil_test_environment_summary(void);
+
+void fossil_test_apply_mark(fossil_test_t *test, const char *mark);
+void fossil_test_apply_xtag(fossil_test_t *test, const char *tag);
+void fossil_test_apply_priority(fossil_test_t *test, const char *priority);
+
+/**
+ * @brief Internal function for handling test assertions.
+ * 
+ * @param expression The expression to evaluate.
+ * @param behavior The behavior of the assertion (e.g., ASSERT, EXPECT, ASSUME).
+ * @param message The message associated with the assertion.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
+ */
+void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func);
+
+
+/**
+ * @brief Macro to apply a priority to a test case.
+ * 
+ * This macro is used to apply a priority to a test case. It is used in conjunction
+ * with the _APPLY_PRIORITY macro to define the priority to be applied.
+ * 
+ * @param test_case The test case to which the priority is to be applied.
+ * @param priority The priority to be applied.
+ */
+#define _APPLY_PRIORITY(test_case, priority) fossil_test_apply_priority(test_case, (char*)priority)
+
+/**
+ * @brief Macro to apply a tag to a test case.
+ * 
+ * This macro is used to apply a tag to a test case. It is used in conjunction
+ * with the _APPLY_XTAG macro to define the tag to be applied.
+ * 
+ * @param test_case The test case to which the tag is to be applied.
+ * @param xtag The tag to be applied.
+ */
+#define _APPLY_XTAG(test_case, xtag) fossil_test_apply_xtag(&test_case, (char*)xtag)
+
+/**
+ * @brief Macro to apply a mark to a test case.
+ * 
+ * This macro is used to apply a mark to a test case. It is used in conjunction
+ * with the _APPLY_MARK macro to define the mark to be applied.
+ * 
+ * @param test_case The test case to which the mark is to be applied.
+ * @param mark The mark to be applied.
+ */
+#define _APPLY_MARK(test_case, mark) fossil_test_apply_mark(&test_case, (char*)mark)
+
+/**
+ * @brief Macro to add a test case.
+ * 
+ * This macro is used to add a test case. It is used in conjunction with the
+ * _ADD_TEST macro to define the test case function.
+ * 
+ * @param test_case The test case to be added.
+ */
+#define _ADD_TEST(test_case) fossil_test_environment_add(test_env, &test_case, xnullptr)
+
+/**
+ * @brief Macro to add a test case with a fixture.
+ * 
+ * This macro is used to add a test case with a fixture. It is used in conjunction
+ * with the _FOSSIL_FIXTURE macro to define the fixture structure.
+ * 
+ * @param test_case The test case to be added.
+ * @param fixture The fixture to be added.
+ */
+#define _ADD_TESTF(test_case, fixture) fossil_test_environment_add(test_env, &test_case, &fixture)
+
+/**
+ * @brief Macro to define a fixture.
+ * 
+ * This macro is used to define a fixture. It is used in conjunction with the
+ * _FOSSIL_SETUP and _FOSSIL_TEARDOWN macros to define the setup and teardown functions for
+ * the fixture.
+ * 
+ * @param fixture_name The name of the fixture.
+ * @param setup The setup function for the fixture.
+ * @param teardown The teardown function for the fixture.
+ */
+#define _FOSSIL_FIXTURE(fixture_name) \
+    void setup_##fixture_name(void); \
+    void teardown_##fixture_name(void); \
+    fossil_fixture_t fixture_name = { setup_##fixture_name, teardown_##fixture_name }
+
+/**
+ * @brief Macro to define a setup function for a fixture.
+ * 
+ * This macro is used to define a setup function for a fixture. It is used in
+ * conjunction with the _FOSSIL_FIXTURE macro to define the fixture structure.
+ * 
+ * @param fixture_name The name of the fixture.
+ */
+#define _FOSSIL_SETUP(fixture_name) void setup_##fixture_name(void)
+
+/**
+ * @brief Macro to define a teardown function for a fixture.
+ * 
+ * This macro is used to define a teardown function for a fixture. It is used in
+ * conjunction with the _FOSSIL_FIXTURE macro to define the fixture structure.
+ * 
+ * @param fixture_name The name of the fixture.
+ */
+#define _FOSSIL_TEARDOWN(fixture_name) void teardown_##fixture_name(void)
+
+/**
+ * @brief Macro to define a test case.
+ * 
+ * This macro is used to define a test case. It is used in conjunction with the
+ * _FOSSIL_TEST macro to define the test case function.
+ * 
+ * @param name The name of the test case.
+ */
+#define _FOSSIL_TEST(name)          \
+    void name##_fossil_test(void);  \
+    fossil_test_t name = {          \
+        (char*)#name,               \
+        name##_fossil_test,         \
+        (char*)"fossil",            \
+        (char*)"fossil",            \
+        {0, 0, 0, {0, 0, 0, 0, 0}}, \
+        {xnull, xnull},             \
+        0,                          \
+        xnull,                      \
+        xnull                       \
+    };                              \
+    void name##_fossil_test(void)
+
+/**
+ * @brief Macro to define a test case with a priority.
+ * 
+ * This macro is used to define a test case with a priority. It is used in conjunction
+ * with the _FOSSIL_TEST macro to define the test case function.
+ * 
+ * @param name The name of the test case.
+ * @param priority The priority of the test case.
+ */
+#define _FOSSIL_TEST_ERASE() fossil_test_environment_summary()
+
+/** Macro to create the test environment.
+ * 
+ * This macro is used to create the test environment by calling the _fossil_test_environment_create function.
+ * 
+ * @param argc The number of command line arguments.
+ * @param argv The array of command line arguments.
+ */
+#define _FOSSIL_TEST_CREATE(argc, argv) _TEST_ENV = fossil_test_environment_create(argc, argv)
+
+/** Macro to run the test environment.
+ * 
+ * This macro is used to run the test environment by calling the fossil_test_environment_run function.
+ */
+#define _FOSSIL_TEST_RUN() fossil_test_environment_run(&_TEST_ENV)
+
+/**
+ * @brief Define macro for defining a test queue.
+ * 
+ * This macro is used to define a test queue function for a specific test group.
+ * It creates a function definition with the given group name and accepts a pointer
+ * to a TestRegistry structure as a parameter. This function typically registers
+ * all tests within the specified test group to the provided test registry.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_GROUP(group_name) void group_name(fossil_env_t* test_env)
+
+/**
+ * @brief Define macro for declaring an external test queue.
+ * 
+ * This macro is used to declare an external test queue function for a specific
+ * test group. It creates an external function declaration with the given group name
+ * and accepts a pointer to a TestRegistry structure as a parameter. This declaration
+ * allows the test queue function to be defined in a separate source file and linked
+ * with the test framework.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_EXPORT(group_name) extern void group_name(fossil_env_t* test_env)
+
+/**
+ * @brief Define macro for importing and executing a test queue.
+ * 
+ * This macro is used to import and execute a test queue function for a specific
+ * test group. It calls the test queue function with the provided TestRegistry
+ * structure, typically registering all tests within the specified test group
+ * to the test registry.
+ * 
+ * @param group_name The name of the test group.
+ */
+#define _FOSSIL_TEST_IMPORT(group_name) group_name(&_TEST_ENV)
+
+#define _GIVEN(description) fossil_test_io_unittest_given(description); if (true)
+#define _WHEN(description) fossil_test_io_unittest_when(description);   if (true)
+#define _THEN(description) fossil_test_io_unittest_then(description);   if (true)
+
+
 
 // =================================================================
 // XTest create and erase commands
@@ -228,6 +444,17 @@ extern "C"
 #define FOSSIL_FIXTURE(fixture_name) _FOSSIL_FIXTURE(fixture_name)
 
 /**
+ * @brief Define macro for declaring a BDD test fixture.
+ * 
+ * This macro is used to declare a BDD test fixture. It creates function declarations
+ * for the setup and teardown functions associated with the specified fixture name.
+ * These functions typically perform initialization and cleanup tasks before and after
+ * 
+ * @param fixture_name The name of the test fixture.
+ */
+#define FOSSIL_FEATURE(fixture_name) _FOSSIL_FIXTURE(fixture_name)
+
+/**
  * @brief Define macro for declaring a setup function for a test fixture.
  * 
  * This macro is used to declare a setup function for a test fixture. It creates
@@ -382,160 +609,6 @@ extern "C"
  * is not implemented, and includes a message indicating the same.
  */
 #define FOSSIL_TEST_NOT_IMPLEMENTED() TEST_ASSUME(false, (char*)"Test not implemented yet")
-
-// =================================================================
-// Bench specific commands
-// =================================================================
-
-/**
- * @brief Define macro for starting a benchmark.
- * 
- * This macro is used to mark the start of a benchmark. It typically initializes
- * any necessary resources or variables required for benchmarking.
- */
-#define TEST_BENCHMARK() fossil_test_start_benchmark()
-
-/**
- * @brief Define macro for getting the current time.
- * 
- * This macro is used to retrieve the current time, which is typically used
- * in conjunction with TEST_BENCHMARK to calculate the elapsed time for a benchmark.
- */
-#define TEST_CURRENT_TIME() fossil_test_stop_benchmark()
-
-/**
- * @brief Define macro for reporting test duration with a given timeout.
- * 
- * This macro is used to report the duration of a test with a given timeout.
- * It takes the timeout duration, elapsed time, and actual duration as arguments
- * and reports the results, typically in the form of logs or console output.
- * 
- * @param duration The duration unit (e.g., "minutes", "seconds").
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((char*)duration, elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in minutes.
- * 
- * This macro is a shorthand for reporting test duration in minutes using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in minutes.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((char*)"minutes", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in seconds.
- * 
- * This macro is a shorthand for reporting test duration in seconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in seconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((char*)"seconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in milliseconds.
- * 
- * This macro is a shorthand for reporting test duration in milliseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in milliseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((char*)"milliseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in microseconds.
- * 
- * This macro is a shorthand for reporting test duration in microseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in microseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((char*)"microseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in nanoseconds.
- * 
- * This macro is a shorthand for reporting test duration in nanoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in nanoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((char*)"nanoseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in picoseconds.
- * 
- * This macro is a shorthand for reporting test duration in picoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in picoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((char*)"picoseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in femtoseconds.
- * 
- * This macro is a shorthand for reporting test duration in femtoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in femtoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((char*)"femtoseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in attoseconds.
- * 
- * This macro is a shorthand for reporting test duration in attoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in attoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((char*)"attoseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in zeptoseconds.
- * 
- * This macro is a shorthand for reporting test duration in zeptoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in zeptoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((char*)"zeptoseconds", elapsed, actual)
-
-/**
- * @brief Define macro for reporting test duration in yoctoseconds.
- * 
- * This macro is a shorthand for reporting test duration in yoctoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in yoctoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
- */
-#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
-
 
 // =================================================================
 // Assertion specific commands
