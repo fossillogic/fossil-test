@@ -1,8 +1,6 @@
 /*
  * -----------------------------------------------------------------------------
- * File: benchmark.h
  * Project: Fossil Logic
- * Description: This file implments the benchmakring and scoped benchmarking.
  *
  * This file is part of the Fossil Logic project, which aims to develop high-
  * performance, cross-platform applications and libraries. The code contained
