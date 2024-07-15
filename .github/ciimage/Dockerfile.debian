@@ -28,7 +28,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Meson, Ninja, and Cython using pip
-RUN python3 -m pip install --no-cache-dir meson ninja
+RUN python3 -m pip install --no-cache-dir meson==1.4.0 ninja
 
 # Set environment variables
 ENV CC=/usr/bin/clang
