@@ -38,10 +38,10 @@ void fossil_mock_destroy(MockCallList *list) {
 
 void fossil_mock_add_call(MockCallList *list, const char *function_name, char **arguments, int num_args) {
     MockCall *call = (MockCall *)malloc(sizeof(MockCall));
-    call->function_name = strdup(function_name);
+    call->function_name = _custom_fossil_test_strdup(function_name);
     call->arguments = (char **)malloc(num_args * sizeof(char *));
     for (int i = 0; i < num_args; ++i) {
-        call->arguments[i] = strdup(arguments[i]);
+        call->arguments[i] = _custom_fossil_test_strdup(arguments[i]);
     }
     call->num_args = num_args;
     call->next = xnullptr;
