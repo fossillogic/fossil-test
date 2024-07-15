@@ -170,7 +170,7 @@ FOSSIL_TEST(benchmark_bubble_sort_small) {
     MARK_REPORT(bench_bubble_sort_small);
 
     for (int i = 0; i < size - 1; ++i) {
-        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
     }
 }
 
@@ -190,7 +190,7 @@ FOSSIL_TEST(benchmark_bubble_sort_medium) {
     MARK_REPORT(bench_bubble_sort_medium);
 
     for (int i = 0; i < size - 1; ++i) {
-        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
     }
 }
 
@@ -210,7 +210,7 @@ FOSSIL_TEST(benchmark_bubble_sort_large) {
     MARK_REPORT(bench_bubble_sort_large);
 
     for (int i = 0; i < size - 1; ++i) {
-        ASSUME_TRUE(arr[i] <= arr[i + 1]);
+        ASSUME_ITS_TRUE(arr[i] <= arr[i + 1]);
     }
 }
 

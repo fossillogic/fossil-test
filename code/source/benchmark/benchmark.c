@@ -78,7 +78,7 @@ void assume_duration(double expected, double actual, double unit) {
     clock_t end_time = clock();
     double elapsed_time = (double)(end_time - start_time) / ((double)CLOCKS_PER_SEC / unit);
     if (elapsed_time < expected) {
-        fossil_test_cout("red", "Benchmark failed: expected %f, got %f\n", expected, actual);
+        printf("Benchmark failed: expected %f, got %f\n", expected, actual);
     }
 }
 
@@ -105,7 +105,7 @@ void fossil_test_benchmark(char* duration_type, double expected, double actual) 
     } else if (strcmp(duration_type, "yoctoseconds") == 0) {
         assume_duration(expected, actual, 1e-24);
     } else {
-        fossil_test_cout("red", "Unknown option: %s\n", duration_type);
+        printf("Unknown option: %s\n", duration_type);
     }
 } // end of func
 
