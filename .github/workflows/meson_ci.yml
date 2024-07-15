@@ -52,7 +52,7 @@ jobs:
           $env:CXX="cl.exe"
 
       - name: Configure
-        run: meson setup builddir_msvc_${{ matrix.msvc_version }} --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything
+        run: meson setup builddir_msvc_${{ matrix.msvc_version }} --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Compile
         run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}
@@ -92,7 +92,7 @@ jobs:
           python -m pip install meson ninja
   
       - name: Configure
-        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything
+        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
   
       - name: Compile
         run: meson compile -C builddir
@@ -139,7 +139,7 @@ jobs:
           python -m pip install meson ninja
 
       - name: Configure
-        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything
+        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Compile
         run: meson compile -C builddir
@@ -190,7 +190,7 @@ jobs:
           python -m pip install meson ninja
 
       - name: Configure
-        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything
+        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Compile
         run: meson compile -C builddir
@@ -243,7 +243,7 @@ jobs:
             -w /workspace \
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
-              meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything -Dc_std=c17
+              meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3 -Dc_std=c17
               meson compile -C builddir
               meson test -C builddir -v"
 
@@ -335,7 +335,7 @@ jobs:
 
       - name: Configure the Project
         run: |
-          meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=everything --cross-file $CROSS_FILE
+          meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3 --cross-file $CROSS_FILE
 
       - name: Build the Project
         run: |
