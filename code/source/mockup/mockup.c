@@ -17,8 +17,8 @@
 #include "fossil/mockup/mockup.h"
 
 void fossil_mock_init(MockCallList *list) {
-    list->head = NULL;
-    list->tail = NULL;
+    list->head = xnullptr;
+    list->tail = xnullptr;
     list->size = 0;
 }
 
@@ -44,7 +44,7 @@ void fossil_mock_add_call(MockCallList *list, const char *function_name, char **
         call->arguments[i] = strdup(arguments[i]);
     }
     call->num_args = num_args;
-    call->next = NULL;
+    call->next = xnullptr;
 
     if (list->tail) {
         list->tail->next = call;
