@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_ASSUME_FLOAT_TYPE_H
 #define FOSSIL_TEST_ASSUME_FLOAT_TYPE_H
 
-#include <fossil/unittest.h> // using assurt rules from Fossil Test
+#include <fossil/unittest/framework.h> // using assurt rules from Fossil Test
 #include <math.h>
 #include <float.h>
 

@@ -13,7 +13,7 @@ Description:
 #ifndef FOSSIL_TEST_EXPECT_WITHIN_TYPE_H
 #define FOSSIL_TEST_EXPECT_WITHIN_TYPE_H
 
-#include <fossil/unittest.h> // using assurt rules from Fossil Test
+#include <fossil/unittest/framework.h> // using assurt rules from Fossil Test
 #include <stddef.h> // for size_t
 #include <stdint.h> // for integer types
 #include <wchar.h> // for wide char types
