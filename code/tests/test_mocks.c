@@ -13,8 +13,6 @@
  * -----------------------------------------------------------------------------
  */
 #include <fossil/unittest/framework.h>   // basic test tools
-#include <fossil/xassert.h> // extra asserts
-
 #include <fossil/mockup/framework.h> // library under test
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
