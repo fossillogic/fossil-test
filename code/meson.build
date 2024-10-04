@@ -1,2 +1,2 @@
-subdir('include')
-subdir('source')
+subdir('logic')
+subdir('tests')
