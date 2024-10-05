@@ -14,7 +14,6 @@
  */
 #include <fossil/unittest/framework.h>   // basic test tools
 #include <fossil/benchmark/framework.h>  // benchmark tools
-#include <fossil/xassume.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
