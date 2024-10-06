@@ -15,33 +15,6 @@
 #ifndef FOSSIL_TEST_FRAMEWORK_H
 #define FOSSIL_TEST_FRAMEWORK_H
 
-// Assertion header section of the test framework
-// contains a list of header includes of assertions
-
-#include "assert/boolean.h"
-#include "assert/floating.h"
-#include "assert/numeric.h"
-#include "assert/memory.h"
-#include "assert/string.h"
-#include "assert/letter.h"
-#include "assert/within.h"
-
-#include "expect/boolean.h"
-#include "expect/floating.h"
-#include "expect/numeric.h"
-#include "expect/memory.h"
-#include "expect/string.h"
-#include "expect/letter.h"
-#include "expect/within.h"
-
-#include "assume/boolean.h"
-#include "assume/floating.h"
-#include "assume/numeric.h"
-#include "assume/memory.h"
-#include "assume/string.h"
-#include "assume/letter.h"
-#include "assume/within.h"
-
 // Fossil test specific header section of the test framework
 
 #include "fossil/_common/common.h"
@@ -531,7 +504,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * 
  * @param name The name of the test case.
  */
-#define FOSSIL_SONIREO(name) _FOSSIL_TEST(name)
+#define FOSSIL_SONERO(name) _FOSSIL_TEST(name)
 
 // =================================================================
 // Test pool commands

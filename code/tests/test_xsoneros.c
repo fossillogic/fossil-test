@@ -21,7 +21,22 @@
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// placeholder
+FOSSIL_TEST_DATA(sample_block) {
+    int x;
+    int y;
+} sample_block;
+
+// Fixture setup and teardown procedures
+FOSSIL_FEATURE(sample_feature);
+
+FOSSIL_SETUP(sample_feature) {
+    sample_block.x = 42;
+    sample_block.y = 20;
+} // end of setup
+
+FOSSIL_TEARDOWN(sample_feature) {
+    // Teardown code goes here
+} // end of teardown
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Cases
@@ -31,7 +46,7 @@
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_SONERO(xbdd_logic_test) {
+FOSSIL_SONERO(xbdd_logic_within_feature_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -52,7 +67,7 @@ FOSSIL_SONERO(xbdd_logic_test) {
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_user_account) {
+FOSSIL_SONERO(xbdd_user_account_within_feature) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -74,7 +89,7 @@ FOSSIL_SONERO(xbdd_user_account) {
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_empty_cart) {
+FOSSIL_SONERO(xbdd_empty_cart_within_feature) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -92,7 +107,7 @@ FOSSIL_SONERO(xbdd_empty_cart) {
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_valid_login) {
+FOSSIL_SONERO(xbdd_valid_login_within_feature) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";
@@ -129,9 +144,9 @@ FOSSIL_SONERO(xbdd_valid_login) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(bdd_test_group) {
-    ADD_TEST(xbdd_logic_test);
-    ADD_TEST(xbdd_user_account);
-    ADD_TEST(xbdd_empty_cart);
-    ADD_TEST(xbdd_valid_login);
+FOSSIL_TEST_GROUP(feature_test_group) {
+    ADD_TESTF(xbdd_logic_within_feature_test, sample_feature);
+    ADD_TESTF(xbdd_user_account_within_feature, sample_feature);
+    ADD_TESTF(xbdd_empty_cart_within_feature, sample_feature);
+    ADD_TESTF(xbdd_valid_login_within_feature, sample_feature);
 } // end of group
