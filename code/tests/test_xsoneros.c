@@ -46,7 +46,7 @@ FOSSIL_TEARDOWN(sample_feature) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_SONIREO(xbdd_logic_within_feature_test) {
+FOSSIL_SONERO(xbdd_logic_within_feature_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -67,7 +67,7 @@ FOSSIL_SONIREO(xbdd_logic_within_feature_test) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_user_account_within_feature) {
+FOSSIL_SONERO(xbdd_user_account_within_feature) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -89,7 +89,7 @@ FOSSIL_SONIREO(xbdd_user_account_within_feature) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_empty_cart_within_feature) {
+FOSSIL_SONERO(xbdd_empty_cart_within_feature) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -107,7 +107,7 @@ FOSSIL_SONIREO(xbdd_empty_cart_within_feature) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_valid_login_within_feature) {
+FOSSIL_SONERO(xbdd_valid_login_within_feature) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";

@@ -504,7 +504,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * 
  * @param name The name of the test case.
  */
-#define FOSSIL_SONIREO(name) _FOSSIL_TEST(name)
+#define FOSSIL_SONERO(name) _FOSSIL_TEST(name)
 
 // =================================================================
 // Test pool commands

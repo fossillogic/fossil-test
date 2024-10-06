@@ -31,7 +31,7 @@
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_SONIREO(xbdd_logic_test) {
+FOSSIL_SONERO(xbdd_logic_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -52,7 +52,7 @@ FOSSIL_SONIREO(xbdd_logic_test) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_user_account) {
+FOSSIL_SONERO(xbdd_user_account) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -74,7 +74,7 @@ FOSSIL_SONIREO(xbdd_user_account) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_empty_cart) {
+FOSSIL_SONERO(xbdd_empty_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -92,7 +92,7 @@ FOSSIL_SONIREO(xbdd_empty_cart) {
     }
 } // end of case
 
-FOSSIL_SONIREO(xbdd_valid_login) {
+FOSSIL_SONERO(xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";

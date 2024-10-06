@@ -3,7 +3,7 @@ if get_option('with_test').enabled()
 
     test_src = ['unit_runner.c']
     test_cubes = [
-        'mocks', 'marks', 'xfixture', 'xsonireo', 'bdd', 'tdd', 'tags',
+        'mocks', 'marks', 'xfixture', 'xsoneros', 'bdd', 'tdd', 'tags',
     ]
 
     foreach cube : test_cubes
