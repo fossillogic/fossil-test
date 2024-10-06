@@ -21,17 +21,17 @@
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_DATA(sample_data) {
+FOSSIL_TEST_DATA(sample_block) {
     int x;
     int y;
-} sample_data;
+} sample_block;
 
 // Fixture setup and teardown procedures
 FOSSIL_FEATURE(sample_feature);
 
 FOSSIL_SETUP(sample_feature) {
-    sample_data.x = 42;
-    sample_data.y = 20;
+    sample_block.x = 42;
+    sample_block.y = 20;
 } // end of setup
 
 FOSSIL_TEARDOWN(sample_feature) {
