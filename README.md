@@ -88,46 +88,55 @@ The Fossil Test CLI is a command-line tool designed to help you run and manage y
 ### Examples
 
 - Display version information:
+
   ```sh
   fossil_cli --version
   ```
 
 - Show help message:
+
   ```sh
   fossil_cli --help
   ```
 
 - Run only tests tagged with "unit" and "integration":
+
   ```sh
   fossil_cli only=unit,integration
   ```
 
 - Enable reverse order of test execution:
+
   ```sh
   fossil_cli reverse enable
   ```
 
 - Repeat the test suite 5 times:
+
   ```sh
   fossil_cli repeat=5
   ```
 
 - Enable verbose output:
+
   ```sh
   fossil_cli verbose verbose
   ```
 
 - List all available tests:
+
   ```sh
   fossil_cli list
   ```
 
 - Enable test result summary:
+
   ```sh
   fossil_cli summary enable
   ```
 
 - Enable colored output:
+
   ```sh
   fossil_cli color enable
   ```
