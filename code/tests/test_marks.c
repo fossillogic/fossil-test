@@ -13,6 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 #include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/unittest/assert.h>      // assertion tools
 #include <fossil/benchmark/framework.h>  // benchmark tools
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
