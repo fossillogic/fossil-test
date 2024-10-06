@@ -29,12 +29,12 @@ FOSSIL_TEST_DATA(sample_data) {
 // Fixture setup and teardown procedures
 FOSSIL_FEATURE(sample_feature);
 
-FOSSIL_SETUP(sample_fixture) {
+FOSSIL_SETUP(sample_feature) {
     sample_data.x = 42;
     sample_data.y = 20;
 } // end of setup
 
-FOSSIL_TEARDOWN(sample_fixture) {
+FOSSIL_TEARDOWN(sample_feature) {
     // Teardown code goes here
 } // end of teardown
 
