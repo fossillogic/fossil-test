@@ -18,13 +18,12 @@
 #include "common.h" // for introspection data
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 // Utility function to get the architecture
 static inline char* _fossil_test_get_architecture(void) {
-    char* arch = malloc(10 * sizeof(char));
+    char* arch = (char*)malloc(10 * sizeof(char));  // Explicit cast for C++
     if (arch == NULL) {
         return NULL;
     }
@@ -62,7 +61,7 @@ static inline char* _fossil_test_get_architecture(void) {
 
 // Utility function to get the OS name
 static inline char* _fossil_test_get_os_name(void) {
-    char* os_name = malloc(20 * sizeof(char));
+    char* os_name = (char*)malloc(20 * sizeof(char));  // Explicit cast for C++
     if (os_name == NULL) {
         return NULL;
     }
@@ -95,7 +94,7 @@ static inline int _fossil_test_get_num_cpus(void) {
 #elif defined(__APPLE__)
     int num_cpus;
     size_t size = sizeof(num_cpus);
-    if (sysctlbyname("hw.ncpu", &num_cpus, &size, xnull, 0) == 0) {
+    if (sysctlbyname("hw.ncpu", &num_cpus, &size, NULL, 0) == 0) {
         return num_cpus;
     } else {
         return 1; // Default to 1 if unable to get the number of CPUs
