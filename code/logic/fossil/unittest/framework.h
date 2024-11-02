@@ -55,7 +55,7 @@ void fossil_test_apply_priority(fossil_test_t *test, const char *priority);
  * @param line The line number where the assertion occurred.
  * @param func The function name where the assertion occurred.
  */
-void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* message, char* file, int line, char* func);
+void _fossil_test_assert_class(bool expression, char* message, char* file, int line, char* func);
 
 
 /**
@@ -617,34 +617,6 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
 // =================================================================
 
 /**
- * @brief Define macros for test assertions with expression and message.
- * 
- * This macro is used to define a test assertion. It checks the given expression
- * and, if the expression evaluates to false, logs the failure with the provided
- * message, file name, line number, and function name. This type of assertion
- * typically halts the test execution upon failure.
- * 
- * @param expression The expression to be evaluated.
- * @param message The message to log if the assertion fails.
- */
-#define TEST_ASSERT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSERT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
-
-/**
- * @brief Define macros for test expectations with expression and message.
- * 
- * This macro is used to define a test expectation. It checks the given expression
- * and, if the expression evaluates to false, logs the failure with the provided
- * message, file name, line number, and function name. Unlike assertions, expectations
- * typically do not halt the test execution upon failure, allowing subsequent tests to run.
- * 
- * @param expression The expression to be evaluated.
- * @param message The message to log if the expectation fails.
- */
-#define TEST_EXPECT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXPECT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
-
-/**
  * @brief Define macros for test assumptions with expression and message.
  * 
  * This macro is used to define a test assumption. It checks the given expression
@@ -657,36 +629,7 @@ void _fossil_test_assert_class(bool expression, xassert_type_t behavior, char* m
  * @param message The message to log if the assumption fails.
  */
 #define TEST_ASSUME(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_ASSUME, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
-
-/**
- * @brief Define macros for exception testing with expression and message.
- * 
- * This macro is used to define a test for exceptions. It checks the given expression
- * and, if the expression evaluates to false, logs the failure with the provided
- * message, file name, line number, and function name. This is typically used to
- * validate that the code under test correctly handles exceptions or error conditions.
- * 
- * @param expression The expression to be evaluated.
- * @param message The message to log if the exception test fails.
- */
-#define TEST_EXCEPT(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_EXCEPT, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
-
-/**
- * @brief Define macros for sanity pen testing with expression and message.
- * 
- * This macro is used to define a sanity check for penetration testing. It checks
- * the given expression and, if the expression evaluates to false, logs the failure
- * with the provided message, file name, line number, and function name. Sanity checks
- * are typically used for exact validation and security testing to ensure the system
- * behaves as expected under specific conditions.
- * 
- * @param expression The expression to be evaluated.
- * @param message The message to log if the sanity test fails.
- */
-#define TEST_SANITY(expression, message) \
-    _fossil_test_assert_class(expression, TEST_ASSERT_AS_CLASS_SANITY, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
+    _fossil_test_assert_class(expression, (char*)message, (char*)__FILE__, __LINE__, (char*)__func__)
 
 #ifdef __cplusplus
 }
