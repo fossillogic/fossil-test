@@ -46,7 +46,7 @@ Before getting started, make sure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.0.6
+   revision = v1.0.7
 
    [provide]
    fossil-test = fossil_test_dep
