@@ -28,6 +28,10 @@
 extern "C" {
 #endif
 
+// *****************************************************************************
+// Constants
+// *****************************************************************************
+
 // ANSI color codes for output
 #define FOSSIL_TEST_COLOR_RESET   "\033[0m"
 #define FOSSIL_TEST_COLOR_GREEN   "\033[32m"
@@ -35,171 +39,148 @@ extern "C" {
 #define FOSSIL_TEST_COLOR_YELLOW  "\033[33m"
 #define FOSSIL_TEST_COLOR_BLUE    "\033[34m"
 
-// Enumeration for test result types
+// *****************************************************************************
+// Type definitions
+// *****************************************************************************
+
 typedef enum {
     FOSSIL_TEST_PASS,
     FOSSIL_TEST_FAIL,
     FOSSIL_TEST_SKIP,
-    FOSSIL_TEST_UNEXPECTED,
-    FOSSIL_TEST_EXPECTED_FAIL, // New result type
-    FOSSIL_TEST_IGNORED         // New result type
+    FOSSIL_TEST_UNEXPECTED
 } fossil_test_result_t;
 
-// Structure to store individual test case information
+typedef enum {
+    FOSSIL_COLOR_DEFAULT,
+    FOSSIL_COLOR_GREEN,
+    FOSSIL_COLOR_RED,
+    FOSSIL_COLOR_YELLOW,
+    FOSSIL_COLOR_BLUE
+} fossil_test_color_t;
+
 typedef struct fossil_test_case {
     const char *name;
-    fossil_test_result_t result;
     void (*test_func)(void);
-    double duration; // Duration for this test case
-    bool is_expected_fail; // Flag for expected failures
-    bool is_ignored; // Flag for ignored tests
+    fossil_test_result_t result;
+    struct fossil_test_case *next;
 } fossil_test_case_t;
 
-// Structure for test suite
+typedef struct fossil_test_log {
+    const char *message;
+    fossil_test_result_t result;
+    struct fossil_test_log *prev;
+    struct fossil_test_log *next;
+} fossil_test_log_t;
+
 typedef struct fossil_test_suite {
     const char *name;
-    fossil_test_case_t **tests;
-    size_t test_count;
+    fossil_test_case_t *test_head;
+    struct fossil_test_suite *next;
 } fossil_test_suite_t;
 
-// Priority Queue Node for Double-Ended Priority Queue
-typedef struct fossil_test_node {
-    fossil_test_case_t *test_case;
-    struct fossil_test_node *next;
-    struct fossil_test_node *prev;
-} fossil_test_node_t;
-
-// Double-Ended Priority Queue for Test Runner
-typedef struct fossil_test_queue {
-    fossil_test_node_t *head;
-    fossil_test_node_t *tail;
-    size_t count;
-} fossil_test_queue_t;
-
-// Stack for storing failure trace
 typedef struct {
-    const char *stack[256];
-    int top;
-} fossil_test_stack_t;
+    fossil_test_suite_t *suite_head;
+    fossil_test_log_t *log_head;
+    int pass_count;
+    int fail_count;
+    int skip_count;
+    int unexpected_count;
+    jmp_buf jump_env;
+} fossil_test_runner_t;
 
-// Summary structure to track test results
-typedef struct {
-    size_t passed;
-    size_t failed;
-    size_t skipped;
-    size_t unexpected;
-    size_t expected_failed;
-    size_t ignored;
-} fossil_test_result_summary_t;
-
-// Jump buffer for error handling
-extern jmp_buf fossil_test_env; // Declare the jump buffer
-extern fossil_test_stack_t fossil_test_stack; // Declare the stack for failure trace
+// *****************************************************************************
+// Function prototypes
+// *****************************************************************************
 
 /**
- * Initialize the test queue.
- *
- * @param queue Pointer to the test queue to initialize.
+ * @brief Create a new test runner.
+ * 
+ * @return A pointer to the newly created test runner.
  */
-void fossil_test_queue_init(fossil_test_queue_t *queue);
+fossil_test_runner_t *fossil_test_create_runner(void);
 
 /**
- * Enqueue a test case into the test queue.
- *
- * @param queue Pointer to the test queue.
- * @param test_case Pointer to the test case to enqueue.
+ * @brief Add a test case to a test suite.
+ * 
+ * @param suite The test suite to which the test case will be added.
+ * @param name The name of the test case.
+ * @param test_func The function that implements the test case.
  */
-void fossil_test_enqueue(fossil_test_queue_t *queue, fossil_test_case_t *test_case);
+void fossil_test_add_case(fossil_test_suite_t *suite, const char *name, void (*test_func)(void));
 
 /**
- * Dequeue a test case from the test queue.
- *
- * @param queue Pointer to the test queue.
- * @return Pointer to the dequeued test case.
+ * @brief Create a new test suite.
+ * 
+ * @param runner The test runner that will manage the test suite.
+ * @param name The name of the test suite.
+ * @return A pointer to the newly created test suite.
  */
-fossil_test_case_t *fossil_test_dequeue(fossil_test_queue_t *queue);
+fossil_test_suite_t *fossil_test_create_suite(fossil_test_runner_t *runner, const char *name);
 
 /**
- * Free the memory allocated for the test queue.
- *
- * @param queue Pointer to the test queue to free.
+ * @brief Log a message with a specific test result.
+ * 
+ * @param runner The test runner that manages the log.
+ * @param message The message to log.
+ * @param result The result of the test case.
  */
-void fossil_test_queue_free(fossil_test_queue_t *queue);
+void fossil_test_log(fossil_test_runner_t *runner, const char *message, fossil_test_result_t result);
 
 /**
- * Push a trace message onto the failure stack.
- *
- * @param stack Pointer to the failure stack.
- * @param trace Trace message to push onto the stack.
+ * @brief Run all test cases in a test suite.
+ * 
+ * @param runner The test runner that manages the test suite.
+ * @param suite The test suite to run.
  */
-void fossil_test_stack_push(fossil_test_stack_t *stack, const char *trace);
+void fossil_test_run_suite(fossil_test_runner_t *runner, fossil_test_suite_t *suite);
 
 /**
- * Print the contents of the failure stack.
- *
- * @param stack Pointer to the failure stack to print.
+ * @brief Run all test suites managed by the test runner.
+ * 
+ * @param runner The test runner that manages the test suites.
  */
-void fossil_test_stack_print(const fossil_test_stack_t *stack);
+void fossil_test_run(fossil_test_runner_t *runner);
 
 /**
- * Handle a caught error by printing the error message and the failure stack.
- *
- * @param stack Pointer to the failure stack.
- * @param error_msg Error message to print.
+ * @brief Generate a report of the test results.
+ * 
+ * @param runner The test runner that manages the test results.
  */
-void fossil_test_catch(fossil_test_stack_t *stack, const char *error_msg);
+void fossil_test_report(fossil_test_runner_t *runner);
 
 /**
- * Run all test cases in the test queue.
- *
- * @param queue Pointer to the test queue.
- * @param stack Pointer to the failure stack.
- * @param summary Pointer to the summary structure to track test results.
- * @param verbose Flag to enable verbose output.
+ * @brief Free the memory allocated for the test runner.
+ * 
+ * @param runner The test runner to free.
  */
-void fossil_test_run(fossil_test_queue_t *queue, fossil_test_stack_t *stack, fossil_test_result_summary_t *summary, bool verbose);
+void fossil_test_free_runner(fossil_test_runner_t *runner);
 
 /**
- * Print the summary of test results.
- *
- * @param summary Pointer to the summary structure containing test results.
+ * @brief Print text in a specified color.
+ * 
+ * @param text The text to print.
+ * @param color The color to use for printing the text.
  */
-void fossil_test_summary(const fossil_test_result_summary_t *summary);
+void fossil_test_print_color(const char *text, fossil_test_color_t color);
 
-/**
- * Add a test case to a test suite.
- *
- * @param suite Pointer to the test suite.
- * @param test_case Pointer to the test case to add.
- */
-void fossil_test_add_suite(fossil_test_suite_t *suite, fossil_test_case_t *test_case);
-
-/**
- * Run all test cases in a test suite.
- *
- * @param suite Pointer to the test suite.
- * @param stack Pointer to the failure stack.
- * @param summary Pointer to the summary structure to track test results.
- * @param verbose Flag to enable verbose output.
- */
-void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_stack_t *stack, fossil_test_result_summary_t *summary, bool verbose);
-
-/**
- * Set the setup function to be called before each test case.
- *
- * @param setup_func Pointer to the setup function.
- */
-void fossil_test_setup(void (*setup_func)(void));
-
-/**
- * Set the teardown function to be called after each test case.
- *
- * @param teardown_func Pointer to the teardown function.
- */
-void fossil_test_teardown(void (*teardown_func)(void));
-
+// *****************************************************************************
 // Macros for defining and adding test cases
-#define FOSSIL_TEST_DEFINE(name) void name(void)
+// *****************************************************************************
+
+#define FOSSIL_TEST(name) void name(void)
+#define FOSSIL_TEST_SUITE(name) \
+    fossil_test_suite_t name = { \
+        .name = #name, \
+        .tests = NULL, \
+        .test_count = 0 \
+    }
+#define FOSSIL_TEST_SETUP(name)    void name##_setup(void)
+#define FOSSIL_TEST_TEARDOWN(name) void name##_teardown(void)
+
+#define FOSSIL_TEST_GROUP(name)    void name##_group(fossil_test_runner_t runner)
+#define FOSSIL_TEST_IMPORT(name)   void name##_group(fossil_test_runner_t runner)
+#define FOSSIL_TEST_EXPORT(name)   void name##_group(fossil_test_runner_t runner)
+
 #define FOSSIL_TEST_ADD(queue, test_func) \
     do { \
         fossil_test_case_t *test_case = malloc(sizeof(fossil_test_case_t)); \
@@ -212,40 +193,29 @@ void fossil_test_teardown(void (*teardown_func)(void));
         fossil_test_enqueue(queue, test_case); \
     } while(0)
 
-#define FOSSIL_TEST_EXPECT_FAIL(test_func) \
+#define FOSSIL_TEST_ADDF(queue, test_func, suite) \
     do { \
         fossil_test_case_t *test_case = malloc(sizeof(fossil_test_case_t)); \
         test_case->name = #test_func; \
         test_case->test_func = test_func; \
-        test_case->result = FOSSIL_TEST_EXPECTED_FAIL; \
-        test_case->duration = 0.0; \
-        test_case->is_expected_fail = true; \
-        test_case->is_ignored = false; \
-        fossil_test_enqueue(queue, test_case); \
-    } while(0)
-
-#define FOSSIL_TEST_IGNORE(test_func) \
-    do { \
-        fossil_test_case_t *test_case = malloc(sizeof(fossil_test_case_t)); \
-        test_case->name = #test_func; \
-        test_case->test_func = test_func; \
-        test_case->result = FOSSIL_TEST_IGNORED; \
+        test_case->result = FOSSIL_TEST_SKIP; \
         test_case->duration = 0.0; \
         test_case->is_expected_fail = false; \
-        test_case->is_ignored = true; \
-        fossil_test_enqueue(queue, test_case); \
+        test_case->is_ignored = false; \
+        fossil_test_add_suite(suite, test_case); \
     } while(0)
 
-// Assertion Macro
-#define FOSSIL_TEST_ASSERT(cond, msg, line, func, file) \
+#define FOSSIL_TEST_ASSUME(runner, condition, message) \
     do { \
-        if (!(cond)) { \
-            char formatted_msg[256]; \
-            snprintf(formatted_msg, sizeof(formatted_msg), "%s (at %s:%d in %s)", msg, file, line, func); \
-            fossil_test_stack_push(fossil_test_stack, formatted_msg); \
-            fossil_test_catch(fossil_test_stack, "Assertion failed"); \
+        if (!(condition)) { \
+            fossil_test_log(runner, message, FOSSIL_TEST_FAIL); \
+            runner->fail_count++; \
+            longjmp(runner->jump_env, 1); \
+        } else { \
+            fossil_test_log(runner, message, FOSSIL_TEST_PASS); \
+            runner->pass_count++; \
         } \
-    } while(0)
+    } while (0)
 
 #ifdef __cplusplus
 }
