@@ -645,10 +645,10 @@ extern "C" {
 
 // ITS set
 #define ASSUME_ITS_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) == xnull, "Expected " #actual " to be xnull")
+    FOSSIL_TEST_ASSUME((actual) == NULL, "Expected " #actual " to be NULL")
 
 #define ASSUME_NOT_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) != xnull, "Expected " #actual " to not be xnull")
+    FOSSIL_TEST_ASSUME((actual) != NULL, "Expected " #actual " to not be NULL")
 
 // General pointer ASSUMEions (_PTR)
 
