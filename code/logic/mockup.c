@@ -14,7 +14,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/mockup/mockup.h"
+#include "fossil/test/mockup.h"
 
 void fossil_mock_init(MockCallList *list) {
     list->head = xnullptr;

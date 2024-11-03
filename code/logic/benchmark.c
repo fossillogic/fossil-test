@@ -14,7 +14,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/benchmark/benchmark.h"
+#include "fossil/test/benchmark.h"
 #include <stdio.h>
 #include <time.h>
 #include <float.h>

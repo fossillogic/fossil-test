@@ -12,13 +12,11 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/unittest/framework.h>
+#include <fossil/test/framework.h>
 
 // list of include headers that extends
 // the framework assertion collection.
-#include <fossil/unittest/assert.h>
 #include <fossil/unittest/assume.h>
-#include <fossil/unittest/expect.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -37,67 +35,67 @@
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST(xassert_run_of_int) {
+FOSSIL_TEST_CASE(xassert_run_of_int) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSERT(x == 42, "Should have passed the test case");
-    TEST_ASSERT(y == 20, "Should have passed the test case");
-    TEST_ASSERT(x != y, "Should have passed the test case");
-    TEST_ASSERT(y < x, "Should have passed the test case");
-    TEST_ASSERT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int8) {
+FOSSIL_TEST_CASE(xassert_run_of_int8) {
     int8_t x = 42;
     int8_t y = 20;
 
     // Test cases
-    TEST_ASSERT((int8_t)x == 42, "Should have passed the test case");
-    TEST_ASSERT((int8_t)y == 20, "Should have passed the test case");
-    TEST_ASSERT((int8_t)x != (int8_t)y, "Should have passed the test case");
-    TEST_ASSERT((int8_t)y < (int8_t)x, "Should have passed the test case");
-    TEST_ASSERT((int8_t)y <= (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x != (int8_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y < (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y <= (int8_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int16) {
+FOSSIL_TEST_CASE(xassert_run_of_int16) {
     int16_t x = 42;
     int16_t y = 20;
 
     // Test cases
-    TEST_ASSERT((int16_t)x == 42, "Should have passed the test case");
-    TEST_ASSERT((int16_t)y == 20, "Should have passed the test case");
-    TEST_ASSERT((int16_t)x != (int16_t)y, "Should have passed the test case");
-    TEST_ASSERT((int16_t)y < (int16_t)x, "Should have passed the test case");
-    TEST_ASSERT((int16_t)y <= (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x != (int16_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y < (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y <= (int16_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int32) {
+FOSSIL_TEST_CASE(xassert_run_of_int32) {
     int32_t x = 42;
     int32_t y = 20;
 
     // Test cases
-    TEST_ASSERT((int32_t)x == 42, "Should have passed the test case");
-    TEST_ASSERT((int32_t)y == 20, "Should have passed the test case");
-    TEST_ASSERT((int32_t)x != (int32_t)y, "Should have passed the test case");
-    TEST_ASSERT((int32_t)y < (int32_t)x, "Should have passed the test case");
-    TEST_ASSERT((int32_t)y <= (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x != (int32_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y < (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y <= (int32_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int64) {
+FOSSIL_TEST_CASE(xassert_run_of_int64) {
     int64_t x = 42;
     int64_t y = 20;
 
     // Test cases
-    TEST_ASSERT((int64_t)x == 42, "Should have passed the test case");
-    TEST_ASSERT((int64_t)y == 20, "Should have passed the test case");
-    TEST_ASSERT((int64_t)x != (int64_t)y, "Should have passed the test case");
-    TEST_ASSERT((int64_t)y < (int64_t)x, "Should have passed the test case");
-    TEST_ASSERT((int64_t)y <= (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x != (int64_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y < (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y <= (int64_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int8_shortcut) {
+FOSSIL_TEST_CASE(xassert_run_of_int8_shortcut) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -109,7 +107,7 @@ FOSSIL_TEST(xassert_run_of_int8_shortcut) {
     ASSERT_ITS_LESS_OR_EQUAL_I8((int8_t)y, (int8_t)x);
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int16_shortcut) {
+FOSSIL_TEST_CASE(xassert_run_of_int16_shortcut) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -121,7 +119,7 @@ FOSSIL_TEST(xassert_run_of_int16_shortcut) {
     ASSERT_ITS_LESS_OR_EQUAL_I16((int16_t)y, (int16_t)x);
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int32_shortcut) {
+FOSSIL_TEST_CASE(xassert_run_of_int32_shortcut) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -133,7 +131,7 @@ FOSSIL_TEST(xassert_run_of_int32_shortcut) {
     ASSERT_ITS_LESS_OR_EQUAL_I32((int32_t)y, (int32_t)x);
 } // end case
 
-FOSSIL_TEST(xassert_run_of_int64_shortcut) {
+FOSSIL_TEST_CASE(xassert_run_of_int64_shortcut) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -145,67 +143,67 @@ FOSSIL_TEST(xassert_run_of_int64_shortcut) {
     ASSERT_ITS_LESS_OR_EQUAL_I64((int64_t)y, (int64_t)x);
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int) {
+FOSSIL_TEST_CASE(xassume_run_of_int) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSUME(x == 42, "Should have passed the test case");
-    TEST_ASSUME(y == 20, "Should have passed the test case");
-    TEST_ASSUME(x != y, "Should have passed the test case");
-    TEST_ASSUME(y < x, "Should have passed the test case");
-    TEST_ASSUME(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int8) {
+FOSSIL_TEST_CASE(xassume_run_of_int8) {
     int8_t x = 42;
     int8_t y = 20;
 
     // Test cases
-    TEST_ASSUME((int8_t)x == 42, "Should have passed the test case");
-    TEST_ASSUME((int8_t)y == 20, "Should have passed the test case");
-    TEST_ASSUME((int8_t)x != (int8_t)y, "Should have passed the test case");
-    TEST_ASSUME((int8_t)y < (int8_t)x, "Should have passed the test case");
-    TEST_ASSUME((int8_t)y <= (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x != (int8_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y < (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y <= (int8_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int16) {
+FOSSIL_TEST_CASE(xassume_run_of_int16) {
     int16_t x = 42;
     int16_t y = 20;
 
     // Test cases
-    TEST_ASSUME((int16_t)x == 42, "Should have passed the test case");
-    TEST_ASSUME((int16_t)y == 20, "Should have passed the test case");
-    TEST_ASSUME((int16_t)x != (int16_t)y, "Should have passed the test case");
-    TEST_ASSUME((int16_t)y < (int16_t)x, "Should have passed the test case");
-    TEST_ASSUME((int16_t)y <= (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x != (int16_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y < (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y <= (int16_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int32) {
+FOSSIL_TEST_CASE(xassume_run_of_int32) {
     int32_t x = 42;
     int32_t y = 20;
 
     // Test cases
-    TEST_ASSUME((int32_t)x == 42, "Should have passed the test case");
-    TEST_ASSUME((int32_t)y == 20, "Should have passed the test case");
-    TEST_ASSUME((int32_t)x != (int32_t)y, "Should have passed the test case");
-    TEST_ASSUME((int32_t)y < (int32_t)x, "Should have passed the test case");
-    TEST_ASSUME((int32_t)y <= (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x != (int32_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y < (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y <= (int32_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int64) {
+FOSSIL_TEST_CASE(xassume_run_of_int64) {
     int64_t x = 42;
     int64_t y = 20;
 
     // Test cases
-    TEST_ASSUME((int64_t)x == 42, "Should have passed the test case");
-    TEST_ASSUME((int64_t)y == 20, "Should have passed the test case");
-    TEST_ASSUME((int64_t)x != (int64_t)y, "Should have passed the test case");
-    TEST_ASSUME((int64_t)y < (int64_t)x, "Should have passed the test case");
-    TEST_ASSUME((int64_t)y <= (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x != (int64_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y < (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y <= (int64_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int8_shortcut) {
+FOSSIL_TEST_CASE(xassume_run_of_int8_shortcut) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -217,7 +215,7 @@ FOSSIL_TEST(xassume_run_of_int8_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I8((int8_t)y, (int8_t)x);
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int16_shortcut) {
+FOSSIL_TEST_CASE(xassume_run_of_int16_shortcut) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -229,7 +227,7 @@ FOSSIL_TEST(xassume_run_of_int16_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I16((int16_t)y, (int16_t)x);
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int32_shortcut) {
+FOSSIL_TEST_CASE(xassume_run_of_int32_shortcut) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -241,7 +239,7 @@ FOSSIL_TEST(xassume_run_of_int32_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I32((int32_t)y, (int32_t)x);
 } // end case
 
-FOSSIL_TEST(xassume_run_of_int64_shortcut) {
+FOSSIL_TEST_CASE(xassume_run_of_int64_shortcut) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -253,67 +251,67 @@ FOSSIL_TEST(xassume_run_of_int64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I64((int64_t)y, (int64_t)x);
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int) {
+FOSSIL_TEST_CASE(xexpect_run_of_int) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_EXPECT(x == 42, "Should have passed the test case");
-    TEST_EXPECT(y == 20, "Should have passed the test case");
-    TEST_EXPECT(x != y, "Should have passed the test case");
-    TEST_EXPECT(y < x, "Should have passed the test case");
-    TEST_EXPECT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int8) {
+FOSSIL_TEST_CASE(xexpect_run_of_int8) {
     int8_t x = 42;
     int8_t y = 20;
 
     // Test cases
-    TEST_EXPECT((int8_t)x == 42, "Should have passed the test case");
-    TEST_EXPECT((int8_t)y == 20, "Should have passed the test case");
-    TEST_EXPECT((int8_t)x != (int8_t)y, "Should have passed the test case");
-    TEST_EXPECT((int8_t)y < (int8_t)x, "Should have passed the test case");
-    TEST_EXPECT((int8_t)y <= (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)x != (int8_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y < (int8_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int8_t)y <= (int8_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int16) {
+FOSSIL_TEST_CASE(xexpect_run_of_int16) {
     int16_t x = 42;
     int16_t y = 20;
 
     // Test cases
-    TEST_EXPECT((int16_t)x == 42, "Should have passed the test case");
-    TEST_EXPECT((int16_t)y == 20, "Should have passed the test case");
-    TEST_EXPECT((int16_t)x != (int16_t)y, "Should have passed the test case");
-    TEST_EXPECT((int16_t)y < (int16_t)x, "Should have passed the test case");
-    TEST_EXPECT((int16_t)y <= (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)x != (int16_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y < (int16_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int16_t)y <= (int16_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int32) {
+FOSSIL_TEST_CASE(xexpect_run_of_int32) {
     int32_t x = 42;
     int32_t y = 20;
 
     // Test cases
-    TEST_EXPECT((int32_t)x == 42, "Should have passed the test case");
-    TEST_EXPECT((int32_t)y == 20, "Should have passed the test case");
-    TEST_EXPECT((int32_t)x != (int32_t)y, "Should have passed the test case");
-    TEST_EXPECT((int32_t)y < (int32_t)x, "Should have passed the test case");
-    TEST_EXPECT((int32_t)y <= (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)x != (int32_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y < (int32_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int32_t)y <= (int32_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int64) {
+FOSSIL_TEST_CASE(xexpect_run_of_int64) {
     int64_t x = 42;
     int64_t y = 20;
 
     // Test cases
-    TEST_EXPECT((int64_t)x == 42, "Should have passed the test case");
-    TEST_EXPECT((int64_t)y == 20, "Should have passed the test case");
-    TEST_EXPECT((int64_t)x != (int64_t)y, "Should have passed the test case");
-    TEST_EXPECT((int64_t)y < (int64_t)x, "Should have passed the test case");
-    TEST_EXPECT((int64_t)y <= (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)x != (int64_t)y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y < (int64_t)x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME((int64_t)y <= (int64_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int8_shortcut) {
+FOSSIL_TEST_CASE(xexpect_run_of_int8_shortcut) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -325,7 +323,7 @@ FOSSIL_TEST(xexpect_run_of_int8_shortcut) {
     EXPECT_ITS_LESS_OR_EQUAL_I8((int8_t)y, (int8_t)x);
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int16_shortcut) {
+FOSSIL_TEST_CASE(xexpect_run_of_int16_shortcut) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -337,7 +335,7 @@ FOSSIL_TEST(xexpect_run_of_int16_shortcut) {
     EXPECT_ITS_LESS_OR_EQUAL_I16((int16_t)y, (int16_t)x);
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int32_shortcut) {
+FOSSIL_TEST_CASE(xexpect_run_of_int32_shortcut) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -349,7 +347,7 @@ FOSSIL_TEST(xexpect_run_of_int32_shortcut) {
     EXPECT_ITS_LESS_OR_EQUAL_I32((int32_t)y, (int32_t)x);
 } // end case
 
-FOSSIL_TEST(xexpect_run_of_int64_shortcut) {
+FOSSIL_TEST_CASE(xexpect_run_of_int64_shortcut) {
     int64_t x = 42;
     int64_t y = 20;
 

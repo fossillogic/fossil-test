@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/test/framework.h>   // basic test tools
 #include <fossil/mockup/framework.h> // library under test
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -33,7 +33,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Test Case for Mocking a Function
-FOSSIL_TEST(mock_function_test) {
+FOSSIL_TEST_CASE(mock_function_test) {
     MockCallList mock;
     MOCK_INIT(mock);
 

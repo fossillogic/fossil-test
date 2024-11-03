@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/unittest/framework.h>
+#include <fossil/test/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -31,52 +31,52 @@
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST(testing_slow_tags) {
+FOSSIL_TEST_CASE(testing_slow_tags) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSERT(x == 42, "Should have passed the test case");
-    TEST_ASSERT(y == 20, "Should have passed the test case");
-    TEST_ASSERT(x != y, "Should have passed the test case");
-    TEST_ASSERT(y < x, "Should have passed the test case");
-    TEST_ASSERT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(testing_fast_tags) {
+FOSSIL_TEST_CASE(testing_fast_tags) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSERT(x == 42, "Should have passed the test case");
-    TEST_ASSERT(y == 20, "Should have passed the test case");
-    TEST_ASSERT(x != y, "Should have passed the test case");
-    TEST_ASSERT(y < x, "Should have passed the test case");
-    TEST_ASSERT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(testing_no_tags) {
+FOSSIL_TEST_CASE(testing_no_tags) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSERT(x == 42, "Should have passed the test case");
-    TEST_ASSERT(y == 20, "Should have passed the test case");
-    TEST_ASSERT(x != y, "Should have passed the test case");
-    TEST_ASSERT(y < x, "Should have passed the test case");
-    TEST_ASSERT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST(testing_fake_tags) {
+FOSSIL_TEST_CASE(testing_fake_tags) {
     int x = 42;
     int y = 20;
 
     // Test cases
-    TEST_ASSERT(x == 42, "Should have passed the test case");
-    TEST_ASSERT(y == 20, "Should have passed the test case");
-    TEST_ASSERT(x != y, "Should have passed the test case");
-    TEST_ASSERT(y < x, "Should have passed the test case");
-    TEST_ASSERT(y <= x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x == 42, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y == 20, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
+    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *

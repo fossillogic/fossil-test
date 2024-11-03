@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "fossil/_common/common.h"
 
 /**
  * @brief Macro for initializing the mock list.

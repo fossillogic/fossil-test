@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/unittest/framework.h>   // basic test tools
+#include <fossil/test/framework.h>   // basic test tools
 #include <fossil/unittest/assume.h>      // assertion tools
 #include <fossil/benchmark/framework.h>  // benchmark tools
 
@@ -74,7 +74,7 @@ void selection_sort(int *array, size_t size) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Test cases for Bubble Sort
-FOSSIL_TEST(bubble_sort_case_1) {
+FOSSIL_TEST_CASE(bubble_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -83,7 +83,7 @@ FOSSIL_TEST(bubble_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(bubble_sort_case_2) {
+FOSSIL_TEST_CASE(bubble_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -92,7 +92,7 @@ FOSSIL_TEST(bubble_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(bubble_sort_case_3) {
+FOSSIL_TEST_CASE(bubble_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -102,7 +102,7 @@ FOSSIL_TEST(bubble_sort_case_3) {
 }
 
 // Test cases for Insertion Sort
-FOSSIL_TEST(insertion_sort_case_1) {
+FOSSIL_TEST_CASE(insertion_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8, 6, 3, 7};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -111,7 +111,7 @@ FOSSIL_TEST(insertion_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(insertion_sort_case_2) {
+FOSSIL_TEST_CASE(insertion_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1, 5, 2, 4};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -120,7 +120,7 @@ FOSSIL_TEST(insertion_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(insertion_sort_case_3) {
+FOSSIL_TEST_CASE(insertion_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7, 5, 9, 3};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -130,7 +130,7 @@ FOSSIL_TEST(insertion_sort_case_3) {
 }
 
 // Test cases for Selection Sort
-FOSSIL_TEST(selection_sort_case_1) {
+FOSSIL_TEST_CASE(selection_sort_case_1) {
     // Test case 1
     int data[] = {5, 1, 4, 2, 8, 6, 3, 7, 9};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -139,7 +139,7 @@ FOSSIL_TEST(selection_sort_case_1) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(selection_sort_case_2) {
+FOSSIL_TEST_CASE(selection_sort_case_2) {
     // Test case 2
     int data[] = {9, 6, 7, 3, 1, 5, 2, 4, 8};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -148,7 +148,7 @@ FOSSIL_TEST(selection_sort_case_2) {
     TEST_DURATION_SEC(TEST_CURRENT_TIME(), 1.0);
 }
 
-FOSSIL_TEST(selection_sort_case_3) {
+FOSSIL_TEST_CASE(selection_sort_case_3) {
     // Test case 3
     int data[] = {8, 2, 4, 1, 7, 5, 9, 3, 6};
     size_t size = sizeof(data) / sizeof(data[0]);
@@ -158,7 +158,7 @@ FOSSIL_TEST(selection_sort_case_3) {
 }
 
 // Test Case for Bubble Sort with Small Input
-FOSSIL_TEST(benchmark_bubble_sort_small) {
+FOSSIL_TEST_CASE(benchmark_bubble_sort_small) {
     const int size = 100;
     int arr[size];
     for (int i = 0; i < size; ++i) {
@@ -178,7 +178,7 @@ FOSSIL_TEST(benchmark_bubble_sort_small) {
 }
 
 // Test Case for Bubble Sort with Medium Input
-FOSSIL_TEST(benchmark_bubble_sort_medium) {
+FOSSIL_TEST_CASE(benchmark_bubble_sort_medium) {
     const int size = 1000;
     int arr[size];
     for (int i = 0; i < size; ++i) {
@@ -198,7 +198,7 @@ FOSSIL_TEST(benchmark_bubble_sort_medium) {
 }
 
 // Test Case for Bubble Sort with Large Input
-FOSSIL_TEST(benchmark_bubble_sort_large) {
+FOSSIL_TEST_CASE(benchmark_bubble_sort_large) {
     const int size = 10000;
     int arr[size];
     for (int i = 0; i < size; ++i) {

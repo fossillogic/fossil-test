@@ -15,8 +15,6 @@
 #ifndef FOSSIL_MARK_BENCHMARK_H
 #define FOSSIL_MARK_BENCHMARK_H
 
-#include "fossil/_common/common.h"
-
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>

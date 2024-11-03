@@ -26,7 +26,7 @@ class TestRunnerGenerator:
 """
 
         header += """
-#include <fossil/unittest/framework.h>
+#include <fossil/test/framework.h>
 """
 
         header += """
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
         footer = """
     FOSSIL_TEST_RUN();
-    return FOSSIL_TEST_ERASE();
+    FOSSIL_TEST_END();
 } // end of func
 """
 

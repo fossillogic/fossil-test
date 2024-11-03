@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/unittest/framework.h>
+#include <fossil/test/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -31,7 +31,7 @@
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_SONERO(xbdd_logic_test) {
+FOSSIL_TEST_CASE(xbdd_logic_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -44,15 +44,15 @@ FOSSIL_SONERO(xbdd_logic_test) {
                 // Check the expected outcome
                 bool thenExecuted = true;
 
-                TEST_EXPECT(givenExecuted, "Given statement should have executed");
-                TEST_EXPECT(whenExecuted, "When statement should have executed");
-                TEST_EXPECT(thenExecuted, "Then statement should have executed");
+                FOSSIL_TEST_ASSUME(givenExecuted, "Given statement should have executed");
+                FOSSIL_TEST_ASSUME(whenExecuted, "When statement should have executed");
+                FOSSIL_TEST_ASSUME(thenExecuted, "Then statement should have executed");
             }
         }
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_user_account) {
+FOSSIL_TEST_CASE(xbdd_user_account) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -68,13 +68,13 @@ FOSSIL_SONERO(xbdd_user_account) {
 
                 // Simulate the scenario
                 float compareBalance = 500.0;
-                TEST_EXPECT(accountBalance == (compareBalance - withdrawalAmount), "Account balance should have been deducted by $200");
+                FOSSIL_TEST_ASSUME(accountBalance == (compareBalance - withdrawalAmount), "Account balance should have been deducted by $200");
             }
         }
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_empty_cart) {
+FOSSIL_TEST_CASE(xbdd_empty_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -86,13 +86,13 @@ FOSSIL_SONERO(xbdd_empty_cart) {
                 // Check the expected outcome
                 cartItemCount++;
 
-                TEST_EXPECT(cartItemCount == 1, "Cart item count should have increased by 1");
+                FOSSIL_TEST_ASSUME(cartItemCount == 1, "Cart item count should have increased by 1");
             }
         }
     }
 } // end of case
 
-FOSSIL_SONERO(xbdd_valid_login) {
+FOSSIL_TEST_CASE(xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";
@@ -106,8 +106,8 @@ FOSSIL_SONERO(xbdd_valid_login) {
             THEN("the login should be successful") {
                 // Check the expected outcome
                 // Simulate login validation
-                TEST_EXPECT(strcmp(inputUsername, validUsername) == 0, "Username should match");
-                TEST_EXPECT(strcmp(inputPassword, validPassword) == 0, "Password should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) == 0, "Username should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) == 0, "Password should match");
             }
         }
 
@@ -119,8 +119,8 @@ FOSSIL_SONERO(xbdd_valid_login) {
             THEN("the login should fail with an error message") {
                 // Check the expected outcome
                 // Simulate login validation
-                TEST_EXPECT(strcmp(inputUsername, validUsername) == 0, "Username should match");
-                TEST_EXPECT(strcmp(inputPassword, validPassword) != 0, "Password should not match");
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) == 0, "Username should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) != 0, "Password should not match");
             }
         }
     }
