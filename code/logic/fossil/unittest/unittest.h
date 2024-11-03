@@ -166,22 +166,67 @@ void fossil_test_print_color(const char *text, fossil_test_color_t color);
 // *****************************************************************************
 // Macros for defining and adding test cases
 // *****************************************************************************
-
-#define FOSSIL_TEST(name) void name(void)
-#define FOSSIL_TEST_SUITE(name) \
+/**
+ * @brief Define a test suite.
+ * 
+ * @param name The name of the test suite.
+ */
+#define _FOSSIL_TEST_SUITE(name) \
     fossil_test_suite_t name = { \
         .name = #name, \
         .tests = NULL, \
         .test_count = 0 \
     }
-#define FOSSIL_TEST_SETUP(name)    void name##_setup(void)
-#define FOSSIL_TEST_TEARDOWN(name) void name##_teardown(void)
 
-#define FOSSIL_TEST_GROUP(name)    void name##_group(fossil_test_runner_t runner)
-#define FOSSIL_TEST_IMPORT(name)   void name##_group(fossil_test_runner_t runner)
-#define FOSSIL_TEST_EXPORT(name)   void name##_group(fossil_test_runner_t runner)
+/**
+ * @brief Define a setup function for a test suite.
+ * 
+ * @param name The name of the setup function.
+ */
+#define _FOSSIL_TEST_SETUP(name)    void name##_setup(void)
 
-#define FOSSIL_TEST_ADD(queue, test_func) \
+/**
+ * @brief Define a teardown function for a test suite.
+ * 
+ * @param name The name of the teardown function.
+ */
+#define _FOSSIL_TEST_TEARDOWN(name) void name##_teardown(void)
+
+/**
+ * @brief Define a group of test cases.
+ * 
+ * @param name The name of the test group.
+ */
+#define _FOSSIL_TEST_GROUP(name)    void name##_group(fossil_test_runner_t runner)
+
+/**
+ * @brief Import a group of test cases.
+ * 
+ * @param name The name of the test group to import.
+ */
+#define _FOSSIL_TEST_IMPORT(name)   void name##_group(fossil_test_runner_t runner)
+
+/**
+ * @brief Export a group of test cases.
+ * 
+ * @param name The name of the test group to export.
+ */
+#define _FOSSIL_TEST_EXPORT(name)   void name##_group(fossil_test_runner_t runner)
+
+/**
+ * @brief Define a test case.
+ * 
+ * @param name The name of the test case.
+ */
+#define _FOSSIL_TEST_CASE(name) void name(void)
+
+/**
+ * @brief Add a test case to a queue.
+ * 
+ * @param queue The queue to which the test case will be added.
+ * @param test_func The function that implements the test case.
+ */
+#define _FOSSIL_TEST_ADD(queue, test_func) \
     do { \
         fossil_test_case_t *test_case = malloc(sizeof(fossil_test_case_t)); \
         test_case->name = #test_func; \
@@ -193,7 +238,14 @@ void fossil_test_print_color(const char *text, fossil_test_color_t color);
         fossil_test_enqueue(queue, test_case); \
     } while(0)
 
-#define FOSSIL_TEST_ADDF(queue, test_func, suite) \
+/**
+ * @brief Add a test case to a suite.
+ * 
+ * @param queue The queue to which the test case will be added.
+ * @param test_func The function that implements the test case.
+ * @param suite The test suite to which the test case will be added.
+ */
+#define _FOSSIL_TEST_ADDF(queue, test_func, suite) \
     do { \
         fossil_test_case_t *test_case = malloc(sizeof(fossil_test_case_t)); \
         test_case->name = #test_func; \
@@ -205,7 +257,14 @@ void fossil_test_print_color(const char *text, fossil_test_color_t color);
         fossil_test_add_suite(suite, test_case); \
     } while(0)
 
-#define FOSSIL_TEST_ASSUME(runner, condition, message) \
+/**
+ * @brief Assume a condition is true, otherwise log a failure and jump to the test runner's environment.
+ * 
+ * @param runner The test runner that manages the test cases.
+ * @param condition The condition to assume.
+ * @param message The message to log if the condition is false.
+ */
+#define _FOSSIL_TEST_ASSUME(runner, condition, message) \
     do { \
         if (!(condition)) { \
             fossil_test_log(runner, message, FOSSIL_TEST_FAIL); \
