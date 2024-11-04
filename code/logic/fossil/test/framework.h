@@ -48,6 +48,31 @@ extern "C" {
 #define THEN(description) _THEN(description)
 
 /**
+ * Macro to define a test group.
+ * This macro is used to define a test group, which is a collection of test
+ * cases that are related to each other. The test group can be executed as a
+ * whole to verify the correctness of a group of functionalities.
+ */
+#define FOSSIL_TEST_GROUP(name) \
+    _FOSSIL_TEST_GROUP(name)
+
+/**
+ * Macro to export a test group.
+ * This macro is used to export a test group from a test file. The test group
+ * will be available to other test files that import it.
+ */
+#define FOSSIL_TEST_EXPORT(name) \
+    _FOSSIL_TEST_EXPORT(name)
+
+/**
+ * Macro to import a test group.
+ * This macro is used to import a test group into the test runner. The test group
+ * will be executed when the test runner is run.
+ */
+#define FOSSIL_TEST_IMPORT(name) \
+    _FOSSIL_TEST_IMPORT(name)
+
+/**
  * Macro to define the main test runner.
  * This macro is used to define the main test runner function that will be
  * executed when the test suite is run. The main test runner function will

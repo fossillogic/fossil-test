@@ -195,21 +195,25 @@ void fossil_test_register_suite(test_suite_t *suite);
         .suite_setup_func = suite_name##_setup_func, \
         .suite_teardown_func = suite_name##_teardown_func, \
         .next = NULL \
+    }; \
+    __attribute__((constructor)) static void register_##suite_name() { \
+        fossil_test_register_suite(&suite_name); \
     }
 
 // Macro to add a test case to a suite
-#define _FOSSIL_TEST_ADD(suite, test_case) \
-    fossil_test_add_case((suite).tests, &(test_case));
+#define _FOSSIL_TEST_ADD(suite, test) \
+    fossil_test_add_case((suite).tests, &(test##_test_case));
+
+#define _FOSSIL_TEST_GROUP(name) \
+    void name##_test_group(void)
+
+#define _FOSSIL_TEST_EXPORT(name) \
+    void name##_test_group(void)
+
+#define _FOSSIL_TEST_IMPORT(name) \
+    name##_test_group()
 
 // main runner managment
-
-#define _FOSSIL_TEST_MAIN() \
-    int main(void) { \
-        FOSSIL_TEST_START(); \
-        FOSSIL_TEST_RUN(); \
-        FOSSIL_TEST_SUMMARY(); \
-        FOSSIL_TEST_END(); \
-    } // end of macro
 
 #define _FOSSIL_TEST_START() \
     fossil_test_init()
