@@ -22,6 +22,13 @@
 #include <float.h>
 #include <stdarg.h>
 
+#ifndef _WIN32
+#include <linux/time.h>
+#include <sys/time.h>
+#else
+#include <windows.h>
+#endif
+
 //
 // local types
 //

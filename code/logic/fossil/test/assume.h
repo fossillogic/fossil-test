@@ -29,6 +29,15 @@
 extern "C" {
 #endif
 
+// becuase Microsoft had to be diffrent
+#ifdef _WIN32
+#define wcsncasecmp _wcsnicmp
+#endif
+
+// Used in floating-point asserts
+#define FOSSIL_TEST_FLOAT_EPSILON 1e-6
+#define FOSSIL_TEST_DOUBLE_EPSILON 1e-9
+
 // **************************************************
 //
 // Boolean ASSUMEions
