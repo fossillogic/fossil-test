@@ -25,7 +25,22 @@
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__APPLE__)
-#define _GNU_SOURCE  // Define _GNU_SOURCE for C code
+#include <mach/mach_time.h>
+#else
+#include <sys/time.h>
+#include <time.h>
+#endif
+
+#if defined(__APPLE__) && !defined(CLOCK_MONOTONIC)
+#include <mach/mach_time.h>
+#endif
+
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
 #endif
 
 //
@@ -39,46 +54,40 @@ static double frequency; // Variable to store the frequency for Windows
 
 void fossil_test_start_benchmark(void) {
 #if defined(_WIN32)
-    LARGE_INTEGER freq;
-    if (!QueryPerformanceFrequency(&freq)) {
-        // Handle error
-        fprintf(stderr, "Error: QueryPerformanceFrequency failed\n");
-        exit(EXIT_FAILURE);
-    }
-    frequency = (double)freq.QuadPart;
-    if (!QueryPerformanceCounter((LARGE_INTEGER*)&start_time)) {
-        // Handle error
-        fprintf(stderr, "Error: QueryPerformanceCounter failed\n");
-        exit(EXIT_FAILURE);
-    }
-#else
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&start_time);
+#elif defined(__APPLE__)
+    start_time = mach_absolute_time();
+#elif defined(_POSIX_VERSION)
     struct timespec ts;
-    if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
-        // Handle error
-        perror("Error: clock_gettime failed");
-        exit(EXIT_FAILURE);
-    }
+    clock_gettime(CLOCK_MONOTONIC, &ts);
     start_time = ts.tv_sec * 1e9 + ts.tv_nsec;
+#else
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    start_time = (uint64_t)tv.tv_sec * 1e6 + tv.tv_usec;
 #endif
 }
 
 uint64_t fossil_test_stop_benchmark(void) {
 #if defined(_WIN32)
     LARGE_INTEGER end_time;
-    if (!QueryPerformanceCounter(&end_time)) {
-        // Handle error
-        fprintf(stderr, "Error: QueryPerformanceCounter failed\n");
-        exit(EXIT_FAILURE);
-    }
-    return (uint64_t)((end_time.QuadPart - start_time) * 1e9 / frequency);
-#else
+    QueryPerformanceCounter(&end_time);
+    return (uint64_t)((end_time.QuadPart - start_time.QuadPart) * 1e9 / frequency.QuadPart);
+#elif defined(__APPLE__)
+    uint64_t end_time = mach_absolute_time();
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    return (end_time - start_time) * timebase.numer / timebase.denom;
+#elif defined(_POSIX_VERSION)
     struct timespec ts;
-    if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
-        // Handle error
-        perror("Error: clock_gettime failed");
-        exit(EXIT_FAILURE);
-    }
-    return (uint64_t)((ts.tv_sec * 1e9 + ts.tv_nsec) - start_time);
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (ts.tv_sec * 1e9 + ts.tv_nsec) - start_time;
+#else
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    uint64_t end_time = (uint64_t)tv.tv_sec * 1e6 + tv.tv_usec;
+    return (end_time - start_time) * 1e3;
 #endif
 }
 
