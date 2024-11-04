@@ -16,6 +16,8 @@
  */
 #include "fossil/test/benchmark.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <float.h>
 #include <stdarg.h>

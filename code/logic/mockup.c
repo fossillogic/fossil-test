@@ -16,6 +16,8 @@
  */
 #include "fossil/test/mockup.h"
 
+extern char *_custom_fossil_test_strdup(const char *str);
+
 void fossil_mock_init(MockCallList *list) {
     list->head = NULL;
     list->tail = NULL;

@@ -477,7 +477,7 @@ extern "C" {
  * @param expected The expected 16-bit octal value.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_O16(actual, expected) \
-    FOSSIL_TEST_ASSUME((uint16_t)(actual) < (uint16_t)(expected), "Expected " #actual " to not be more than or equal to " #expected")
+    FOSSIL_TEST_ASSUME((uint16_t)(actual) < (uint16_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
 /**
  * @brief Assumes that the given 32-bit octal values are equal.
@@ -1109,7 +1109,7 @@ extern "C" {
  * @param expected The expected 8-bit integer value.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_I8(actual, expected) \
-    FOSSIL_TEST_ASSUME((int8_t)(actual) < (int8_t)(expected), "Expected " #actual " to not be more than or equal to " #expected")
+    FOSSIL_TEST_ASSUME((int8_t)(actual) < (int8_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
 /**
  * @brief Assumes that the given 16-bit integer values are equal.
@@ -1199,7 +1199,7 @@ extern "C" {
  * @param expected The expected 16-bit integer value.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_I16(actual, expected) \
-    FOSSIL_TEST_ASSUME((int16_t)(actual) < (int16_t)(expected), "Expected " #actual " to not be more than or equal to " #expected")
+    FOSSIL_TEST_ASSUME((int16_t)(actual) < (int16_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
 /**
  * @brief Assumes that the given 32-bit integer values are equal.
@@ -1289,7 +1289,7 @@ extern "C" {
  * @param expected The expected 32-bit integer value.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_I32(actual, expected) \
-    FOSSIL_TEST_ASSUME((int32_t)(actual) < (int32_t)(expected), "Expected " #actual " to not be more than or equal to " #expected")
+    FOSSIL_TEST_ASSUME((int32_t)(actual) < (int32_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
 /**
  * @brief Assumes that the given 64-bit integer values are equal.
@@ -1649,7 +1649,7 @@ extern "C" {
  * @param expected The expected 32-bit unsigned integer value.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_U32(actual, expected) \
-    FOSSIL_TEST_ASSUME((uint32_t)(actual) < (uint32_t)(expected), "Expected " #actual " to not be more than or equal to " #expected")
+    FOSSIL_TEST_ASSUME((uint32_t)(actual) < (uint32_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
 /**
  * @brief Assumes that the given 64-bit unsigned integer values are equal.

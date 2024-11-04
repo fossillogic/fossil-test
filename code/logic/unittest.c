@@ -14,6 +14,16 @@
  */
 #include "fossil/test/unittest.h"
 
+char *_custom_fossil_test_strdup(const char *str) {
+    size_t len = strlen(str) + 1;
+    char *new_str = (char *)malloc(len);
+    if (new_str == NULL) {
+        return NULL;
+    }
+    memcpy(new_str, str, len);
+    return new_str;
+}
+
 // Global variables for tracking test results
 int pass_count = 0;
 int fail_count = 0;

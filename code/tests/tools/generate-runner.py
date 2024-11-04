@@ -46,8 +46,8 @@ class TestRunnerGenerator:
 // * * * * * * * * * * * * * * * * * * * * * * * *"""
 
         runner += """
-int main(int argc, char **argv) {
-    FOSSIL_TEST_CREATE(argc, argv);\n"""
+int main(void) {
+    FOSSIL_TEST_START();\n"""
 
         import_pools = "\n".join(
             [f"    FOSSIL_TEST_IMPORT({group});" for group in test_groups]
@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
 
         footer = """
     FOSSIL_TEST_RUN();
+    FOSSIL_TEST_SUMMARY();
     FOSSIL_TEST_END();
 } // end of func
 """
