@@ -21,6 +21,9 @@
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
+// Define the test suite and add test cases
+FOSSIL_TEST_SUITE(bdd_suite);
+
 // Setup function for the test suite
 FOSSIL_SETUP(bdd_suite) {
     // Setup code here
@@ -30,9 +33,6 @@ FOSSIL_SETUP(bdd_suite) {
 FOSSIL_TEARDOWN(bdd_suite) {
     // Teardown code here
 }
-
-// Define the test suite and add test cases
-FOSSIL_TEST_SUITE(bdd_suite);
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Cases

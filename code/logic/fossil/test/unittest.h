@@ -188,6 +188,8 @@ void fossil_test_register_suite(test_suite_t *suite);
 
 // Macro to create a test suite with setup and teardown hooks
 #define _FOSSIL_TEST_SUITE(suite_name) \
+    void suite_name##_setup_func(void); \
+    void suite_name##_teardown_func(void); \
     test_suite_t suite_name = { \
         .name = #suite_name, \
         .tests = NULL, \
