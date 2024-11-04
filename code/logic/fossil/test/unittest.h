@@ -28,6 +28,27 @@
 extern "C" {
 #endif
 
+// Define the structure to hold parsed options
+typedef struct {
+    bool show_version;
+    bool show_help;
+    bool show_tip;
+    bool show_info;
+    bool show_author;
+    bool only_tags;
+    char only_tags_value[256];
+    bool reverse;
+    bool repeat_enabled;
+    int repeat_count;
+    bool shuffle_enabled;
+    bool verbose_enabled;
+    int verbose_level; // 0 for cutback, 1 for normal, 2 for verbose
+    bool list_tests;
+    bool summary_enabled;
+    bool color_enabled;
+    bool sanity_enabled;
+} fossil_options_t;
+
 // Test status enumeration
 typedef enum {
     test_status_pass,
@@ -81,6 +102,7 @@ extern int fail_count;
 extern int skip_count;
 extern int unexpected_count;
 extern jmp_buf env;
+extern fossil_options_t global_options;
 
 // List to store all test suites
 extern test_suite_t *global_test_suites;
@@ -91,8 +113,11 @@ extern test_suite_t *global_test_suites;
 
 /**
  * Initialize the test framework.
+ *
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line arguments.
  */
-void fossil_test_init(void);
+void fossil_test_init(int argc, char **argv);
 
 /**
  * Clean up the test framework.
@@ -214,8 +239,8 @@ void fossil_test_register_suite(test_suite_t *suite);
 
 // main runner managment
 
-#define _FOSSIL_TEST_START() \
-    fossil_test_init()
+#define _FOSSIL_TEST_START(argc, argv) \
+    fossil_test_init(argc, argv)
 
 #define _FOSSIL_TEST_RUN() \
     { \

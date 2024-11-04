@@ -46,8 +46,8 @@ class TestRunnerGenerator:
 // * * * * * * * * * * * * * * * * * * * * * * * *"""
 
         runner += """
-int main(void) {
-    FOSSIL_TEST_START();\n"""
+int main(int argc, char **argv) {
+    FOSSIL_TEST_START(argc, argv);\n"""
 
         import_pools = "\n".join(
             [f"    FOSSIL_TEST_IMPORT({group});" for group in test_groups]

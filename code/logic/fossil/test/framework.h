@@ -73,22 +73,12 @@ extern "C" {
     _FOSSIL_TEST_IMPORT(name)
 
 /**
- * Macro to define the main test runner.
- * This macro is used to define the main test runner function that will be
- * executed when the test suite is run. The main test runner function will
- * initialize the test framework, run all test cases, and output the test
- * results.
- */
-#define FOSSIL_TEST_MAIN() \
-    _FOSSIL_TEST_MAIN()
-
-/**
  * Macro to start the test runner.
  * This macro is used to start the test runner, which will initialize the test
  * framework and prepare to run all test cases in the test suite.
  */
-#define FOSSIL_TEST_START() \
-    _FOSSIL_TEST_START()
+#define FOSSIL_TEST_START(argc, argv) \
+    _FOSSIL_TEST_START(argc, argv)
 
 /**
  * Macro to run all test cases in the test suite.
