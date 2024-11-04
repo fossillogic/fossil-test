@@ -55,4 +55,6 @@ FOSSIL_TEST_CASE(test_input_decrement) {
 FOSSIL_TEST_GROUP(sample_test_group) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
+
+    FOSSIL_TEST_REGISTER(sample_suite);
 }

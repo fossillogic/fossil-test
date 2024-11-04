@@ -163,4 +163,6 @@ FOSSIL_TEST_GROUP(tdd_test_group) {
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int16_shortcut);
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int32_shortcut);
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int64_shortcut);
+
+    FOSSIL_TEST_REGISTER(tdd_suite);
 } // end of group

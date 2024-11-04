@@ -145,4 +145,6 @@ FOSSIL_TEST_GROUP(bdd_test_group) {
     FOSSIL_TEST_ADD(bdd_suite, xbdd_user_account);
     FOSSIL_TEST_ADD(bdd_suite, xbdd_empty_cart);
     FOSSIL_TEST_ADD(bdd_suite, xbdd_valid_login);
+
+    FOSSIL_TEST_REGISTER(bdd_suite);
 } // end of group

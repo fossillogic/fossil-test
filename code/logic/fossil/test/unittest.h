@@ -224,6 +224,9 @@ void fossil_test_register_suite(test_suite_t *suite);
         .next = NULL \
     }
 
+#define _FOSSIL_TEST_REGISTER(suite) \
+    fossil_test_register_suite(&suite)
+
 // Macro to add a test case to a suite
 #define _FOSSIL_TEST_ADD(suite, test) \
     fossil_test_add_case((suite).tests, &(test##_test_case));

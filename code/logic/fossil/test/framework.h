@@ -124,6 +124,15 @@ extern "C" {
     _FOSSIL_TEST_SUITE(suite_name)
 
 /**
+ * Macro to register a test suite with the test framework.
+ * This macro is used to register a test suite with the test framework. The test
+ * suite will be added to the list of test suites that will be executed by the
+ * test runner.
+ */
+#define FOSSIL_TEST_REGISTER(suite) \
+    _FOSSIL_TEST_REGISTER(suite)
+
+/**
  * Macro to define a setup function for a test.
  * This macro is used to declare a setup function that will be executed before
  * each test case in a test suite. The setup function should contain the logic
