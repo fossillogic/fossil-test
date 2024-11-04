@@ -24,6 +24,8 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+static LARGE_INTEGER frequency;
+static LARGE_INTEGER start_time;
 #elif defined(__APPLE__)
 #include <mach/mach_time.h>
 #else
