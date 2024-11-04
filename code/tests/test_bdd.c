@@ -21,7 +21,18 @@
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// placeholder
+// Setup function for the test suite
+FOSSIL_SETUP(bdd_suite) {
+    // Setup code here
+}
+
+// Teardown function for the test suite
+FOSSIL_TEARDOWN(bdd_suite) {
+    // Teardown code here
+}
+
+// Define the test suite and add test cases
+FOSSIL_TEST_SUITE(bdd_suite);
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Cases
@@ -130,8 +141,8 @@ FOSSIL_TEST_CASE(xbdd_valid_login) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(bdd_test_group) {
-    ADD_TEST(xbdd_logic_test);
-    ADD_TEST(xbdd_user_account);
-    ADD_TEST(xbdd_empty_cart);
-    ADD_TEST(xbdd_valid_login);
+    FOSSIL_TEST_ADD(bdd_suite, xbdd_logic_test);
+    FOSSIL_TEST_ADD(bdd_suite, xbdd_user_account);
+    FOSSIL_TEST_ADD(bdd_suite, xbdd_empty_cart);
+    FOSSIL_TEST_ADD(bdd_suite, xbdd_valid_login);
 } // end of group

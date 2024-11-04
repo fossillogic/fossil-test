@@ -219,7 +219,7 @@ void fossil_test_register_suite(test_suite_t *suite);
     { \
         test_suite_t *suites = global_test_suites; \
         while (suites != NULL) { \
-            fossil_test_run_suite(suite); \
+            fossil_test_run_suite(suites); \
             suites = suites->next; \
         } \
     }
