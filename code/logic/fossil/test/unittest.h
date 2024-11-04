@@ -195,9 +195,6 @@ void fossil_test_register_suite(test_suite_t *suite);
         .suite_setup_func = suite_name##_setup_func, \
         .suite_teardown_func = suite_name##_teardown_func, \
         .next = NULL \
-    }; \
-    __attribute__((constructor)) static void register_##suite_name() { \
-        fossil_test_register_suite(&suite_name); \
     }
 
 // Macro to add a test case to a suite

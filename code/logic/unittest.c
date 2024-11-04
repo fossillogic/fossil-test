@@ -55,19 +55,6 @@ void fossil_test_summary(void) {
     printf("  Unexpected: %d\n", unexpected_count);
 }
 
-// Register a test suite by adding it to the global list
-void fossil_test_register_suite(test_suite_t *suite) {
-    if (global_test_suites == NULL) {
-        global_test_suites = suite;
-    } else {
-        test_suite_t *current = global_test_suites;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = suite;
-    }
-}
-
 // Add a test case to the double-ended priority queue
 void fossil_test_add_case(double_ended_priority_queue_t *queue, test_case_t *test) {
     if (queue->back == NULL) {
@@ -215,12 +202,4 @@ void fossil_test_register_suite(test_suite_t *suite) {
     global_test_suites = suite;
 
     printf("Registered test suite: %s\n", suite->name);
-}
-
-void fossil_test_assume(bool condition, const char *message, const char *file, int line, const char *func) {
-    if (!condition) {
-        fprintf(stderr, "ASSUMPTION FAILED: %s\nFile: %s, Line: %d, Function: %s\n", message, file, line, func);
-        // Increment the unexpected count for reporting
-        unexpected_count++;
-    }
 }

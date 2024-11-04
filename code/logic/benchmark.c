@@ -22,11 +22,10 @@
 #include <float.h>
 #include <stdarg.h>
 
-#ifndef _WIN32
-#include <linux/time.h>
-#include <sys/time.h>
-#else
+#if defined(_WIN32)
 #include <windows.h>
+#elif defined(__APPLE__)
+#define _GNU_SOURCE  // Define _GNU_SOURCE for C code
 #endif
 
 //
