@@ -52,3 +52,7 @@ FOSSIL_TEST_CASE(test_input_decrement) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Decrement test failed");
 }
 
+FOSSIL_TEST_GROUP(sample_test_group) {
+    FOSSIL_TEST_ADD(sample_suite, test_input_increment);
+    FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
+}
