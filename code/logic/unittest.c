@@ -417,7 +417,6 @@ void fossil_test_summary(fossil_test_env_t *env) {
     while (suite != NULL) {
         test_case_t *test = suite->tests;
         while (test != NULL) {
-            total_tests++;
             total_time += test->execution_time;
 
             if (test->status == TEST_STATUS_PASS) {
@@ -449,7 +448,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     // Optionally, you could add the total execution time summary here
     printf(COLOR_INFO "====================================\n" COLOR_RESET);
-    printf(COLOR_INFO "Total execution time: %.3f seconds\n" COLOR_RESET, env->total_execution_time / CLOCKS_PER_SEC);
+    printf(COLOR_INFO "Total execution time: %.3f seconds\n" COLOR_RESET, total_time / CLOCKS_PER_SEC);
     printf(COLOR_INFO "====================================\n" COLOR_RESET);
 
     fossil_test_message(env);
