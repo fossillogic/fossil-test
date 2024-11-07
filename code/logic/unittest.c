@@ -14,6 +14,49 @@
  */
 #include "fossil/test/unittest.h"
 
+#ifdef __WIN32
+// Array of messages for each category
+const char *sarcastic_messages[] = {
+    "Wow, no tests were run! What a productive day!",
+    "No tests to run, guess we're all just too good at writing code.",
+    "Congratulations, you’ve done absolutely nothing today.",
+    "Oh, look! No tests were executed. What an achievement!",
+    "Not a single test run, but hey, that's one way to keep things perfect!",
+    "All set for a day of zero productivity? Nice!",
+    "The test suite is empty, but hey, at least the code didn’t break!",
+    "Zero tests executed. Clearly, you've mastered the art of doing nothing.",
+    "Great! We’ve made it through an entire test run without running a single test.",
+    "Isn’t it great when there’s nothing to test?"
+};
+
+const char *humorous_messages[] = {
+    "Well, that was an epic failure! Better luck next time!",
+    "Whoops! Someone’s definitely gonna need to debug that.",
+    "Looks like someone forgot to write the test cases.",
+    "Your tests failed, but at least you got closer to perfection... not.",
+    "Not all heroes wear capes. Some of them fail tests.",
+    "Don't worry, failure is just success in disguise. Or maybe not.",
+    "Well, that was awkward. Let's try again, shall we?",
+    "Looks like we’ve encountered a bug! Hope you’ve got a magnifying glass.",
+    "Your tests are taking a nap, but don’t worry, we’ll wake them up!",
+    "It’s not a failure, it’s just a learning experience! A very *expensive* one."
+};
+
+const char *great_news_messages[] = {
+    "Great news! All tests passed. You’re a testing genius!",
+    "Success! Everything works as expected. Go celebrate!",
+    "You did it! All tests passed. You’re officially a rock star!",
+    "Congrats, all tests passed! You’ve earned a gold star!",
+    "Woohoo! All tests passed with flying colors!",
+    "No bugs found today, you’re on fire!",
+    "Amazing! You’ve got a perfect test suite. Keep it up!",
+    "Nice job! All tests passed. I think we’ve found the next coding superhero!",
+    "Fantastic! No issues at all, just pure success!",
+    "All tests passed, everything’s awesome."
+};
+
+#else
+
 // Array of messages for each category
 const char *sarcastic_messages[] = {
     "Wow, no tests were run! What a productive day! 😏",
@@ -53,6 +96,8 @@ const char *great_news_messages[] = {
     "Fantastic! No issues at all, just pure success! 😎",
     "All tests passed, everything’s awesome. 🎶"
 };
+
+#endif
 
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 
