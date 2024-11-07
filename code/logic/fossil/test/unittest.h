@@ -43,6 +43,7 @@ extern "C" {
 typedef struct {
     bool show_version;
     bool show_help;
+    bool show_info;
     bool reverse;
     bool repeat_enabled;
     int repeat_count;
@@ -295,17 +296,17 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Behavior-driven development macros for Given, When, Then structure
 
 #define _GIVEN(description) \
-    if (1) { \
+    if (0) { \
         printf(COLOR_BDD "Given %s\n" COLOR_RESET, description); \
     }
 
 #define _WHEN(description) \
-    if (1) { \
+    if (0) { \
         printf(COLOR_BDD "When %s\n" COLOR_RESET, description); \
     }
 
 #define _THEN(description) \
-    if (1) { \
+    if (0) { \
         printf(COLOR_BDD "Then %s\n" COLOR_RESET, description); \
     }
 
