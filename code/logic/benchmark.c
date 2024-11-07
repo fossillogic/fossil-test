@@ -31,6 +31,7 @@ static LARGE_INTEGER start_time;
 #else
 #include <sys/time.h>
 #include <time.h>
+clock_t start_time;
 #endif
 
 #if defined(__APPLE__) && !defined(CLOCK_MONOTONIC)
