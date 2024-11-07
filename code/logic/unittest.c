@@ -412,9 +412,6 @@ void fossil_test_message(fossil_test_env_t *env) {
 
 // Summary function for test results
 void fossil_test_summary(fossil_test_env_t *env) {
-    int total_tests = 0;
-    double total_time = 0.0;
-
     test_suite_t *suite = env->test_suites;
     while (suite != NULL) {
         test_case_t *test = suite->tests;
