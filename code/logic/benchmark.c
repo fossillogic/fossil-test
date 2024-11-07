@@ -35,10 +35,6 @@ clock_t start_time;
 clock_t start_time;
 #endif
 
-#if defined(__APPLE__) && !defined(CLOCK_MONOTONIC)
-#include <mach/mach_time.h>
-#endif
-
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 199309L
 #endif
@@ -87,9 +83,10 @@ uint64_t fossil_test_stop_benchmark(void) {
 }
 
 void assume_duration(double expected, double actual, double unit) {
-    clock_t end_time = clock();
-    double elapsed_time = (double)(end_time - start_time) / ((double)CLOCKS_PER_SEC / unit);
-    if (elapsed_time < expected) {
+    uint64_t elapsed_time = fossil_test_stop_benchmark();
+    double elapsed_seconds = elapsed_time / (1e9 / unit);  // Convert to the desired time unit
+    
+    if (elapsed_seconds < expected) {
         printf("Benchmark failed: expected %f, got %f\n", expected, actual);
     }
 }
