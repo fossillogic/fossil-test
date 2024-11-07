@@ -15,6 +15,17 @@
 #ifndef FOSSIL_TEST_CORE_H
 #define FOSSIL_TEST_CORE_H
 
+#define MAX_NAME_LENGTH 256
+
+// Color codes
+#define COLOR_RESET      "\033[0m"
+#define COLOR_PASS       "\033[32m"  // Green
+#define COLOR_FAIL       "\033[31m"  // Red
+#define COLOR_SKIP       "\033[33m"  // Yellow
+#define COLOR_INFO       "\033[34m"  // Blue
+#define COLOR_BDD       "\033[35m"  // Magenta
+#define COLOR_CYAN      "\033[36m"  // Cyan
+
 #include <setjmp.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -32,32 +43,19 @@ extern "C" {
 typedef struct {
     bool show_version;
     bool show_help;
-    bool show_tip;
-    bool show_info;
-    bool show_author;
-    bool only_tags;
-    char only_tags_value[256];
     bool reverse;
     bool repeat_enabled;
     int repeat_count;
     bool shuffle_enabled;
-    bool verbose_enabled;
-    int verbose_level; // 0 for cutback, 1 for normal, 2 for verbose
-    bool list_tests;
-    bool summary_enabled;
-    bool color_enabled;
-    bool sanity_enabled;
 } fossil_options_t;
 
-// Test status enumeration
 typedef enum {
-    test_status_pass,
-    test_status_fail,
-    test_status_skip,
-    test_status_unexpected
+    TEST_STATUS_PASS,
+    TEST_STATUS_FAIL,
+    TEST_STATUS_SKIP
 } test_status_t;
 
-// Stack frame structure for stack traces
+// Stack frame structure for tracking function call details during failures
 typedef struct stack_frame {
     const char *func;
     const char *file;
@@ -67,120 +65,151 @@ typedef struct stack_frame {
 
 // Test case structure
 typedef struct test_case {
-    const char *name;
-    void (*test_func)(void);
-    void (*setup_func)(void);
-    void (*teardown_func)(void);
-    const char *tags;
-    test_status_t status;
-    const char *failure_message;
-    double execution_time;
-    stack_frame_t *stack_trace;
-    struct test_case *next;
-    struct test_case *prev;
+    const char *name;                    // Test case name
+    void (*test_func)(void);             // Pointer to test function
+    void (*setup_func)(void);            // Pointer to setup function (optional)
+    void (*teardown_func)(void);         // Pointer to teardown function (optional)
+    test_status_t status;                // Test status (pass, fail, skip)
+    const char *failure_message;         // Failure message (if any)
+    stack_frame_t *stack_trace;          // Stack trace for failures
+    double execution_time;               // Execution time of the test
+    struct test_case *next;              // Pointer to next test case in the list
 } test_case_t;
 
-// Double-ended priority queue structure for test cases
-typedef struct double_ended_priority_queue {
-    test_case_t *front;
-    test_case_t *back;
-} double_ended_priority_queue_t;
-
-// Test suite structure with setup and teardown hooks
+// Test suite structure
 typedef struct test_suite {
-    const char *name;
-    double_ended_priority_queue_t *tests;
-    double total_execution_time;
-    void (*suite_setup_func)(void);
-    void (*suite_teardown_func)(void);
-    struct test_suite *next; // Pointer to next suite in the global list
+    const char *name;                    // Suite name
+    void (*suite_setup_func)(void);      // Suite setup function (optional)
+    void (*suite_teardown_func)(void);   // Suite teardown function (optional)
+    double total_execution_time;         // Total execution time of all test cases
+    test_case_t *tests;                  // List of test cases
+    struct test_suite *next;             // Pointer to next suite in the list
 } test_suite_t;
 
-// Global variables for test results
-extern int pass_count;
-extern int fail_count;
-extern int skip_count;
-extern int unexpected_count;
-extern jmp_buf env;
-extern fossil_options_t global_options;
-
-// List to store all test suites
-extern test_suite_t *global_test_suites;
+typedef struct fossil_test_env {
+    fossil_options_t options;
+    jmp_buf env;
+    int total_tests;
+    int pass_count;
+    int fail_count;
+    int skip_count;
+    int unexpected_count;
+    double total_execution_time;
+    test_suite_t *test_suites;
+} fossil_test_env_t;
 
 // *****************************************************************************
 // Function declarations
 // *****************************************************************************
 
 /**
- * Initialize the test framework.
- *
- * @param argc The number of command-line arguments.
- * @param argv The command-line arguments.
+ * @brief Creates a new test suite.
+ * 
+ * @param name The name of the test suite.
+ * @return A pointer to the created test suite.
  */
-void fossil_test_init(int argc, char **argv);
+test_suite_t* fossil_test_create_suite(const char *name);
 
 /**
- * Clean up the test framework.
+ * @brief Registers a test suite with the test environment.
+ * 
+ * @param env The test environment.
+ * @param suite The test suite to register.
  */
-void fossil_test_cleanup(void);
+void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite);
 
 /**
- * Print a summary of the test results.
+ * @brief Adds a test case to a test suite.
+ * 
+ * @param suite The test suite.
+ * @param test_case The test case to add.
  */
-void fossil_test_summary(void);
+void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case);
 
 /**
- * Add a test case to the double-ended priority queue.
- *
- * @param queue The double-ended priority queue.
- * @param test The test case to add.
+ * @brief Removes a test case from a test suite.
+ * 
+ * @param suite The test suite.
+ * @param test_case The test case to remove.
  */
-void fossil_test_add_case(double_ended_priority_queue_t *queue, test_case_t *test);
+void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case);
 
 /**
- * Remove the front test case from the double-ended priority queue.
- *
- * @param queue The double-ended priority queue.
+ * @brief Sets up a test case.
+ * 
+ * @param test_case The test case to set up.
  */
-void fossil_test_remove_front(double_ended_priority_queue_t *queue);
+void fossil_test_case_setup(test_case_t *test_case);
 
 /**
- * Remove the back test case from the double-ended priority queue.
- *
- * @param queue The double-ended priority queue.
+ * @brief Tears down a test case.
+ * 
+ * @param test_case The test case to tear down.
  */
-void fossil_test_remove_back(double_ended_priority_queue_t *queue);
+void fossil_test_case_teardown(test_case_t *test_case);
 
 /**
- * Run all test cases in a test suite.
- *
+ * @brief Runs a test case.
+ * 
+ * @param test_case The test case to run.
+ * @param env The test environment.
+ */
+void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env);
+
+/**
+ * @brief Runs all test cases in a test suite.
+ * 
  * @param suite The test suite to run.
+ * @param env The test environment.
  */
-void fossil_test_run_suite(test_suite_t *suite);
+void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env);
 
 /**
- * Assert a condition in a test case.
- *
+ * @brief Asserts a condition and prints a message if the assertion fails.
+ * 
  * @param condition The condition to assert.
- * @param message The failure message if the condition is false.
+ * @param message The message to print if the assertion fails.
  * @param file The file where the assertion failed.
  * @param line The line number where the assertion failed.
  * @param func The function where the assertion failed.
  */
-void fossil_test_assume(bool condition, const char *message, const char *file, int line, const char *func);
+void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
 /**
- * Register a test suite with the test framework.
- *
- * @param suite The test suite to register.
+ * @brief Initializes the test environment.
+ * 
+ * @param env The test environment to initialize.
  */
-void fossil_test_register_suite(test_suite_t *suite);
+void fossil_test_init(fossil_test_env_t *env, int argc, char **argv);
+
+/**
+ * @brief Prints a summary of the test results.
+ * 
+ * @param env The test environment.
+ */
+void fossil_test_summary(fossil_test_env_t *env);
+
+/**
+ * @brief Runs all test suites and test cases in the test environment.
+ * 
+ * @param env The test environment.
+ */
+void fossil_test_run_all(fossil_test_env_t *env);
+
+/**
+ * @brief Prints the stack trace.
+ * 
+ * @param stack_trace The stack trace to print.
+ */
+void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 
 // *****************************************************************************
 // Macro definitions
 // *****************************************************************************
 
-#define _FOSSIL_TEST_ASSUME(condition, message) fossil_test_assume(condition, message, __FILE__, __LINE__, __func__)
+// Assertion macro to assume a condition is true
+#define _FOSSIL_TEST_ASSUME(condition, message) \
+    fossil_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
 // Macro for defining a test case
 #define _FOSSIL_TEST_CASE(test_name) \
@@ -190,16 +219,15 @@ void fossil_test_register_suite(test_suite_t *suite);
         .test_func = test_name##_test_func, \
         .setup_func = NULL, \
         .teardown_func = NULL, \
-        .tags = NULL, \
-        .status = test_status_pass, \
+        .status = TEST_STATUS_PASS, \
         .failure_message = NULL, \
         .execution_time = 0.0, \
         .stack_trace = NULL, \
-        .next = NULL, \
-        .prev = NULL \
+        .next = NULL \
     }; \
     void test_name##_test_func(void)
 
+// Macro for defining test data structures
 #define _FOSSIL_TEST_DATA(name) \
     typedef struct name
 
@@ -224,56 +252,61 @@ void fossil_test_register_suite(test_suite_t *suite);
         .next = NULL \
     }
 
+// Macro to register a suite with the test environment
 #define _FOSSIL_TEST_REGISTER(suite) \
-    fossil_test_register_suite(&suite)
+    fossil_test_register_suite(_env, &suite)
 
 // Macro to add a test case to a suite
 #define _FOSSIL_TEST_ADD(suite, test) \
-    fossil_test_add_case((suite).tests, &(test##_test_case));
+    fossil_test_add_case(&suite, &(test##_test_case))
 
+// Macro to define a test group, grouping tests under a common environment
 #define _FOSSIL_TEST_GROUP(name) \
-    void name##_test_group(void)
+    void name##_test_group(fossil_test_env_t *_env)
 
+// Macro to export a test group
 #define _FOSSIL_TEST_EXPORT(name) \
-    void name##_test_group(void)
+    void name##_test_group(fossil_test_env_t *_env)
 
+// Macro to import a test group into the environment
 #define _FOSSIL_TEST_IMPORT(name) \
-    name##_test_group()
+    name##_test_group(&_env)
 
-// main runner managment
+// Main runner management macros
 
+// Macro to initialize the test environment and handle command-line args
 #define _FOSSIL_TEST_START(argc, argv) \
-    fossil_test_init(argc, argv)
+    fossil_test_env_t _env; \
+    fossil_test_init(&_env, argc, argv)
 
+// Macro to run all tests in the environment
 #define _FOSSIL_TEST_RUN() \
-    { \
-        test_suite_t *suites = global_test_suites; \
-        while (suites != NULL) { \
-            fossil_test_run_suite(suites); \
-            suites = suites->next; \
-        } \
-    }
+    fossil_test_run_all(&_env)
 
+// Macro to output a summary of the test results
 #define _FOSSIL_TEST_SUMMARY() \
-    fossil_test_summary()
+    fossil_test_summary(&_env)
 
+// Macro to clean up after all tests and exit with appropriate status code
 #define _FOSSIL_TEST_END()  \
-    fossil_test_cleanup(); \
+    int fail_count = _env.fail_count; \
     return fail_count > 0 ? EXIT_FAILURE : EXIT_SUCCESS
+
+// Behavior-driven development macros for Given, When, Then structure
 
 #define _GIVEN(description) \
     if (1) { \
-        printf("Given %s\n", description); \
+        printf(COLOR_BDD "Given %s\n" COLOR_RESET, description); \
     }
 
 #define _WHEN(description) \
     if (1) { \
-        printf("When %s\n", description); \
+        printf(COLOR_BDD "When %s\n" COLOR_RESET, description); \
     }
 
 #define _THEN(description) \
     if (1) { \
-        printf("Then %s\n", description); \
+        printf(COLOR_BDD "Then %s\n" COLOR_RESET, description); \
     }
 
 #ifdef __cplusplus

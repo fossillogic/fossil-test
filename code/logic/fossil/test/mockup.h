@@ -158,4 +158,13 @@ void fossil_mock_print(MockCallList *list);
 }
 #endif
 
+#ifdef __cplusplus
+#include <iostream>
+#include <string>
+
+namespace fossil {
+
+}
+#endif
+
 #endif // FOSSIL_MOCK_FRAMEWORK_H

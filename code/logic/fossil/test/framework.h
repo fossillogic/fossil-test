@@ -177,6 +177,12 @@ extern "C" {
 #define FOSSIL_TEST_ASSUME(condition, message) \
     _FOSSIL_TEST_ASSUME(condition, message)
 
+/**
+ * Macro to assert a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and abort the execution of the test case or test suite.
+ */
 #define FOSSIL_TEST_ASSERT(condition, message) \
     _FOSSIL_TEST_ASSUME(condition, message)
 
