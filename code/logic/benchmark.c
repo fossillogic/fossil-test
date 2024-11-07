@@ -45,15 +45,6 @@ static LARGE_INTEGER start_time;
 #define _GNU_SOURCE
 #endif
 
-//
-// local types
-//
-static uint64_t start_time;
-
-#if defined(_WIN32)
-static double frequency; // Variable to store the frequency for Windows
-#endif
-
 void fossil_test_start_benchmark(void) {
 #if defined(_WIN32)
     QueryPerformanceFrequency(&frequency);
