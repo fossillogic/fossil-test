@@ -141,7 +141,18 @@ void fossil_test_init(int argc, char **argv) {
 
 // Cleanup after test execution
 void fossil_test_cleanup(void) {
-    // Cleanup for all test suites can be added here
+    while (global_test_suites != NULL) {
+        test_suite_t *current_suite = global_test_suites;
+        global_test_suites = global_test_suites->next;
+
+        // Free all test cases in the suite
+        while (current_suite->tests->front != NULL) {
+            fossil_test_remove_front(current_suite->tests);  // this already frees each test case
+        }
+
+        free(current_suite->tests);
+        free(current_suite);
+    }
 }
 
 void fossil_test_summary(void) {
@@ -176,6 +187,14 @@ void fossil_test_remove_front(double_ended_priority_queue_t *queue) {
         queue->back = NULL;
     } else {
         queue->front->prev = NULL;
+    }
+
+    // Free the stack_trace frames for the test case
+    stack_frame_t *frame = test_to_remove->stack_trace;
+    while (frame != NULL) {
+        stack_frame_t *next = frame->next;
+        free(frame);
+        frame = next;
     }
 
     free(test_to_remove);
@@ -281,11 +300,13 @@ void fossil_test_assume(bool condition, const char *message, const char *file, i
         current_test->failure_message = message;
 
         stack_frame_t *frame = malloc(sizeof(stack_frame_t));
-        frame->func = func;
-        frame->file = file;
-        frame->line = line;
-        frame->next = current_test->stack_trace;
-        current_test->stack_trace = frame;
+        if (frame) {  // Ensure allocation succeeded
+            frame->func = func;
+            frame->file = file;
+            frame->line = line;
+            frame->next = current_test->stack_trace;
+            current_test->stack_trace = frame;
+        }
 
         longjmp(env, 1);
     }
