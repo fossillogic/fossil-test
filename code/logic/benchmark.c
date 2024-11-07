@@ -28,6 +28,7 @@ static LARGE_INTEGER frequency;
 static LARGE_INTEGER start_time;
 #elif defined(__APPLE__)
 #include <mach/mach_time.h>
+clock_t start_time;
 #else
 #include <sys/time.h>
 #include <time.h>
