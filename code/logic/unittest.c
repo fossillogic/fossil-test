@@ -14,16 +14,15 @@
  */
 #include "fossil/test/unittest.h"
 
-// Global variables for tracking test results
-int pass_count = 0;
-int fail_count = 0;
-int skip_count = 0;
-int unexpected_count = 0;
-fossil_options_t global_options;
-jmp_buf env;
+int pass_count;
+int fail_count;
+int skip_count;
+int unexpected_count;
 
-// Global list to store all test suites
-test_suite_t *global_test_suites = NULL;
+jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
+
+// Global variable to hold the current test case (set to the current test case).
+test_case_t *current_test;
 
 char *_custom_fossil_test_strdup(const char *str) {
     size_t len = strlen(str) + 1;
@@ -40,20 +39,10 @@ fossil_options_t init_options(void) {
     fossil_options_t options;
     options.show_version = false;
     options.show_help = false;
-    options.show_tip = false;
-    options.show_info = false;
-    options.show_author = false;
-    options.only_tags = false;
     options.reverse = false;
     options.repeat_enabled = false;
     options.repeat_count = 1;
     options.shuffle_enabled = false;
-    options.verbose_enabled = false;
-    options.verbose_level = 1;
-    options.list_tests = false;
-    options.summary_enabled = false;
-    options.color_enabled = false;
-    options.sanity_enabled = false;
     return options;
 }
 
@@ -66,18 +55,6 @@ fossil_options_t fossil_options_parse(int argc, char **argv) {
             options.show_version = true;
         } else if (strcmp(argv[i], "--help") == 0) {
             options.show_help = true;
-        } else if (strcmp(argv[i], "--tip") == 0) {
-            options.show_tip = true;
-        } else if (strcmp(argv[i], "--info") == 0) {
-            options.show_info = true;
-        } else if (strcmp(argv[i], "--author") == 0) {
-            options.show_author = true;
-        } else if (strcmp(argv[i], "only") == 0) {
-            options.only_tags = true;
-            if (i + 1 < argc && argv[i + 1][0] != '-') {
-                strcpy(options.only_tags_value, argv[i + 1]);
-                i++;
-            }
         } else if (strcmp(argv[i], "reverse") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.reverse = true;
@@ -96,228 +73,215 @@ fossil_options_t fossil_options_parse(int argc, char **argv) {
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.shuffle_enabled = false;
             }
-        } else if (strcmp(argv[i], "verbose") == 0) {
-            options.verbose_enabled = true;
-            if (i + 1 < argc && strcmp(argv[i + 1], "cutback") == 0) {
-                options.verbose_level = 0;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "verbose") == 0) {
-                options.verbose_level = 2;
-            }
-        } else if (strcmp(argv[i], "list") == 0) {
-            options.list_tests = true;
-        } else if (strcmp(argv[i], "summary") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                options.summary_enabled = true;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                options.summary_enabled = false;
-            }
-        } else if (strcmp(argv[i], "color") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                options.color_enabled = true;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                options.color_enabled = false;
-            }
-        } else if (strcmp(argv[i], "sanity") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                options.sanity_enabled = true;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                options.sanity_enabled = false;
-            }
         }
     }
     
     return options;
 }
 
-// Initialize the test framework
-void fossil_test_init(int argc, char **argv) {
-    fossil_options_parse(argc, argv);
-
-    pass_count = 0;
-    fail_count = 0;
-    skip_count = 0;
-    unexpected_count = 0;
+// Creates and returns a new test suite
+test_suite_t* fossil_test_create_suite(const char *name) {
+    test_suite_t *suite = (test_suite_t*)malloc(sizeof(test_suite_t));
+    suite->name = name;
+    suite->suite_setup_func = NULL;
+    suite->suite_teardown_func = NULL;
+    suite->tests = NULL;
+    suite->next = NULL;
+    return suite;
 }
 
-// Cleanup after test execution
-void fossil_test_cleanup(void) {
-    while (global_test_suites != NULL) {
-        test_suite_t *current_suite = global_test_suites;
-        global_test_suites = global_test_suites->next;
+// Registers a test suite in the environment
+void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite) {
+    if (!suite) return;
+    suite->next = env->test_suites;
+    env->test_suites = suite;
+    printf(COLOR_INFO "Registered test suite: %s\n" COLOR_RESET, suite->name);
+}
 
-        // Free all test cases in the suite
-        while (current_suite->tests->front != NULL) {
-            fossil_test_remove_front(current_suite->tests);  // this already frees each test case
+// Adds a test case to a suite
+void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case) {
+    if (!suite || !test_case) return;
+
+    test_case->next = suite->tests;
+    suite->tests = test_case;
+}
+
+// Removes and frees a test case from a suite
+void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case) {
+    if (!suite || !test_case) return;
+
+    test_case_t *prev = NULL;
+    test_case_t *curr = suite->tests;
+
+    while (curr) {
+        if (curr == test_case) {
+            if (prev) {
+                prev->next = curr->next;
+            } else {
+                suite->tests = curr->next;
+            }
+            free(curr);
+            return;
         }
-
-        free(current_suite->tests);
-        free(current_suite);
+        prev = curr;
+        curr = curr->next;
     }
 }
 
-void fossil_test_summary(void) {
-    printf("Test Summary:\n");
-    printf("  Passed: %d\n", pass_count);
-    printf("  Failed: %d\n", fail_count);
-    printf("  Skipped: %d\n", skip_count);
-    printf("  Unexpected: %d\n", unexpected_count);
+// Setup for individual test case
+void fossil_test_case_setup(test_case_t *test_case) {
+    if (test_case && test_case->setup_func) {
+        test_case->setup_func();
+    }
 }
 
-// Add a test case to the double-ended priority queue
-void fossil_test_add_case(double_ended_priority_queue_t *queue, test_case_t *test) {
-    if (queue->back == NULL) {
-        queue->front = queue->back = test;
-        test->next = test->prev = NULL;
+// Teardown for individual test case
+void fossil_test_case_teardown(test_case_t *test_case) {
+    if (test_case && test_case->teardown_func) {
+        test_case->teardown_func();
+    }
+}
+
+// Run an individual test case
+void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
+    if (!test_case) return;
+
+    test_case->status = TEST_STATUS_PASS;
+
+    // Run setup
+    fossil_test_case_setup(test_case);
+
+    clock_t test_start_time = clock();
+    if (setjmp(env->env) == 0) {
+        test_case->test_func();
     } else {
-        queue->back->next = test;
-        test->prev = queue->back;
-        test->next = NULL;
-        queue->back = test;
+        test_case->status = TEST_STATUS_FAIL;
+        printf(COLOR_FAIL "FAIL: " COLOR_INFO " %s\n", test_case->name);
+        printf("Failure Message: %s\n" COLOR_RESET, test_case->failure_message);
+    }
+    test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
+
+    // Run teardown
+    fossil_test_case_teardown(test_case);
+
+    // Log result
+    if (test_case->status == TEST_STATUS_PASS) {
+        printf(COLOR_PASS "PASS: " COLOR_INFO " %s (%.3f seconds)\n" COLOR_RESET, test_case->name, test_case->execution_time);
+    } else if (test_case->status == TEST_STATUS_FAIL) {
+        env->fail_count++;
+    } else if (test_case->status == TEST_STATUS_SKIP) {
+        env->skip_count++;
     }
 }
 
-// Remove a test case from the front of the queue
-void fossil_test_remove_front(double_ended_priority_queue_t *queue) {
-    if (queue->front == NULL) return;
+// Run all test cases in a test suite
+void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
+    if (!suite) return;
 
-    test_case_t *test_to_remove = queue->front;
-    queue->front = queue->front->next;
-
-    if (queue->front == NULL) {
-        queue->back = NULL;
-    } else {
-        queue->front->prev = NULL;
-    }
-
-    // Free the stack_trace frames for the test case
-    stack_frame_t *frame = test_to_remove->stack_trace;
-    while (frame != NULL) {
-        stack_frame_t *next = frame->next;
-        free(frame);
-        frame = next;
-    }
-
-    free(test_to_remove);
-}
-
-// Remove a test case from the back of the queue
-void fossil_test_remove_back(double_ended_priority_queue_t *queue) {
-    if (queue->back == NULL) return;
-
-    test_case_t *test_to_remove = queue->back;
-    queue->back = queue->back->prev;
-
-    if (queue->back == NULL) {
-        queue->front = NULL;
-    } else {
-        queue->back->next = NULL;
-    }
-
-    free(test_to_remove);
-}
-
-// Run all tests in the test suite
-void fossil_test_run_suite(test_suite_t *suite) {
-    printf("Running tests in suite: %s\n", suite->name);
-    clock_t suite_start_time = clock();
-
+    printf(COLOR_INFO "Running suite: %s\n" COLOR_RESET, suite->name);
     if (suite->suite_setup_func) {
         suite->suite_setup_func();
     }
 
-    while (suite->tests->front != NULL) {
-        test_case_t *test = suite->tests->front;
-        test->status = test_status_pass;
-
-        if (test->setup_func) {
-            test->setup_func();
-        }
-
-        clock_t test_start_time = clock();
-
-        if (setjmp(env) == 0) {
-            test->test_func();
-        } else {
-            test->status = test_status_fail;
-            unexpected_count++;
-            printf("FAIL: %s - %s\n", test->name, test->failure_message);
-
-            printf("Stack Trace:\n");
-            stack_frame_t *current_frame = test->stack_trace;
-            while (current_frame != NULL) {
-                printf("  at %s (%s:%d)\n", current_frame->func, current_frame->file, current_frame->line);
-                current_frame = current_frame->next;
-            }
-        }
-
-        test->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
-
-        if (test->teardown_func) {
-            test->teardown_func();
-        }
-
-        if (test->status == test_status_pass) {
-            printf("PASS: %s (%.3f seconds)\n", test->name, test->execution_time);
-            pass_count++;
-        } else if (test->status == test_status_fail) {
-            fail_count++;
-        } else if (test->status == test_status_skip) {
-            printf("SKIP: %s\n", test->name);
-            skip_count++;
-        }
-
-        stack_frame_t *frame_to_free;
-        while (test->stack_trace != NULL) {
-            frame_to_free = test->stack_trace;
-            test->stack_trace = test->stack_trace->next;
-            free(frame_to_free);
-        }
-
-        fossil_test_remove_front(suite->tests);
+    double total_execution_time = 0.0;
+    test_case_t *current_test = suite->tests;
+    while (current_test) {
+        fossil_test_run_case(current_test, env);
+        total_execution_time += current_test->execution_time;
+        current_test = current_test->next;
     }
 
     if (suite->suite_teardown_func) {
         suite->suite_teardown_func();
     }
 
-    suite->total_execution_time = (double)(clock() - suite_start_time) / CLOCKS_PER_SEC;
-    printf("Total time for suite %s: %.3f seconds\n", suite->name, suite->total_execution_time);
+    printf(COLOR_CYAN "Total execution time for suite %s: %.3f seconds\n" COLOR_RESET, suite->name, total_execution_time);
 }
 
-/**
- * Assert a condition in a test case.
- *
- * @param condition The condition to assert.
- * @param message The failure message if the condition is false.
- * @param file The file where the assertion failed.
- * @param line The line number where the assertion failed.
- * @param func The function where the assertion failed.
- */
-void fossil_test_assume(bool condition, const char *message, const char *file, int line, const char *func) {
+// Internal function to handle assertions
+void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
     if (!condition) {
-        test_case_t *current_test = global_test_suites->tests->back;
-        current_test->status = test_status_fail;
-        current_test->failure_message = message;
-
-        stack_frame_t *frame = malloc(sizeof(stack_frame_t));
-        if (frame) {  // Ensure allocation succeeded
-            frame->func = func;
-            frame->file = file;
-            frame->line = line;
-            frame->next = current_test->stack_trace;
-            current_test->stack_trace = frame;
-        }
-
-        longjmp(env, 1);
+        printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+        longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
     }
 }
 
-void fossil_test_register_suite(test_suite_t *suite) {
-    if (!suite) return; // Ensure the suite is not NULL
+void fossil_test_run_all(fossil_test_env_t *env) {
+    test_suite_t *current_suite = env->test_suites;
 
-    // Link the new suite at the front of the global list
-    suite->next = global_test_suites;
-    global_test_suites = suite;
+    while (current_suite) {
+        fossil_test_run_suite(current_suite, env);
+        current_suite = current_suite->next;
+    }
+}
 
-    printf("Registered test suite: %s\n", suite->name);
+void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
+    env->options = fossil_options_parse(argc, argv);
+    env->pass_count = 0;
+    env->fail_count = 0;
+    env->skip_count = 0;
+    env->total_tests = 0;
+    env->total_execution_time = 0.0;
+    env->unexpected_count = 0;
+    env->test_suites = NULL;
+}
+
+// Summary function for test results
+void fossil_test_summary(fossil_test_env_t *env) {
+    int total_tests = 0;
+    int passed = 0;
+    int failed = 0;
+    int skipped = 0;
+    double total_time = 0.0;
+
+    test_suite_t *suite = env->test_suites;
+    while (suite != NULL) {
+        test_case_t *test = suite->tests;
+        while (test != NULL) {
+            total_tests++;
+            total_time += test->execution_time;
+
+            if (test->status == TEST_STATUS_PASS) {
+                passed++;
+            } else if (test->status == TEST_STATUS_FAIL) {
+                failed++;
+                if (test->failure_message) {
+                    printf("Test '%s' failed: %s\n", test->name, test->failure_message);
+                }
+            } else if (test->status == TEST_STATUS_SKIP) {
+                skipped++;
+            }
+
+            test = test->next;
+        }
+        suite = suite->next;
+    }
+
+    printf(COLOR_INFO "====================================" COLOR_RESET);
+    printf(COLOR_INFO "\nFossil Test Summary:\n" COLOR_RESET);
+    printf(COLOR_INFO "====================================\n" COLOR_RESET);
+
+    printf(COLOR_PASS "Passed: %d\n" COLOR_RESET, passed);
+    printf(COLOR_FAIL "Failed: %d\n" COLOR_RESET, failed);
+    printf(COLOR_SKIP "Skipped: %d\n" COLOR_RESET, skipped);
+    printf(COLOR_INFO "Total: %d tests\n" COLOR_RESET, passed + failed + skipped);
+
+    // Optionally, you could add the total execution time summary here
+    printf(COLOR_INFO "\n====================================\n" COLOR_RESET);
+    printf(COLOR_INFO "Total execution time: %.3f seconds\n" COLOR_RESET, env->total_execution_time);
+    printf(COLOR_INFO "====================================\n" COLOR_RESET);
+    
+    if (failed > 0) {
+        printf("Some tests failed.\n");
+    } else {
+        printf("All tests passed.\n");
+    }
+}
+
+void fossil_test_print_stack_trace(stack_frame_t *stack_trace) {
+    stack_frame_t *current_frame = stack_trace;
+    while (current_frame) {
+        printf("  at %s (%s:%d)\n", current_frame->func, current_frame->file, current_frame->line);
+        current_frame = current_frame->next;
+    }
 }
