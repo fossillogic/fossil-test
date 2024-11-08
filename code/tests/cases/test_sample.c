@@ -52,9 +52,29 @@ FOSSIL_TEST_CASE(test_input_decrement) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Decrement test failed");
 }
 
-FOSSIL_TEST_GROUP(sample_test_group) {
+// A simple test case to check if input * 2 equals expected_output
+FOSSIL_TEST_CASE(test_input_double) {
+    SampleTestData data = { .input = 5, .expected_output = 10 };
+    
+    int actual_output = data.input * 2;
+    
+    FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Double test failed");
+}
+
+// A simple test case to check if input / 2 equals expected_output
+FOSSIL_TEST_CASE(test_input_half) {
+    SampleTestData data = { .input = 10, .expected_output = 5 };
+    
+    int actual_output = data.input / 2;
+    
+    FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Half test failed");
+}
+
+FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
+    FOSSIL_TEST_ADD(sample_suite, test_input_double);
+    FOSSIL_TEST_ADD(sample_suite, test_input_half);
 
     FOSSIL_TEST_REGISTER(sample_suite);
 }
