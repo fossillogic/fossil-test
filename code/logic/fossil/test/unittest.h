@@ -219,9 +219,9 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Macro for defining a test case
 #ifdef __cplusplus
 #define _FOSSIL_TEST_CASE(test_name) \
-    extern "C" void test_name##_test_func(void); \
+    void test_name##_test_func(void); \
     test_case_t test_name##_test_case = { \
-        .name = #test_name, \
+        .name = (char *)#test_name, \
         .test_func = test_name##_test_func, \
         .setup_func = nullptr, \
         .teardown_func = nullptr, \
@@ -231,7 +231,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         .execution_time = 0.0, \
         .next = nullptr \
     }; \
-    extern "C" void test_name##_test_func(void)
+    void test_name##_test_func(void)
 #else
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
@@ -252,10 +252,10 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Macro to create a test suite with setup and teardown hooks
 #ifdef __cplusplus
 #define _FOSSIL_TEST_SUITE(suite_name) \
-    extern "C" void suite_name##_setup_func(void); \
-    extern "C" void suite_name##_teardown_func(void); \
+    void suite_name##_setup_func(void); \
+    void suite_name##_teardown_func(void); \
     test_suite_t suite_name = { \
-        .name = #suite_name, \
+        .name = (char *)#suite_name, \
         .suite_setup_func = suite_name##_setup_func, \
         .suite_teardown_func = suite_name##_teardown_func, \
         .total_execution_time = 0.0, \
@@ -276,15 +276,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     }
 #endif
 
-#ifdef __cplusplus
-// Macro for setting up a test case
-#define _FOSSIL_TEST_SETUP(name) \
-    extern "C" void name##_setup_func(void)
-
-// Macro for tearing down a test case
-#define _FOSSIL_TEST_TEARDOWN(name) \
-    extern "C" void name##_teardown_func(void)
-#else
 // Macro for setting up a test case
 #define _FOSSIL_TEST_SETUP(name) \
     void name##_setup_func(void)
@@ -292,7 +283,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Macro for tearing down a test case
 #define _FOSSIL_TEST_TEARDOWN(name) \
     void name##_teardown_func(void)
-#endif
 
 // Macro to register a suite with the test environment
 #define _FOSSIL_TEST_REGISTER(suite) \
