@@ -26,7 +26,7 @@ class TestRunnerGenerator:
 """
 
         header += """
-#include <fossil/unittest/framework.h>
+#include <fossil/test/framework.h>
 """
 
         header += """
@@ -47,7 +47,7 @@ class TestRunnerGenerator:
 
         runner += """
 int main(int argc, char **argv) {
-    FOSSIL_TEST_CREATE(argc, argv);\n"""
+    FOSSIL_TEST_START(argc, argv);\n"""
 
         import_pools = "\n".join(
             [f"    FOSSIL_TEST_IMPORT({group});" for group in test_groups]
@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
 
         footer = """
     FOSSIL_TEST_RUN();
-    return FOSSIL_TEST_ERASE();
+    FOSSIL_TEST_SUMMARY();
+    FOSSIL_TEST_END();
 } // end of func
 """
 

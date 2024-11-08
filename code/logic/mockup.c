@@ -14,11 +14,13 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/mockup/mockup.h"
+#include "fossil/test/mockup.h"
+
+extern char *_custom_fossil_test_strdup(const char *str);
 
 void fossil_mock_init(MockCallList *list) {
-    list->head = xnullptr;
-    list->tail = xnullptr;
+    list->head = NULL;
+    list->tail = NULL;
     list->size = 0;
 }
 
@@ -44,7 +46,7 @@ void fossil_mock_add_call(MockCallList *list, const char *function_name, char **
         call->arguments[i] = _custom_fossil_test_strdup(arguments[i]);
     }
     call->num_args = num_args;
-    call->next = xnullptr;
+    call->next = NULL;
 
     if (list->tail) {
         list->tail->next = call;

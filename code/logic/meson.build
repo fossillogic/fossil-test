@@ -1,5 +1,12 @@
 dir = include_directories('.')
 
-subdir('unittest')
-subdir('mockup')
-subdir('benchmark')
+test_code = ['mockup.c', 'unittest.c', 'benchmark.c']
+
+fossil_test_lib = library('fossil-test',
+    test_code,
+    install: true,
+    include_directories: dir)
+
+fossil_test_dep = declare_dependency(
+    link_with: fossil_test_lib,
+    include_directories: dir)

@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "fossil/_common/common.h"
 
 /**
  * @brief Macro for initializing the mock list.
@@ -156,6 +155,15 @@ void fossil_mock_add_call(MockCallList *list, const char *function_name, char **
 void fossil_mock_print(MockCallList *list);
 
 #ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+#include <iostream>
+#include <string>
+
+namespace fossil {
+
 }
 #endif
 
