@@ -16,10 +16,10 @@
 #include "fossil/test/framework.h"
 
 // Test data structure for a sample test
-FOSSIL_TEST_DATA(SampleTestData) {
+FOSSIL_TEST_DATA(CSampleTestData) {
     int input;
     int expected_output;
-} SampleTestData;
+} CSampleTestData;
 
 // Setup function for the test suite
 FOSSIL_SETUP(sample_suite) {
@@ -36,7 +36,7 @@ FOSSIL_TEST_SUITE(sample_suite);
 
 // A simple test case to check if input + 1 equals expected_output
 FOSSIL_TEST_CASE(test_input_increment) {
-    SampleTestData data = { .input = 5, .expected_output = 6 };
+    CSampleTestData data = { .input = 5, .expected_output = 6 };
     
     int actual_output = data.input + 1;
     
@@ -45,7 +45,7 @@ FOSSIL_TEST_CASE(test_input_increment) {
 
 // A simple test case to check if input - 1 equals expected_output
 FOSSIL_TEST_CASE(test_input_decrement) {
-    SampleTestData data = { .input = 5, .expected_output = 4 };
+    CSampleTestData data = { .input = 5, .expected_output = 4 };
     
     int actual_output = data.input - 1;
     
@@ -54,7 +54,7 @@ FOSSIL_TEST_CASE(test_input_decrement) {
 
 // A simple test case to check if input * 2 equals expected_output
 FOSSIL_TEST_CASE(test_input_double) {
-    SampleTestData data = { .input = 5, .expected_output = 10 };
+    CSampleTestData data = { .input = 5, .expected_output = 10 };
     
     int actual_output = data.input * 2;
     
@@ -63,7 +63,7 @@ FOSSIL_TEST_CASE(test_input_double) {
 
 // A simple test case to check if input / 2 equals expected_output
 FOSSIL_TEST_CASE(test_input_half) {
-    SampleTestData data = { .input = 10, .expected_output = 5 };
+    CSampleTestData data = { .input = 10, .expected_output = 5 };
     
     int actual_output = data.input / 2;
     
