@@ -216,6 +216,75 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #define _FOSSIL_TEST_DATA(name) \
     typedef struct name
 
+// Macro for defining a test case
+#ifdef __cplusplus
+#define _FOSSIL_TEST_CASE(test_name) \
+    extern "C" void test_name##_test_func(void); \
+    test_case_t test_name##_test_case = { \
+        .name = #test_name, \
+        .test_func = test_name##_test_func, \
+        .setup_func = NULL, \
+        .teardown_func = NULL, \
+        .status = TEST_STATUS_PASS, \
+        .failure_message = NULL, \
+        .stack_trace = NULL, \
+        .execution_time = 0.0, \
+        .next = NULL \
+    }; \
+    extern "C" void test_name##_test_func(void)
+#else
+#define _FOSSIL_TEST_CASE(test_name) \
+    void test_name##_test_func(void); \
+    test_case_t test_name##_test_case = { \
+        .name = #test_name, \
+        .test_func = test_name##_test_func, \
+        .setup_func = NULL, \
+        .teardown_func = NULL, \
+        .status = TEST_STATUS_PASS, \
+        .failure_message = NULL, \
+        .stack_trace = NULL, \
+        .execution_time = 0.0, \
+        .next = NULL \
+    }; \
+    void test_name##_test_func(void)
+#endif
+
+// Macro to create a test suite with setup and teardown hooks
+#ifdef __cplusplus
+#define _FOSSIL_TEST_SUITE(suite_name) \
+    extern "C" void suite_name##_setup_func(void); \
+    extern "C" void suite_name##_teardown_func(void); \
+    test_suite_t suite_name = { \
+        .name = #suite_name, \
+        .suite_setup_func = suite_name##_setup_func, \
+        .suite_teardown_func = suite_name##_teardown_func, \
+        .total_execution_time = 0.0, \
+        .tests = NULL, \
+        .next = NULL \
+    }
+#else
+#define _FOSSIL_TEST_SUITE(suite_name) \
+    void suite_name##_setup_func(void); \
+    void suite_name##_teardown_func(void); \
+    test_suite_t suite_name = { \
+        .name = #suite_name, \
+        .suite_setup_func = suite_name##_setup_func, \
+        .suite_teardown_func = suite_name##_teardown_func, \
+        .total_execution_time = 0.0, \
+        .tests = NULL, \
+        .next = NULL \
+    }
+#endif
+
+#ifdef __cplusplus
+// Macro for setting up a test case
+#define _FOSSIL_TEST_SETUP(name) \
+    extern "C" void name##_setup_func(void)
+
+// Macro for tearing down a test case
+#define _FOSSIL_TEST_TEARDOWN(name) \
+    extern "C" void name##_teardown_func(void)
+#else
 // Macro for setting up a test case
 #define _FOSSIL_TEST_SETUP(name) \
     void name##_setup_func(void)
@@ -223,6 +292,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Macro for tearing down a test case
 #define _FOSSIL_TEST_TEARDOWN(name) \
     void name##_teardown_func(void)
+#endif
 
 // Macro to register a suite with the test environment
 #define _FOSSIL_TEST_REGISTER(suite) \
@@ -286,67 +356,9 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-// Macro for defining a test case
-#define _FOSSIL_TEST_CASE(test_name) \
-    void test_name##_test_func(void); \
-    test_case_t test_name##_test_case = { \
-        .name = #test_name, \
-        .test_func = test_name##_test_func, \
-        .setup_func = nullptr, \
-        .teardown_func = nullptr, \
-        .status = TEST_STATUS_PASS, \
-        .failure_message = nullptr, \
-        .stack_trace = nullptr, \
-        .execution_time = 0.0, \
-        .next = nullptr \
-    }; \
-    void test_name##_test_func(void)
+namespace fossil {
 
-// Macro to create a test suite with setup and teardown hooks
-#define _FOSSIL_TEST_SUITE(suite_name) \
-    void suite_name##_setup_func(void); \
-    void suite_name##_teardown_func(void); \
-    test_suite_t suite_name = { \
-        .name = #suite_name, \
-        .suite_setup_func = suite_name##_setup_func, \
-        .suite_teardown_func = suite_name##_teardown_func, \
-        .total_execution_time = 0.0, \
-        .tests = nullptr, \
-        .next = nullptr \
-    }
-}
-#else
-
-// Macro for defining a test case
-#define _FOSSIL_TEST_CASE(test_name) \
-    void test_name##_test_func(void); \
-    test_case_t test_name##_test_case = { \
-        .name = #test_name, \
-        .test_func = test_name##_test_func, \
-        .setup_func = NULL, \
-        .teardown_func = NULL, \
-        .status = TEST_STATUS_PASS, \
-        .failure_message = NULL, \
-        .stack_trace = NULL, \
-        .execution_time = 0.0, \
-        .next = NULL \
-    }; \
-    void test_name##_test_func(void)
-
-// Macro to create a test suite with setup and teardown hooks
-#define _FOSSIL_TEST_SUITE(suite_name) \
-    void suite_name##_setup_func(void); \
-    void suite_name##_teardown_func(void); \
-    test_suite_t suite_name = { \
-        .name = #suite_name, \
-        .suite_setup_func = suite_name##_setup_func, \
-        .suite_teardown_func = suite_name##_teardown_func, \
-        .total_execution_time = 0.0, \
-        .tests = NULL, \
-        .next = NULL \
-    }
-
+} // namespace fossil
 #endif
 
 #endif
