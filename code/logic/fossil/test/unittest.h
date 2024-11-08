@@ -286,6 +286,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #endif
 
 #ifdef __cplusplus
+extern "C" {
 // Macro for defining a test case
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
@@ -314,7 +315,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         .tests = nullptr, \
         .next = nullptr \
     }
-
+}
 #else
 
 // Macro for defining a test case
