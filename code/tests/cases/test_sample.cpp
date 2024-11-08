@@ -19,7 +19,7 @@
 FOSSIL_TEST_DATA(CppSampleTestData) {
     int input;
     int expected_output;
-} CppSampleTestData;
+}CppSampleTestData;
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_sample_suite) {
@@ -36,7 +36,7 @@ FOSSIL_TEST_SUITE(cpp_sample_suite);
 
 // A simple test case to check if input + 1 equals expected_output
 FOSSIL_TEST_CASE(cpp_test_input_increment) {
-    CppSampleTestData data = { .input = 5, .expected_output = 6 };
+    CppSampleTestData data = {5, 6};  // Simplified initialization
     
     int actual_output = data.input + 1;
     
@@ -45,7 +45,7 @@ FOSSIL_TEST_CASE(cpp_test_input_increment) {
 
 // A simple test case to check if input - 1 equals expected_output
 FOSSIL_TEST_CASE(cpp_test_input_decrement) {
-    CppSampleTestData data = { .input = 5, .expected_output = 4 };
+    CppSampleTestData data = {5, 4};  // Simplified initialization
     
     int actual_output = data.input - 1;
     
@@ -54,7 +54,7 @@ FOSSIL_TEST_CASE(cpp_test_input_decrement) {
 
 // A simple test case to check if input * 2 equals expected_output
 FOSSIL_TEST_CASE(cpp_test_input_double) {
-    CppSampleTestData data = { .input = 5, .expected_output = 10 };
+    CppSampleTestData data = {5, 10};  // Simplified initialization
     
     int actual_output = data.input * 2;
     
@@ -63,7 +63,7 @@ FOSSIL_TEST_CASE(cpp_test_input_double) {
 
 // A simple test case to check if input / 2 equals expected_output
 FOSSIL_TEST_CASE(cpp_test_input_half) {
-    CppSampleTestData data = { .input = 10, .expected_output = 5 };
+    CppSampleTestData data = {10, 5};  // Simplified initialization
     
     int actual_output = data.input / 2;
     
