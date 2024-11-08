@@ -7,7 +7,7 @@ if get_option('with_test').enabled()
     ]
 
     foreach cube : test_cubes
-        test_src += ['test_' + cube + '.c', 'test_' + cube + '.cpp']
+        test_src += ['cases' / 'test_' + cube + '.c', 'cases' / 'test_' + cube + '.cpp']
     endforeach
 
     pizza = executable('testbed', test_src, include_directories: dir, dependencies: [fossil_test_dep])
