@@ -1,13 +1,14 @@
-# ***Fossil Test: Unit Testing/Mocking Framework*** - `C, C++`
+# ***Fossil Test by Fossil Logic***
 
-**Overview:**
-Fossil Test is a robust unit testing and mocking framework developed by Fossil Logic. It is designed to facilitate the creation of high-quality test cases for C and C++ projects, promoting software reliability and correctness. The framework supports various development methodologies, including Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), offering flexibility for diverse development workflows.
+**Fossil Test** is a comprehensive unit testing, mocking, and benchmarking suite created by Fossil Logic, designed to ensure the reliability and performance of C and C++ projects. With support for multiple development methodologies, including Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), Fossil Test provides a versatile foundation for crafting high-quality test cases across various workflows.
 
-In addition to Fossil Test, Fossil Logic also offers two additional frameworks to enhance your development experience:
-- **Fossil Mark**: A powerful benchmarking tool that allows developers to measure code performance, identify bottlenecks, and optimize execution time. It offers detailed timing information and reporting.
-- **Fossil Mock**: A mocking library enabling developers to simulate the behavior of complex dependencies. By using mock objects, you can write focused unit tests that test isolated components, enhancing test reliability and coverage.
+The Fossil suite consists of three complementary frameworks to streamline the development and testing process:
 
-Together, Fossil Test, Fossil Mark, and Fossil Mock provide a comprehensive toolkit for developing, testing, and optimizing high-quality software.
+- **Fossil Test**: The core unit testing framework that enables developers to create, manage, and execute unit tests effectively, ensuring each component functions as expected.
+- **Fossil Mock**: A dedicated mocking library that simulates complex dependencies. Using mock objects, developers can isolate and thoroughly test individual components, improving the precision and reliability of test coverage.
+- **Fossil Mark**: A benchmarking tool that provides detailed performance insights by measuring execution time, identifying bottlenecks, and offering in-depth reporting to optimize code efficiency.
+
+Together, **Fossil Test**, **Fossil Mock**, and **Fossil Mark** offer a powerful, integrated toolkit for developing, testing, and optimizing robust software, making them an essential asset for developers committed to quality and performance.
 
 ---
 
@@ -18,12 +19,8 @@ Together, Fossil Test, Fossil Mark, and Fossil Mock provide a comprehensive tool
 | **BDD, DDD, and TDD Support** | Supports Behavior-Driven, Domain-Driven, and Test-Driven Development styles, catering to various project methodologies.                                        |
 | **Comprehensive Unit Testing** | A full suite of tools for creating, managing, and executing unit tests, ensuring that individual units of code behave as expected.                             |
 | **Mocking Capabilities** | Powerful mocking features allow developers to simulate complex dependencies, ensuring focused and reliable unit tests.                                         |
-| **Test Case Management** | Organize and manage test cases with features for categorization, prioritization, and tagging, improving test suite maintainability.                             |
-| **Detailed Reporting**   | Generates comprehensive reports on test execution, including information on passed, failed, skipped, and timed-out tests, aiding quick issue resolution.      |
 | **Performance Tracking** | Measures and reports the performance of each test case, helping developers optimize test execution time and performance.                                         |
-| **Assertion Detection**  | Ensures that assertions are properly used in code, enforcing critical conditions and identifying potential areas lacking validation.                             |
 | **Command-Line Interface (CLI)** | A powerful CLI for running tests, generating reports, and managing the test suite, supporting automation and integration workflows.                        |
-| **Extensible and Configurable** | Highly extensible, allowing developers to customize the framework to their needs, from reporting formats to tool integration.                              |
 
 ---
 
@@ -59,8 +56,6 @@ To integrate Fossil Test into your project, follow these steps:
 
    [provide]
    fossil-test = fossil_test_dep
-   fossil-mock = fossil_mock_dep
-   fossil-mark = fossil_mark_dep
    ```
 
 3. **Integrate the Dependency**:
@@ -81,31 +76,18 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 | Command                         | Description                                                                                   |
 |----------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`                      | Displays the current version of the Fossil Test CLI.                                            |
+| `--version`                      | Displays the current version of Fossil Test.                                            |
 | `--help`                         | Shows help message with usage instructions.                                                   |
-| `--tip`                          | Displays a tip or hint related to the CLI usage.                                               |
-| `--info`                         | Displays detailed information about the test runner configuration.                             |
-| `--author`                       | Shows information about the author of the test runner.                                         |
-| `only=<tag>` or `only=<tags>`    | Runs only tests tagged with the specified tag(s). Tags can be comma-separated for multiple tags. |
+| `--info`                         | Displays detailed information about the test run.                             |
 | `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                           |
 | `repeat=<number>`                | Repeats the test suite a specified number of times.                                            |
 | `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                         |
-| `verbose [cutback/normal/verbose]` | Sets verbosity level of the output. Options are `cutback`, `normal`, and `verbose`.         |
-| `list`                           | Lists all available tests.                                                                    |
-| `summary [enable/disable]`       | Enables or disables a summary of test results after execution.                                |
-| `color [enable/disable]`         | Enables or disables colored output in the terminal.                                           |
-| `sanity [enable/disable]`        | Enables or disables sanity checks before running tests.                                        |
 
 ### Example Usage
 
 - Display the version:
   ```sh
   fossil_cli --version
-  ```
-
-- Run tests tagged with `unit` and `integration`:
-  ```sh
-  fossil_cli only=unit,integration
   ```
 
 - Enable reverse order of test execution:
@@ -116,16 +98,6 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 - Repeat the test suite 5 times:
   ```sh
   fossil_cli repeat=5
-  ```
-
-- Show a summary after execution:
-  ```sh
-  fossil_cli summary enable
-  ```
-
-- Enable colored output:
-  ```sh
-  fossil_cli color enable
   ```
 
 ---

@@ -127,13 +127,13 @@ fossil_options_t init_options(void) {
 void usage_info(void) {
     printf("Usage: fossil [options] [command]\n");
     printf("Options:\n");
-    printf("  --version\t\tShow version information\n");
-    printf("  --help\t\tShow help information\n");
-    printf("  --info\t\tShow additional information\n");
+    printf("  --version\t\tDisplays the current version of Fossil Test\n");
+    printf("  --help\t\tShows help message with usage\n");
+    printf("  --info\t\tDisplays detailed information about the test run.\n");
     printf("Commands:\n");
-    printf("  reverse [enable|disable]\tEnable or disable reverse order of test cases\n");
-    printf("  repeat [count]\t\tEnable repeat mode with optional count\n");
-    printf("  shuffle [enable|disable]\tEnable or disable shuffle mode\n");
+    printf("  reverse [enable|disable]\tEnables or disables reverse order of test execution\n");
+    printf("  repeat [count]\t\tRepeats the test suite a specified number of times\n");
+    printf("  shuffle [enable|disable]\tEnables or disables shuffling of test execution order\n");
 }
 
 void version_info(void) {
@@ -493,7 +493,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     // Optionally, you could add the total execution time summary here
     printf(COLOR_INFO "====================================\n" COLOR_RESET);
-    printf(COLOR_INFO "Total execution time: %.3f seconds\n" COLOR_RESET, total_time / CLOCKS_PER_SEC);
+    printf(COLOR_INFO "Total execution time: %.3f seconds\n" COLOR_RESET, (env->total_execution_time - total_time) / CLOCKS_PER_SEC);
     printf(COLOR_INFO "====================================\n" COLOR_RESET);
 
     fossil_test_message(env);
