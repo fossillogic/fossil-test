@@ -16,10 +16,10 @@
 #include "fossil/test/framework.h"
 
 // Test data structure for a sample test
-FOSSIL_TEST_DATA(CppSampleTestData) {
+struct CppSampleTestData {
     int input;
     int expected_output;
-}CppSampleTestData;
+};
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_sample_suite) {
