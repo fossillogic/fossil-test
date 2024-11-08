@@ -222,8 +222,8 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         .teardown_func = NULL, \
         .status = TEST_STATUS_PASS, \
         .failure_message = NULL, \
-        .execution_time = 0.0, \
         .stack_trace = NULL, \
+        .execution_time = 0.0, \
         .next = NULL \
     }; \
     void test_name##_test_func(void)
@@ -246,10 +246,10 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     void suite_name##_teardown_func(void); \
     test_suite_t suite_name = { \
         .name = #suite_name, \
-        .tests = NULL, \
-        .total_execution_time = 0.0, \
         .suite_setup_func = suite_name##_setup_func, \
         .suite_teardown_func = suite_name##_teardown_func, \
+        .total_execution_time = 0.0, \
+        .tests = NULL, \
         .next = NULL \
     }
 
