@@ -221,15 +221,15 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
     test_case_t test_name##_test_case = { \
-        .name = (char *)#test_name, \
-        .test_func = test_name##_test_func, \
-        .setup_func = nullptr, \
-        .teardown_func = nullptr, \
-        .status = TEST_STATUS_PASS, \
-        .failure_message = nullptr, \
-        .stack_trace = nullptr, \
-        .execution_time = 0.0, \
-        .next = nullptr \
+        #test_name, \
+        test_name##_test_func, \
+        nullptr, \
+        nullptr, \
+        TEST_STATUS_PASS, \
+        nullptr, \
+        nullptr, \
+        0.0, \
+        nullptr \
     }; \
     void test_name##_test_func(void)
 #else
@@ -255,12 +255,12 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     void suite_name##_setup_func(void); \
     void suite_name##_teardown_func(void); \
     test_suite_t suite_name = { \
-        .name = (char *)#suite_name, \
-        .suite_setup_func = suite_name##_setup_func, \
-        .suite_teardown_func = suite_name##_teardown_func, \
-        .total_execution_time = 0.0, \
-        .tests = nullptr, \
-        .next = nullptr \
+        #suite_name, \
+        suite_name##_setup_func, \
+        suite_name##_teardown_func, \
+        0.0, \
+        nullptr, \
+        nullptr \
     }
 #else
 #define _FOSSIL_TEST_SUITE(suite_name) \
