@@ -315,9 +315,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #endif
 
 #ifdef __cplusplus
-#include <iostream>
-#include <string>
-
 namespace fossil {
 
 }

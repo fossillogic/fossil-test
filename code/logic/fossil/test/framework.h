@@ -15,6 +15,10 @@
 #ifndef FOSSIL_TEST_FRAMEWORK_H
 #define FOSSIL_TEST_FRAMEWORK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "benchmark.h"
 #include "unittest.h"
 #include "mockup.h"
@@ -477,5 +481,9 @@
  * @param actual The actual duration of the test.
  */
 #define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
