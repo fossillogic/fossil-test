@@ -52,7 +52,7 @@ To integrate Fossil Test into your project, follow these steps:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.0.7
+   revision = v1.0.8
 
    [provide]
    fossil-test = fossil_test_dep
