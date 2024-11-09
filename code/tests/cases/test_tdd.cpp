@@ -735,9 +735,9 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_wchar) {
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_wstr) {
-    wchar_t *str1 = L"Hello";
-    wchar_t *str2 = L"Hello";
-    wchar_t *str3 = L"World";
+    const wchar_t *str1 = L"Hello";
+    const wchar_t *str2 = L"Hello";
+    const wchar_t *str3 = L"World";
 
     // Test cases
     ASSUME_ITS_EQUAL_WSTR(str1, str2);
