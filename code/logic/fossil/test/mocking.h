@@ -73,8 +73,13 @@
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
+#ifdef _WIN32
+#define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
+    __declspec(dllexport) return_type fossil_mockup_##name(__VA_ARGS__)
+#else
 #define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
     return_type fossil_mockup_##name(__VA_ARGS__)
+#endif
 
 /**
  * @def _FOSSIL_MOCK_ALIAS
