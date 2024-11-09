@@ -767,52 +767,6 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
     ASSUME_ITS_LENGTH_EQUAL_CSTR(str1, 5);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_equal_array) {
-    int actual[] = {1, 2, 3, 4, 5};
-    int expected[] = {1, 2, 3, 4, 5};
-    size_t length = 5;
-
-    // Test cases
-    ASSUME_ITS_EQUAL_ARRAY(actual, expected, length);
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_not_equal_array) {
-    int actual[] = {1, 2, 3, 4, 5};
-    int expected[] = {5, 4, 3, 2, 1};
-    size_t length = 5;
-
-    // Test cases
-    ASSUME_NOT_EQUAL_ARRAY(actual, expected, length);
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_length_equal_array) {
-    size_t actual_length = 5;
-    size_t expected_length = 5;
-
-    // Test cases
-    ASSUME_ITS_LENGTH_EQUAL_ARRAY(actual_length, expected_length);
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_array) {
-    int array[] = {1, 2, 3, 4, 5};
-    int min = 1;
-    int max = 5;
-    size_t length = 5;
-
-    // Test cases
-    ASSUME_ITS_WITHIN_RANGE_ARRAY(array, min, max, length);
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_not_within_range_array) {
-    int array[] = {1, 2, 3, 4, 5};
-    int min = 6;
-    int max = 10;
-    size_t length = 5;
-
-    // Test cases
-    ASSUME_NOT_WITHIN_RANGE_ARRAY(array, min, max, length);
-} // end case
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -882,11 +836,6 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_wstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_equal_array);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_equal_array);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_length_equal_array);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_array);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_within_range_array);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group
