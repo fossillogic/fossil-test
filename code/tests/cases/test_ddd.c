@@ -165,7 +165,7 @@ FOSSIL_TEST_CASE(c_ddd_value_object_equality) {
 FOSSIL_TEST_CASE(c_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
     fossil_mockup_AggregateRoot ar = fossil_mockup_create_aggregate_root(1);
-    add_child_entity(&ar, fossil_mockup_create_entity(2, "Child Entity"));
+    fossil_mockup_add_child_entity(&ar, fossil_mockup_create_entity(2, "Child Entity"));
 
     // Test cases
     FOSSIL_TEST_ASSUME(ar.child_count == 1, "Aggregate root should have one child entity");
@@ -176,7 +176,7 @@ FOSSIL_TEST_CASE(c_ddd_repository_usage) {
     // Example of repository usage
     fossil_mockup_Repository repo = fossil_mockup_create_repository();
     fossil_mockup_Entity entity = fossil_mockup_create_entity(1, "Repo Entity");
-    repository_add(&repo, entity);
+    fossil_mockup_repository_add(&repo, entity);
 
     // Test cases
     FOSSIL_TEST_ASSUME(fossil_mockup_repository_count(&repo) == 1, "Repository should contain one entity");
@@ -187,7 +187,7 @@ FOSSIL_TEST_CASE(c_ddd_service_layer) {
     // Example of service layer usage
     fossil_mockup_Service service = fossil_mockup_create_service();
     fossil_mockup_Entity entity = fossil_mockup_create_entity(1, "Service Entity");
-    service_process(&service, &entity);
+    fossil_mockup_service_process(&service, &entity);
 
     // Test cases
     FOSSIL_TEST_ASSUME(entity.processed == true, "Entity should be processed by the service");
