@@ -16,98 +16,99 @@
 #include <string.h>
 
 // Define the necessary types and functions for the test cases
-typedef struct {
+FOSSIL_MOCK_STRUCT(Entity,
     int id;
-    char name[50];
-    int processed;
-} Entity;
+    char *name;
+    int processed
+);
 
-typedef struct {
+FOSSIL_MOCK_STRUCT(ValueObject,
     int x;
-    int y;
-} ValueObject;
+    int y
+);
 
-typedef struct {
+FOSSIL_MOCK_STRUCT(AggregateRoot,
     int id;
     int child_count;
-    Entity children[10];
-} AggregateRoot;
+    fossil_mockup_Entity *children
+);
 
-typedef struct {
-    Entity entities[10];
-    int count;
-} Repository;
+FOSSIL_MOCK_STRUCT(Repository,
+    fossil_mockup_Entity *entities;
+    int count
+);
 
-typedef struct {
-    bool dummy;
-} Service;
+FOSSIL_MOCK_STRUCT(Service,
+    bool dummy
+);
 
-Entity create_entity(int id, const char *name) {
-    Entity entity;
+
+FOSSIL_MOCK_FUNC(fossil_mockup_Entity, create_entity, int id, const char *name) {
+    fossil_mockup_Entity entity;
     entity.id = id;
     strcpy(entity.name, name);
     entity.processed = 0;
     return entity;
 }
 
-ValueObject create_value_object(int x, int y) {
-    ValueObject vo;
+FOSSIL_MOCK_FUNC(fossil_mockup_ValueObject, create_value_object, int x, int y) {
+    fossil_mockup_ValueObject vo;
     vo.x = x;
     vo.y = y;
     return vo;
 }
 
-int value_object_equals(ValueObject vo1, ValueObject vo2) {
+FOSSIL_MOCK_FUNC(int, value_object_equals, fossil_mockup_ValueObject vo1, fossil_mockup_ValueObject vo2) {
     return (vo1.x == vo2.x && vo1.y == vo2.y);
 }
 
-AggregateRoot create_aggregate_root(int id) {
-    AggregateRoot ar;
+FOSSIL_MOCK_FUNC(fossil_mockup_AggregateRoot, create_aggregate_root, int id) {
+    fossil_mockup_AggregateRoot ar;
     ar.id = id;
     ar.child_count = 0;
     return ar;
 }
 
-void add_child_entity(AggregateRoot *ar, Entity entity) {
+FOSSIL_MOCK_FUNC(void, add_child_entity, fossil_mockup_AggregateRoot *ar, fossil_mockup_Entity entity) {
     if (ar->child_count < 10) {
         ar->children[ar->child_count++] = entity;
     }
 }
 
-Repository create_repository(void) {
-    Repository repo;
+FOSSIL_MOCK_FUNC(fossil_mockup_Repository, create_repository, void) {
+    fossil_mockup_Repository repo;
     repo.count = 0;
     return repo;
 }
 
-void repository_add(Repository *repo, Entity entity) {
+FOSSIL_MOCK_FUNC(void, repository_add, fossil_mockup_Repository *repo, fossil_mockup_Entity entity) {
     if (repo->count < 10) {
         repo->entities[repo->count++] = entity;
     }
 }
 
-int repository_count(Repository *repo) {
+FOSSIL_MOCK_FUNC(int, repository_count, fossil_mockup_Repository *repo) {
     return repo->count;
 }
 
-Entity repository_get(Repository *repo, int id) {
+FOSSIL_MOCK_FUNC(fossil_mockup_Entity, repository_get, fossil_mockup_Repository *repo, int id) {
     for (int i = 0; i < repo->count; ++i) {
         if (repo->entities[i].id == id) {
             return repo->entities[i];
         }
     }
-    Entity empty_entity = {0};
+    fossil_mockup_Entity empty_entity = {0};
     return empty_entity;
 }
 
-Service create_service(void) {
-    Service service;
+FOSSIL_MOCK_FUNC(fossil_mockup_Service, create_service, void) {
+    fossil_mockup_Service service;
     service.dummy = 0;
     // Initialize service-specific fields
     return service;
 }
 
-void service_process(Service *service, Entity *entity) {
+FOSSIL_MOCK_FUNC(void, service_process, fossil_mockup_Service *service, fossil_mockup_Entity *entity) {
     entity->processed = 1;
     service->dummy = 1;
 }
@@ -141,7 +142,7 @@ FOSSIL_TEARDOWN(c_ddd_suite) {
 
 FOSSIL_TEST_CASE(c_ddd_entity_creation) {
     // Example of creating an entity
-    Entity entity = create_entity(42, "Sample Entity");
+    fossil_mockup_Entity entity = fossil_mockup_create_entity(42, "Sample Entity");
 
     // Test cases
     FOSSIL_TEST_ASSUME(entity.id == 42, "Entity ID should be 42");
@@ -150,17 +151,17 @@ FOSSIL_TEST_CASE(c_ddd_entity_creation) {
 
 FOSSIL_TEST_CASE(c_ddd_value_object_equality) {
     // Example of value object equality
-    ValueObject vo1 = create_value_object(10, 20);
-    ValueObject vo2 = create_value_object(10, 20);
+    fossil_mockup_ValueObject vo1 = fossil_mockup_create_value_object(10, 20);
+    fossil_mockup_ValueObject vo2 = fossil_mockup_create_value_object(10, 20);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(value_object_equals(vo1, vo2), "Value objects should be equal");
+    FOSSIL_TEST_ASSUME(fossil_mockup_value_object_equals(vo1, vo2), "Value objects should be equal");
 } // end case
 
 FOSSIL_TEST_CASE(c_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
-    AggregateRoot ar = create_aggregate_root(1);
-    add_child_entity(&ar, create_entity(2, "Child Entity"));
+    fossil_mockup_AggregateRoot ar = fossil_mockup_create_aggregate_root(1);
+    add_child_entity(&ar, fossil_mockup_create_entity(2, "Child Entity"));
 
     // Test cases
     FOSSIL_TEST_ASSUME(ar.child_count == 1, "Aggregate root should have one child entity");
@@ -169,19 +170,19 @@ FOSSIL_TEST_CASE(c_ddd_aggregate_root_behavior) {
 
 FOSSIL_TEST_CASE(c_ddd_repository_usage) {
     // Example of repository usage
-    Repository repo = create_repository();
-    Entity entity = create_entity(1, "Repo Entity");
+    fossil_mockup_Repository repo = fossil_mockup_create_repository();
+    fossil_mockup_Entity entity = fossil_mockup_create_entity(1, "Repo Entity");
     repository_add(&repo, entity);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(repository_count(&repo) == 1, "Repository should contain one entity");
-    FOSSIL_TEST_ASSUME(repository_get(&repo, 1).id == 1, "Retrieved entity ID should be 1");
+    FOSSIL_TEST_ASSUME(fossil_mockup_repository_count(&repo) == 1, "Repository should contain one entity");
+    FOSSIL_TEST_ASSUME(fossil_mockup_repository_get(&repo, 1).id == 1, "Retrieved entity ID should be 1");
 } // end case
 
 FOSSIL_TEST_CASE(c_ddd_service_layer) {
     // Example of service layer usage
-    Service service = create_service();
-    Entity entity = create_entity(1, "Service Entity");
+    fossil_mockup_Service service = fossil_mockup_create_service();
+    fossil_mockup_Entity entity = fossil_mockup_create_entity(1, "Service Entity");
     service_process(&service, &entity);
 
     // Test cases
