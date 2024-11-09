@@ -39,7 +39,7 @@ typedef struct {
 } Repository;
 
 typedef struct {
-    // Service-specific fields
+    bool dummy;
 } Service;
 
 Entity create_entity(int id, const char *name) {
@@ -102,12 +102,14 @@ Entity repository_get(Repository *repo, int id) {
 
 Service create_service() {
     Service service;
+    service.dummy = 0;
     // Initialize service-specific fields
     return service;
 }
 
 void service_process(Service *service, Entity *entity) {
     entity->processed = 1;
+    service->dummy = 1;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
