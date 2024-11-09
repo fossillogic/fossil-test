@@ -98,8 +98,13 @@
  * 
  * @param name     The name of the mock struct.
  */
+#ifdef __cplusplus
+#define _FOSSIL_MOCK_STRUCT(name) \
+    struct name
+#else
 #define _FOSSIL_MOCK_STRUCT(name) \
     typedef struct name
+#endif
 
 #ifdef __cplusplus
 extern "C" {
