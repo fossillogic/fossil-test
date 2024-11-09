@@ -16,7 +16,7 @@
 #include "fossil/test/framework.h"
 
 // Test data structure for a sample test
-struct CppSampleTestData {
+FOSSIL_MOCK_STRUCT(CppSampleTestData) {
     int input;
     int expected_output;
 };

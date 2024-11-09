@@ -94,15 +94,12 @@
  * @brief Macro for creating a mock struct with the specified name and members.
  * 
  * This macro simplifies the creation of mock structs by defining a struct with the given name
- * and members.
+ * and members. The struct name will be prefixed with "fossil_mockup_" to clearly indicate that it is a mock struct.
  * 
- * @param name  The name of the mock struct.
- * @param ...   The members of the mock struct in the format: type1 member1; type2 member2; ...
+ * @param name     The name of the mock struct.
  */
-#define _FOSSIL_MOCK_STRUCT(name, ...) \
-    typedef struct { \
-        __VA_ARGS__; \
-    } fossil_mockup_##name
+#define _FOSSIL_MOCK_STRUCT(name) \
+    typedef struct name
 
 #ifdef __cplusplus
 extern "C" {

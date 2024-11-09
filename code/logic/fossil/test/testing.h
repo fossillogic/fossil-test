@@ -227,19 +227,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
  * 
  * @param test_name The name of the test case.
  */
-#define _FOSSIL_TEST_DATA(name) \
-    typedef struct name
-
-/**
- * @brief Macro to define a test case.
- * 
- * This macro is used to define a test case, which is a single unit of testing
- * that verifies the correctness of a specific functionality. The test case
- * should contain the logic to set up the environment, execute the functionality,
- * and verify the results.
- * 
- * @param test_name The name of the test case.
- */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
