@@ -102,7 +102,7 @@
 #define _FOSSIL_MOCK_STRUCT(name, ...) \
     typedef struct fossil_mockup_##name { \
         __VA_ARGS__; \
-    } fossil_mockup_##name;
+    } fossil_mockup_##name
 
 #ifdef __cplusplus
 extern "C" {
