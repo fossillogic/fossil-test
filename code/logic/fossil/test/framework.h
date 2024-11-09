@@ -198,7 +198,8 @@ extern "C" {
  *
  * @param list The mock list to initialize.
  */
-#define MOCK_INIT(list) _MOCK_INIT(list)
+#define MOCK_INIT(list) \
+    _MOCK_INIT(list)
 
 /**
  * @brief Macro for destroying the mock list.
@@ -207,7 +208,8 @@ extern "C" {
  *
  * @param list The mock list to destroy.
  */
-#define MOCK_DESTROY(list) _MOCK_DESTROY(list)
+#define MOCK_DESTROY(list) \
+    _MOCK_DESTROY(list)
 
 /**
  * @brief Macro for adding a mock function call to the mock list.
@@ -219,7 +221,8 @@ extern "C" {
  * @param args     The arguments of the mock function call.
  * @param num_args The number of arguments in the mock function call.
  */
-#define MOCK_ADD_CALL(list, func, args, num_args) _MOCK_ADD_CALL(list, func, args, num_args)
+#define MOCK_ADD_CALL(list, func, args, num_args) \
+    _MOCK_ADD_CALL(list, func, args, num_args)
 
 /**
  * @brief Macro for printing the mock list.
@@ -228,7 +231,9 @@ extern "C" {
  *
  * @param list The mock list to print.
  */
-#define MOCK_PRINT(list) _MOCK_PRINT(list)
+#define MOCK_PRINT(list) \
+    _MOCK_PRINT(list)
+
 /**
  * @def FOSSIL_MOCK_FUNC
  * @brief Macro for creating a mock function with the specified return type, name, and parameters.
@@ -242,7 +247,8 @@ extern "C" {
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
-#define FOSSIL_MOCK_FUNC(return_type, name, ...) _FOSSIL_MOCK_FUNC(return_type, name, __VA_ARGS__)
+#define FOSSIL_MOCK_FUNC(return_type, name, ...) \
+    _FOSSIL_MOCK_FUNC(return_type, name, __VA_ARGS__)
 
 /**
  * @def FOSSIL_MOCK_ALIAS
@@ -253,7 +259,8 @@ extern "C" {
  * @param new_type       The name of the new type alias.
  * @param existing_type  The existing type to create an alias for.
  */
-#define FOSSIL_MOCK_ALIAS(new_type, existing_type) _FOSSIL_MOCK_ALIAS(new_type, existing_type)
+#define FOSSIL_MOCK_ALIAS(new_type, existing_type) \
+    _FOSSIL_MOCK_ALIAS(new_type, existing_type)
 
 /**
  * @def FOSSIL_MOCK_STRUCT
@@ -265,7 +272,8 @@ extern "C" {
  * @param name     The name of the mock struct.
  * @param ...      The members of the mock struct in the format: (type1 member1, type2 member2, ...).
  */
-#define FOSSIL_MOCK_STRUCT(name, ...) _FOSSIL_MOCK_STRUCT(name, __VA_ARGS__)
+#define FOSSIL_MOCK_STRUCT(name, ...) \
+    _FOSSIL_MOCK_STRUCT(name, __VA_ARGS__)
 
 // *****************************************************************************
 // Benchmark framework
@@ -339,7 +347,8 @@ extern "C" {
  * This macro is used to mark the start of a benchmark. It typically initializes
  * any necessary resources or variables required for benchmarking.
  */
-#define TEST_BENCHMARK() fossil_test_start_benchmark()
+#define TEST_BENCHMARK() \
+    _TEST_BENCHMARK()
 
 /**
  * @brief Define macro for getting the current time.
@@ -347,7 +356,8 @@ extern "C" {
  * This macro is used to retrieve the current time, which is typically used
  * in conjunction with TEST_BENCHMARK to calculate the elapsed time for a benchmark.
  */
-#define TEST_CURRENT_TIME() fossil_test_stop_benchmark()
+#define TEST_CURRENT_TIME() \
+    _TEST_CURRENT_TIME()
 
 /**
  * @brief Define macro for reporting test duration with a given timeout.
@@ -360,7 +370,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((char*)duration, elapsed, actual)
+#define TEST_DURATION(duration, elapsed, actual) \
+    _TEST_DURATION(duration, elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in minutes.
@@ -372,7 +383,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIN(elapsed, actual) TEST_DURATION((char*)"minutes", elapsed, actual)
+#define TEST_DURATION_MIN(elapsed, actual) \
+    _TEST_DURATION_MIN(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in seconds.
@@ -384,7 +396,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_SEC(elapsed, actual) TEST_DURATION((char*)"seconds", elapsed, actual)
+#define TEST_DURATION_SEC(elapsed, actual) \
+    _TEST_DURATION_SEC(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in milliseconds.
@@ -396,7 +409,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIL(elapsed, actual) TEST_DURATION((char*)"milliseconds", elapsed, actual)
+#define TEST_DURATION_MIL(elapsed, actual) \
+    _TEST_DURATION_MIL(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in microseconds.
@@ -408,7 +422,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_MIC(elapsed, actual) TEST_DURATION((char*)"microseconds", elapsed, actual)
+#define TEST_DURATION_MIC(elapsed, actual) \
+    _TEST_DURATION_MIC(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in nanoseconds.
@@ -420,7 +435,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_NAN(elapsed, actual) TEST_DURATION((char*)"nanoseconds", elapsed, actual)
+#define TEST_DURATION_NAN(elapsed, actual) \
+    _TEST_DURATION_NAN(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in picoseconds.
@@ -432,7 +448,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_PIC(elapsed, actual) TEST_DURATION((char*)"picoseconds", elapsed, actual)
+#define TEST_DURATION_PIC(elapsed, actual) \
+    _TEST_DURATION_PIC(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in femtoseconds.
@@ -444,7 +461,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_FEM(elapsed, actual) TEST_DURATION((char*)"femtoseconds", elapsed, actual)
+#define TEST_DURATION_FEM(elapsed, actual) \
+    _TEST_DURATION_FEM(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in attoseconds.
@@ -456,7 +474,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ATT(elapsed, actual) TEST_DURATION((char*)"attoseconds", elapsed, actual)
+#define TEST_DURATION_ATT(elapsed, actual) \
+    _TEST_DURATION_ATT(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in zeptoseconds.
@@ -468,7 +487,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_ZEP(elapsed, actual) TEST_DURATION((char*)"zeptoseconds", elapsed, actual)
+#define TEST_DURATION_ZEP(elapsed, actual) \
+    _TEST_DURATION_ZEP(elapsed, actual)
 
 /**
  * @brief Define macro for reporting test duration in yoctoseconds.
@@ -480,7 +500,8 @@ extern "C" {
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
  */
-#define TEST_DURATION_YOC(elapsed, actual) TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
+#define TEST_DURATION_YOC(elapsed, actual) \
+    _TEST_DURATION_YOC(elapsed, actual)
 
 #ifdef __cplusplus
 }
