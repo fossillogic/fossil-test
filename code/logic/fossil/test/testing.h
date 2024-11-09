@@ -208,15 +208,38 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 // Macro definitions
 // *****************************************************************************
 
-// Assertion macro to assume a condition is true
+/**
+ * @brief Macro to assume a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and may abort the execution of the test case or test suite.
+ */
 #define _FOSSIL_TEST_ASSUME(condition, message) \
     fossil_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
-// Macro for defining test data structures
+/**
+ * @brief Macro to define a test case.
+ * 
+ * This macro is used to define a test case, which is a single unit of testing
+ * that verifies the correctness of a specific functionality. The test case
+ * should contain the logic to set up the environment, execute the functionality,
+ * and verify the results.
+ * 
+ * @param test_name The name of the test case.
+ */
 #define _FOSSIL_TEST_DATA(name) \
     typedef struct name
 
-// Macro for defining a test case
+/**
+ * @brief Macro to define a test case.
+ * 
+ * This macro is used to define a test case, which is a single unit of testing
+ * that verifies the correctness of a specific functionality. The test case
+ * should contain the logic to set up the environment, execute the functionality,
+ * and verify the results.
+ * 
+ * @param test_name The name of the test case.
+ */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
@@ -249,7 +272,15 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     void test_name##_test_func(void)
 #endif
 
-// Macro to create a test suite with setup and teardown hooks
+/**
+ * @brief Macro to define a test suite.
+ * 
+ * This macro is used to define a test suite, which is a collection of test cases
+ * that are related to each other. The test suite can be executed as a whole to
+ * verify the correctness of a group of functionalities.
+ * 
+ * @param suite_name The name of the test suite.
+ */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_SUITE(suite_name) \
     void suite_name##_setup_func(void); \
@@ -276,66 +307,164 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     }
 #endif
 
-// Macro for setting up a test case
+/**
+ * @brief Macro to define a setup function for a test.
+ * 
+ * This macro is used to declare a setup function that will be executed before
+ * each test case in a test suite. The setup function should contain the logic
+ * to initialize the environment or state required for the test cases.
+ * 
+ * @param name The name of the setup function.
+ */
 #define _FOSSIL_TEST_SETUP(name) \
     void name##_setup_func(void)
 
-// Macro for tearing down a test case
+/**
+ * @brief Macro to define a teardown function for a test.
+ * 
+ * This macro is used to declare a teardown function that will be executed after
+ * each test case in a test suite. The teardown function should contain the logic
+ * to clean up the environment or state after the test cases have been executed.
+ * 
+ * @param name The name of the teardown function.
+ */
 #define _FOSSIL_TEST_TEARDOWN(name) \
     void name##_teardown_func(void)
 
-// Macro to register a suite with the test environment
+/**
+ * @brief Macro to register a test suite with the test framework.
+ * 
+ * This macro is used to register a test suite with the test framework. The test
+ * suite will be added to the list of test suites that will be executed by the
+ * test runner.
+ * 
+ * @param suite The test suite to register.
+ */
 #define _FOSSIL_TEST_REGISTER(suite) \
     fossil_test_register_suite(_env, &suite)
 
-// Macro to add a test case to a suite
+/**
+ * @brief Macro to add a test case to a test suite.
+ * 
+ * This macro is used to add a test case to a test suite. The test case will be
+ * executed when the test suite is run.
+ * 
+ * @param suite The test suite to add the test case to.
+ * @param test The test case to add.
+ */
 #define _FOSSIL_TEST_ADD(suite, test) \
     fossil_test_add_case(&suite, &(test##_test_case))
 
-// Macro to define a test group, grouping tests under a common environment
+/**
+ * @brief Macro to define a test group.
+ * 
+ * This macro is used to define a test group, which is a collection of test cases
+ * that are related to each other. The test group can be executed as a whole to
+ * verify the correctness of a group of functionalities.
+ * 
+ * @param name The name of the test group.
+ */
 #define _FOSSIL_TEST_GROUP(name) \
     void name##_test_group(fossil_test_env_t *_env)
 
-// Macro to export a test group
+/**
+ * @brief Macro to export a test group.
+ * 
+ * This macro is used to export a test group from a test file. The test group
+ * will be available to other test files that import it.
+ * 
+ * @param name The name of the test group to export.
+ */
 #define _FOSSIL_TEST_EXPORT(name) \
     void name##_test_group(fossil_test_env_t *_env)
 
-// Macro to import a test group into the environment
+/**
+ * @brief Macro to import a test group.
+ * 
+ * This macro is used to import a test group into the test runner. The test group
+ * will be executed when the test runner is run.
+ * 
+ * @param name The name of the test group to import.
+ */
 #define _FOSSIL_TEST_IMPORT(name) \
     name##_test_group(&_env)
 
 // Main runner management macros
 
-// Macro to initialize the test environment and handle command-line args
+/**
+ * @brief Macro to start the test runner.
+ * 
+ * This macro is used to start the test runner, which will initialize the test
+ * environment and set up the necessary structures for running the test cases.
+ */
 #define _FOSSIL_TEST_START(argc, argv) \
     fossil_test_env_t _env; \
     fossil_test_init(&_env, argc, argv)
 
-// Macro to run all tests in the environment
+/**
+ * @brief Macro to run all test cases in the test suite.
+ * 
+ * This macro is used to run all test cases in the test suite. The test cases
+ * will be executed in the order they were added to the suite.
+ */
 #define _FOSSIL_TEST_RUN() \
     fossil_test_run_all(&_env)
 
-// Macro to output a summary of the test results
+/**
+ * @brief Macro to print the test summary.
+ * 
+ * This macro is used to print the test summary, which includes the number of
+ * tests that passed, failed, and were skipped.
+ */
 #define _FOSSIL_TEST_SUMMARY() \
     fossil_test_summary(&_env)
 
-// Macro to clean up after all tests and exit with appropriate status code
+/**
+ * @brief Macro to end the test runner.
+ * 
+ * This macro is used to end the test runner, which will clean up the test
+ * framework and return the appropriate exit code based on the test results.
+ */
 #define _FOSSIL_TEST_END()  \
     int fail_count = _env.fail_count; \
     return fail_count > 0 ? EXIT_FAILURE : EXIT_SUCCESS
 
 // Behavior-driven development macros for Given, When, Then structure
 
+/**
+ * @brief Macro for defining a Given step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Given step in a behavior-driven development test.
+ * The Given step is used to specify the initial context of a test case.
+ * 
+ * @param description The description of the Given step.
+ */
 #define _GIVEN(description) \
     if (0) { \
         printf(COLOR_BDD "Given %s\n" COLOR_RESET, description); \
     }
 
+/**
+ * @brief Macro for defining a When step in a behavior-driven development test.
+ * 
+ * This macro is used to define a When step in a behavior-driven development test.
+ * The When step is used to specify the action that is being tested.
+ * 
+ * @param description The description of the When step.
+ */
 #define _WHEN(description) \
     if (0) { \
         printf(COLOR_BDD "When %s\n" COLOR_RESET, description); \
     }
 
+/**
+ * @brief Macro for defining a Then step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Then step in a behavior-driven development test.
+ * The Then step is used to specify the expected outcome of a test case.
+ * 
+ * @param description The description of the Then step.
+ */
 #define _THEN(description) \
     if (0) { \
         printf(COLOR_BDD "Then %s\n" COLOR_RESET, description); \
@@ -343,12 +472,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 
 #ifdef __cplusplus
 }
-#endif
-
-#ifdef __cplusplus
-namespace fossil {
-
-} // namespace fossil
 #endif
 
 #endif

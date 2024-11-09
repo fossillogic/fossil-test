@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/unittest.h"
+#include "fossil/test/testing.h"
 
 #ifdef __WIN32
 // Array of messages for each category
@@ -138,7 +138,7 @@ void usage_info(void) {
 
 void version_info(void) {
     printf("Fossil Logic Test Framework\n");
-    printf("Version: 1.0.7\n");
+    printf("Version: 1.0.8\n");
     printf("Author: Michael Gene Brockus (Dreamer)\n");
     printf("License: Mozila Public License 2.0\n");
 }
