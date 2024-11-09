@@ -288,8 +288,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_BENCHMARK(name) \
-    fossil_benchmark_t benchmark_##name; \
-    fossil_benchmark_init(&benchmark_##name, #name)
+    _MARK_BENCHMARK(name)
 
 /**
  * @brief Define macro for starting a benchmark.
@@ -300,7 +299,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_START(name) \
-    fossil_benchmark_start(&benchmark_##name)
+    _MARK_START(name)
 
 /**
  * @brief Define macro for stopping a benchmark.
@@ -311,7 +310,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_STOP(name) \
-    fossil_benchmark_stop(&benchmark_##name)
+    _MARK_STOP(name)
 
 /**
  * @brief Define macro for reporting a benchmark.
@@ -322,7 +321,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_REPORT(name) \
-    fossil_benchmark_report(&benchmark_##name)
+    _MARK_REPORT(name)
 
 /**
  * @brief Define macro for scoped benchmarking.
@@ -334,8 +333,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_SCOPED(name) \
-    scoped_benchmark_t scoped_benchmark_##name; \
-    fossil_scoped_benchmark_init(&scoped_benchmark_##name, &benchmark_##name)
+    _MARK_SCOPED(name)
 
 // =================================================================
 // Bench specific commands
