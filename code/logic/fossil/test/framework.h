@@ -19,9 +19,9 @@
 extern "C" {
 #endif
 
-#include "benchmark.h"
-#include "unittest.h"
-#include "mockup.h"
+#include "marking.h"
+#include "testing.h"
+#include "mocking.h"
 #include "assume.h"
 
 /**
