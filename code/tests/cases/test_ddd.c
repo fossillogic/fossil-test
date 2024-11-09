@@ -74,7 +74,7 @@ void add_child_entity(AggregateRoot *ar, Entity entity) {
     }
 }
 
-Repository create_repository() {
+Repository create_repository(void) {
     Repository repo;
     repo.count = 0;
     return repo;
@@ -100,7 +100,7 @@ Entity repository_get(Repository *repo, int id) {
     return empty_entity;
 }
 
-Service create_service() {
+Service create_service(void) {
     Service service;
     service.dummy = 0;
     // Initialize service-specific fields
