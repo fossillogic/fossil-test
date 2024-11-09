@@ -366,112 +366,52 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_H64((int)y, (int)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
-
-    // Test cases
-    FOSSIL_TEST_ASSUME(x == 042, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y == 020, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal8) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
-
-    // Test cases
-    FOSSIL_TEST_ASSUME(x == 042, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y == 020, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal16) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
-
-    // Test cases
-    FOSSIL_TEST_ASSUME(x == 042, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y == 020, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal32) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
-
-    // Test cases
-    FOSSIL_TEST_ASSUME(x == 042, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y == 020, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
-} // end case
-
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal64) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
-
-    // Test cases
-    FOSSIL_TEST_ASSUME(x == 042, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y == 020, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(x != y, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y < x, "Should have passed the test case");
-    FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
-} // end case
-
 FOSSIL_TEST_CASE(cpp_assume_run_of_octal8_shortcut) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
+    int8_t x = 042; // Octal for 42
+    int8_t y = 020; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O8((int)x, 042);
-    ASSUME_ITS_EQUAL_O8((int)y, 020);
-    ASSUME_NOT_EQUAL_O8((int)x, (int)y);
-    ASSUME_ITS_LESS_THAN_O8((int)y, (int)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O8((int)y, (int)x);
+    ASSUME_ITS_EQUAL_O8((int8_t)x, 042);
+    ASSUME_ITS_EQUAL_O8((int8_t)y, 020);
+    ASSUME_NOT_EQUAL_O8((int8_t)x, (int8_t)y);
+    ASSUME_ITS_LESS_THAN_O8((int8_t)y, (int8_t)x);
+    ASSUME_ITS_LESS_OR_EQUAL_O8((int8_t)y, (int8_t)x);
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_octal16_shortcut) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
+    int16_t x = 042; // Octal for 42
+    int16_t y = 020; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O16((int)x, 042);
-    ASSUME_ITS_EQUAL_O16((int)y, 020);
-    ASSUME_NOT_EQUAL_O16((int)x, (int)y);
-    ASSUME_ITS_LESS_THAN_O16((int)y, (int)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O16((int)y, (int)x);
+    ASSUME_ITS_EQUAL_O16((int16_t)x, 042);
+    ASSUME_ITS_EQUAL_O16((int16_t)y, 020);
+    ASSUME_NOT_EQUAL_O16((int16_t)x, (int16_t)y);
+    ASSUME_ITS_LESS_THAN_O16((int16_t)y, (int16_t)x);
+    ASSUME_ITS_LESS_OR_EQUAL_O16((int16_t)y, (int16_t)x);
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_octal32_shortcut) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
+    int32_t x = 042; // Octal for 42
+    int32_t y = 020; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O32((int)x, 042);
-    ASSUME_ITS_EQUAL_O32((int)y, 020);
-    ASSUME_NOT_EQUAL_O32((int)x, (int)y);
-    ASSUME_ITS_LESS_THAN_O32((int)y, (int)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O32((int)y, (int)x);
+    ASSUME_ITS_EQUAL_O32((int32_t)x, 042);
+    ASSUME_ITS_EQUAL_O32((int32_t)y, 020);
+    ASSUME_NOT_EQUAL_O32((int32_t)x, (int32_t)y);
+    ASSUME_ITS_LESS_THAN_O32((int32_t)y, (int32_t)x);
+    ASSUME_ITS_LESS_OR_EQUAL_O32((int32_t)y, (int32_t)x);
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_octal64_shortcut) {
-    int x = 052; // Octal for 42
-    int y = 024; // Octal for 20
+    int64_t x = 042; // Octal for 42
+    int64_t y = 020; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O64((int)x, 042);
-    ASSUME_ITS_EQUAL_O64((int)y, 020);
-    ASSUME_NOT_EQUAL_O64((int)x, (int)y);
-    ASSUME_ITS_LESS_THAN_O64((int)y, (int)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O64((int)y, (int)x);
+    ASSUME_ITS_EQUAL_O64((int64_t)x, 042);
+    ASSUME_ITS_EQUAL_O64((int64_t)y, 020);
+    ASSUME_NOT_EQUAL_O64((int64_t)x, (int64_t)y);
+    ASSUME_ITS_LESS_THAN_O64((int64_t)y, (int64_t)x);
+    ASSUME_ITS_LESS_OR_EQUAL_O64((int64_t)y, (int64_t)x);
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_float32) {
@@ -798,11 +738,6 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hex16_shortcut);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hex32_shortcut);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hex64_shortcut);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal8);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal16);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal32);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal64);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal8_shortcut);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal16_shortcut);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_octal32_shortcut);
@@ -819,20 +754,20 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_pointer_equality);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_size_equality);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_size_comparison);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u8);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u16);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u32);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u64);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i8);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i16);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i32);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i64);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f32);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f64);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_bchar);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_cchar);
-    // FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_wchar);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u8);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u16);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u32);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_u64);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i8);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i16);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i32);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_i64);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f32);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f64);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_bchar);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_cchar);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_wchar);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_wstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr);
