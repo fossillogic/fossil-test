@@ -14,7 +14,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/mockup.h"
+#include "fossil/test/mocking.h"
 
 extern char *_custom_fossil_test_strdup(const char *str);
 

@@ -12,7 +12,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/unittest.h"
+#include "fossil/test/testing.h"
 
 #ifdef __WIN32
 // Array of messages for each category

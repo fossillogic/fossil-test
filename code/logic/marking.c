@@ -14,7 +14,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/benchmark.h"
+#include "fossil/test/marking.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
