@@ -15,10 +15,14 @@
 #include <fossil/test/framework.h>
 #include <string.h>
 
+enum {
+    DUMMY_LEN = 10
+};
+
 // Define the necessary types and functions for the test cases
 FOSSIL_MOCK_STRUCT(Entity,
     int id;
-    char *name;
+    char name[DUMMY_LEN];
     int processed
 );
 
@@ -30,11 +34,11 @@ FOSSIL_MOCK_STRUCT(ValueObject,
 FOSSIL_MOCK_STRUCT(AggregateRoot,
     int id;
     int child_count;
-    fossil_mockup_Entity *children
+    fossil_mockup_Entity children[DUMMY_LEN]
 );
 
 FOSSIL_MOCK_STRUCT(Repository,
-    fossil_mockup_Entity *entities;
+    fossil_mockup_Entity entities[DUMMY_LEN];
     int count
 );
 
