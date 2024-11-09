@@ -100,8 +100,8 @@
  * @param ...   The members of the mock struct in the format: type1 member1; type2 member2; ...
  */
 #define _FOSSIL_MOCK_STRUCT(name, ...) \
-    typedef struct { \
-        __VA_ARGS__ \
+    typedef struct fossil_mockup_##name { \
+        __VA_ARGS__; \
     } fossil_mockup_##name;
 
 #ifdef __cplusplus
