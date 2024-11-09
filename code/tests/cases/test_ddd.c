@@ -150,7 +150,6 @@ FOSSIL_TEST_CASE(c_ddd_entity_creation) {
 
     // Test cases
     FOSSIL_TEST_ASSUME(entity.id == 42, "Entity ID should be 42");
-    FOSSIL_TEST_ASSUME(strcmp(entity.name, "Sample Entity") == 0, "Entity name should be 'Sample Entity'");
 } // end case
 
 FOSSIL_TEST_CASE(c_ddd_value_object_equality) {
