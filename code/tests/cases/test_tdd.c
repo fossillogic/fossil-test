@@ -153,7 +153,7 @@ FOSSIL_TEST_CASE(xassume_run_of_int64_shortcut) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(tdd_test_group) {
+FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int);
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int8);
     FOSSIL_TEST_ADD(tdd_suite, xassume_run_of_int16);

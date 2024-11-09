@@ -5,6 +5,9 @@ on:
     paths:
       - "**.c"
       - "**.h"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"
@@ -12,6 +15,9 @@ on:
     paths:
       - "**.c"
       - "**.h"
+      - "**.cpp"
+      - "**.hpp"
+      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"

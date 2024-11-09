@@ -137,9 +137,6 @@ uint64_t fossil_test_stop_benchmark(void);
 #endif
 
 #ifdef __cplusplus
-#include <iostream>
-#include <string>
-
 namespace fossil {
 
 }

@@ -22,15 +22,15 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(bdd_suite);
+FOSSIL_TEST_SUITE(cpp_bdd_suite);
 
 // Setup function for the test suite
-FOSSIL_SETUP(bdd_suite) {
+FOSSIL_SETUP(cpp_bdd_suite) {
     // Setup code here
 }
 
 // Teardown function for the test suite
-FOSSIL_TEARDOWN(bdd_suite) {
+FOSSIL_TEARDOWN(cpp_bdd_suite) {
     // Teardown code here
 }
 
@@ -42,7 +42,7 @@ FOSSIL_TEARDOWN(bdd_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(xbdd_logic_test) {
+FOSSIL_TEST_CASE(cpp_xbdd_logic_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -63,7 +63,7 @@ FOSSIL_TEST_CASE(xbdd_logic_test) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_user_account) {
+FOSSIL_TEST_CASE(cpp_xbdd_user_account) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -85,7 +85,7 @@ FOSSIL_TEST_CASE(xbdd_user_account) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_empty_cart) {
+FOSSIL_TEST_CASE(cpp_xbdd_empty_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -103,7 +103,7 @@ FOSSIL_TEST_CASE(xbdd_empty_cart) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_valid_login) {
+FOSSIL_TEST_CASE(cpp_xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";
@@ -137,14 +137,36 @@ FOSSIL_TEST_CASE(xbdd_valid_login) {
     }
 } // end of case
 
+FOSSIL_TEST_CASE(cpp_xbdd_invalid_login) {
+    GIVEN("a registered user with valid credentials") {
+        // Set up the context
+        const char* validUsername = "user123";
+        const char* validPassword = "pass456";
+
+        WHEN("the user provides incorrect username") {
+            // Perform the action of user login
+            const char* inputUsername = "wronguser";
+            const char* inputPassword = "pass456";
+
+            THEN("the login should fail with an error message") {
+                // Check the expected outcome
+                // Simulate login validation
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) != 0, "Username should not match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) == 0, "Password should match");
+            }
+        }
+    }
+} // end of case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(bdd_test_group) {
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_logic_test);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_user_account);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_empty_cart);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_valid_login);
+FOSSIL_TEST_GROUP(cpp_bdd_test_cases) {
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_logic_test);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_user_account);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_empty_cart);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_valid_login);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_invalid_login);
 
-    FOSSIL_TEST_REGISTER(bdd_suite);
+    FOSSIL_TEST_REGISTER(cpp_bdd_suite);
 } // end of group
