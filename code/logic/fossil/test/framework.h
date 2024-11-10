@@ -160,6 +160,14 @@ extern "C" {
     _FOSSIL_TEST_CASE(name)
 
 /**
+ * Macro to skip a test case.
+ * This macro is used to skip a test case in the test runner. The test case will
+ * be marked as skipped, and the specified message will be output to the console.
+ */
+#define FOSSIL_TEST_SKIP(test_name, message) \
+    _FOSSIL_TEST_SKIP(test_name, message)
+
+/**
  * Macro to assume a condition in a test runner.
  * This macro is used to assert that a specific condition is true within a test
  * runner. If the condition is false, the test runner will output the specified
