@@ -81,7 +81,6 @@ FOSSIL_TEST_GROUP(cpp_sample_test_cases) {
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_half);
 
     FOSSIL_TEST_SKIP(cpp_test_should_not_run, "This test should not run");
-    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_should_not_run);
 
     FOSSIL_TEST_REGISTER(cpp_sample_suite);
 }
