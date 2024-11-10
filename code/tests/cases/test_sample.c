@@ -70,11 +70,18 @@ FOSSIL_TEST_CASE(test_input_half) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Half test failed");
 }
 
+FOSSIL_TEST_CASE(test_should_not_run) {
+    FOSSIL_TEST_ASSUME(1 == 0, "This test should not run");
+}
+
 FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
     FOSSIL_TEST_ADD(sample_suite, test_input_double);
     FOSSIL_TEST_ADD(sample_suite, test_input_half);
+
+    FOSSIL_TEST_SKIP(test_should_not_run, "This test should not run");
+    FOSSIL_TEST_ADD(sample_suite, test_should_not_run);
 
     FOSSIL_TEST_REGISTER(sample_suite);
 }
