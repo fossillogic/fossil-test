@@ -4,7 +4,7 @@ if get_option('with_test').enabled()
     test_c   = ['unit_runner.c']
     test_cpp = ['unit_runner.cpp']
     test_cases = [
-        'sample', 'bdd', 'tdd', 'ddd'
+        'sample', 'bdd', 'tdd', 'ddd', 'mark'
     ]
 
     foreach cases : test_cases

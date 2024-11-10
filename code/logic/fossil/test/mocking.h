@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 /**
  * @brief Macro for initializing the mock list.
@@ -73,8 +74,13 @@
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
+#ifdef _WIN32
+#define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
+    __declspec(dllexport) return_type fossil_mockup_##name(__VA_ARGS__)
+#else
 #define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
     return_type fossil_mockup_##name(__VA_ARGS__)
+#endif
 
 /**
  * @def _FOSSIL_MOCK_ALIAS
@@ -94,15 +100,17 @@
  * @brief Macro for creating a mock struct with the specified name and members.
  * 
  * This macro simplifies the creation of mock structs by defining a struct with the given name
- * and members.
+ * and members. The struct name will be prefixed with "fossil_mockup_" to clearly indicate that it is a mock struct.
  * 
- * @param name  The name of the mock struct.
- * @param ...   The members of the mock struct in the format: type1 member1; type2 member2; ...
+ * @param name     The name of the mock struct.
  */
-#define _FOSSIL_MOCK_STRUCT(name, ...) \
-    typedef struct { \
-        __VA_ARGS__ \
-    } fossil_mockup_##name;
+#ifdef __cplusplus
+#define _FOSSIL_MOCK_STRUCT(name) \
+    struct name
+#else
+#define _FOSSIL_MOCK_STRUCT(name) \
+    typedef struct name
+#endif
 
 #ifdef __cplusplus
 extern "C" {

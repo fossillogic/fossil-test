@@ -16,7 +16,7 @@
 #include "fossil/test/framework.h"
 
 // Test data structure for a sample test
-struct CppSampleTestData {
+FOSSIL_MOCK_STRUCT(CppSampleTestData) {
     int input;
     int expected_output;
 };
@@ -70,11 +70,17 @@ FOSSIL_TEST_CASE(cpp_test_input_half) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Half test failed");
 }
 
+FOSSIL_TEST_CASE(cpp_test_should_not_run) {
+    FOSSIL_TEST_ASSUME(1 == 0, "This test should not run");
+}
+
 FOSSIL_TEST_GROUP(cpp_sample_test_cases) {
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_increment);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_decrement);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_double);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_half);
+
+    FOSSIL_TEST_SKIP(cpp_test_should_not_run, "This test should not run");
 
     FOSSIL_TEST_REGISTER(cpp_sample_suite);
 }

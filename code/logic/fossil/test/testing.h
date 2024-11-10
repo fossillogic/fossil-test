@@ -218,17 +218,15 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
     fossil_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
 /**
- * @brief Macro to define a test case.
+ * @brief Macro to fail a test case.
  * 
- * This macro is used to define a test case, which is a single unit of testing
- * that verifies the correctness of a specific functionality. The test case
- * should contain the logic to set up the environment, execute the functionality,
- * and verify the results.
- * 
- * @param test_name The name of the test case.
+ * This macro is used to fail a test case with a specific message. The test case
+ * will be marked as failed, and the message will be displayed in the test results.
  */
-#define _FOSSIL_TEST_DATA(name) \
-    typedef struct name
+#define _FOSSIL_TEST_SKIP(test_name, message) \
+    test_name##_test_case.status = TEST_STATUS_SKIP; \
+    test_name##_test_case.failure_message = message; \
+    printf(COLOR_SKIP "SKIP: %s - %s\n" COLOR_RESET, #test_name, message); \
 
 /**
  * @brief Macro to define a test case.

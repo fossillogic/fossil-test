@@ -151,15 +151,6 @@ extern "C" {
     _FOSSIL_TEST_TEARDOWN(name)
 
 /**
- * Macro to define test data.
- * This macro is used to declare a structure that contains the data required
- * for a test case. The test data structure can be used to pass input parameters
- * to the test case and store the expected output values.
- */
-#define FOSSIL_TEST_DATA(name) \
-    _FOSSIL_TEST_DATA(name)
-
-/**
  * Macro to define a test case.
  * This macro is used to declare a test case function that will be executed
  * as part of the test suite. The test case function should contain the logic
@@ -167,6 +158,14 @@ extern "C" {
  */
 #define FOSSIL_TEST_CASE(name) \
     _FOSSIL_TEST_CASE(name)
+
+/**
+ * Macro to skip a test case.
+ * This macro is used to skip a test case in the test runner. The test case will
+ * be marked as skipped, and the specified message will be output to the console.
+ */
+#define FOSSIL_TEST_SKIP(test_name, message) \
+    _FOSSIL_TEST_SKIP(test_name, message)
 
 /**
  * Macro to assume a condition in a test runner.
@@ -264,16 +263,16 @@ extern "C" {
 
 /**
  * @def FOSSIL_MOCK_STRUCT
+ * 
  * @brief Macro for creating a mock struct with the specified name and members.
- *
+ * 
  * This macro simplifies the creation of mock structs by defining a struct with the given name
  * and members. The struct name will be prefixed with "fossil_mockup_" to clearly indicate that it is a mock struct.
- *
+ * 
  * @param name     The name of the mock struct.
- * @param ...      The members of the mock struct in the format: (type1 member1, type2 member2, ...).
  */
-#define FOSSIL_MOCK_STRUCT(name, ...) \
-    _FOSSIL_MOCK_STRUCT(name, __VA_ARGS__)
+#define FOSSIL_MOCK_STRUCT(name) \
+    _FOSSIL_MOCK_STRUCT(name)
 
 // *****************************************************************************
 // Benchmark framework
@@ -288,8 +287,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_BENCHMARK(name) \
-    fossil_benchmark_t benchmark_##name; \
-    fossil_benchmark_init(&benchmark_##name, #name)
+    _MARK_BENCHMARK(name)
 
 /**
  * @brief Define macro for starting a benchmark.
@@ -300,7 +298,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_START(name) \
-    fossil_benchmark_start(&benchmark_##name)
+    _MARK_START(name)
 
 /**
  * @brief Define macro for stopping a benchmark.
@@ -311,7 +309,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_STOP(name) \
-    fossil_benchmark_stop(&benchmark_##name)
+    _MARK_STOP(name)
 
 /**
  * @brief Define macro for reporting a benchmark.
@@ -322,7 +320,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_REPORT(name) \
-    fossil_benchmark_report(&benchmark_##name)
+    _MARK_REPORT(name)
 
 /**
  * @brief Define macro for scoped benchmarking.
@@ -334,8 +332,7 @@ extern "C" {
  * @param name The name of the benchmark.
  */
 #define MARK_SCOPED(name) \
-    scoped_benchmark_t scoped_benchmark_##name; \
-    fossil_scoped_benchmark_init(&scoped_benchmark_##name, &benchmark_##name)
+    _MARK_SCOPED(name)
 
 // =================================================================
 // Bench specific commands
