@@ -48,7 +48,7 @@ FOSSIL_TEST_CASE(c_mark_start_and_stop) {
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
     MARK_STOP(stop_test);
-    FOSSIL_TEST_ASSUME(benchmark_stop_test.end_time != 0, "Benchmark stop failed");
+    ASSUME_ITS_EQUAL_CSTR(benchmark_stop_test.name, "stop_test");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *

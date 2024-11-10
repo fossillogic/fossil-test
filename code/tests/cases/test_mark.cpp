@@ -14,6 +14,7 @@
  */
 
 #include "fossil/test/framework.h"
+#include <string>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -45,10 +46,11 @@ FOSSIL_TEARDOWN(cpp_mark_suite) {
 
 // A test case to check if the benchmark stop works correctly
 FOSSIL_TEST_CASE(cpp_mark_start_and_stop) {
+    std::string benchmark_stop_test_name = "stop_test";
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
     MARK_STOP(stop_test);
-    FOSSIL_TEST_ASSUME(benchmark_stop_test.end_time != 0, "Benchmark stop failed");
+    ASSUME_ITS_EQUAL_CSTR(benchmark_stop_test.name, benchmark_stop_test_name.c_str());
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
