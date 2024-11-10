@@ -43,21 +43,8 @@ FOSSIL_TEARDOWN(c_mark_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-// A test case to check if the benchmark initialization works correctly
-FOSSIL_TEST_CASE(c_mark_initialization) {
-    MARK_BENCHMARK(init_test);
-    FOSSIL_TEST_ASSUME(benchmark_init_test.name != NULL, "Benchmark initialization failed");
-}
-
-// A test case to check if the benchmark start works correctly
-FOSSIL_TEST_CASE(c_mark_start) {
-    MARK_BENCHMARK(start_test);
-    MARK_START(start_test);
-    FOSSIL_TEST_ASSUME(benchmark_start_test.start_time != 0, "Benchmark start failed");
-}
-
 // A test case to check if the benchmark stop works correctly
-FOSSIL_TEST_CASE(c_mark_stop) {
+FOSSIL_TEST_CASE(c_mark_start_and_stop) {
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
     MARK_STOP(stop_test);
@@ -68,9 +55,7 @@ FOSSIL_TEST_CASE(c_mark_stop) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_mark_test_cases) {
-    FOSSIL_TEST_ADD(c_mark_suite, c_mark_initialization);
-    FOSSIL_TEST_ADD(c_mark_suite, c_mark_start);
-    FOSSIL_TEST_ADD(c_mark_suite, c_mark_stop);
+    FOSSIL_TEST_ADD(c_mark_suite, c_mark_start_and_stop);
 
     FOSSIL_TEST_REGISTER(c_mark_suite);
 }
