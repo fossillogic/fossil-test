@@ -13,6 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 #include <fossil/test/framework.h>
+#include <string>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -686,9 +687,9 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_wstr) {
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_bstr) {
-    const char *str1 = (const char *)"Hello";
-    const char *str2 = (const char *)"Hello";
-    const char *str3 = (const char *)"World";
+    std::string str1 = "Hello";
+    std::string str2 = "Hello";
+    std::string str3 = "World";
 
     // Test cases
     ASSUME_ITS_EQUAL_BSTR(str1, str2);
@@ -697,9 +698,9 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_bstr) {
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
-    const char *str1 = "Hello";
-    const char *str2 = "Hello";
-    const char *str3 = "World";
+    std::string str1 = "Hello";
+    std::string str2 = "Hello";
+    std::string str3 = "World";
 
     // Test cases
     ASSUME_ITS_EQUAL_CSTR(str1, str2);
