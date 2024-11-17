@@ -362,8 +362,13 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
  * 
  * @param name The name of the test group.
  */
+#ifdef __cplusplus
+#define _FOSSIL_TEST_GROUP(name) \
+    extern "C" void name##_test_group(fossil_test_env_t *_env)
+#else
 #define _FOSSIL_TEST_GROUP(name) \
     void name##_test_group(fossil_test_env_t *_env)
+#endif
 
 /**
  * @brief Macro to export a test group.
