@@ -50,7 +50,7 @@ FOSSIL_TEST_CASE(cpp_mark_start_and_stop) {
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
     MARK_STOP(stop_test);
-    ASSUME_ITS_EQUAL_CSTR(benchmark_stop_test.name, benchmark_stop_test_name.c_str());
+    ASSUME_ITS_EQUAL_CSTR(std::string(benchmark_stop_test.name), benchmark_stop_test_name);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *

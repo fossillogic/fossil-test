@@ -2177,8 +2177,13 @@ extern "C" {
  * @param actual The actual byte string.
  * @param expected The expected byte string.
  */
+#ifdef __cplusplus
+#define ASSUME_ITS_EQUAL_BSTR(actual, expected) \
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) == 0, "Expected byte string " #actual " to be equal to " #expected)
+#else
 #define ASSUME_ITS_EQUAL_BSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) == 0, "Expected byte string " #actual " to be equal to " #expected)
+#endif
 
 /**
  * @brief Assumes that the given byte strings are not equal.
@@ -2186,8 +2191,13 @@ extern "C" {
  * @param actual The actual byte string.
  * @param expected The expected byte string.
  */
+#ifdef __cplusplus
+#define ASSUME_NOT_EQUAL_BSTR(actual, expected) \
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) != 0, "Expected byte string " #actual " to not be equal to " #expected)
+#else
 #define ASSUME_NOT_EQUAL_BSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) != 0, "Expected byte string " #actual " to not be equal to " #expected)
+#endif
 
 /**
  * @brief Assumes that the length of the given byte string is equal to the expected length.
@@ -2195,8 +2205,13 @@ extern "C" {
  * @param actual The actual byte string.
  * @param expected_len The expected length of the byte string.
  */
+#ifdef __cplusplus
+#define ASSUME_ITS_LENGTH_EQUAL_BSTR(actual, expected_len) \
+    FOSSIL_TEST_ASSUME(strlen((actual.c_str())) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
+#else
 #define ASSUME_ITS_LENGTH_EQUAL_BSTR(actual, expected_len) \
     FOSSIL_TEST_ASSUME(strlen((const char*)(actual)) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
+#endif
 
 /**
  * @brief Assumes that the given C strings are equal.
@@ -2204,8 +2219,13 @@ extern "C" {
  * @param actual The actual C string.
  * @param expected The expected C string.
  */
+#ifdef __cplusplus
+#define ASSUME_ITS_EQUAL_CSTR(actual, expected) \
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) == 0, "Expected C string " #actual " to be equal to " #expected)
+#else
 #define ASSUME_ITS_EQUAL_CSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((actual), (expected)) == 0, "Expected C string " #actual " to be equal to " #expected)
+#endif
 
 /**
  * @brief Assumes that the given C strings are not equal.
@@ -2213,8 +2233,13 @@ extern "C" {
  * @param actual The actual C string.
  * @param expected The expected C string.
  */
+#ifdef __cplusplus
+#define ASSUME_NOT_EQUAL_CSTR(actual, expected) \
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) != 0, "Expected C string " #actual " to not be equal to " #expected)
+#else
 #define ASSUME_NOT_EQUAL_CSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((actual), (expected)) != 0, "Expected C string " #actual " to not be equal to " #expected)
+#endif
 
 /**
  * @brief Assumes that the length of the given C string is equal to the expected length.
@@ -2222,8 +2247,13 @@ extern "C" {
  * @param actual The actual C string.
  * @param expected_len The expected length of the C string.
  */
+#ifdef __cplusplus
+#define ASSUME_ITS_LENGTH_EQUAL_CSTR(actual, expected_len) \
+    FOSSIL_TEST_ASSUME(strlen((actual.c_str())) == (expected_len), "Expected length of C string " #actual " to be equal to " #expected_len)
+#else
 #define ASSUME_ITS_LENGTH_EQUAL_CSTR(actual, expected_len) \
     FOSSIL_TEST_ASSUME(strlen((actual)) == (expected_len), "Expected length of C string " #actual " to be equal to " #expected_len)
+#endif
 
 #ifdef __cplusplus
 }
