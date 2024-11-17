@@ -2179,7 +2179,7 @@ extern "C" {
  */
 #ifdef __cplusplus
 #define ASSUME_ITS_EQUAL_BSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(strcmp((const char*)(actual.c_str()), (const char*)(expected.c_str())) == 0, "Expected byte string " #actual " to be equal to " #expected)
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) == 0, "Expected byte string " #actual " to be equal to " #expected)
 #else
 #define ASSUME_ITS_EQUAL_BSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) == 0, "Expected byte string " #actual " to be equal to " #expected)
@@ -2193,7 +2193,7 @@ extern "C" {
  */
 #ifdef __cplusplus
 #define ASSUME_NOT_EQUAL_BSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(strcmp((const char*)(actual.c_str()), (const char*)(expected.c_str())) != 0, "Expected byte string " #actual " to not be equal to " #expected)
+    FOSSIL_TEST_ASSUME(strcmp((actual.c_str()), (expected.c_str())) != 0, "Expected byte string " #actual " to not be equal to " #expected)
 #else
 #define ASSUME_NOT_EQUAL_BSTR(actual, expected) \
     FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) != 0, "Expected byte string " #actual " to not be equal to " #expected)
@@ -2207,7 +2207,7 @@ extern "C" {
  */
 #ifdef __cplusplus
 #define ASSUME_ITS_LENGTH_EQUAL_BSTR(actual, expected_len) \
-    FOSSIL_TEST_ASSUME(strlen((const char*)(actual.c_str())) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
+    FOSSIL_TEST_ASSUME(strlen((actual.c_str())) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
 #else
 #define ASSUME_ITS_LENGTH_EQUAL_BSTR(actual, expected_len) \
     FOSSIL_TEST_ASSUME(strlen((const char*)(actual)) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
