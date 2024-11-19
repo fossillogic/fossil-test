@@ -138,7 +138,7 @@ void usage_info(void) {
 
 void version_info(void) {
     printf("Fossil Logic Test Framework\n");
-    printf("Version: 1.1.1\n");
+    printf("Version: 1.1.2\n");
     printf("Author: Michael Gene Brockus (Dreamer)\n");
     printf("License: Mozila Public License 2.0\n");
 }
