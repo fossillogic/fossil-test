@@ -692,9 +692,9 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_bstr) {
     std::string str3 = "World";
 
     // Test cases
-    ASSUME_ITS_EQUAL_BSTR(str1, str2);
-    ASSUME_NOT_EQUAL_BSTR(str1, str3);
-    ASSUME_ITS_LENGTH_EQUAL_BSTR(str1, 5);
+    ASSUME_ITS_EQUAL_BSTR(str1.c_str(), str2.c_str());
+    ASSUME_NOT_EQUAL_BSTR(str1.c_str(), str3.c_str());
+    ASSUME_ITS_LENGTH_EQUAL_BSTR(str1.c_str(), 5);
 } // end case
 
 FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
@@ -703,9 +703,9 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
     std::string str3 = "World";
 
     // Test cases
-    ASSUME_ITS_EQUAL_CSTR(str1, str2);
-    ASSUME_NOT_EQUAL_CSTR(str1, str3);
-    ASSUME_ITS_LENGTH_EQUAL_CSTR(str1, 5);
+    ASSUME_ITS_EQUAL_CSTR(str1.c_str(), str2.c_str());
+    ASSUME_NOT_EQUAL_CSTR(str1.c_str(), str3.c_str());
+    ASSUME_ITS_LENGTH_EQUAL_CSTR(str1.c_str(), 5);
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
