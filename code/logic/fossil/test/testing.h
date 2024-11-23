@@ -53,7 +53,8 @@ typedef struct {
 typedef enum {
     TEST_STATUS_PASS,
     TEST_STATUS_FAIL,
-    TEST_STATUS_SKIP
+    TEST_STATUS_SKIP,
+    TEST_STATUS_TTIMEOUT
 } test_status_t;
 
 // Stack frame structure for tracking function call details during failures
@@ -94,8 +95,10 @@ typedef struct fossil_test_env {
     int pass_count;
     int fail_count;
     int skip_count;
+    int timeout_count;
     int unexpected_count;
-    double total_execution_time;
+    double start_execution_time;
+    double end_execution_time;
     test_suite_t *test_suites;
 } fossil_test_env_t;
 
