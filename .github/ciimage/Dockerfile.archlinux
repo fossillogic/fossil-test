@@ -18,7 +18,8 @@ RUN pacman -Syu --noconfirm && \
     python-pip \
     git \
     meson \
-    ninja && \
+    ninja \
+    tzdata && \
     pacman -Scc --noconfirm
 
 # Set environment variables
