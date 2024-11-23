@@ -18,13 +18,22 @@
 #define MAX_NAME_LENGTH 256
 
 // Color codes
-#define COLOR_RESET      "\033[0m"
-#define COLOR_PASS       "\033[32m"  // Green
-#define COLOR_FAIL       "\033[31m"  // Red
-#define COLOR_SKIP       "\033[33m"  // Yellow
-#define COLOR_INFO       "\033[34m"  // Blue
-#define COLOR_BDD       "\033[35m"  // Magenta
-#define COLOR_CYAN      "\033[36m"  // Cyan
+#define FOSSIL_TEST_COLOR_RESET   "\033[0m"  // Reset
+#define FOSSIL_TEST_COLOR_GREEN   "\033[32m" // Green
+#define FOSSIL_TEST_COLOR_RED     "\033[31m" // Red
+#define FOSSIL_TEST_COLOR_YELLOW  "\033[33m" // Yellow
+#define FOSSIL_TEST_COLOR_BLUE    "\033[34m" // Blue
+#define FOSSIL_TEST_COLOR_MAGENTA "\033[35m" // Magenta
+#define FOSSIL_TEST_COLOR_CYAN    "\033[36m" // Cyan
+#define FOSSIL_TEST_COLOR_WHITE   "\033[97m" // White
+#define FOSSIL_TEST_COLOR_PURPLE  "\033[35m" // Purple
+#define FOSSIL_TEST_COLOR_ORANGE  "\033[38;5;208m" // Orange
+
+#define FOSSIL_TEST_ATTR_BOLD     "\033[1m"  // Bold
+#define FOSSIL_TEST_ATTR_DIM      "\033[2m"  // Dim
+#define FOSSIL_TEST_ATTR_UNDERLINE "\033[4m" // Underline
+#define FOSSIL_TEST_ATTR_ITATIC    "\033[3m" // Italic
+
 
 #include <setjmp.h>
 #include <stddef.h>
@@ -54,6 +63,7 @@ typedef enum {
     TEST_STATUS_PASS,
     TEST_STATUS_FAIL,
     TEST_STATUS_SKIP,
+    TEST_STATUS_EMPTY,
     TEST_STATUS_TTIMEOUT
 } test_status_t;
 
@@ -95,6 +105,7 @@ typedef struct fossil_test_env {
     int pass_count;
     int fail_count;
     int skip_count;
+    int empty_count;
     int timeout_count;
     int unexpected_count;
     double start_execution_time;
@@ -229,7 +240,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 #define _FOSSIL_TEST_SKIP(test_name, message) \
     test_name##_test_case.status = TEST_STATUS_SKIP; \
     test_name##_test_case.failure_message = message; \
-    printf(COLOR_SKIP "SKIP: %s - %s\n" COLOR_RESET, #test_name, message); \
+    printf(FOSSIL_TEST_COLOR_YELLOW "SKIP: %s - %s\n" FOSSIL_TEST_COLOR_RESET, #test_name, message); \
 
 /**
  * @brief Macro to define a test case.
@@ -447,7 +458,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
  */
 #define _GIVEN(description) \
     if (0) { \
-        printf(COLOR_BDD "Given %s\n" COLOR_RESET, description); \
+        printf(FOSSIL_TEST_COLOR_MAGENTA "Given %s\n" FOSSIL_TEST_COLOR_RESET, description); \
     }
 
 /**
@@ -460,7 +471,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
  */
 #define _WHEN(description) \
     if (0) { \
-        printf(COLOR_BDD "When %s\n" COLOR_RESET, description); \
+        printf(FOSSIL_TEST_COLOR_MAGENTA "When %s\n" FOSSIL_TEST_COLOR_RESET, description); \
     }
 
 /**
@@ -473,7 +484,7 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
  */
 #define _THEN(description) \
     if (0) { \
-        printf(COLOR_BDD "Then %s\n" COLOR_RESET, description); \
+        printf(FOSSIL_TEST_COLOR_MAGENTA "Then %s\n" FOSSIL_TEST_COLOR_RESET, description); \
     }
 
 #ifdef __cplusplus
