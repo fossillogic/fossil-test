@@ -321,7 +321,7 @@ void usage_info(void) {
 
 void version_info(void) {
     printf("Fossil Logic Test Framework\n");
-    printf("Version: 1.1.2\n");
+    printf("Version: 1.1.3\n");
     printf("Author: Michael Gene Brockus (Dreamer)\n");
     printf("License: Mozila Public License 2.0\n");
 }
@@ -553,11 +553,6 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
     }
 }
 
-// Function to check if a test case is empty (i.e., contains no assertions)
-bool is_test_case_empty(test_case_t *test_case) {
-    return _ASSERT_COUNT == 0;
-}
-
 // Run an individual test case
 void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
     if (!test_case) return;
@@ -589,7 +584,7 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
     test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
 
     // Check if the test case is empty
-    if (is_test_case_empty(test_case)) {
+    if (_ASSERT_COUNT == 0) {
         printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: " FOSSIL_TEST_COLOR_BLUE " %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
     }
 
