@@ -2172,33 +2172,6 @@ extern "C" {
     FOSSIL_TEST_ASSUME(wcslen((actual)) == (expected_len), "Expected length of wide string " #actual " to be equal to " #expected_len)
 
 /**
- * @brief Assumes that the given byte strings are equal.
- *
- * @param actual The actual byte string.
- * @param expected The expected byte string.
- */
-#define ASSUME_ITS_EQUAL_BSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) == 0, "Expected byte string " #actual " to be equal to " #expected)
-
-/**
- * @brief Assumes that the given byte strings are not equal.
- *
- * @param actual The actual byte string.
- * @param expected The expected byte string.
- */
-#define ASSUME_NOT_EQUAL_BSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(strcmp((const char*)(actual), (const char*)(expected)) != 0, "Expected byte string " #actual " to not be equal to " #expected)
-
-/**
- * @brief Assumes that the length of the given byte string is equal to the expected length.
- *
- * @param actual The actual byte string.
- * @param expected_len The expected length of the byte string.
- */
-#define ASSUME_ITS_LENGTH_EQUAL_BSTR(actual, expected_len) \
-    FOSSIL_TEST_ASSUME(strlen((const char*)(actual)) == (expected_len), "Expected length of byte string " #actual " to be equal to " #expected_len)
-
-/**
  * @brief Assumes that the given C strings are equal.
  *
  * @param actual The actual C string.
