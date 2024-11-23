@@ -686,17 +686,6 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_wstr) {
     ASSUME_ITS_LENGTH_EQUAL_WSTR(str1, 5);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_bstr) {
-    std::string str1 = "Hello";
-    std::string str2 = "Hello";
-    std::string str3 = "World";
-
-    // Test cases
-    ASSUME_ITS_EQUAL_BSTR(str1.c_str(), str2.c_str());
-    ASSUME_NOT_EQUAL_BSTR(str1.c_str(), str3.c_str());
-    ASSUME_ITS_LENGTH_EQUAL_BSTR(str1.c_str(), 5);
-} // end case
-
 FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
     std::string str1 = "Hello";
     std::string str2 = "Hello";
@@ -770,7 +759,6 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_cchar);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_wchar);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_wstr);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);

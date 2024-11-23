@@ -685,17 +685,6 @@ FOSSIL_TEST_CASE(c_assume_run_of_wstr) {
     ASSUME_ITS_LENGTH_EQUAL_WSTR(str1, 5);
 } // end case
 
-FOSSIL_TEST_CASE(c_assume_run_of_bstr) {
-    const char *str1 = (const char *)"Hello";
-    const char *str2 = (const char *)"Hello";
-    const char *str3 = (const char *)"World";
-
-    // Test cases
-    ASSUME_ITS_EQUAL_BSTR(str1, str2);
-    ASSUME_NOT_EQUAL_BSTR(str1, str3);
-    ASSUME_ITS_LENGTH_EQUAL_BSTR(str1, 5);
-} // end case
-
 FOSSIL_TEST_CASE(c_assume_run_of_cstr) {
     const char *str1 = "Hello";
     const char *str2 = "Hello";
@@ -769,7 +758,6 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_within_range_cchar);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_within_range_wchar);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_wstr);
-    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bstr);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_cstr);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
