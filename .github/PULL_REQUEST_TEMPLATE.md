@@ -1,10 +1,7 @@
-# Fossil Logic Layer Pull Request
+# Fossil Test - Pull Request
 
 ## Description
 <!-- Briefly describe the purpose and scope of this pull request. -->
-
-## Changes
-<!-- List the changes introduced by this pull request. -->
 
 ## Testing
 <!-- Describe the testing process or steps taken to ensure the changes work as expected. -->
