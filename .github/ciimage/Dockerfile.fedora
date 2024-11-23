@@ -6,6 +6,7 @@ ENV TZ=UTC
 
 # Install system dependencies and clean up
 RUN dnf -y update && \
+    dnf -y groupinstall "Development Tools" && \
     dnf install -y \
     gcc \
     gcc-c++ \
@@ -19,9 +20,8 @@ RUN dnf -y update && \
     python3-pip \
     git && \
     dnf clean all
-
 # Install Meson and Ninja using pip
-RUN python3 -m pip install --no-cache-dir meson==1.3.0 ninja==1.10.2
+RUN python3 -m pip install --no-cache-dir meson ninja
 
 # Set environment variables
 ENV CC=/usr/bin/clang

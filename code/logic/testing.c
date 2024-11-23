@@ -281,7 +281,6 @@ const char *timeout_messages[] = {
 
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 
-
 // Custom implementation of strdup to avoid warnings on some platforms
 char *_custom_fossil_test_strdup(const char *str) {
     size_t len = strlen(str) + 1;
