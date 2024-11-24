@@ -31,6 +31,12 @@ ENV CXX=/usr/bin/g++
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the source code
+COPY . .
+
+# Set the working directory
 RUN meson setup builddir
 RUN meson compile -C builddir
 RUN meson test -C builddir
