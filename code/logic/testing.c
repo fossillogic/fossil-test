@@ -308,22 +308,24 @@ fossil_options_t init_options(void) {
 }
 
 void usage_info(void) {
-    printf("Usage: fossil [options] [command]\n");
-    printf("Options:\n");
-    printf("  --version\t\tDisplays the current version of Fossil Test\n");
-    printf("  --help\t\tShows help message with usage\n");
-    printf("  --info\t\tDisplays detailed information about the test run.\n");
-    printf("Commands:\n");
-    printf("  reverse [enable|disable]\tEnables or disables reverse order of test execution\n");
-    printf("  repeat [count]\t\tRepeats the test suite a specified number of times\n");
-    printf("  shuffle [enable|disable]\tEnables or disables shuffling of test execution order\n");
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Usage: fossil [options] [command]\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD "Options:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --version\t\tDisplays the current version of Fossil Test\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --help\t\tShows help message with usage\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --info\t\tDisplays detailed information about the test run.\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "Commands:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  reverse [enable|disable]\tEnables or disables reverse order of test execution\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  repeat [count]\t\tRepeats the test suite a specified number of times\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  shuffle [enable|disable]\tEnables or disables shuffling of test execution order\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
 void version_info(void) {
-    printf("Fossil Logic Test Framework\n");
-    printf("Version: 1.1.3\n");
-    printf("Author: Michael Gene Brockus (Dreamer)\n");
-    printf("License: Mozila Public License 2.0\n");
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "Fossil Logic Test Framework\n");
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Version: 1.1.4\n");
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Author: Michael Gene Brockus (Dreamer)\n");
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "License: Mozila Public License 2.0\n");
 }
 
 // Parse command-line arguments
