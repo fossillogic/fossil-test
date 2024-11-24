@@ -336,13 +336,16 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env);
 void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env);
 
 /**
- * @brief Internal function to handle assertions
- *
- * @param condition The condition to check
- * @param message The message to display if the condition is false
- * @param file The file name where the assertion occurred
- * @param line The line number where the assertion occurred
- * @param func The function name where the assertion occurred
+ * @brief Internal function to handle assertions with anomaly detection.
+ * 
+ * This function is used internally by the test framework to handle assertions
+ * and detect duplicate assertions. It is not intended to be called directly.
+ * 
+ * @param condition The condition to check.
+ * @param message The message to display if the condition is false.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
  */
 void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
