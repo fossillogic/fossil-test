@@ -545,10 +545,30 @@ void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
 
 // Internal function to handle assertions
 void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
+    static const char *last_message = NULL; // Store the last assertion message
+    static const char *last_file = NULL;    // Store the last file name
+    static int last_line = 0;               // Store the last line number
+    static const char *last_func = NULL;    // Store the last function name
+
     _ASSERT_COUNT++; // Increment the assertion count
 
     if (!condition) {
-        printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+        // Check if the current assertion is the same as the last one
+        if (last_message && strcmp(last_message, message) == 0 &&
+            last_file && strcmp(last_file, file) == 0 &&
+            last_line == line &&
+            last_func && strcmp(last_func, func) == 0) {
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate assertion detected: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+        } else {
+            printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+        }
+
+        // Update the last assertion details
+        last_message = message;
+        last_file = file;
+        last_line = line;
+        last_func = func;
+
         longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
     }
 }
