@@ -543,12 +543,13 @@ void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
     }
 }
 
-// Internal function to handle assertions
+// Internal function to handle assertions with anomaly detection
 void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
     static const char *last_message = NULL; // Store the last assertion message
     static const char *last_file = NULL;    // Store the last file name
     static int last_line = 0;               // Store the last line number
     static const char *last_func = NULL;    // Store the last function name
+    static int anomaly_count = 0;           // Counter for anomaly detection
 
     _ASSERT_COUNT++; // Increment the assertion count
 
@@ -558,8 +559,10 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
             last_file && strcmp(last_file, file) == 0 &&
             last_line == line &&
             last_func && strcmp(last_func, func) == 0) {
-            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate assertion detected: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+            anomaly_count++;
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
         } else {
+            anomaly_count = 0; // Reset anomaly count for new assertion
             printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
         }
 
