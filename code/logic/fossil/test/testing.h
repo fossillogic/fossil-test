@@ -103,32 +103,6 @@ typedef enum {
 } test_status_t;
 
 /**
- * @struct stack_frame
- * @brief Structure to hold a stack frame for a test failure.
- * 
- * This structure contains fields to hold information about a stack frame, including
- * the function name, file name, line number, and a pointer to the next stack frame.
- * 
- * @var stack_frame::func
- * Function name
- * 
- * @var stack_frame::file
- * File name
- * 
- * @var stack_frame::line
- * Line number
- * 
- * @var stack_frame::next
- * Pointer to the next stack frame
- */
-typedef struct stack_frame {
-    const char *func;
-    const char *file;
-    int line;
-    struct stack_frame *next;
-} stack_frame_t;
-
-/**
  * @struct test_case
  * @brief Structure to hold a test case.
  * 
@@ -154,9 +128,6 @@ typedef struct stack_frame {
  * @var test_case::failure_message
  * Failure message (if any)
  * 
- * @var test_case::stack_trace
- * Stack trace for failures
- * 
  * @var test_case::execution_time
  * Execution time of the test
  * 
@@ -170,7 +141,6 @@ typedef struct test_case {
     void (*teardown_func)(void);         
     test_status_t status;                
     const char *failure_message;         
-    stack_frame_t *stack_trace;          
     double execution_time;               
     struct test_case *next;              
 } test_case_t;
@@ -370,13 +340,6 @@ void fossil_test_summary(fossil_test_env_t *env);
  */
 void fossil_test_run_all(fossil_test_env_t *env);
 
-/**
- * @brief Prints the stack trace.
- * 
- * @param stack_trace The stack trace to print.
- */
-void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
-
 // *****************************************************************************
 // Macro definitions
 // *****************************************************************************
@@ -421,7 +384,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         nullptr, \
         TEST_STATUS_PASS, \
         nullptr, \
-        nullptr, \
         0.0, \
         nullptr \
     }; \
@@ -436,7 +398,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         .teardown_func = NULL, \
         .status = TEST_STATUS_PASS, \
         .failure_message = NULL, \
-        .stack_trace = NULL, \
         .execution_time = 0.0, \
         .next = NULL \
     }; \

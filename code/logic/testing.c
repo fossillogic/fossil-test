@@ -730,11 +730,3 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     fossil_test_message(env);
 }
-
-void fossil_test_print_stack_trace(stack_frame_t *stack_trace) {
-    stack_frame_t *current_frame = stack_trace;
-    while (current_frame) {
-        printf("  at %s (%s:%d)\n", current_frame->func, current_frame->file, current_frame->line);
-        current_frame = current_frame->next;
-    }
-}
