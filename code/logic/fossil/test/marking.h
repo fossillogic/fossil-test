@@ -24,6 +24,14 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Structure to hold the benchmark statistics.
+ * 
+ * This structure contains various fields to manage the statistics for a benchmark,
+ * including the name of the benchmark, the start and end times, the number of samples,
+ * the total duration, the minimum and maximum durations, and a flag to indicate if the
+ * benchmark is currently running.
+ */
 typedef struct {
     const char* name;
     clock_t start_time;

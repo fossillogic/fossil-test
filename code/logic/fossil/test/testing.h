@@ -48,7 +48,35 @@
 extern "C" {
 #endif
 
-// Define the structure to hold parsed options
+/**
+ * @struct fossil_options
+ * @brief Structure to hold the configuration options for the test environment.
+ * 
+ * This structure contains various fields to manage the configuration options for
+ * the test environment, including flags to show version and help information, as
+ * well as options to reverse the order of tests, repeat tests, and shuffle tests.
+ * 
+ * @var fossil_options::show_version
+ * Flag to show version information.
+ * 
+ * @var fossil_options::show_help
+ * Flag to show help information.
+ * 
+ * @var fossil_options::show_info
+ * Flag to show additional information.
+ * 
+ * @var fossil_options::reverse
+ * Flag to reverse the order of tests.
+ * 
+ * @var fossil_options::repeat_enabled
+ * Flag to enable repeating tests.
+ * 
+ * @var fossil_options::repeat_count
+ * Number of times to repeat tests.
+ * 
+ * @var fossil_options::shuffle_enabled
+ * Flag to enable shuffling of tests.
+ */
 typedef struct {
     bool show_version;
     bool show_help;
@@ -59,6 +87,13 @@ typedef struct {
     bool shuffle_enabled;
 } fossil_options_t;
 
+/**
+ * @enum test_status
+ * @brief Enumeration to represent the status of a test.
+ * 
+ * This enumeration defines the possible status values for a test, including
+ * pass, fail, skip, empty, and timeout.
+ */
 typedef enum {
     TEST_STATUS_PASS,
     TEST_STATUS_FAIL,
@@ -67,37 +102,128 @@ typedef enum {
     TEST_STATUS_TTIMEOUT
 } test_status_t;
 
-// Stack frame structure for tracking function call details during failures
-typedef struct stack_frame {
-    const char *func;
-    const char *file;
-    int line;
-    struct stack_frame *next;
-} stack_frame_t;
-
-// Test case structure
+/**
+ * @struct test_case
+ * @brief Structure to hold a test case.
+ * 
+ * This structure contains fields to hold information about a test case, including
+ * the name, test function, setup function, teardown function, status, failure message,
+ * execution time, and a pointer to the next test case.
+ * 
+ * @var test_case::name
+ * Test case name
+ * 
+ * @var test_case::test_func
+ * Pointer to test function
+ * 
+ * @var test_case::setup_func
+ * Pointer to setup function (optional)
+ * 
+ * @var test_case::teardown_func
+ * Pointer to teardown function (optional)
+ * 
+ * @var test_case::status
+ * Test status (pass, fail, skip)
+ * 
+ * @var test_case::failure_message
+ * Failure message (if any)
+ * 
+ * @var test_case::execution_time
+ * Execution time of the test
+ * 
+ * @var test_case::next
+ * Pointer to next test case in the list
+ */
 typedef struct test_case {
-    const char *name;                    // Test case name
-    void (*test_func)(void);             // Pointer to test function
-    void (*setup_func)(void);            // Pointer to setup function (optional)
-    void (*teardown_func)(void);         // Pointer to teardown function (optional)
-    test_status_t status;                // Test status (pass, fail, skip)
-    const char *failure_message;         // Failure message (if any)
-    stack_frame_t *stack_trace;          // Stack trace for failures
-    double execution_time;               // Execution time of the test
-    struct test_case *next;              // Pointer to next test case in the list
+    const char *name;                    
+    void (*test_func)(void);             
+    void (*setup_func)(void);            
+    void (*teardown_func)(void);         
+    test_status_t status;                
+    const char *failure_message;         
+    double execution_time;               
+    struct test_case *next;              
 } test_case_t;
 
-// Test suite structure
+/**
+ * @struct test_suite
+ * @brief Structure to hold a test suite.
+ * 
+ * This structure contains fields to hold information about a test suite, including
+ * the name, suite setup function, suite teardown function, total execution time,
+ * list of test cases, and a pointer to the next test suite.
+ * 
+ * @var test_suite::name
+ * Suite name
+ * 
+ * @var test_suite::suite_setup_func
+ * Pointer to suite setup function (optional)
+ * 
+ * @var test_suite::suite_teardown_func
+ * Pointer to suite teardown function (optional)
+ * 
+ * @var test_suite::total_execution_time
+ * Total execution time of all test cases
+ * 
+ * @var test_suite::tests
+ * List of test cases
+ * 
+ * @var test_suite::next
+ * Pointer to next suite in the list
+ */
 typedef struct test_suite {
-    const char *name;                    // Suite name
-    void (*suite_setup_func)(void);      // Suite setup function (optional)
-    void (*suite_teardown_func)(void);   // Suite teardown function (optional)
-    double total_execution_time;         // Total execution time of all test cases
-    test_case_t *tests;                  // List of test cases
-    struct test_suite *next;             // Pointer to next suite in the list
+    const char *name;
+    void (*suite_setup_func)(void);
+    void (*suite_teardown_func)(void);
+    double total_execution_time;
+    test_case_t *tests;
+    struct test_suite *next;
 } test_suite_t;
 
+/**
+ * @struct fossil_test_env
+ * @brief Structure to hold the environment for fossil tests.
+ * 
+ * This structure contains various fields to manage and track the state of 
+ * test execution, including options, counts of different test outcomes, 
+ * execution times, and a list of test suites.
+ * 
+ * @var fossil_test_env::options
+ * Configuration options for the fossil test environment.
+ * 
+ * @var fossil_test_env::env
+ * Environment buffer for handling non-local jumps (e.g., setjmp/longjmp).
+ * 
+ * @var fossil_test_env::total_tests
+ * Total number of tests to be executed.
+ * 
+ * @var fossil_test_env::pass_count
+ * Count of tests that have passed.
+ * 
+ * @var fossil_test_env::fail_count
+ * Count of tests that have failed.
+ * 
+ * @var fossil_test_env::skip_count
+ * Count of tests that have been skipped.
+ * 
+ * @var fossil_test_env::empty_count
+ * Count of tests that are empty (i.e., no test cases).
+ * 
+ * @var fossil_test_env::timeout_count
+ * Count of tests that have timed out.
+ * 
+ * @var fossil_test_env::unexpected_count
+ * Count of tests that have encountered unexpected errors.
+ * 
+ * @var fossil_test_env::start_execution_time
+ * Timestamp marking the start of test execution.
+ * 
+ * @var fossil_test_env::end_execution_time
+ * Timestamp marking the end of test execution.
+ * 
+ * @var fossil_test_env::test_suites
+ * Pointer to the list of test suites to be executed.
+ */
 typedef struct fossil_test_env {
     fossil_options_t options;
     jmp_buf env;
@@ -180,13 +306,16 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env);
 void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env);
 
 /**
- * @brief Asserts a condition and prints a message if the assertion fails.
+ * @brief Internal function to handle assertions with anomaly detection.
  * 
- * @param condition The condition to assert.
- * @param message The message to print if the assertion fails.
- * @param file The file where the assertion failed.
- * @param line The line number where the assertion failed.
- * @param func The function where the assertion failed.
+ * This function is used internally by the test framework to handle assertions
+ * and detect duplicate assertions. It is not intended to be called directly.
+ * 
+ * @param condition The condition to check.
+ * @param message The message to display if the condition is false.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
  */
 void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
@@ -210,13 +339,6 @@ void fossil_test_summary(fossil_test_env_t *env);
  * @param env The test environment.
  */
 void fossil_test_run_all(fossil_test_env_t *env);
-
-/**
- * @brief Prints the stack trace.
- * 
- * @param stack_trace The stack trace to print.
- */
-void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
 
 // *****************************************************************************
 // Macro definitions
@@ -262,7 +384,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         nullptr, \
         TEST_STATUS_PASS, \
         nullptr, \
-        nullptr, \
         0.0, \
         nullptr \
     }; \
@@ -277,7 +398,6 @@ void fossil_test_print_stack_trace(stack_frame_t *stack_trace);
         .teardown_func = NULL, \
         .status = TEST_STATUS_PASS, \
         .failure_message = NULL, \
-        .stack_trace = NULL, \
         .execution_time = 0.0, \
         .next = NULL \
     }; \
