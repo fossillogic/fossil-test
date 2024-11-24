@@ -108,7 +108,7 @@ typedef enum {
  * 
  * This structure contains fields to hold information about a test case, including
  * the name, test function, setup function, teardown function, status, failure message,
- * stack trace, execution time, and a pointer to the next test case.
+ * execution time, and a pointer to the next test case.
  * 
  * @var test_case::name
  * Test case name
