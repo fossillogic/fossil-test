@@ -22,7 +22,6 @@
 #include <float.h>
 #include <stdarg.h>
 
-
 #if defined(_WIN32)
 #include <windows.h>
 static LARGE_INTEGER frequency;

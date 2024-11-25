@@ -14,9 +14,6 @@ RUN apt-get update && \
     g++ \
     gdb \
     llvm \
-    gobjc \
-    gobjc++ \
-    libobjc-8-dev \
     libstdc++-8-dev \
     rustc \
     cargo \

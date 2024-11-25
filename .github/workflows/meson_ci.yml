@@ -249,6 +249,7 @@ jobs:
             -w /workspace \
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
+              apt-get update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
               meson test -C builddir -v"
