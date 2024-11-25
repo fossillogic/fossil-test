@@ -96,6 +96,9 @@ jobs:
       - name: Install Meson and Ninja
         run: |
           python -m pip install meson ninja
+
+      - name: Install Valgrind
+        run: brew install valgrind
   
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
@@ -104,7 +107,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test --wrap='valgrind --tool=memcheck --leak-check=full' -C builddir -v
   
       - name: Upload Test Log
         if: failure()
@@ -144,6 +147,9 @@ jobs:
         run: |
           python -m pip install meson ninja
 
+      - name: Install Valgrind
+        run: pacman -S --noconfirm valgrind
+
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
@@ -151,7 +157,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test --wrap='valgrind --tool=memcheck --leak-check=full' -C builddir -v
 
       - name: Upload Test Log
         if: failure()
@@ -195,6 +201,9 @@ jobs:
         run: |
           python -m pip install meson ninja
 
+      - name: Install Valgrind
+        run: choco install valgrind
+
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
@@ -202,7 +211,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test --wrap='valgrind --tool=memcheck --leak-check=full' -C builddir -v
 
       - name: Upload Test Log
         if: failure()
@@ -217,7 +226,7 @@ jobs:
 
     strategy:
       matrix:
-        distro: [ubuntu, fedora, archlinux, debian]
+        distro: [ubuntu, fedora, archlinux, debian, opensuse, alpine]
 
     steps:
       - name: Checkout code
@@ -249,9 +258,10 @@ jobs:
             -w /workspace \
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
+              apt-get update && apt-get install -y valgrind
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
-              meson test -C builddir -v"
+              meson test --wrap='valgrind --tool=memcheck --leak-check=full' -C builddir -v"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
@@ -338,6 +348,9 @@ jobs:
       - name: Install Meson
         run: |
           python -m pip install meson ninja
+
+      - name: Install Valgrind
+        run: sudo apt-get install -y valgrind
 
       - name: Configure the Project
         run: |
