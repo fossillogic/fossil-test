@@ -19,6 +19,7 @@ RUN pacman -Syu --noconfirm && \
     git \
     meson \
     ninja \
+    valgrind \
     tzdata && \
     pacman -Scc --noconfirm
 
