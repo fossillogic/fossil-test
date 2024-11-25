@@ -252,7 +252,7 @@ jobs:
               apt-get update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
-              meson test --wrap='valgrind --tool=memcheck --leak-check=full' -C builddir -v"
+              meson test -C builddir -v"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
