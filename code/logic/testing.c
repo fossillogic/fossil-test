@@ -279,6 +279,22 @@ const char *timeout_messages[] = {
 
 #endif
 
+static const char *FOSSIL_TEST_OPTIONS[] = {
+    "--version - Displays the current version of Fossil Test\n",
+    "--help - Shows help message with usage\n",
+    "--info - Displays detailed information about the test run\n",
+};
+
+static const char *FOSSIL_TEST_COMMANDS[] = {
+    "reverse [enable|disable] - Enables or disables reverse order of test execution\n",
+    "repeat [count] - Repeats the test suite a specified number of times\n",
+    "shuffle [enable|disable] - Enables or disables shuffling of test execution order\n",
+};
+
+static const char *FOSSIL_TEST_VERSION = "1.1.4"; // Version of Fossil Test
+static const char *FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)"; // Author of Fossil Test
+static const char *FOSSIL_TEST_LICENSE = "Mozilla Public License 2.0"; // License of Fossil Test
+
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
 
@@ -308,24 +324,25 @@ fossil_options_t init_options(void) {
 }
 
 void usage_info(void) {
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Usage: fossil [options] [command]\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD "Options:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --version\t\tDisplays the current version of Fossil Test\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --help\t\tShows help message with usage\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  --info\t\tDisplays detailed information about the test run.\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "Commands:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  reverse [enable|disable]\tEnables or disables reverse order of test execution\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  repeat [count]\t\tRepeats the test suite a specified number of times\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "  shuffle [enable|disable]\tEnables or disables shuffling of test execution order\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Usage: fossil [options] [command]"                                   FOSSIL_TEST_COLOR_RESET);
+    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
+    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tOptions:" FOSSIL_TEST_COLOR_RESET);
+    for (size_t i = 0; i < sizeof(FOSSIL_TEST_OPTIONS) / sizeof(FOSSIL_TEST_OPTIONS[0]); i++) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_OPTIONS[i]);
+    }
+
+    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tCommands:" FOSSIL_TEST_COLOR_RESET);
+    for (size_t i = 0; i < sizeof(FOSSIL_TEST_COMMANDS) / sizeof(FOSSIL_TEST_COMMANDS[0]); i++) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_COMMANDS[i]);
+    }
+    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
 }
 
 void version_info(void) {
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "Fossil Logic Test Framework\n");
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Version: 1.1.4\n");
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Author: Michael Gene Brockus (Dreamer)\n");
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "License: Mozila Public License 2.0\n");
+    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "Fossil Logic Test Framework");
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tVersion: %s\n", FOSSIL_TEST_VERSION);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tAuthor: %s\n", FOSSIL_TEST_AUTHOR);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tLicense: %s\n", FOSSIL_TEST_LICENSE);
 }
 
 // Parse command-line arguments
@@ -446,6 +463,10 @@ void shuffle_test_cases(test_case_t **test_cases) {
 // Creates and returns a new test suite
 test_suite_t* fossil_test_create_suite(const char *name) {
     test_suite_t *suite = (test_suite_t*)malloc(sizeof(test_suite_t));
+    if (!suite) {
+        return NULL;
+    }
+
     suite->name = name;
     suite->suite_setup_func = NULL;
     suite->suite_teardown_func = NULL;
@@ -456,7 +477,10 @@ test_suite_t* fossil_test_create_suite(const char *name) {
 
 // Registers a test suite in the environment
 void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite) {
-    if (!suite) return;
+    if (!env || !suite) {
+        return;
+    }
+
     suite->next = env->test_suites;
     env->test_suites = suite;
     if (env->options.show_info) {
@@ -466,7 +490,9 @@ void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite) {
 
 // Adds a test case to a suite
 void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case) {
-    if (!suite || !test_case) return;
+    if (!suite || !test_case) {
+        return;
+    }
 
     test_case->next = suite->tests;
     suite->tests = test_case;
@@ -474,7 +500,9 @@ void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case) {
 
 // Removes and frees a test case from a suite
 void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case) {
-    if (!suite || !test_case) return;
+    if (!suite || !test_case) {
+        return;
+    }
 
     test_case_t *prev = NULL;
     test_case_t *curr = suite->tests;
@@ -510,7 +538,9 @@ void fossil_test_case_teardown(test_case_t *test_case) {
 
 // Run all test cases in a test suite
 void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
-    if (!suite) return;
+    if (!suite || !env) {
+        return;
+    }
 
     if (env->options.show_info) {
         printf(FOSSIL_TEST_COLOR_BLUE "Running suite: %s\n" FOSSIL_TEST_COLOR_RESET, suite->name);
@@ -580,7 +610,9 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
 
 // Run an individual test case
 void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
-    if (!test_case) return;
+    if (!test_case) {
+        return;
+    }
 
     test_case->status = TEST_STATUS_PASS;
 
@@ -635,6 +667,10 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
 }
 
 void fossil_test_run_all(fossil_test_env_t *env) {
+    if (!env) {
+        return;
+    }
+
     test_suite_t *current_suite = env->test_suites;
 
     while (current_suite) {
@@ -649,10 +685,12 @@ void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
         version_info();
         exit(EXIT_SUCCESS);
     }
+
     if (env->options.show_help) {
         usage_info();
         exit(EXIT_SUCCESS);
     }
+
     env->pass_count = 0;
     env->fail_count = 0;
     env->skip_count = 0;
@@ -679,7 +717,7 @@ void fossil_test_message(fossil_test_env_t *env) {
     } else if (env->timeout_count > 0) {
         printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % 30]);
     } else {
-        printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITATIC "Test results are in. Keep pushing, you're getting there! 💪\n" FOSSIL_TEST_COLOR_RESET);
+        puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITATIC "Test results are in. Keep pushing, you're getting there!" FOSSIL_TEST_COLOR_RESET);
     }
 }
 
