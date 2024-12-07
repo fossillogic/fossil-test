@@ -119,6 +119,14 @@ void fossil_test_benchmark(char* duration_type, double expected, double actual) 
 } // end of func
 
 void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
+    if (benchmark == NULL) {
+        return;
+    }
+
+    if (name == NULL) {
+        return;
+    }
+
     benchmark->name = name;
     benchmark->num_samples = 0;
     benchmark->total_duration = 0.0;
@@ -128,6 +136,10 @@ void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
 }
 
 void fossil_benchmark_start(fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        return;
+    }
+
     if (!benchmark->running) {
         benchmark->start_time = clock();
         benchmark->running = 1;
