@@ -74,11 +74,52 @@ FOSSIL_TEST_CASE(cpp_test_should_not_run) {
     FOSSIL_TEST_ASSUME(1 == 0, "This test should not run");
 }
 
+// A simple test case to check if input % 2 equals expected_output
+FOSSIL_TEST_CASE(cpp_test_input_modulo) {
+    CppSampleTestData data = { 5, 1 };
+    
+    int actual_output = data.input % 2;
+    
+    FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Modulo test failed");
+}
+
+// A simple test case to check if input squared equals expected_output
+FOSSIL_TEST_CASE(cpp_test_input_square) {
+    CppSampleTestData data = { 3, 9 };
+    
+    int actual_output = data.input * data.input;
+    
+    FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Square test failed");
+}
+
+// A simple test case to check if input is equal to expected_output
+FOSSIL_TEST_CASE(cpp_test_input_equal) {
+    CppSampleTestData data = { 7, 7 };
+    
+    int actual_output = data.input;
+    
+    FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Equality test failed");
+}
+
+FOSSIL_TEST_CASE(cpp_test_has_no_assertions) {
+    // This test has no assertions
+}
+
+FOSSIL_TEST_CASE(cpp_test_has_copy_assertions) {
+    ASSUME_ITS_TRUE(1 == 1);
+    ASSUME_ITS_TRUE(1 == 1);
+}
+
 FOSSIL_TEST_GROUP(cpp_sample_test_cases) {
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_increment);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_decrement);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_double);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_half);
+    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_modulo);
+    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_square);
+    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_equal);
+    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_has_no_assertions); // Should be detected as empty
+    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_has_copy_assertions); // Should be detected as a copy cat
 
     FOSSIL_TEST_SKIP(cpp_test_should_not_run, "This test should not run");
 
