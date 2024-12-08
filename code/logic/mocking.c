@@ -25,6 +25,10 @@ void fossil_mock_init(MockCallList *list) {
 }
 
 void fossil_mock_destroy(MockCallList *list) {
+    if (!list) {
+        return;
+    }
+
     MockCall *current = list->head;
     while (current) {
         MockCall *next = current->next;
