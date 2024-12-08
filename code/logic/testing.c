@@ -586,13 +586,13 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
     _ASSERT_COUNT++; // Increment the assertion count
 
     if (!condition) {
-        // Check if the current assertion is the same as the last one
-        if (last_message && strcmp(last_message, message) == 0 &&
+        // Check if the current assertion is the same or similar to the last one
+        if (last_message && strstr(message, last_message) != NULL &&
             last_file && strcmp(last_file, file) == 0 &&
             last_line == line &&
             last_func && strcmp(last_func, func) == 0) {
             anomaly_count++;
-            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
         } else {
             anomaly_count = 0; // Reset anomaly count for new assertion
             printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
@@ -635,14 +635,14 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
         }
     } else {
         test_case->status = TEST_STATUS_FAIL;
-        printf(FOSSIL_TEST_COLOR_RED "FAIL: " FOSSIL_TEST_COLOR_BLUE " %s\n", test_case->name);
+        printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE " %s\n", test_case->name);
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
     }
     test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
 
     // Check if the test case is empty
     if (_ASSERT_COUNT == 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: " FOSSIL_TEST_COLOR_BLUE " %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
+        printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
     }
 
     // Run teardown
@@ -651,7 +651,7 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
     // Log result
     if (test_case->status == TEST_STATUS_PASS) {
         if (env->options.show_info) {
-            printf(FOSSIL_TEST_COLOR_GREEN "PASS: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
+            printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
         }
     } else if (test_case->status == TEST_STATUS_FAIL) {
         env->fail_count++;
