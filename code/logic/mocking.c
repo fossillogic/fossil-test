@@ -19,6 +19,9 @@
 extern char *_custom_fossil_test_strdup(const char *str);
 
 void fossil_mock_init(MockCallList *list) {
+    if (!list) {
+        return;
+    }
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
@@ -40,15 +43,47 @@ void fossil_mock_destroy(MockCallList *list) {
         free(current);
         current = next;
     }
+    list->head = NULL;
+    list->tail = NULL;
+    list->size = 0;
 }
 
 void fossil_mock_add_call(MockCallList *list, const char *function_name, char **arguments, int num_args) {
+    if (!list || !function_name || !arguments) {
+        return;
+    }
+
     MockCall *call = (MockCall *)malloc(sizeof(MockCall));
+    if (!call) {
+        return;
+    }
+
     call->function_name = _custom_fossil_test_strdup(function_name);
+    if (!call->function_name) {
+        free(call);
+        return;
+    }
+
     call->arguments = (char **)malloc(num_args * sizeof(char *));
+    if (!call->arguments) {
+        free(call->function_name);
+        free(call);
+        return;
+    }
+
     for (int i = 0; i < num_args; ++i) {
         call->arguments[i] = _custom_fossil_test_strdup(arguments[i]);
+        if (!call->arguments[i]) {
+            for (int j = 0; j < i; ++j) {
+                free(call->arguments[j]);
+            }
+            free(call->arguments);
+            free(call->function_name);
+            free(call);
+            return;
+        }
     }
+
     call->num_args = num_args;
     call->next = NULL;
 
@@ -62,6 +97,10 @@ void fossil_mock_add_call(MockCallList *list, const char *function_name, char **
 }
 
 void fossil_mock_print(MockCallList *list) {
+    if (!list) {
+        return;
+    }
+
     MockCall *current = list->head;
     while (current) {
         printf("Function: %s\n", current->function_name);
