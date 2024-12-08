@@ -93,6 +93,11 @@ void assume_duration(double expected, double actual, double unit) {
 
 // Marks a test case as timeout with a specified time and prints it to stderr.
 void fossil_test_benchmark(char* duration_type, double expected, double actual) {
+    if (duration_type == NULL) {
+        printf("Error: duration_type is NULL\n");
+        return;
+    }
+
     if (strcmp(duration_type, "minutes") == 0) {
         assume_duration(expected, actual, 60.0);
     } else if (strcmp(duration_type, "seconds") == 0) {
@@ -120,10 +125,12 @@ void fossil_test_benchmark(char* duration_type, double expected, double actual) 
 
 void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
     if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
         return;
     }
 
     if (name == NULL) {
+        printf("Error: name is NULL\n");
         return;
     }
 
@@ -137,6 +144,7 @@ void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
 
 void fossil_benchmark_start(fossil_benchmark_t* benchmark) {
     if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
         return;
     }
 
@@ -147,6 +155,11 @@ void fossil_benchmark_start(fossil_benchmark_t* benchmark) {
 }
 
 void fossil_benchmark_stop(fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return;
+    }
+
     if (benchmark->running) {
         benchmark->end_time = clock();
         double elapsed = ((double)(benchmark->end_time - benchmark->start_time)) / CLOCKS_PER_SEC;
@@ -163,22 +176,42 @@ void fossil_benchmark_stop(fossil_benchmark_t* benchmark) {
 }
 
 double fossil_benchmark_elapsed_seconds(const fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return 0.0;
+    }
     return benchmark->total_duration;
 }
 
 double fossil_benchmark_min_time(const fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return 0.0;
+    }
     return benchmark->min_duration;
 }
 
 double fossil_benchmark_max_time(const fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return 0.0;
+    }
     return benchmark->max_duration;
 }
 
 double fossil_benchmark_avg_time(const fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return 0.0;
+    }
     return benchmark->num_samples > 0 ? benchmark->total_duration / benchmark->num_samples : 0.0;
 }
 
 void fossil_benchmark_reset(fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return;
+    }
     benchmark->num_samples = 0;
     benchmark->total_duration = 0.0;
     benchmark->min_duration = DBL_MAX;
@@ -186,6 +219,10 @@ void fossil_benchmark_reset(fossil_benchmark_t* benchmark) {
 }
 
 void fossil_benchmark_report(const fossil_benchmark_t* benchmark) {
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return;
+    }
     printf("\033[1;36mBenchmark : %s\n", benchmark->name);
     printf("\033[1;32mTotal Time: %.6f seconds\n", fossil_benchmark_elapsed_seconds(benchmark));
     printf("\033[1;32mMin Time  : %.6f seconds\n", fossil_benchmark_min_time(benchmark));
@@ -194,10 +231,25 @@ void fossil_benchmark_report(const fossil_benchmark_t* benchmark) {
 }
 
 void fossil_scoped_benchmark_init(scoped_benchmark_t* scoped_benchmark, fossil_benchmark_t* benchmark) {
+    if (scoped_benchmark == NULL) {
+        printf("Error: scoped_benchmark is NULL\n");
+        return;
+    }
+
+    if (benchmark == NULL) {
+        printf("Error: benchmark is NULL\n");
+        return;
+    }
+
     scoped_benchmark->benchmark = benchmark;
     fossil_benchmark_start(scoped_benchmark->benchmark);
 }
 
 void fossil_scoped_benchmark_destroy(scoped_benchmark_t* scoped_benchmark) {
+    if (scoped_benchmark == NULL) {
+        printf("Error: scoped_benchmark is NULL\n");
+        return;
+    }
+
     fossil_benchmark_stop(scoped_benchmark->benchmark);
 }
