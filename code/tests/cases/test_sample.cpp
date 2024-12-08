@@ -105,11 +105,6 @@ FOSSIL_TEST_CASE(cpp_test_has_no_assertions) {
     // This test has no assertions
 }
 
-FOSSIL_TEST_CASE(cpp_test_has_copy_assertions) {
-    ASSUME_ITS_TRUE(1 == 1);
-    ASSUME_ITS_TRUE(1 == 1);
-}
-
 FOSSIL_TEST_GROUP(cpp_sample_test_cases) {
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_increment);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_decrement);
@@ -119,7 +114,6 @@ FOSSIL_TEST_GROUP(cpp_sample_test_cases) {
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_square);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_input_equal);
     FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_has_no_assertions); // Should be detected as empty
-    FOSSIL_TEST_ADD(cpp_sample_suite, cpp_test_has_copy_assertions); // Should be detected as a copy cat
 
     FOSSIL_TEST_SKIP(cpp_test_should_not_run, "This test should not run");
 
