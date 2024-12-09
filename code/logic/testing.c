@@ -292,7 +292,7 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "dry-run [enable|disable] - Enables or disables dry-run mode\n"
 };
 
-static const char *FOSSIL_TEST_VERSION = "1.1.4"; // Version of Fossil Test
+static const char *FOSSIL_TEST_VERSION = "1.1.5"; // Version of Fossil Test
 static const char *FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)"; // Author of Fossil Test
 static const char *FOSSIL_TEST_LICENSE = "Mozilla Public License 2.0"; // License of Fossil Test
 
