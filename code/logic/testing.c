@@ -282,13 +282,14 @@ const char *timeout_messages[] = {
 static const char *FOSSIL_TEST_OPTIONS[] = {
     "--version - Displays the current version of Fossil Test\n",
     "--help - Shows help message with usage\n",
-    "--info - Displays detailed information about the test run\n",
+    "--info - Displays detailed information about the test run\n"
 };
 
 static const char *FOSSIL_TEST_COMMANDS[] = {
     "reverse [enable|disable] - Enables or disables reverse order of test execution\n",
     "repeat [count] - Repeats the test suite a specified number of times\n",
     "shuffle [enable|disable] - Enables or disables shuffling of test execution order\n",
+    "dry-run [enable|disable] - Enables or disables dry-run mode\n"
 };
 
 static const char *FOSSIL_TEST_VERSION = "1.1.4"; // Version of Fossil Test
@@ -320,6 +321,7 @@ fossil_options_t init_options(void) {
     options.repeat_enabled = false;
     options.repeat_count = 1;
     options.shuffle_enabled = false;
+    options.dry_run = false;
     return options;
 }
 
@@ -359,8 +361,10 @@ fossil_options_t fossil_options_parse(int argc, char **argv) {
         } else if (strcmp(argv[i], "reverse") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.reverse = true;
+                i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.reverse = false;
+                i++;
             }
         } else if (strcmp(argv[i], "repeat") == 0) {
             options.repeat_enabled = true;
@@ -371,8 +375,18 @@ fossil_options_t fossil_options_parse(int argc, char **argv) {
         } else if (strcmp(argv[i], "shuffle") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.shuffle_enabled = true;
+                i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.shuffle_enabled = false;
+                i++;
+            }
+        } else if (strcmp(argv[i], "dry-run") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
+                options.dry_run = true;
+                i++;
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
+                options.dry_run = false;
+                i++;
             }
         }
     }
@@ -462,6 +476,10 @@ void shuffle_test_cases(test_case_t **test_cases) {
 
 // Creates and returns a new test suite
 test_suite_t* fossil_test_create_suite(const char *name) {
+    if (!name) {
+        return NULL;
+    }
+
     test_suite_t *suite = (test_suite_t*)malloc(sizeof(test_suite_t));
     if (!suite) {
         return NULL;
@@ -610,7 +628,12 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
 
 // Run an individual test case
 void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
-    if (!test_case) {
+    if (!test_case || !env) {
+        return;
+    }
+
+    if (env->options.dry_run) {
+        puts(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests will be executed." FOSSIL_TEST_COLOR_RESET);
         return;
     }
 
@@ -624,23 +647,24 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
 
     _ASSERT_COUNT = 0; // Reset assertion count before running the test
 
-    if (setjmp(env->env) == 0) {
+    if (setjmp(env->env) == 0) { // Attempt to run the test case
         for (int i = 0; i < env->options.repeat_count; i++) {
             test_case->test_func();
-            if (clock() > timeout_limit) {
+            if (clock() > timeout_limit) { // Timeout check
                 test_case->status = TEST_STATUS_TTIMEOUT;
                 printf(FOSSIL_TEST_COLOR_ORANGE "TIMEOUT: " FOSSIL_TEST_COLOR_BLUE " %s\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
                 break;
             }
         }
-    } else {
+    } else { // Handle failure
         test_case->status = TEST_STATUS_FAIL;
         printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE " %s\n", test_case->name);
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
     }
+
     test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
 
-    // Check if the test case is empty
+    // Warn if the test case contains no assertions
     if (_ASSERT_COUNT == 0) {
         printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
     }
@@ -649,25 +673,34 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
     fossil_test_case_teardown(test_case);
 
     // Log result
-    if (test_case->status == TEST_STATUS_PASS) {
-        if (env->options.show_info) {
-            printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
-        }
-    } else if (test_case->status == TEST_STATUS_FAIL) {
-        env->fail_count++;
-    } else if (test_case->status == TEST_STATUS_SKIP) {
-        env->skip_count++;
-    } else if (test_case->status == TEST_STATUS_TTIMEOUT) {
-        env->timeout_count++;
-    } else if (test_case->status == TEST_STATUS_EMPTY) {
-        env->empty_count++;
-    } else {
-        env->unexpected_count++;
+    switch (test_case->status) {
+        case TEST_STATUS_PASS:
+            if (env->options.show_info) {
+                printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
+            }
+            break;
+        case TEST_STATUS_FAIL:
+            env->fail_count++;
+            break;
+        case TEST_STATUS_SKIP:
+            env->skip_count++;
+            break;
+        case TEST_STATUS_TTIMEOUT:
+            env->timeout_count++;
+            break;
+        default:
+            env->unexpected_count++;
+            break;
     }
 }
 
 void fossil_test_run_all(fossil_test_env_t *env) {
     if (!env) {
+        return;
+    }
+
+    if (env->options.dry_run) {
+        puts(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests will be executed." FOSSIL_TEST_COLOR_RESET);
         return;
     }
 
@@ -680,6 +713,10 @@ void fossil_test_run_all(fossil_test_env_t *env) {
 }
 
 void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
+    if (!env) {
+        return;
+    }
+
     env->options = fossil_options_parse(argc, argv);
     if (env->options.show_version) {
         version_info();
@@ -701,6 +738,11 @@ void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
     env->end_execution_time = 0.0;
     env->unexpected_count = 0;
     env->test_suites = NULL;
+
+    if (env->options.dry_run) {
+        puts(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests will be executed or evaluated." FOSSIL_TEST_COLOR_RESET);
+        return;
+    }
 }
 
 // Function to generate a dynamic message based on the test results
@@ -723,6 +765,15 @@ void fossil_test_message(fossil_test_env_t *env) {
 
 // Summary function for test results
 void fossil_test_summary(fossil_test_env_t *env) {
+    if (!env) {
+        return;
+    }
+
+    if (env->options.dry_run) {
+        puts(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests were executed or evaluated." FOSSIL_TEST_COLOR_RESET);
+        return;
+    }
+
     test_suite_t *suite = env->test_suites;
     while (suite != NULL) {
         test_case_t *test = suite->tests;
