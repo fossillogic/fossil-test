@@ -159,6 +159,63 @@ FOSSIL_TEST_CASE(cpp_xbdd_invalid_login) {
     }
 } // end of case
 
+FOSSIL_TEST_CASE(cpp_xbdd_insufficient_balance) {
+    GIVEN("a user's account with insufficient balance") {
+        // Set up the context
+        float accountBalance = 100.0;
+        float withdrawalAmount = 200.0;
+
+        WHEN("the user requests a withdrawal of $200") {
+            // Perform the withdrawal action
+            bool withdrawalSuccess = false;
+            if (accountBalance >= withdrawalAmount) {
+                accountBalance -= withdrawalAmount;
+                withdrawalSuccess = true;
+            }
+
+            THEN("the withdrawal should fail and balance should remain unchanged") {
+                // Check the expected outcome
+                FOSSIL_TEST_ASSUME(!withdrawalSuccess, "Withdrawal should not succeed");
+                FOSSIL_TEST_ASSUME(accountBalance == 100.0, "Account balance should remain unchanged");
+            }
+        }
+    }
+} // end of case
+
+FOSSIL_TEST_CASE(cpp_xbdd_add_multiple_items_to_cart) {
+    GIVEN("a user with an empty shopping cart") {
+        // Set up the context
+        int cartItemCount = 0;
+
+        WHEN("the user adds three products to the cart") {
+            // Perform the action of adding products
+            cartItemCount += 3;
+
+            THEN("the cart item count should increase by 3") {
+                // Check the expected outcome
+                FOSSIL_TEST_ASSUME(cartItemCount == 3, "Cart item count should have increased by 3");
+            }
+        }
+    }
+} // end of case
+
+FOSSIL_TEST_CASE(cpp_xbdd_remove_item_from_cart) {
+    GIVEN("a user with a shopping cart containing 2 items") {
+        // Set up the context
+        int cartItemCount = 2;
+
+        WHEN("the user removes one product from the cart") {
+            // Perform the action of removing a product
+            cartItemCount--;
+
+            THEN("the cart item count should decrease by 1") {
+                // Check the expected outcome
+                FOSSIL_TEST_ASSUME(cartItemCount == 1, "Cart item count should have decreased by 1");
+            }
+        }
+    }
+} // end of case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -168,6 +225,9 @@ FOSSIL_TEST_GROUP(cpp_bdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_empty_cart);
     FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_valid_login);
     FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_invalid_login);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_insufficient_balance);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_add_multiple_items_to_cart);
+    FOSSIL_TEST_ADD(cpp_bdd_suite, cpp_xbdd_remove_item_from_cart);
 
     FOSSIL_TEST_REGISTER(cpp_bdd_suite);
 } // end of group

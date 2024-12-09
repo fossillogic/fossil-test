@@ -92,8 +92,8 @@
  * @param existing_type  The existing type to create an alias for.
  */
 #define _FOSSIL_MOCK_ALIAS(new_type, existing_type) \
-    typedef existing_type fossil_mockup_##new_type##_type; \
-    fossil_mockup_##new_type##_type fossil_mockup_##new_type(void)
+    typedef existing_type new_type; \
+    new_type fossil_mockup_##new_type(void)
 
 /**
  * @def _FOSSIL_MOCK_STRUCT
