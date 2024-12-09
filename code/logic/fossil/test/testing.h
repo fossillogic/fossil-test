@@ -49,33 +49,35 @@ extern "C" {
 #endif
 
 /**
- * @struct fossil_options
- * @brief Structure to hold the configuration options for the test environment.
+ * @struct fossil_options_t
+ * @brief Structure to hold various options for fossil testing.
  * 
- * This structure contains various fields to manage the configuration options for
- * the test environment, including flags to show version and help information, as
- * well as options to reverse the order of tests, repeat tests, and shuffle tests.
+ * This structure contains various flags and parameters that control the behavior of the fossil testing framework.
  * 
- * @var fossil_options::show_version
- * Flag to show version information.
+ * @var fossil_options_t::show_version
+ * Flag to indicate if the version information should be displayed.
  * 
- * @var fossil_options::show_help
- * Flag to show help information.
+ * @var fossil_options_t::show_help
+ * Flag to indicate if the help information should be displayed.
  * 
- * @var fossil_options::show_info
- * Flag to show additional information.
+ * @var fossil_options_t::show_info
+ * Flag to indicate if additional information should be displayed.
  * 
- * @var fossil_options::reverse
- * Flag to reverse the order of tests.
+ * @var fossil_options_t::reverse
+ * Flag to indicate if the order of tests should be reversed.
  * 
- * @var fossil_options::repeat_enabled
- * Flag to enable repeating tests.
+ * @var fossil_options_t::repeat_enabled
+ * Flag to indicate if test repetition is enabled.
  * 
- * @var fossil_options::repeat_count
- * Number of times to repeat tests.
+ * @var fossil_options_t::repeat_count
+ * Number of times to repeat the tests if repetition is enabled.
  * 
- * @var fossil_options::shuffle_enabled
- * Flag to enable shuffling of tests.
+ * @var fossil_options_t::shuffle_enabled
+ * Flag to indicate if the tests should be shuffled.
+ * 
+ * @var fossil_options_t::dry_run
+ * Flag to indicate if the tests should be run in dry-run mode (no actual execution).
+ * 
  */
 typedef struct {
     bool show_version;
@@ -85,6 +87,7 @@ typedef struct {
     bool repeat_enabled;
     int repeat_count;
     bool shuffle_enabled;
+    bool dry_run;
 } fossil_options_t;
 
 /**
