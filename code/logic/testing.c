@@ -14,7 +14,6 @@
  */
 #include "fossil/test/testing.h"
 
-#ifdef __WIN32
 // Array of messages for each category
 const char *sarcastic_messages[] = {
     "Wow, no tests were run! What a productive day!",
@@ -46,7 +45,27 @@ const char *sarcastic_messages[] = {
     "No tests? Guess we're flawless.",
     "No tests executed. Time to unwind.",
     "No tests? Must be a coding break.",
-    "No tests run. Time to kick back."
+    "No tests run. Time to kick back.",
+    "No tests executed. What a surprise!",
+    "No tests? Guess we're all perfect coders.",
+    "No tests run. Time to take a nap.",
+    "No tests? Must be a coding dream.",
+    "No tests executed. Time to party!",
+    "No tests? Guess we're all geniuses.",
+    "No tests run. Time to celebrate!",
+    "No tests? Must be a coding legend.",
+    "No tests executed. Time to rejoice.",
+    "No tests? Guess we're all experts.",
+    "No tests run. Time to relax and enjoy.",
+    "No tests? Must be a coding utopia.",
+    "No tests executed. Time to have fun.",
+    "No tests? Guess we're all masters.",
+    "No tests run. Time to take a break.",
+    "No tests? Must be a coding paradise.",
+    "No tests executed. Time to chill out.",
+    "No tests? Guess we're all wizards.",
+    "No tests run. Time to unwind and relax.",
+    "No tests? Must be a coding heaven."
 };
 
 const char *humorous_messages[] = {
@@ -79,7 +98,26 @@ const char *humorous_messages[] = {
     "Your tests failed. Time to figure it out.",
     "Oops! That didn't go well. Time to debug.",
     "Well, that was a fail. Let's try again.",
-    "Looks like we have some errors to fix."
+    "Looks like we have some errors to fix.",
+    "Your tests failed. Time to troubleshoot.",
+    "Oops! That was unexpected. Time to investigate.",
+    "Well, that was a blunder. Let's correct it.",
+    "Looks like we have some debugging to do.",
+    "Your tests failed. Time to analyze the issue.",
+    "Oops! That didn't go as expected. Time to debug.",
+    "Well, that was a setback. Let's resolve it.",
+    "Looks like we have some fixing to do.",
+    "Your tests failed. Time to diagnose the problem.",
+    "Oops! That was a misstep. Time to debug.",
+    "Well, that was a glitch. Let's fix it.",
+    "Looks like we have some troubleshooting to do.",
+    "Your tests failed. Time to rectify the issue.",
+    "Oops! That was a hiccup. Time to debug.",
+    "Well, that was a malfunction. Let's repair it.",
+    "Looks like we have some correcting to do.",
+    "Your tests failed. Time to address the problem.",
+    "Oops! That was a slip-up. Time to debug.",
+    "Well, that was a snag. Let's fix it."
 };
 
 const char *great_news_messages[] = {
@@ -112,7 +150,27 @@ const char *great_news_messages[] = {
     "Incredible! All tests passed with no difficulties.",
     "Stellar! All tests passed with no challenges.",
     "Magnificent! All tests passed with no hurdles.",
-    "Fabulous! All tests passed with no impediments."
+    "Fabulous! All tests passed with no impediments.",
+    "Perfect! All tests passed without any issues.",
+    "Great! All tests passed with no errors.",
+    "Wonderful! All tests passed with no problems.",
+    "Amazing! All tests passed with no failures.",
+    "Fantastic! All tests passed with no bugs.",
+    "Excellent! All tests passed with no glitches.",
+    "Superb! All tests passed with no hiccups.",
+    "Outstanding! All tests passed with no snags.",
+    "Brilliant! All tests passed with no setbacks.",
+    "Impressive! All tests passed with no troubles.",
+    "Wonderful! All tests passed with no obstacles.",
+    "Terrific! All tests passed with no difficulties.",
+    "Marvelous! All tests passed with no challenges.",
+    "Spectacular! All tests passed with no hurdles.",
+    "Phenomenal! All tests passed with no impediments.",
+    "Remarkable! All tests passed with no issues.",
+    "Incredible! All tests passed with no errors.",
+    "Stellar! All tests passed with no problems.",
+    "Magnificent! All tests passed with no failures.",
+    "Fabulous! All tests passed with no bugs."
 };
 
 const char *timeout_messages[] = {
@@ -145,139 +203,31 @@ const char *timeout_messages[] = {
     "Tests are still running. Time to check for issues!",
     "Timeout detected. Some tests need optimization!",
     "Tests are taking forever. Time to investigate the cause!",
-    "Timeout alert. Some tests are not finishing in time!"
+    "Timeout alert. Some tests are not finishing in time!",
+    "Tests are taking too long. Time to find the bottleneck!",
+    "Timeout detected. Some tests need a performance review!",
+    "Tests are running indefinitely. Time to debug!",
+    "Timeout warning. Some tests are stuck!",
+    "Tests are taking too long. Time to optimize performance!",
+    "Timeout issue detected. Some tests need a closer look!",
+    "Tests are running slow. Time to investigate!",
+    "Timeout alert. Some tests are not completing!",
+    "Tests are taking too long. Time to debug!",
+    "Timeout detected. Some tests are running too long!",
+    "Tests are exceeding the time limit. Time to optimize!",
+    "Timeout issue. Some tests are not finishing!",
+    "Tests are running longer than expected. Time to debug!",
+    "Timeout warning. Some tests are taking too long!",
+    "Tests are still running. Time to check for issues!",
+    "Timeout detected. Some tests need optimization!",
+    "Tests are taking forever. Time to investigate the cause!",
+    "Timeout alert. Some tests are not finishing in time!",
+    "Tests are taking too long. Time to find the bottleneck!"
 };
 
-#else
-
-// Array of messages for each category
-const char *sarcastic_messages[] = {
-    "Wow, no tests were run! What a productive day! 😏",
-    "No tests to run, guess we're all just too good at writing code. 🧐",
-    "Congratulations, you've done absolutely nothing today. 🙃",
-    "Oh, look! No tests were executed. What an achievement! 🥳",
-    "Not a single test run, but hey, that's one way to keep things perfect! 😆",
-    "All set for a day of zero productivity? Nice! 💤",
-    "The test suite is empty, but hey, at least the code didn't break! 😜",
-    "Zero tests executed. Clearly, you've mastered the art of doing nothing. 😎",
-    "Great! We've made it through an entire test run without running a single test. 🥳",
-    "Isn't it great when there's nothing to test? 🙃",
-    "No tests today, must be a holiday! 🏖️",
-    "Looks like the tests took a day off. 🛌",
-    "No tests? Guess it's time for a coffee break. ☕",
-    "No tests executed. Time to celebrate doing nothing! 🎉",
-    "No tests? Must be a sign of perfection. 🌟",
-    "No tests today. Enjoy the free time! 🎉",
-    "No tests? Must be a coding miracle. 🤯",
-    "No tests executed. Time to relax. 😌",
-    "No tests? Must be a coding vacation. 🏝️",
-    "No tests run. Time to take it easy. 😎",
-    "No tests? Guess we're flawless. 🤷‍♂️",
-    "No tests executed. Time to unwind. 🛋️",
-    "No tests? Must be a coding break. 🤔",
-    "No tests run. Time to kick back. 🚀"
+enum {
+    _FOSSIL_TEST_RESPONSE_LENGTH = 50
 };
-
-const char *humorous_messages[] = {
-    "Well, that was an epic failure! Better luck next time! 😂",
-    "Whoops! Someone's definitely gonna need to debug that. 🐞",
-    "Looks like someone forgot to write the test cases. 🤷‍♂️",
-    "Your tests failed, but at least you got closer to perfection... not. 🤦‍♂️",
-    "Not all heroes wear capes. Some of them fail tests. 🦸‍♂️",
-    "Don't worry, failure is just success in disguise. Or maybe not. 😅",
-    "Well, that was awkward. Let's try again, shall we? 🤔",
-    "Looks like we've encountered a bug! Hope you've got a magnifying glass. 🧐",
-    "Your tests are taking a nap, but don't worry, we'll wake them up! 😴",
-    "It's not a failure, it's just a learning experience! A very *expensive* one. 💸",
-    "Oops! That didn't go as planned. 😬",
-    "Well, that was a disaster. Time to debug! 🛠️",
-    "Looks like we hit a snag. Time to fix it! 🐛",
-    "Your tests failed spectacularly. Congrats! 🎉",
-    "Well, that was a mess. Let's clean it up. 🧹",
-    "Oops! Something went wrong. Time to investigate. 🕵️‍♂️",
-    "Well, that was a flop. Better luck next time. 🤞",
-    "Looks like we have some bugs to squash. 🐞",
-    "Your tests failed. Time to roll up your sleeves. 💪",
-    "Oops! That didn't work. Time to try again. 🔄",
-    "Well, that was a fail. Let's fix it. 🛠️",
-    "Looks like we have some issues to resolve. 🧐",
-    "Your tests failed. Time to get to work. 🛠️",
-    "Oops! That was a fail. Time to debug. 🐛",
-    "Well, that was a bust. Let's fix it. 🛠️",
-    "Looks like we have some problems to solve. 🧐",
-    "Your tests failed. Time to figure it out. 🛠️",
-    "Oops! That didn't go well. Time to debug. 🐛",
-    "Well, that was a fail. Let's try again. 🔄",
-    "Looks like we have some errors to fix. 🛠️"
-};
-
-const char *great_news_messages[] = {
-    "Great news! All tests passed. You're a testing genius! 🎉",
-    "Success! Everything works as expected. Go celebrate! 🥳",
-    "You did it! All tests passed. You're officially a rock star! 🌟",
-    "Congrats, all tests passed! You've earned a gold star! 🏅",
-    "Woohoo! All tests passed with flying colors! 🎨",
-    "No bugs found today, you're on fire! 🔥",
-    "Amazing! You've got a perfect test suite. Keep it up! 💪",
-    "Nice job! All tests passed. I think we've found the next coding superhero! 🦸‍♀️",
-    "Fantastic! No issues at all, just pure success! 😎",
-    "All tests passed, everything's awesome. 🎶",
-    "Great job! All tests passed with no issues. 👍",
-    "Congratulations! All tests passed successfully. 🎉",
-    "Well done! All tests passed with flying colors. 🌈",
-    "Awesome! All tests passed without a hitch. 👌",
-    "Fantastic! All tests passed with no problems. 🎉",
-    "Excellent! All tests passed with ease. 😎",
-    "Superb! All tests passed without any issues. 🌟",
-    "Outstanding! All tests passed with no errors. 🏆",
-    "Brilliant! All tests passed with no failures. 🌟",
-    "Impressive! All tests passed with no bugs. 🐞",
-    "Wonderful! All tests passed with no glitches. 🎉",
-    "Terrific! All tests passed with no hiccups. 👍",
-    "Marvelous! All tests passed with no snags. 🌟",
-    "Spectacular! All tests passed with no setbacks. 🎉",
-    "Phenomenal! All tests passed with no troubles. 🏆",
-    "Remarkable! All tests passed with no obstacles. 🌟",
-    "Incredible! All tests passed with no difficulties. 🎉",
-    "Stellar! All tests passed with no challenges. 🌟",
-    "Magnificent! All tests passed with no hurdles. 🏆",
-    "Fabulous! All tests passed with no impediments. 🎉"
-};
-
-const char *timeout_messages[] = {
-    "Some tests timed out. Please check the test cases. ⏰",
-    "Looks like some tests took too long to complete. Time to debug! 🐛",
-    "Uh-oh! Some tests took too long to run. Time to investigate! 🕵️‍♂️",
-    "Looks like some tests are still running. Did you forget to add a timeout? 🤔",
-    "Some tests are still in progress. Time to grab a coffee and debug! ☕",
-    "Timeout alert! Some tests didn't finish in time. ⏳",
-    "Tests are taking longer than expected. Time to check for infinite loops! 🔄",
-    "Some tests exceeded the time limit. Let's optimize! 🚀",
-    "Tests are running slow. Time to profile and improve performance! 📈",
-    "Timeout detected! Some tests need a closer look. 🔍",
-    "Tests are taking forever. Time to investigate! 🕵️‍♀️",
-    "Some tests are stuck. Time to debug! 🐞",
-    "Tests are running longer than expected. Time to check for bottlenecks! ⏱️",
-    "Timeout warning! Some tests didn't complete in time. ⏲️",
-    "Tests are still running. Time to check for performance issues! 🛠️",
-    "Some tests are taking too long. Time to optimize! ⚙️",
-    "Tests are timing out. Time to investigate the cause! 🔍",
-    "Timeout issue detected. Some tests need attention! 🚨",
-    "Tests are running slow. Time to improve efficiency! 🏃‍♂️",
-    "Timeout alert! Some tests are not finishing in time. ⏳",
-    "Tests are taking too long. Time to debug and optimize! 🛠️",
-    "Timeout detected. Some tests are running indefinitely! 🔄",
-    "Tests are exceeding the time limit. Time to investigate! 🕵️‍♂️",
-    "Timeout issue. Some tests are not completing in time! ⏲️",
-    "Tests are running longer than expected. Time to debug! 🐛",
-    "Timeout warning. Some tests are taking too long! ⏰",
-    "Tests are still running. Time to check for issues! 🛠️",
-    "Timeout detected. Some tests need optimization! 🚀",
-    "Tests are taking forever. Time to investigate the cause! 🔍",
-    "Timeout alert. Some tests are not finishing in time! ⏳"
-};
-
-#endif
 
 static const char *FOSSIL_TEST_OPTIONS[] = {
     "--version - Displays the current version of Fossil Test\n",
@@ -751,15 +701,13 @@ void fossil_test_message(fossil_test_env_t *env) {
     srand(time(NULL));
 
     if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % 30]);
+        printf(FOSSIL_TEST_COLOR_YELLOW FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
     } else if (env->fail_count > 0) {
-        printf(FOSSIL_TEST_COLOR_RED FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, humorous_messages[rand() % 30]);
+        printf(FOSSIL_TEST_COLOR_RED FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, humorous_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
     } else if (env->pass_count > 0) {
-        printf(FOSSIL_TEST_COLOR_GREEN FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % 30]);
+        printf(FOSSIL_TEST_COLOR_GREEN FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
     } else if (env->timeout_count > 0) {
-        printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % 30]);
-    } else {
-        puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITATIC "Test results are in. Keep pushing, you're getting there!" FOSSIL_TEST_COLOR_RESET);
+        printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
     }
 }
 
