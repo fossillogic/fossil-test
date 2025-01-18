@@ -6,15 +6,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC
 
 # Install system dependencies and clean up
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt update && \
+    apt install -y \
     build-essential \
     gcc \
     g++ \
     gdb \
     libstdc++-10-dev \
-    rustc \
-    cargo \
     wget \
     python3 \
     python3-pip \
