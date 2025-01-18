@@ -249,6 +249,9 @@ static const char *FOSSIL_TEST_LICENSE = "Mozilla Public License 2.0"; // Licens
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
 
+// *****************************************************************************
+// Helper function declarations
+// *****************************************************************************
 
 // Custom implementation of strdup to avoid warnings on some platforms
 char *_custom_fossil_test_strdup(const char *str) {
@@ -260,6 +263,10 @@ char *_custom_fossil_test_strdup(const char *str) {
     memcpy(new_str, str, len);
     return new_str;
 }
+
+// *****************************************************************************
+// Function declarations
+// *****************************************************************************
 
 // Initialize the options structure
 fossil_options_t init_options(void) {
