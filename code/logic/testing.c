@@ -14,6 +14,7 @@
  */
 #include "fossil/test/testing.h"
 
+
 // Array of messages for each category
 const char *sarcastic_messages[] = {
     "Wow, no tests were run! What a productive day!",
