@@ -568,7 +568,7 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
             last_line == line &&
             last_func && strcmp(last_func, func) == 0) {
             anomaly_count++;
-            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
         } else {
             anomaly_count = 0; // Reset anomaly count for new assertion
             last_message = message;
