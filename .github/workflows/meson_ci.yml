@@ -7,7 +7,6 @@ on:
       - "**.h"
       - "**.cpp"
       - "**.hpp"
-      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"
@@ -17,7 +16,6 @@ on:
       - "**.h"
       - "**.cpp"
       - "**.hpp"
-      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"
@@ -249,7 +247,7 @@ jobs:
             -w /workspace \
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
-              apt-get update
+              sudo apt update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
               meson test -C builddir -v"
@@ -275,25 +273,25 @@ jobs:
 
       - name: Install Cross-Compilation Toolchain
         run: |
-          sudo apt-get update
+          sudo apt update
           if [ "${{ matrix.architecture }}" == "arm" ]; then
-            sudo apt-get install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+            sudo apt install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
           elif [ "${{ matrix.architecture }}" == "arm64" ]; then
-            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "mips" ]; then
-            sudo apt-get install -y gcc-mips-linux-gnu g++-mips-linux-gnu
+            sudo apt install -y gcc-mips-linux-gnu g++-mips-linux-gnu
           elif [ "${{ matrix.architecture }}" == "mipsel" ]; then
-            sudo apt-get install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu
+            sudo apt install -y gcc-mipsel-linux-gnu g++-mipsel-linux-gnu
           elif [ "${{ matrix.architecture }}" == "riscv64" ]; then
-            sudo apt-get install -y gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
+            sudo apt install -y gcc-riscv64-linux-gnu g++-riscv64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "ppc" ]; then
-            sudo apt-get install -y gcc-powerpc-linux-gnu g++-powerpc-linux-gnu
+            sudo apt install -y gcc-powerpc-linux-gnu g++-powerpc-linux-gnu
           elif [ "${{ matrix.architecture }}" == "ppc64le" ]; then
-            sudo apt-get install -y gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu
+            sudo apt install -y gcc-powerpc64le-linux-gnu g++-powerpc64le-linux-gnu
           elif [ "${{ matrix.architecture }}" == "sparc64" ]; then
-            sudo apt-get install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
+            sudo apt install -y gcc-sparc64-linux-gnu g++-sparc64-linux-gnu
           elif [ "${{ matrix.architecture }}" == "s390x" ]; then
-            sudo apt-get install -y gcc-s390x-linux-gnu g++-s390x-linux-gnu
+            sudo apt install -y gcc-s390x-linux-gnu g++-s390x-linux-gnu
           fi
 
       - name: Set Cross-Compilation Environment Variables
