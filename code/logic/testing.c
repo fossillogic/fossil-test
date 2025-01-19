@@ -269,8 +269,8 @@ char *_custom_fossil_test_strdup(const char *str) {
 // *****************************************************************************
 
 // Initialize the options structure
-fossil_options_t init_options(void) {
-    fossil_options_t options;
+fossil_test_options_t fossil_test_init_options(void) {
+    fossil_test_options_t options;
     options.show_version = false;
     options.show_help = false;
     options.show_info = false;
@@ -305,8 +305,8 @@ void version_info(void) {
 }
 
 // Parse command-line arguments
-fossil_options_t fossil_options_parse(int argc, char **argv) {
-    fossil_options_t options = init_options();
+fossil_test_options_t fossil_options_parse(int argc, char **argv) {
+    fossil_test_options_t options = fossil_test_init_options();
     
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--version") == 0) {
@@ -352,14 +352,14 @@ fossil_options_t fossil_options_parse(int argc, char **argv) {
 }
 
 // Function to reverse the order of test cases in the linked list
-void reverse_test_cases(test_case_t **test_cases) {
+void reverse_test_cases(fossil_test_case_t **test_cases) {
     if (!test_cases || !*test_cases) {
         return; // No test cases to reverse
     }
 
-    test_case_t *prev = NULL;
-    test_case_t *current = *test_cases;
-    test_case_t *next = NULL;
+    fossil_test_case_t *prev = NULL;
+    fossil_test_case_t *current = *test_cases;
+    fossil_test_case_t *next = NULL;
 
     // Traverse the linked list and reverse the 'next' pointers
     while (current) {
@@ -374,14 +374,14 @@ void reverse_test_cases(test_case_t **test_cases) {
 }
 
 // Function to shuffle test cases using the Fisher-Yates algorithm
-void shuffle_test_cases(test_case_t **test_cases) {
+void shuffle_test_cases(fossil_test_case_t **test_cases) {
     if (!test_cases || !*test_cases) {
         return; // No test cases to shuffle
     }
 
     // Calculate the length of the linked list (number of test cases)
     int n = 0;
-    test_case_t *current = *test_cases;
+    fossil_test_case_t *current = *test_cases;
     while (current) {
         n++;
         current = current->next;
@@ -393,7 +393,7 @@ void shuffle_test_cases(test_case_t **test_cases) {
     }
 
     // Create an array to hold the test cases
-    test_case_t **array = malloc(sizeof(test_case_t *) * n);
+    fossil_test_case_t **array = malloc(sizeof(fossil_test_case_t *) * n);
     if (!array) {
         return; // Memory allocation failed
     }
@@ -413,7 +413,7 @@ void shuffle_test_cases(test_case_t **test_cases) {
         int j = rand() % (i + 1);
 
         // Swap the elements
-        test_case_t *temp = array[i];
+        fossil_test_case_t *temp = array[i];
         array[i] = array[j];
         array[j] = temp;
     }
@@ -432,12 +432,12 @@ void shuffle_test_cases(test_case_t **test_cases) {
 }
 
 // Creates and returns a new test suite
-test_suite_t* fossil_test_create_suite(const char *name) {
+fossil_test_suite_t* fossil_test_create_suite(const char *name) {
     if (!name) {
         return NULL;
     }
 
-    test_suite_t *suite = (test_suite_t*)malloc(sizeof(test_suite_t));
+    fossil_test_suite_t *suite = (fossil_test_suite_t*)malloc(sizeof(fossil_test_suite_t));
     if (!suite) {
         return NULL;
     }
@@ -451,7 +451,7 @@ test_suite_t* fossil_test_create_suite(const char *name) {
 }
 
 // Registers a test suite in the environment
-void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite) {
+void fossil_test_register_suite(fossil_test_env_t *env, fossil_test_suite_t *suite) {
     if (!env || !suite) {
         return;
     }
@@ -464,7 +464,7 @@ void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite) {
 }
 
 // Adds a test case to a suite
-void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case) {
+void fossil_test_add_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case) {
     if (!suite || !test_case) {
         return;
     }
@@ -474,13 +474,13 @@ void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case) {
 }
 
 // Removes and frees a test case from a suite
-void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case) {
+void fossil_test_remove_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case) {
     if (!suite || !test_case) {
         return;
     }
 
-    test_case_t *prev = NULL;
-    test_case_t *curr = suite->tests;
+    fossil_test_case_t *prev = NULL;
+    fossil_test_case_t *curr = suite->tests;
 
     while (curr) {
         if (curr == test_case) {
@@ -498,21 +498,21 @@ void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case) {
 }
 
 // Setup for individual test case
-void fossil_test_case_setup(test_case_t *test_case) {
+void fossil_test_case_setup(fossil_test_case_t *test_case) {
     if (test_case && test_case->setup_func) {
         test_case->setup_func();
     }
 }
 
 // Teardown for individual test case
-void fossil_test_case_teardown(test_case_t *test_case) {
+void fossil_fossil_test_case_teardown(fossil_test_case_t *test_case) {
     if (test_case && test_case->teardown_func) {
         test_case->teardown_func();
     }
 }
 
 // Run all test cases in a test suite
-void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
+void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
     if (!suite || !env) {
         return;
     }
@@ -534,7 +534,7 @@ void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
     }
 
     double total_execution_time = 0.0;
-    test_case_t *current_test = suite->tests;
+    fossil_test_case_t *current_test = suite->tests;
     while (current_test) {
         fossil_test_run_case(current_test, env);
         total_execution_time += current_test->execution_time;
@@ -550,41 +550,48 @@ void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env) {
     }
 }
 
-// Internal function to handle assertions with anomaly detection
-void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
+// Function to detect assertion anomalies
+bool fossil_test_detect_anomaly(const char *message, const char *file, int line, const char *func) {
     static const char *last_message = NULL; // Store the last assertion message
     static const char *last_file = NULL;    // Store the last file name
     static int last_line = 0;               // Store the last line number
     static const char *last_func = NULL;    // Store the last function name
     static int anomaly_count = 0;           // Counter for anomaly detection
 
-    _ASSERT_COUNT++; // Increment the assertion count
-
-    if (!condition) {
-        // Check if the current assertion is the same or similar to the last one
-        if (last_message && strstr(message, last_message) != NULL &&
-            last_file && strcmp(last_file, file) == 0 &&
-            last_line == line &&
-            last_func && strcmp(last_func, func) == 0) {
-            anomaly_count++;
-            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
-        } else {
-            anomaly_count = 0; // Reset anomaly count for new assertion
-            printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
-        }
-
-        // Update the last assertion details
+    // Check if the current assertion is the same or similar to the last one
+    if (last_message && strstr(message, last_message) != NULL &&
+        last_file && strcmp(last_file, file) == 0 &&
+        last_line == line &&
+        last_func && strcmp(last_func, func) == 0) {
+        anomaly_count++;
+        return true;
+    } else {
+        anomaly_count = 0; // Reset anomaly count for new assertion
         last_message = message;
         last_file = file;
         last_line = line;
         last_func = func;
+        return false;
+    }
+}
+
+// Internal function to handle assertions with anomaly detection
+void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
+    _ASSERT_COUNT++; // Increment the assertion count
+
+    if (!condition) {
+        if (fossil_test_detect_anomaly(message, file, line, func)) {
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
+        } else {
+            printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
+        }
 
         longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
     }
 }
 
 // Run an individual test case
-void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
+void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env) {
     if (!test_case || !env) {
         return;
     }
@@ -627,7 +634,7 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env) {
     }
 
     // Run teardown
-    fossil_test_case_teardown(test_case);
+    fossil_fossil_test_case_teardown(test_case);
 
     // Log result
     switch (test_case->status) {
@@ -661,7 +668,7 @@ void fossil_test_run_all(fossil_test_env_t *env) {
         return;
     }
 
-    test_suite_t *current_suite = env->test_suites;
+    fossil_test_suite_t *current_suite = env->test_suites;
 
     while (current_suite) {
         fossil_test_run_suite(current_suite, env);
@@ -729,9 +736,9 @@ void fossil_test_summary(fossil_test_env_t *env) {
         return;
     }
 
-    test_suite_t *suite = env->test_suites;
+    fossil_test_suite_t *suite = env->test_suites;
     while (suite != NULL) {
-        test_case_t *test = suite->tests;
+        fossil_test_case_t *test = suite->tests;
         while (test != NULL) {
             if (test->status == TEST_STATUS_PASS) {
                 env->pass_count++;
