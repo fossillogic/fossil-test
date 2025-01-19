@@ -49,33 +49,33 @@ extern "C" {
 #endif
 
 /**
- * @struct fossil_options_t
+ * @struct fossil_test_options_t
  * @brief Structure to hold various options for fossil testing.
  * 
  * This structure contains various flags and parameters that control the behavior of the fossil testing framework.
  * 
- * @var fossil_options_t::show_version
+ * @var fossil_test_options_t::show_version
  * Flag to indicate if the version information should be displayed.
  * 
- * @var fossil_options_t::show_help
+ * @var fossil_test_options_t::show_help
  * Flag to indicate if the help information should be displayed.
  * 
- * @var fossil_options_t::show_info
+ * @var fossil_test_options_t::show_info
  * Flag to indicate if additional information should be displayed.
  * 
- * @var fossil_options_t::reverse
+ * @var fossil_test_options_t::reverse
  * Flag to indicate if the order of tests should be reversed.
  * 
- * @var fossil_options_t::repeat_enabled
+ * @var fossil_test_options_t::repeat_enabled
  * Flag to indicate if test repetition is enabled.
  * 
- * @var fossil_options_t::repeat_count
+ * @var fossil_test_options_t::repeat_count
  * Number of times to repeat the tests if repetition is enabled.
  * 
- * @var fossil_options_t::shuffle_enabled
+ * @var fossil_test_options_t::shuffle_enabled
  * Flag to indicate if the tests should be shuffled.
  * 
- * @var fossil_options_t::dry_run
+ * @var fossil_test_options_t::dry_run
  * Flag to indicate if the tests should be run in dry-run mode (no actual execution).
  * 
  */
@@ -85,10 +85,10 @@ typedef struct {
     bool show_info;
     bool reverse;
     bool repeat_enabled;
-    int repeat_count;
+    int32_t repeat_count;
     bool shuffle_enabled;
     bool dry_run;
-} fossil_options_t;
+} fossil_test_options_t;
 
 /**
  * @enum test_status
@@ -103,7 +103,7 @@ typedef enum {
     TEST_STATUS_SKIP,
     TEST_STATUS_EMPTY,
     TEST_STATUS_TTIMEOUT
-} test_status_t;
+} fossil_test_status_t;
 
 /**
  * @struct test_case
@@ -142,46 +142,46 @@ typedef struct test_case {
     void (*test_func)(void);             
     void (*setup_func)(void);            
     void (*teardown_func)(void);         
-    test_status_t status;                
+    fossil_test_status_t status;                
     const char *failure_message;         
     double execution_time;               
     struct test_case *next;              
-} test_case_t;
+} fossil_test_case_t;
 
 /**
- * @struct test_suite
+ * @struct fossil_test_suite_t
  * @brief Structure to hold a test suite.
  * 
  * This structure contains fields to hold information about a test suite, including
  * the name, suite setup function, suite teardown function, total execution time,
  * list of test cases, and a pointer to the next test suite.
  * 
- * @var test_suite::name
+ * @var fossil_test_suite_t::name
  * Suite name
  * 
- * @var test_suite::suite_setup_func
+ * @var fossil_test_suite_t::suite_setup_func
  * Pointer to suite setup function (optional)
  * 
- * @var test_suite::suite_teardown_func
+ * @var fossil_test_suite_t::suite_teardown_func
  * Pointer to suite teardown function (optional)
  * 
- * @var test_suite::total_execution_time
+ * @var fossil_test_suite_t::total_execution_time
  * Total execution time of all test cases
  * 
- * @var test_suite::tests
+ * @var fossil_test_suite_t::tests
  * List of test cases
  * 
- * @var test_suite::next
+ * @var fossil_test_suite_t::next
  * Pointer to next suite in the list
  */
-typedef struct test_suite {
+typedef struct fossil_test_suite_t {
     const char *name;
     void (*suite_setup_func)(void);
     void (*suite_teardown_func)(void);
     double total_execution_time;
-    test_case_t *tests;
-    struct test_suite *next;
-} test_suite_t;
+    fossil_test_case_t *tests;
+    struct fossil_test_suite_t *next;
+} fossil_test_suite_t;
 
 /**
  * @struct fossil_test_env
@@ -228,18 +228,18 @@ typedef struct test_suite {
  * Pointer to the list of test suites to be executed.
  */
 typedef struct fossil_test_env {
-    fossil_options_t options;
+    fossil_test_options_t options;
     jmp_buf env;
-    int total_tests;
-    int pass_count;
-    int fail_count;
-    int skip_count;
-    int empty_count;
-    int timeout_count;
-    int unexpected_count;
+    int32_t total_tests;
+    int32_t pass_count;
+    int32_t fail_count;
+    int32_t skip_count;
+    int32_t empty_count;
+    int32_t timeout_count;
+    int32_t unexpected_count;
     double start_execution_time;
     double end_execution_time;
-    test_suite_t *test_suites;
+    fossil_test_suite_t *test_suites;
 } fossil_test_env_t;
 
 // *****************************************************************************
@@ -252,7 +252,7 @@ typedef struct fossil_test_env {
  * @param name The name of the test suite.
  * @return A pointer to the created test suite.
  */
-test_suite_t* fossil_test_create_suite(const char *name);
+fossil_test_suite_t* fossil_test_create_suite(const char *name);
 
 /**
  * @brief Registers a test suite with the test environment.
@@ -260,7 +260,7 @@ test_suite_t* fossil_test_create_suite(const char *name);
  * @param env The test environment.
  * @param suite The test suite to register.
  */
-void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite);
+void fossil_test_register_suite(fossil_test_env_t *env, fossil_test_suite_t *suite);
 
 /**
  * @brief Adds a test case to a test suite.
@@ -268,7 +268,7 @@ void fossil_test_register_suite(fossil_test_env_t *env, test_suite_t *suite);
  * @param suite The test suite.
  * @param test_case The test case to add.
  */
-void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case);
+void fossil_test_add_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case);
 
 /**
  * @brief Removes a test case from a test suite.
@@ -276,21 +276,21 @@ void fossil_test_add_case(test_suite_t *suite, test_case_t *test_case);
  * @param suite The test suite.
  * @param test_case The test case to remove.
  */
-void fossil_test_remove_case(test_suite_t *suite, test_case_t *test_case);
+void fossil_test_remove_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case);
 
 /**
  * @brief Sets up a test case.
  * 
  * @param test_case The test case to set up.
  */
-void fossil_test_case_setup(test_case_t *test_case);
+void fossil_test_case_setup(fossil_test_case_t *test_case);
 
 /**
  * @brief Tears down a test case.
  * 
  * @param test_case The test case to tear down.
  */
-void fossil_test_case_teardown(test_case_t *test_case);
+void fossil_fossil_test_case_teardown(fossil_test_case_t *test_case);
 
 /**
  * @brief Runs a test case.
@@ -298,7 +298,7 @@ void fossil_test_case_teardown(test_case_t *test_case);
  * @param test_case The test case to run.
  * @param env The test environment.
  */
-void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env);
+void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env);
 
 /**
  * @brief Runs all test cases in a test suite.
@@ -306,7 +306,7 @@ void fossil_test_run_case(test_case_t *test_case, fossil_test_env_t *env);
  * @param suite The test suite to run.
  * @param env The test environment.
  */
-void fossil_test_run_suite(test_suite_t *suite, fossil_test_env_t *env);
+void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env);
 
 /**
  * @brief Internal function to handle assertions with anomaly detection.
@@ -380,7 +380,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
 #ifdef __cplusplus
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
-    test_case_t test_name##_test_case = { \
+    fossil_test_case_t test_name##_test_case = { \
         #test_name, \
         test_name##_test_func, \
         nullptr, \
@@ -394,7 +394,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
 #else
 #define _FOSSIL_TEST_CASE(test_name) \
     void test_name##_test_func(void); \
-    test_case_t test_name##_test_case = { \
+    fossil_test_case_t test_name##_test_case = { \
         .name = #test_name, \
         .test_func = test_name##_test_func, \
         .setup_func = NULL, \
@@ -420,7 +420,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
 #define _FOSSIL_TEST_SUITE(suite_name) \
     void suite_name##_setup_func(void); \
     void suite_name##_teardown_func(void); \
-    test_suite_t suite_name = { \
+    fossil_test_suite_t suite_name = { \
         #suite_name, \
         suite_name##_setup_func, \
         suite_name##_teardown_func, \
@@ -432,7 +432,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
 #define _FOSSIL_TEST_SUITE(suite_name) \
     void suite_name##_setup_func(void); \
     void suite_name##_teardown_func(void); \
-    test_suite_t suite_name = { \
+    fossil_test_suite_t suite_name = { \
         .name = #suite_name, \
         .suite_setup_func = suite_name##_setup_func, \
         .suite_teardown_func = suite_name##_teardown_func, \
