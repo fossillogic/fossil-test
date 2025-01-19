@@ -582,7 +582,7 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
 
     if (!condition) {
         if (fossil_test_detect_anomaly(message, file, line, func)) {
-            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func, anomaly_count);
+            printf(FOSSIL_TEST_COLOR_YELLOW "Duplicate or similar assertion detected: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
         } else {
             printf(FOSSIL_TEST_COLOR_RED "Assertion failed: %s (%s:%d in %s)\n" FOSSIL_TEST_COLOR_RESET, message, file, line, func);
         }
