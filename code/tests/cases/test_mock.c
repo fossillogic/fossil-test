@@ -57,25 +57,25 @@ FOSSIL_MOCK_FUNC(int, mock_function, int a, int b) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_CASE(c_mock_call_list_initialization) {
-    // Example of initializing a MockCallList
-    MockCallList list;
+    // Example of initializing a fossil_mock_calllist_t
+    fossil_mock_calllist_t list;
     fossil_mock_init(&list);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(list.head == NULL, "MockCallList head should be NULL after initialization");
-    FOSSIL_TEST_ASSUME(list.tail == NULL, "MockCallList tail should be NULL after initialization");
-    FOSSIL_TEST_ASSUME(list.size == 0, "MockCallList size should be 0 after initialization");
+    FOSSIL_TEST_ASSUME(list.head == NULL, "fossil_mock_calllist_t head should be NULL after initialization");
+    FOSSIL_TEST_ASSUME(list.tail == NULL, "fossil_mock_calllist_t tail should be NULL after initialization");
+    FOSSIL_TEST_ASSUME(list.size == 0, "fossil_mock_calllist_t size should be 0 after initialization");
 } // end case
 
 FOSSIL_TEST_CASE(c_mock_call_list_addition) {
-    // Example of adding a MockCall to a MockCallList
-    MockCallList list;
+    // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t
+    fossil_mock_calllist_t list;
     fossil_mock_init(&list);
     char *args[] = {"arg1", "arg2"};
     fossil_mock_add_call(&list, "test_function", args, 2);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(list.size == 1, "MockCallList size should be 1 after adding a call");
+    FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[0], "arg1") == 0, "First argument should be 'arg1'");
@@ -83,12 +83,12 @@ FOSSIL_TEST_CASE(c_mock_call_list_addition) {
 } // end case
 
 FOSSIL_TEST_CASE(c_mock_call_list_destruction) {
-    // Example of destroying a MockCallList
-    MockCallList list;
+    // Example of destroying a fossil_mock_calllist_t
+    fossil_mock_calllist_t list;
     fossil_mock_init(&list);
     char *args[] = {"arg1", "arg2"};
     fossil_mock_add_call(&list, "test_function", args, 2);
-    FOSSIL_TEST_ASSUME(list.size == 1, "MockCallList size should be 1 after adding a call");
+    FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
   
@@ -96,25 +96,25 @@ FOSSIL_TEST_CASE(c_mock_call_list_destruction) {
 } // end case
 
 FOSSIL_TEST_CASE(c_mock_call_list_initialization_macro) {
-    // Example of initializing a MockCallList using the macro
-    MockCallList list;
+    // Example of initializing a fossil_mock_calllist_t using the macro
+    fossil_mock_calllist_t list;
     MOCK_INIT(list);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(list.head == NULL, "MockCallList head should be NULL after initialization");
-    FOSSIL_TEST_ASSUME(list.tail == NULL, "MockCallList tail should be NULL after initialization");
-    FOSSIL_TEST_ASSUME(list.size == 0, "MockCallList size should be 0 after initialization");
+    FOSSIL_TEST_ASSUME(list.head == NULL, "fossil_mock_calllist_t head should be NULL after initialization");
+    FOSSIL_TEST_ASSUME(list.tail == NULL, "fossil_mock_calllist_t tail should be NULL after initialization");
+    FOSSIL_TEST_ASSUME(list.size == 0, "fossil_mock_calllist_t size should be 0 after initialization");
 } // end case
 
 FOSSIL_TEST_CASE(c_mock_call_list_addition_macro) {
-    // Example of adding a MockCall to a MockCallList using the macro
-    MockCallList list;
+    // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t using the macro
+    fossil_mock_calllist_t list;
     MOCK_INIT(list);
     char *args[] = {"arg1", "arg2"};
     MOCK_ADD_CALL(list, "test_function", args, 2);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(list.size == 1, "MockCallList size should be 1 after adding a call");
+    FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[0], "arg1") == 0, "First argument should be 'arg1'");
@@ -122,13 +122,13 @@ FOSSIL_TEST_CASE(c_mock_call_list_addition_macro) {
 } // end case
 
 FOSSIL_TEST_CASE(c_mock_call_list_destruction_macro) {
-    // Example of destroying a MockCallList using the macro
-    MockCallList list;
+    // Example of destroying a fossil_mock_calllist_t using the macro
+    fossil_mock_calllist_t list;
     MOCK_INIT(list);
     char *args[] = {"arg1", "arg2"};
     MOCK_ADD_CALL(list, "test_function", args, 2);
     
-    FOSSIL_TEST_ASSUME(list.size == 1, "MockCallList size should be 1 after adding a call");
+    FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
 

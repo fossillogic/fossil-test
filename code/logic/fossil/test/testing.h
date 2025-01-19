@@ -103,7 +103,7 @@ typedef enum {
     TEST_STATUS_SKIP,
     TEST_STATUS_EMPTY,
     TEST_STATUS_TTIMEOUT
-} test_status_t;
+} fossil_test_status_t;
 
 /**
  * @struct test_case
@@ -142,7 +142,7 @@ typedef struct test_case {
     void (*test_func)(void);             
     void (*setup_func)(void);            
     void (*teardown_func)(void);         
-    test_status_t status;                
+    fossil_test_status_t status;                
     const char *failure_message;         
     double execution_time;               
     struct test_case *next;              

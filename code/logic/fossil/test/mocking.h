@@ -118,49 +118,49 @@ extern "C" {
 
 // C interface
 
-typedef struct MockCall {
+typedef struct fossil_mock_call_t {
     char *function_name;
     char **arguments;
     int num_args;
-    struct MockCall *next;
-} MockCall;
+    struct fossil_mock_call_t *next;
+} fossil_mock_call_t;
 
 typedef struct {
-    MockCall *head;
-    MockCall *tail;
+    fossil_mock_call_t *head;
+    fossil_mock_call_t *tail;
     int size;
-} MockCallList;
+} fossil_mock_calllist_t;
 
 /**
- * Initializes a MockCallList.
+ * Initializes a fossil_mock_calllist_t.
  * 
- * @param list The MockCallList to initialize.
+ * @param list The fossil_mock_calllist_t to initialize.
  */
-void fossil_mock_init(MockCallList *list);
+void fossil_mock_init(fossil_mock_calllist_t *list);
 
 /**
- * Destroys a MockCallList and frees all associated memory.
+ * Destroys a fossil_mock_calllist_t and frees all associated memory.
  * 
- * @param list The MockCallList to destroy.
+ * @param list The fossil_mock_calllist_t to destroy.
  */
-void fossil_mock_destroy(MockCallList *list);
+void fossil_mock_destroy(fossil_mock_calllist_t *list);
 
 /**
- * Adds a MockCall to the MockCallList.
+ * Adds a fossil_mock_call_t to the fossil_mock_calllist_t.
  * 
- * @param list The MockCallList to add the MockCall to.
+ * @param list The fossil_mock_calllist_t to add the fossil_mock_call_t to.
  * @param function_name The name of the function being called.
  * @param arguments The arguments passed to the function.
  * @param num_args The number of arguments.
  */
-void fossil_mock_add_call(MockCallList *list, const char *function_name, char **arguments, int num_args);
+void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, char **arguments, int num_args);
 
 /**
- * Prints the contents of a MockCallList.
+ * Prints the contents of a fossil_mock_calllist_t.
  * 
- * @param list The MockCallList to print.
+ * @param list The fossil_mock_calllist_t to print.
  */
-void fossil_mock_print(MockCallList *list);
+void fossil_mock_print(fossil_mock_calllist_t *list);
 
 #ifdef __cplusplus
 }

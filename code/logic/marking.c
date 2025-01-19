@@ -123,7 +123,7 @@ void fossil_test_benchmark(char* duration_type, double expected, double actual) 
     }
 } // end of func
 
-void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
+void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return;
@@ -142,7 +142,7 @@ void fossil_benchmark_init(fossil_benchmark_t* benchmark, const char* name) {
     benchmark->running = 0;
 }
 
-void fossil_benchmark_start(fossil_benchmark_t* benchmark) {
+void fossil_benchmark_start(fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return;
@@ -154,7 +154,7 @@ void fossil_benchmark_start(fossil_benchmark_t* benchmark) {
     }
 }
 
-void fossil_benchmark_stop(fossil_benchmark_t* benchmark) {
+void fossil_benchmark_stop(fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return;
@@ -175,7 +175,7 @@ void fossil_benchmark_stop(fossil_benchmark_t* benchmark) {
     }
 }
 
-double fossil_benchmark_elapsed_seconds(const fossil_benchmark_t* benchmark) {
+double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return 0.0;
@@ -183,7 +183,7 @@ double fossil_benchmark_elapsed_seconds(const fossil_benchmark_t* benchmark) {
     return benchmark->total_duration;
 }
 
-double fossil_benchmark_min_time(const fossil_benchmark_t* benchmark) {
+double fossil_benchmark_min_time(const fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return 0.0;
@@ -191,7 +191,7 @@ double fossil_benchmark_min_time(const fossil_benchmark_t* benchmark) {
     return benchmark->min_duration;
 }
 
-double fossil_benchmark_max_time(const fossil_benchmark_t* benchmark) {
+double fossil_benchmark_max_time(const fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return 0.0;
@@ -199,7 +199,7 @@ double fossil_benchmark_max_time(const fossil_benchmark_t* benchmark) {
     return benchmark->max_duration;
 }
 
-double fossil_benchmark_avg_time(const fossil_benchmark_t* benchmark) {
+double fossil_benchmark_avg_time(const fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return 0.0;
@@ -207,7 +207,7 @@ double fossil_benchmark_avg_time(const fossil_benchmark_t* benchmark) {
     return benchmark->num_samples > 0 ? benchmark->total_duration / benchmark->num_samples : 0.0;
 }
 
-void fossil_benchmark_reset(fossil_benchmark_t* benchmark) {
+void fossil_benchmark_reset(fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return;
@@ -218,7 +218,7 @@ void fossil_benchmark_reset(fossil_benchmark_t* benchmark) {
     benchmark->max_duration = 0.0;
 }
 
-void fossil_benchmark_report(const fossil_benchmark_t* benchmark) {
+void fossil_benchmark_report(const fossil_mark_t* benchmark) {
     if (benchmark == NULL) {
         printf("Error: benchmark is NULL\n");
         return;
@@ -230,7 +230,7 @@ void fossil_benchmark_report(const fossil_benchmark_t* benchmark) {
     printf("\033[1;32mAvg Time  : %.6f seconds\n", fossil_benchmark_avg_time(benchmark));
 }
 
-void fossil_scoped_benchmark_init(scoped_benchmark_t* scoped_benchmark, fossil_benchmark_t* benchmark) {
+void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark) {
     if (scoped_benchmark == NULL) {
         printf("Error: scoped_benchmark is NULL\n");
         return;
@@ -245,7 +245,7 @@ void fossil_scoped_benchmark_init(scoped_benchmark_t* scoped_benchmark, fossil_b
     fossil_benchmark_start(scoped_benchmark->benchmark);
 }
 
-void fossil_scoped_benchmark_destroy(scoped_benchmark_t* scoped_benchmark) {
+void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark) {
     if (scoped_benchmark == NULL) {
         printf("Error: scoped_benchmark is NULL\n");
         return;
