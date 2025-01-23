@@ -7,7 +7,6 @@ on:
       - "**.h"
       - "**.cpp"
       - "**.hpp"
-      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"
@@ -17,7 +16,6 @@ on:
       - "**.h"
       - "**.cpp"
       - "**.hpp"
-      - "**.rs"
       - "**.py"
       - "**.build"
       - "**.options"
@@ -58,10 +56,13 @@ jobs:
           $env:CXX="cl.exe"
 
       - name: Configure CMake
-        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Ninja" -DWITH_TESTS=OFF
+        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Ninja" -DWITH_TESTS=ON
 
       - name: Build
         run: cmake --build build_msvc_${{ matrix.msvc_version }} --config Release
+
+      - name: Run Tests
+        run: cmake --build build_msvc_${{ matrix.msvc_version }} --target testbed-c
 
       - name: Upload Build Log
         if: failure()
@@ -95,11 +96,14 @@ jobs:
           python -m pip install cmake ninja
   
       - name: Configure CMake
-        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=OFF
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=ON
   
       - name: Build
         run: cmake --build builddir --config Release
   
+      - name: Run Tests
+        run: cmake --build builddir --target testbed-c
+
       - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
@@ -139,10 +143,13 @@ jobs:
           python -m pip install cmake ninja
 
       - name: Configure CMake
-        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=OFF
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=ON
 
       - name: Build
         run: cmake --build builddir --config Release
+
+      - name: Run Tests
+        run: cmake --build builddir --target testbed-c
 
       - name: Upload Build Log
         if: failure()
@@ -190,5 +197,6 @@ jobs:
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
               apt-get update
-              cmake -S . -B builddir -G Ninja -DWITH_TESTS=OFF
-              cmake --build builddir --config Release"
+              cmake -S . -B builddir -G Ninja -DWITH_TESTS=ON
+              cmake --build builddir --config Release
+              cmake --build builddir --target testbed-c"
