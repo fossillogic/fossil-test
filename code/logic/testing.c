@@ -14,8 +14,6 @@
  */
 #include "fossil/test/testing.h"
 
-
-
 #ifdef __WIN32
 // Array of messages for each category
 const char *sarcastic_messages[] = {
