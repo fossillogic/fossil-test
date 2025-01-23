@@ -1,5 +1,5 @@
 # CMakeLists.txt
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.13.4)
 
 # Project metadata
 project(FossilTest VERSION 1.1.5 LANGUAGES C CXX)
