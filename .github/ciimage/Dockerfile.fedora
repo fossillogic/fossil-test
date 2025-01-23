@@ -21,7 +21,7 @@ RUN dnf -y update && \
     git && \
     dnf clean all
 # Install Meson and Ninja using pip
-RUN python3 -m pip install --no-cache-dir meson ninja
+RUN python3 -m pip install --no-cache-dir cmake meson ninja
 
 # Set environment variables
 ENV CC=/usr/bin/clang
