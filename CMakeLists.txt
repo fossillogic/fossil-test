@@ -10,5 +10,8 @@ set(CMAKE_C_EXTENSIONS OFF) # Ensure strict C11 compliance
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF) # Ensure strict C++20 compliance
 
+# Options
+option(WITH_TEST "Enable Fossil Test for this project" OFF)
+
 # Add subdirectory for source code
 add_subdirectory(code)
