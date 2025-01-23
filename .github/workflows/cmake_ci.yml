@@ -64,7 +64,7 @@ jobs:
         run: cmake --build build_msvc_${{ matrix.msvc_version }} --config Release
 
       - name: Run Tests
-        run: cmake --build build_msvc_${{ matrix.msvc_version }} --target test
+        run: cmake --build build_msvc_${{ matrix.msvc_version }} --target testbed-c
 
       - name: Upload Test Log
         if: failure()
@@ -104,7 +104,7 @@ jobs:
         run: cmake --build builddir --config Release
   
       - name: Run Tests
-        run: cmake --build builddir --target test
+        run: cmake --build builddir --target testbed-c
   
       - name: Upload Test Log
         if: failure()
@@ -151,7 +151,7 @@ jobs:
         run: cmake --build builddir --config Release
 
       - name: Run Tests
-        run: cmake --build builddir --target test
+        run: cmake --build builddir --target testbed-c
 
       - name: Upload Test Log
         if: failure()
@@ -201,7 +201,7 @@ jobs:
               apt-get update
               cmake -S . -B builddir -DWITH_TESTS=ON
               cmake --build builddir --config Release
-              cmake --build builddir --target test"
+              cmake --build builddir --target testbed-c"
 
   build_cross:
     name: Building on Cross Compilation ${{ matrix.architecture }}
@@ -252,7 +252,7 @@ jobs:
         run: cmake --build builddir --config Release
 
       - name: Run Tests
-        run: cmake --build builddir --target test
+        run: cmake --build builddir --target testbed-c
 
       - name: Upload Test Log
         if: failure()
