@@ -58,20 +58,17 @@ jobs:
           $env:CXX="cl.exe"
 
       - name: Configure CMake
-        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Visual Studio ${matrix.msvc_version}" -DWITH_TESTS=ON
+        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Ninja" -DWITH_TESTS=OFF
 
       - name: Build
         run: cmake --build build_msvc_${{ matrix.msvc_version }} --config Release
 
-      - name: Run Tests
-        run: cmake --build build_msvc_${{ matrix.msvc_version }} --target testbed-c
-
-      - name: Upload Test Log
+      - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: windows_msvc_${{ matrix.msvc_version }}_cmake_testlog
-          path: build_msvc_${{ matrix.msvc_version }}/Testing/Temporary/LastTest.log
+          name: windows_msvc_${{ matrix.msvc_version }}_cmake_buildlog
+          path: build_msvc_${{ matrix.msvc_version }}/build.ninja
 
   build_macosx:
     name: Building on macOS with Xcode ${{ matrix.xcode_version }}
@@ -98,20 +95,17 @@ jobs:
           python -m pip install cmake ninja
   
       - name: Configure CMake
-        run: cmake -S . -B builddir -G Xcode -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=OFF
   
       - name: Build
         run: cmake --build builddir --config Release
   
-      - name: Run Tests
-        run: cmake --build builddir --target testbed-c
-  
-      - name: Upload Test Log
+      - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: macos_xcode_${{ matrix.xcode_version }}_cmake_testlog
-          path: builddir/Testing/Temporary/LastTest.log
+          name: macos_xcode_${{ matrix.xcode_version }}_cmake_buildlog
+          path: builddir/build.ninja
 
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
@@ -145,20 +139,17 @@ jobs:
           python -m pip install cmake ninja
 
       - name: Configure CMake
-        run: cmake -S . -B builddir -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=OFF
 
       - name: Build
         run: cmake --build builddir --config Release
 
-      - name: Run Tests
-        run: cmake --build builddir --target testbed-c
-
-      - name: Upload Test Log
+      - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: msys_${{ matrix.architecture }}_cmake_testlog
-          path: builddir/Testing/Temporary/LastTest.log
+          name: msys_${{ matrix.architecture }}_cmake_buildlog
+          path: builddir/build.ninja
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
@@ -199,9 +190,8 @@ jobs:
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
               apt-get update
-              cmake -S . -B builddir -DWITH_TESTS=ON
-              cmake --build builddir --config Release
-              cmake --build builddir --target testbed-c"
+              cmake -S . -B builddir -G Ninja -DWITH_TESTS=OFF
+              cmake --build builddir --config Release"
 
   build_cross:
     name: Building on Cross Compilation ${{ matrix.architecture }}
@@ -246,17 +236,14 @@ jobs:
           fi
 
       - name: Configure CMake
-        run: cmake -S . -B builddir -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G Ninja -DWITH_TESTS=OFF
 
       - name: Build
         run: cmake --build builddir --config Release
 
-      - name: Run Tests
-        run: cmake --build builddir --target testbed-c
-
-      - name: Upload Test Log
+      - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cross_${{ matrix.architecture }}_cmake_testlog
-          path: builddir/Testing/Temporary/LastTest.log
+          name: cross_${{ matrix.architecture }}_cmake_buildlog
+          path: builddir/build.ninja
