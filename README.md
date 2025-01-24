@@ -75,8 +75,8 @@ To use Fossil Test with CMake, follow these steps:
    Install CMake version `3.13.4` or newer:
 
    ```sh
-   python -m pip install cmake           # To install Meson
-   python -m pip install --upgrade cmake # To upgrade Meson
+   python -m pip install cmake           # To install CMake
+   python -m pip install --upgrade cmake # To upgrade CMake
    ```
 
 2. **Find and Integrate Fossil Test**:
