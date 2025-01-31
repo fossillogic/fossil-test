@@ -19,8 +19,69 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// *****************************************************************************
+// Type declarations
+// *****************************************************************************
+
+typedef struct fossil_mock_call_t {
+    char *function_name;
+    char **arguments;
+    int num_args;
+    struct fossil_mock_call_t *next;
+} fossil_mock_call_t;
+
+typedef struct {
+    fossil_mock_call_t *head;
+    fossil_mock_call_t *tail;
+    int size;
+} fossil_mock_calllist_t;
+
+// *****************************************************************************
+// Function declarations
+// *****************************************************************************
+
+/**
+ * Initializes a fossil_mock_calllist_t.
+ * 
+ * @param list The fossil_mock_calllist_t to initialize.
+ */
+void fossil_mock_init(fossil_mock_calllist_t *list);
+
+/**
+ * Destroys a fossil_mock_calllist_t and frees all associated memory.
+ * 
+ * @param list The fossil_mock_calllist_t to destroy.
+ */
+void fossil_mock_destroy(fossil_mock_calllist_t *list);
+
+/**
+ * Adds a fossil_mock_call_t to the fossil_mock_calllist_t.
+ * 
+ * @param list The fossil_mock_calllist_t to add the fossil_mock_call_t to.
+ * @param function_name The name of the function being called.
+ * @param arguments The arguments passed to the function.
+ * @param num_args The number of arguments.
+ */
+void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, char **arguments, int num_args);
+
+/**
+ * Prints the contents of a fossil_mock_calllist_t.
+ * 
+ * @param list The fossil_mock_calllist_t to print.
+ */
+void fossil_mock_print(fossil_mock_calllist_t *list);
+
+#ifdef __cplusplus
+}
+#endif
 
 /**
  * @brief Macro for initializing the mock list.
@@ -110,60 +171,6 @@
 #else
 #define _FOSSIL_MOCK_STRUCT(name) \
     typedef struct name
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// C interface
-
-typedef struct fossil_mock_call_t {
-    char *function_name;
-    char **arguments;
-    int num_args;
-    struct fossil_mock_call_t *next;
-} fossil_mock_call_t;
-
-typedef struct {
-    fossil_mock_call_t *head;
-    fossil_mock_call_t *tail;
-    int size;
-} fossil_mock_calllist_t;
-
-/**
- * Initializes a fossil_mock_calllist_t.
- * 
- * @param list The fossil_mock_calllist_t to initialize.
- */
-void fossil_mock_init(fossil_mock_calllist_t *list);
-
-/**
- * Destroys a fossil_mock_calllist_t and frees all associated memory.
- * 
- * @param list The fossil_mock_calllist_t to destroy.
- */
-void fossil_mock_destroy(fossil_mock_calllist_t *list);
-
-/**
- * Adds a fossil_mock_call_t to the fossil_mock_calllist_t.
- * 
- * @param list The fossil_mock_calllist_t to add the fossil_mock_call_t to.
- * @param function_name The name of the function being called.
- * @param arguments The arguments passed to the function.
- * @param num_args The number of arguments.
- */
-void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, char **arguments, int num_args);
-
-/**
- * Prints the contents of a fossil_mock_calllist_t.
- * 
- * @param list The fossil_mock_calllist_t to print.
- */
-void fossil_mock_print(fossil_mock_calllist_t *list);
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif // FOSSIL_MOCK_FRAMEWORK_H

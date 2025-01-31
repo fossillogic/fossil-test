@@ -18,6 +18,10 @@
 
 extern char *_custom_fossil_test_strdup(const char *str);
 
+// *****************************************************************************
+// Function declarations
+// *****************************************************************************
+
 void fossil_mock_init(fossil_mock_calllist_t *list) {
     if (!list) {
         return;
