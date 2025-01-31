@@ -3,9 +3,11 @@
 option(WITH_TEST "Enable testing" OFF)
 
 if(WITH_TEST)
+    find_package(Python3 REQUIRED)
+
     # Run the Python script to generate the runner
     execute_process(
-        COMMAND ${CMAKE_SOURCE_DIR}/tools/generate-runner.py
+        COMMAND python3 ${CMAKE_SOURCE_DIR}/tools/generate-runner.py
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         RESULT_VARIABLE RUNNER_GEN_RESULT
     )
