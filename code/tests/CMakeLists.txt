@@ -7,7 +7,7 @@ if(WITH_TEST)
 
     # Run the Python script to generate the runner
     execute_process(
-        COMMAND python3 ${CMAKE_SOURCE_DIR}/tools/generate-runner.py
+        COMMAND Python3_EXECUTABLE ${CMAKE_SOURCE_DIR}/tools/generate-runner.py
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         RESULT_VARIABLE RUNNER_GEN_RESULT
     )
