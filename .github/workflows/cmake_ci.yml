@@ -8,8 +8,7 @@ on:
       - "**.cpp"
       - "**.hpp"
       - "**.py"
-      - "**.build"
-      - "**.options"
+      - "**.txt"
   pull_request:
     paths:
       - "**.c"
@@ -17,8 +16,7 @@ on:
       - "**.cpp"
       - "**.hpp"
       - "**.py"
-      - "**.build"
-      - "**.options"
+      - "**.txt"
 
 jobs:
   build_msvc:
@@ -56,7 +54,7 @@ jobs:
           $env:CXX="cl.exe"
 
       - name: Configure CMake
-        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Ninja" -DWITH_TESTS=ON
+        run: cmake -S . -B build_msvc_${{ matrix.msvc_version }} -G "Ninja" -DWITH_TEST=ON
 
       - name: Build
         run: cmake --build build_msvc_${{ matrix.msvc_version }} --config Release
@@ -93,7 +91,7 @@ jobs:
           python -m pip install cmake ninja
   
       - name: Configure CMake
-        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TEST=ON
   
       - name: Build
         run: cmake --build builddir --config Release
@@ -137,7 +135,7 @@ jobs:
           python -m pip install cmake ninja
 
       - name: Configure CMake
-        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TEST=ON
 
       - name: Build
         run: cmake --build builddir --config Release
@@ -188,7 +186,7 @@ jobs:
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
               apt-get update
-              cmake -S . -B builddir -G Ninja -DWITH_TESTS=ON
+              cmake -S . -B builddir -G Ninja -DWITH_TEST=ON
               cmake --build builddir --config Release"
 
   build_cross:
@@ -269,7 +267,7 @@ jobs:
           python -m pip install cmake ninja
 
       - name: Configure CMake
-        run: cmake -S . -B builddir -G "Ninja" -DWITH_TESTS=ON
+        run: cmake -S . -B builddir -G "Ninja" -DWITH_TEST=ON
 
       - name: Build
         run: cmake --build builddir --config Release
