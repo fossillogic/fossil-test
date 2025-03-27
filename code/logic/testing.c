@@ -832,9 +832,9 @@ void fossil_test_summary(fossil_test_env_t *env) {
     env->end_execution_time = clock();
 
     // TUI-like header with borders and bold title
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "║\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
 
     fossil_test_sanity(env); // Add suggestions
 
@@ -845,19 +845,19 @@ void fossil_test_summary(fossil_test_env_t *env) {
     int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
 
     // Displaying execution time in a TUI-like format
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "║ Execution time: (%.2d) sec, (%.2d) ms, (%.3d) µs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time: (%.2d) sec, (%.2d) ms, (%.3d) µs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
 
     // Detailed summary with counts and additional info
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "Test Results:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN "║  Passed: %d\n", env->pass_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "║  Failed: %d\n", env->fail_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "║  Skipped: %d\n", env->skip_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "║  Timed Out: %d\n", env->timeout_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "║  Unexpected: %d\n", env->unexpected_count);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN "|  Passed: %d\n" FOSSIL_TEST_COLOR_RESET, env->pass_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "|  Failed: %d\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "|  Skipped: %d\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "|  Timed Out: %d\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "|  Unexpected: %d\n" FOSSIL_TEST_COLOR_RESET, env->unexpected_count);
 
     // Footer with TUI-style border
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
