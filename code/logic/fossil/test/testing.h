@@ -29,14 +29,6 @@
 #define FOSSIL_TEST_COLOR_PURPLE  "\033[35m" // Purple
 #define FOSSIL_TEST_COLOR_ORANGE  "\033[38;5;208m" // Orange
 
-// Box-drawing characters
-#define TOP_LEFT_CORNER "\u2554"
-#define TOP_RIGHT_CORNER "\u2557"
-#define BOTTOM_LEFT_CORNER "\u255A"
-#define BOTTOM_RIGHT_CORNER "\u255D"
-#define HORIZONTAL_BORDER "\u2550"
-#define VERTICAL_BORDER "\u2551"
-
 #define FOSSIL_TEST_ATTR_BOLD     "\033[1m"  // Bold
 #define FOSSIL_TEST_ATTR_DIM      "\033[2m"  // Dim
 #define FOSSIL_TEST_ATTR_UNDERLINE "\033[4m" // Underline

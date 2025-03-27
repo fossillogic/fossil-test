@@ -14,6 +14,7 @@
  */
 #include "fossil/test/testing.h"
 
+
 // Array of messages for each category
 const char *sarcastic_messages[] = {
     "Wow, no tests were run! What a productive day!",
@@ -795,27 +796,6 @@ void fossil_test_sanity(fossil_test_env_t *env) {
     printf(FOSSIL_TEST_COLOR_CYAN "Overall Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 5]);
 }
 
-// Function to print a long horizontal top border with a corner
-void print_long_horizontal_top_border(int length) {
-    // Print the top left corner, followed by the horizontal border, and then the top right corner
-    printf(FOSSIL_TEST_COLOR_BLUE "%s", TOP_LEFT_CORNER);
-    for (int i = 0; i < length; i++) {
-        printf("%s", HORIZONTAL_BORDER);  // Repeat the horizontal border character
-    }
-    printf("%s\n" FOSSIL_TEST_COLOR_RESET, TOP_RIGHT_CORNER); // End with the top right corner
-}
-
-// Function to print a long horizontal bottom border with a corner
-void print_long_horizontal_bottom_border(int length) {
-    // Print the bottom left corner, followed by the horizontal border, and then the bottom right corner
-    printf(FOSSIL_TEST_COLOR_BLUE "%s", BOTTOM_LEFT_CORNER);
-    for (int i = 0; i < length; i++) {
-        printf("%s", HORIZONTAL_BORDER);  // Repeat the horizontal border character
-    }
-    printf("%s\n" FOSSIL_TEST_COLOR_RESET, BOTTOM_RIGHT_CORNER); // End with the bottom right corner
-}
-
-// Function to simulate pixel manipulation in the foreground for the test summary
 void fossil_test_summary(fossil_test_env_t *env) {
     if (!env) {
         return;
@@ -851,24 +831,33 @@ void fossil_test_summary(fossil_test_env_t *env) {
     }
     env->end_execution_time = clock();
 
-    // Manipulate the border pixels using box-drawing characters
-    int border_length = 80; // Set the length of the horizontal border (adjust as necessary)
-    print_long_horizontal_top_border(border_length); // Top border
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "%s %s %s\n" FOSSIL_TEST_COLOR_RESET,
-        VERTICAL_BORDER, "Fossil Test Summary:", VERTICAL_BORDER); // Title
-    print_long_horizontal_bottom_border(border_length); // Bottom border
+    // TUI-like header with borders and bold title
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "║\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
 
-    fossil_test_sanity(env);  // Add any additional sanity checks or suggestions here
+    fossil_test_sanity(env); // Add suggestions
 
-    // Total execution time with manipulated borders
+    // Execution time summary with a clean format
     double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
     int seconds = (int)total_execution_time;
     int milliseconds = (int)((total_execution_time - seconds) * 1000);
     int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
 
-    // Display time with additional border manipulation
-    print_long_horizontal_top_border(border_length); // Custom long horizontal border (top)
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC " Execution time: (%.2d) seconds, (%.2d) milliseconds, (%.3d) microseconds\n" FOSSIL_TEST_COLOR_RESET,
-        seconds, milliseconds, microseconds); // Time info
-    print_long_horizontal_bottom_border(border_length); // Custom long horizontal border (bottom)
+    // Displaying execution time in a TUI-like format
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "║ Execution time: (%.2d) sec, (%.2d) ms, (%.3d) µs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
+
+    // Detailed summary with counts and additional info
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "Test Results:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╔══════════════════════════════════════════════════════════╗\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN "║  Passed: %d\n", env->pass_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "║  Failed: %d\n", env->fail_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "║  Skipped: %d\n", env->skip_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "║  Timed Out: %d\n", env->timeout_count);
+    printf(FOSSIL_TEST_COLOR_CYAN "║  Unexpected: %d\n", env->unexpected_count);
+
+    // Footer with TUI-style border
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "╚══════════════════════════════════════════════════════════╝\n" FOSSIL_TEST_COLOR_RESET);
 }
