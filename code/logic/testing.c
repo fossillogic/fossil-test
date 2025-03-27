@@ -14,7 +14,6 @@
  */
 #include "fossil/test/testing.h"
 
-
 // Array of messages for each category
 const char *sarcastic_messages[] = {
     "Wow, no tests were run! What a productive day!",
@@ -226,6 +225,36 @@ const char *timeout_messages[] = {
     "Tests are taking too long. Time to find the bottleneck!"
 };
 
+// Suggestions arrays based on different outcomes
+const char *empty_suite_suggestions[] = {
+    "Check if your test suite has defined tests.",
+    "Make sure your test cases are properly configured.",
+    "Review the test configuration to ensure it’s correct."
+};
+
+const char *failure_suggestions[] = {
+    "Look into the test failures and their root causes.",
+    "Check for bugs, missing dependencies, or misconfigured tests.",
+    "Examine the test environment for potential issues.",
+    "Review the test case logic and expected behavior.",
+    "Consider adding more edge cases to capture hidden bugs."
+};
+
+const char *success_suggestions[] = {
+    "Great job! Keep adding tests to cover edge cases.",
+    "Fantastic! Consider adding performance and stress tests.",
+    "Success! Now, look at adding additional tests for edge cases.",
+    "Well done! You’re on the right track, keep it up.",
+    "Good job! Now, consider reviewing code for possible optimizations."
+};
+
+const char *timeout_suggestions[] = {
+    "Check resource usage and adjust timeout values.",
+    "Investigate slow-running tests and optimize them.",
+    "Consider breaking large tests into smaller ones to avoid timeouts.",
+    "Check for any environmental factors affecting test performance."
+};
+
 enum {
     _FOSSIL_TEST_RESPONSE_LENGTH = 50
 };
@@ -284,25 +313,25 @@ fossil_test_options_t fossil_test_init_options(void) {
 }
 
 void usage_info(void) {
-    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Usage: fossil [options] [command]"                                   FOSSIL_TEST_COLOR_RESET);
+    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Usage: fossil [options] [command]"                                   FOSSIL_TEST_COLOR_RESET);
     puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
     puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tOptions:" FOSSIL_TEST_COLOR_RESET);
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_OPTIONS) / sizeof(FOSSIL_TEST_OPTIONS[0]); i++) {
-        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_OPTIONS[i]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_OPTIONS[i]);
     }
 
     puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tCommands:" FOSSIL_TEST_COLOR_RESET);
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_COMMANDS) / sizeof(FOSSIL_TEST_COMMANDS[0]); i++) {
-        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_COMMANDS[i]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_COMMANDS[i]);
     }
     puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
 }
 
 void version_info(void) {
     puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "Fossil Logic Test Framework");
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tVersion: %s\n", FOSSIL_TEST_VERSION);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tAuthor: %s\n", FOSSIL_TEST_AUTHOR);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "\tLicense: %s\n", FOSSIL_TEST_LICENSE);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tVersion: %s\n", FOSSIL_TEST_VERSION);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tAuthor: %s\n", FOSSIL_TEST_AUTHOR);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tLicense: %s\n", FOSSIL_TEST_LICENSE);
 }
 
 // Parse command-line arguments
@@ -701,30 +730,99 @@ void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
     }
 }
 
-// Function to generate a dynamic message based on the test results
-void fossil_test_message(fossil_test_env_t *env) {
-    // Seed random number generator
-    srand(time(NULL));
-
-    if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
-    } else if (env->fail_count > 0) {
-        printf(FOSSIL_TEST_COLOR_RED FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, humorous_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
-    } else if (env->pass_count > 0) {
-        printf(FOSSIL_TEST_COLOR_GREEN FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
-    } else if (env->timeout_count > 0) {
-        printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITATIC "%s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH]);
+void fossil_test_sanity(fossil_test_env_t *env) {
+    if (!env) {
+        return;
     }
+
+    // Sanity analysis based on results
+    if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
+        // Empty test suite: sarcastic tone
+        const char *message = sarcastic_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
+        printf(FOSSIL_TEST_COLOR_YELLOW FOSSIL_TEST_ATTR_ITALIC "Hmm, seems like we ran an empty test suite: %s\n" FOSSIL_TEST_COLOR_RESET, message);
+        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 3]);
+    } else if (env->fail_count > 0) {
+        // Failures occurred: humorous or frustrated tone
+        const char *message = humorous_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
+        printf(FOSSIL_TEST_COLOR_RED FOSSIL_TEST_ATTR_ITALIC "Whoops! Looks like some tests didn't pass: %s\n" FOSSIL_TEST_COLOR_RESET, message);
+        
+        // Analysis of failures
+        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests failed. Possible causes include code issues, missing dependencies, or misconfigured tests.\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
+        
+        // Suggestion for improvement
+        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 5]);
+    } else if (env->pass_count > 0) {
+        // Success: positive, motivational tone
+        const char *message = great_news_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
+        printf(FOSSIL_TEST_COLOR_GREEN FOSSIL_TEST_ATTR_ITALIC "Success! All systems go! Tests passed: %s\n" FOSSIL_TEST_COLOR_RESET, message);
+        
+        // Analysis of success
+        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests passed successfully. Great work!\n", env->pass_count);
+        
+        // Suggestion for improvement
+        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n", success_suggestions[rand() % 5]);
+    } else if (env->timeout_count > 0) {
+        // Timeout occurred: calm, motivating tone
+        const char *message = timeout_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
+        printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITALIC "Some tests timed out, but we’ll catch them next time: %s\n" FOSSIL_TEST_COLOR_RESET, message);
+        
+        // Analysis of timeouts
+        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests timed out. This might be due to long execution times or heavy resource usage.\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
+        
+        // Suggestion for improvement
+        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_suggestions[rand() % 4]);
+    } else {
+        // Unexpected case: neutral tone
+        printf(FOSSIL_TEST_COLOR_RESET "We’ve encountered an unexpected result state. Something's off—let’s look into it.\n");
+    }
+
+    // Final remarks based on overall results
+    printf(FOSSIL_TEST_COLOR_BLUE "\nFinal Analysis:\n" FOSSIL_TEST_COLOR_RESET);
+    if (env->pass_count > 0) {
+        printf("Success rate: %.2f%%\n", (double)env->pass_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
+    }
+    if (env->fail_count > 0) {
+        printf("Failure rate: %.2f%%\n", (double)env->fail_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
+    }
+    if (env->skip_count > 0) {
+        printf("Skipped tests: %d\n", env->skip_count);
+    }
+    if (env->timeout_count > 0) {
+        printf("Timeout tests: %d\n", env->timeout_count);
+    }
+
+    // Provide overall improvement suggestion
+    printf(FOSSIL_TEST_COLOR_CYAN "Overall Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 5]);
 }
 
-// Summary function for test results
+// Function to print a long horizontal top border with a corner
+void print_long_horizontal_top_border(int length) {
+    // Print the top left corner, followed by the horizontal border, and then the top right corner
+    printf(FOSSIL_TEST_COLOR_BLUE "%s", TOP_LEFT_CORNER);
+    for (int i = 0; i < length; i++) {
+        printf("%s", HORIZONTAL_BORDER);  // Repeat the horizontal border character
+    }
+    printf("%s\n" FOSSIL_TEST_COLOR_RESET, TOP_RIGHT_CORNER); // End with the top right corner
+}
+
+// Function to print a long horizontal bottom border with a corner
+void print_long_horizontal_bottom_border(int length) {
+    // Print the bottom left corner, followed by the horizontal border, and then the bottom right corner
+    printf(FOSSIL_TEST_COLOR_BLUE "%s", BOTTOM_LEFT_CORNER);
+    for (int i = 0; i < length; i++) {
+        printf("%s", HORIZONTAL_BORDER);  // Repeat the horizontal border character
+    }
+    printf("%s\n" FOSSIL_TEST_COLOR_RESET, BOTTOM_RIGHT_CORNER); // End with the bottom right corner
+}
+
+// Function to simulate pixel manipulation in the foreground for the test summary
 void fossil_test_summary(fossil_test_env_t *env) {
     if (!env) {
         return;
     }
 
     if (env->options.dry_run) {
-        puts(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests were executed or evaluated." FOSSIL_TEST_COLOR_RESET);
+        printf(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests were executed or evaluated.\n" FOSSIL_TEST_COLOR_RESET);
         return;
     }
 
@@ -737,7 +835,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
             } else if (test->status == TEST_STATUS_FAIL) {
                 env->fail_count++;
                 if (test->failure_message) {
-                    printf("Test '%s' failed: %s\n", test->name, test->failure_message);
+                    printf(FOSSIL_TEST_COLOR_RED "Test '%s' failed: %s\n" FOSSIL_TEST_COLOR_RESET, test->name, test->failure_message);
                 }
             } else if (test->status == TEST_STATUS_SKIP) {
                 env->skip_count++;
@@ -753,25 +851,24 @@ void fossil_test_summary(fossil_test_env_t *env) {
     }
     env->end_execution_time = clock();
 
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITATIC "\nFossil Test Summary:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    // Manipulate the border pixels using box-drawing characters
+    int border_length = 80; // Set the length of the horizontal border (adjust as necessary)
+    print_long_horizontal_top_border(border_length); // Top border
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "%s %s %s\n" FOSSIL_TEST_COLOR_RESET,
+        VERTICAL_BORDER, "Fossil Test Summary:", VERTICAL_BORDER); // Title
+    print_long_horizontal_bottom_border(border_length); // Bottom border
 
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Passed: " FOSSIL_TEST_COLOR_ORANGE " %d\n" FOSSIL_TEST_COLOR_RESET, env->pass_count);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Failed: " FOSSIL_TEST_COLOR_ORANGE " %d\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Skipped:" FOSSIL_TEST_COLOR_ORANGE " %d\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Timeout:" FOSSIL_TEST_COLOR_ORANGE " %d\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Total: %d tests\n" FOSSIL_TEST_COLOR_RESET, env->pass_count + env->fail_count + env->skip_count);
+    fossil_test_sanity(env);  // Add any additional sanity checks or suggestions here
 
-    // Optionally, you could add the total execution time summary here
+    // Total execution time with manipulated borders
     double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
     int seconds = (int)total_execution_time;
     int milliseconds = (int)((total_execution_time - seconds) * 1000);
     int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
 
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITATIC "Execution time: (%.2d) seconds, (%.2d) milliseconds, (%.3d) microseconds\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "===================================================================\n" FOSSIL_TEST_COLOR_RESET);
-
-    fossil_test_message(env);
+    // Display time with additional border manipulation
+    print_long_horizontal_top_border(border_length); // Custom long horizontal border (top)
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC " Execution time: (%.2d) seconds, (%.2d) milliseconds, (%.3d) microseconds\n" FOSSIL_TEST_COLOR_RESET,
+        seconds, milliseconds, microseconds); // Time info
+    print_long_horizontal_bottom_border(border_length); // Custom long horizontal border (bottom)
 }
