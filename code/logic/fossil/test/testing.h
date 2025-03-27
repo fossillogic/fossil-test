@@ -32,7 +32,7 @@
 #define FOSSIL_TEST_ATTR_BOLD     "\033[1m"  // Bold
 #define FOSSIL_TEST_ATTR_DIM      "\033[2m"  // Dim
 #define FOSSIL_TEST_ATTR_UNDERLINE "\033[4m" // Underline
-#define FOSSIL_TEST_ATTR_ITATIC    "\033[3m" // Italic
+#define FOSSIL_TEST_ATTR_ITALIC    "\033[3m" // Italic
 
 
 #include <setjmp.h>
