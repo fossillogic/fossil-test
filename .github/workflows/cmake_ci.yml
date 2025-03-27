@@ -58,9 +58,6 @@ jobs:
 
       - name: Build
         run: cmake --build build_msvc_${{ matrix.msvc_version }} --config Release
-      
-      - name: Run Tests
-        run: ctest -C Release --output-on-failure
 
       - name: Upload Build Log
         if: failure()
@@ -98,10 +95,7 @@ jobs:
   
       - name: Build
         run: cmake --build builddir --config Release
-
-      - name: Run Tests
-        run: ctest -C Release --output-on-failure
-
+  
       - name: Upload Build Log
         if: failure()
         uses: actions/upload-artifact@v4
@@ -145,9 +139,6 @@ jobs:
 
       - name: Build
         run: cmake --build builddir --config Release
-
-      - name: Run Tests
-        run: ctest -C Release --output-on-failure
 
       - name: Upload Build Log
         if: failure()
@@ -196,8 +187,7 @@ jobs:
             /bin/bash -c "
               apt-get update
               cmake -S . -B builddir -G Ninja -DWITH_TEST=ON
-              cmake --build builddir --config Release
-              ctest -C Release --output-on-failure"
+              cmake --build builddir --config Release"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}

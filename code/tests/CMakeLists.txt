@@ -1,4 +1,4 @@
-if(WITH_TEST)
+if (WITH_TEST)
     execute_process(
         COMMAND python3 ${CMAKE_SOURCE_DIR}/tools/generate-runner.py
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
