@@ -11,13 +11,10 @@ RUN pacman -Syu --noconfirm && \
     clang \
     gdb \
     llvm \
-    rust \
-    cargo \
     wget \
     python \
     python-pip \
     git \
-    cmake \
     meson \
     ninja \
     tzdata && \

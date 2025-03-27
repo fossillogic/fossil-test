@@ -29,7 +29,6 @@ Together, **Fossil Test**, **Fossil Mock**, and **Fossil Mark** offer a powerful
 To get started with Fossil Test, ensure you have the following installed:
 
 - **Meson Build System**: If you don’t have Meson installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
-- **CMake Build System**: If you don’t have CMake installed, follow the installation instructions on the official [CMake website](https://cmake.org/getting-started/).
 
 ---
 
@@ -53,7 +52,7 @@ To get started with Fossil Test, ensure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.1.6
+   revision = v1.1.7
 
    [provide]
    fossil-test = fossil_test_dep
@@ -64,36 +63,6 @@ To get started with Fossil Test, ensure you have the following installed:
    ```ini
    dep = dependency('fossil-test')
    ```
-
----
-
-#### Adding Fossil Test Dependency With CMake
-
-To use Fossil Test with CMake, follow these steps:
-
-1. **Install CMake**:
-   Install CMake version `3.13.4` or newer:
-
-   ```sh
-   python -m pip install cmake           # To install CMake
-   python -m pip install --upgrade cmake # To upgrade CMake
-   ```
-
-2. **Find and Integrate Fossil Test**:
-   After installing CMake, you can integrate Fossil Test as a dependency. Add the following lines to your `CMakeLists.txt` file:
-
-   ```cmake
-   # Find Fossil Test package
-   find_package(FossilTest REQUIRED)
-
-   # Link the Fossil Test to your project
-   target_link_libraries(your_target FossilTest)
-   ```
-
-3. **Configure Your CMake Project**:
-   Make sure to configure your CMake project to include the necessary paths and dependencies for Fossil Test. Typically, you’ll want to make sure the `FossilTest` library is correctly linked in your build configuration.
-
-   This will ensure that Fossil Test is included and properly built with your project.
 
 ---
 
