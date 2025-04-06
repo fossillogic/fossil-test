@@ -918,19 +918,15 @@ void fossil_test_analyze(fossil_test_env_t *env) {
         return;
     }
 
-    // Count assertions and skipped tests
-    int no_assertion_count = 0;
-    int skipped_count = 0;
-
     fossil_test_suite_t *suite = env->test_suites;
     while (suite) {
         fossil_test_case_t *test = suite->tests;
         while (test) {
             if (test->status == TEST_STATUS_SKIP) {
-                skipped_count++;
+                env->skip_count++;  // Increment skipped count directly from env
             }
             if (_ASSERT_COUNT == 0) {
-                no_assertion_count++;
+                // If no assertions, you can handle logic here if needed, but no longer need a counter
             }
             test = test->next;
         }
@@ -941,10 +937,19 @@ void fossil_test_analyze(fossil_test_env_t *env) {
     int total_tests = env->pass_count + env->fail_count + env->skip_count + env->timeout_count;
 
     // Calculate success rate and other statistics
-    double success_rate = (double)env->pass_count / total_tests * 100;
-    double failure_rate = (double)env->fail_count / total_tests * 100;
-    double skip_rate = (double)env->skip_count / total_tests * 100;
-    double timeout_rate = (double)env->timeout_count / total_tests * 100;
+    double success_rate = (double)env->pass_count / (double)total_tests * 100;
+    double failure_rate = (double)env->fail_count / (double)total_tests * 100;
+    double skip_rate = (double)env->skip_count / (double)total_tests * 100;
+    double timeout_rate = (double)env->timeout_count / (double)total_tests * 100;
+
+    // Calculate probability (success probability)
+    double probability_of_success = (double)env->pass_count / total_tests;
+
+    // Calculate average (mean of success, failure, skip, timeout rates)
+    double average_rate = (success_rate + failure_rate + skip_rate + timeout_rate) / 4.0;
+
+    // Prediction (can be based on past success rate or other methods)
+    double prediction = success_rate;  // For simplicity, using the past success rate as prediction
 
     // Sort conditions from worst case to best case:
     // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
@@ -962,7 +967,7 @@ void fossil_test_analyze(fossil_test_env_t *env) {
 
     // Skipped tests next
     if (env->skip_count > 0) {
-        printf("Skipped tests: %.2f%% (%d tests)\n", skip_rate, skipped_count);
+        printf("Skipped tests: %.2f%% (%d tests)\n", skip_rate, env->skip_count);
     }
 
     // Best case: Success rate
@@ -971,13 +976,13 @@ void fossil_test_analyze(fossil_test_env_t *env) {
     }
 
     // Additional insights
-    if (no_assertion_count > 0) {
-        printf("Tests with no assertions: %d\n", no_assertion_count);
-    }
+    printf("Probability of success: %.2f\n", probability_of_success);
+    printf("Average test rate: %.2f%%\n", average_rate);
+    printf("Prediction (Future Success Rate): %.2f%%\n", prediction);
 
     // Skipped tests analysis route
     if (env->skip_count > 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW "Note: There were %d skipped tests. Please check the conditions or requirements for those tests.\n" FOSSIL_TEST_COLOR_RESET, skipped_count);
+        printf(FOSSIL_TEST_COLOR_YELLOW "Note: There were %d skipped tests. Please check the conditions or requirements for those tests.\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
     }
 }
 
