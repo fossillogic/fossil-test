@@ -792,17 +792,15 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
 
     _ASSERT_COUNT = 0; // Reset assertion count before running the test
 
-    clock_t test_start_time = clock();
+    clock_t start_iter = clock();
     double timeout_seconds = 180.0; // 3-minute timeout
 
     if (setjmp(env->env) == 0) {
         for (int i = 0; i < env->options.repeat_count; i++) {
-            clock_t start_iter = clock();
-
             test_case->test_func();
 
-            clock_t end_iter = clock();
-            double elapsed_seconds = (double)(end_iter - test_start_time) / CLOCKS_PER_SEC;
+            clock_t now = clock();
+            double elapsed_seconds = (double)(now - start_iter) / CLOCKS_PER_SEC;
 
             if (elapsed_seconds > timeout_seconds) {
                 test_case->status = TEST_STATUS_TTIMEOUT;
@@ -816,8 +814,8 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
     }
 
-    clock_t test_end_time = clock();
-    test_case->execution_time = (double)(test_end_time - test_start_time) / CLOCKS_PER_SEC;
+    clock_t end_iter = clock();
+    test_case->execution_time = (double)(end_iter - start_iter) / CLOCKS_PER_SEC;
 
     if (_ASSERT_COUNT == 0) {
         printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
