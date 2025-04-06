@@ -166,6 +166,7 @@ typedef struct fossil_test_env {
     int32_t fail_count;
     int32_t skip_count;
     int32_t empty_count;
+    int32_t no_assertion_count;
     int32_t timeout_count;
     int32_t unexpected_count;
     double start_execution_time;
