@@ -817,9 +817,9 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     clock_t end_iter = clock();
     test_case->execution_time = (double)(end_iter - start_iter) / CLOCKS_PER_SEC;
 
-    if (_ASSERT_COUNT == 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
-    }
+    // if (_ASSERT_COUNT == 0) {
+    //      printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
+    // }
 
     fossil_fossil_test_case_teardown(test_case);
 
