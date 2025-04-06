@@ -1006,6 +1006,58 @@ void fossil_test_suggest(fossil_test_env_t *env) {
     }
 }
 
+// Function to calculate and provide intelligent insights about execution time
+void fossil_test_execution_time(fossil_test_env_t *env) {
+    if (!env) {
+        return;
+    }
+
+    // Calculate the total execution time in seconds
+    double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
+
+    // Break it down into individual units
+    int seconds = (int)total_execution_time;
+    int milliseconds = (int)((total_execution_time - seconds) * 1000);
+    int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
+    int nanoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
+    int picoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
+    int femtoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
+
+    // Print the execution time breakdown
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time: (%02d) sec, (%03d) ms, (%06d) µs, (%09d) ns, (%012d) ps, (%015d) fs\n" FOSSIL_TEST_COLOR_RESET,
+           seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds);
+
+    // Intelligent Insights
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+
+    // Insights based on total execution time
+    if (total_execution_time > 1.0) {
+        printf(FOSSIL_TEST_COLOR_YELLOW "Insight: The test execution time is relatively long. Consider optimizing or parallelizing the tests.\n" FOSSIL_TEST_COLOR_RESET);
+    } else if (total_execution_time > 0.5) {
+        printf(FOSSIL_TEST_COLOR_GREEN "Insight: Execution time is moderate. Test parallelization might provide some speedup.\n" FOSSIL_TEST_COLOR_RESET);
+    } else {
+        printf(FOSSIL_TEST_COLOR_GREEN "Insight: Execution time is fast. No optimization needed for performance.\n" FOSSIL_TEST_COLOR_RESET);
+    }
+
+    // Time Anomaly Detection (simple logic for example purposes)
+    if (total_execution_time > 2.0) {
+        printf(FOSSIL_TEST_COLOR_RED "Warning: Execution time is unusually long. There may be an anomaly or issue that needs to be investigated.\n" FOSSIL_TEST_COLOR_RESET);
+    } else if (total_execution_time < 0.1) {
+        printf(FOSSIL_TEST_COLOR_ORANGE "Warning: Execution time is unexpectedly short. This may indicate incomplete tests or skipped cases.\n" FOSSIL_TEST_COLOR_RESET);
+    }
+
+    // Trend Prediction (simple heuristic for illustration)
+    if (env->fail_count > env->pass_count) {
+        printf(FOSSIL_TEST_COLOR_YELLOW "Prediction: Based on current test failure trends, there may be underlying issues. Review failed tests.\n" FOSSIL_TEST_COLOR_RESET);
+    } else if (env->pass_count > env->fail_count && total_execution_time < 1.0) {
+        printf(FOSSIL_TEST_COLOR_GREEN "Prediction: The system seems stable, with a quick execution time and a good pass rate.\n" FOSSIL_TEST_COLOR_RESET);
+    }
+    
+    // Footer with execution time
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+}
+
 void fossil_test_summary(fossil_test_env_t *env) {
     if (!env) {
         return;
@@ -1052,25 +1104,5 @@ void fossil_test_summary(fossil_test_env_t *env) {
     fossil_test_comment(env);  // Add comments based on results
     fossil_test_analyze(env);  // Add analysis of test results
     fossil_test_suggest(env);  // Add suggestions for improvement
-
-    // Test result details with a cleaner format
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "\tTest Results\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Passed: %d\n" FOSSIL_TEST_COLOR_RESET, env->pass_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Failed: %d\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Skipped: %d\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Timed Out: %d\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Unexpected: %d\n" FOSSIL_TEST_COLOR_RESET, env->unexpected_count);
-
-    // Enhanced execution time summary with improved formatting
-    double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
-    int seconds = (int)total_execution_time;
-    int milliseconds = (int)((total_execution_time - seconds) * 1000);
-    int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
-
-    // Footer with execution time
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time: (%.2d) sec, (%.2d) ms, (%.3d) µs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    fossil_test_execution_time(env);
 }
