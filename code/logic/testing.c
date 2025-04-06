@@ -1021,11 +1021,9 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     int64_t microseconds  = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
     int64_t nanoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
     int64_t picoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
-    int64_t femtoseconds  = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
-    int64_t attoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
 
     // Start the output paragraph for insights
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Insight: Based on the execution time analysis, we observe the following:\n" FOSSIL_TEST_COLOR_RESET);
 
     // Anomaly Detection & Optimization Insight
@@ -1037,31 +1035,31 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
 
     // Predictive Analysis Based on Execution Time Trends (simple heuristic)
     if (total_execution_time > 1.5 && env->fail_count > env->pass_count) {
-        printf("Prediction: The longer execution times combined with a higher failure count may indicate growing issues in test stability, possibly due to flaky tests or insufficient resource allocation.\n");
+        printf("The longer execution times combined with a higher failure count may indicate growing issues in test stability, possibly due to flaky tests or insufficient resource allocation.\n");
     } else if (total_execution_time < 0.5 && env->pass_count > env->fail_count) {
-        printf("Prediction: Short execution times with a high success rate indicate that tests are efficient and stable, suggesting that the testing environment is optimal and well-configured.\n");
+        printf("Short execution times with a high success rate indicate that tests are efficient and stable, suggesting that the testing environment is optimal and well-configured.\n");
     }
 
     // Repurpose time values to predict future performance trends
     double time_factor = total_execution_time * 1000; // Arbitrary scaling for future prediction
     if (time_factor > 1000.0) {
-        printf("Prediction: Given the current performance, future tests may take longer unless performance bottlenecks are addressed. Consider optimizing resource usage or revising test strategies.\n");
+        printf("Given the current performance, future tests may take longer unless performance bottlenecks are addressed. Consider optimizing resource usage or revising test strategies.\n");
     } else if (time_factor < 100.0) {
-        printf("Prediction: If the current trend holds, future tests will likely remain fast and stable, with minimal risk of performance degradation.\n");
+        printf("If the current trend holds, future tests will likely remain fast and stable, with minimal risk of performance degradation.\n");
     }
 
     // Test quality prediction based on execution time and pass rate
     if (env->pass_count > env->fail_count && total_execution_time < 1.0) {
-        printf("Prediction: The system is performing well with a high pass rate and short execution time, indicating good test quality and efficiency.\n");
+        printf("The system is performing well with a high pass rate and short execution time, indicating good test quality and efficiency.\n");
     } else if (env->fail_count > env->pass_count && total_execution_time > 1.0) {
-        printf("Prediction: The combination of longer execution time and a higher failure rate suggests potential issues with test reliability and stability that need to be addressed.\n");
+        printf("The combination of longer execution time and a higher failure rate suggests potential issues with test reliability and stability that need to be addressed.\n");
     }
 
     // Footer and execution time display
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tBreakdown time:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tExecution time: (%02lld) sec, (%03lld) ms, (%06lld) us, (%09lld) ns, (%012lld) ps, (%015lld) as, (%064lld) zs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds, attoseconds);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tExecution time: (%02lld) sec, (%03lld) ms, (%06lld) us, (%09lld) ns, (%012lld) ps\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds, nanoseconds, picoseconds);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
 void fossil_test_summary(fossil_test_env_t *env) {
@@ -1103,9 +1101,9 @@ void fossil_test_summary(fossil_test_env_t *env) {
     env->end_execution_time = clock();
 
     // TUI-like header and bold title
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 
     fossil_test_comment(env);  // Add comments based on results
     fossil_test_analyze(env);  // Add analysis of test results
