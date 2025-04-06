@@ -1016,15 +1016,15 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
 
     // Breakdown into smaller units of time
-    int seconds = (int)total_execution_time;
-    int milliseconds = (int)((total_execution_time - seconds) * 1000);
-    int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
-    int nanoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
-    int picoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
-    int femtoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
-    int attoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
-    int zeptoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0 - attoseconds / 1000000000000000000.0) * 1000000000000000000000);
-    int yoktoseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0 - attoseconds / 1000000000000000000.0 - zeptoseconds / 1000000000000000000000.0) * 1000000000000000000000000);
+    int32_t seconds       = (int32_t)total_execution_time;
+    int32_t milliseconds  = (int32_t)((total_execution_time - seconds) * 1000);
+    int32_t microseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
+    int32_t nanoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
+    int32_t picoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
+    int32_t femtoseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
+    int32_t attoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
+    int32_t zeptoseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0 - attoseconds / 1000000000000000000.0) * 1000000000000000000000);
+    int32_t yoktoseconds = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0 - attoseconds / 1000000000000000000.0 - zeptoseconds / 1000000000000000000000.0) * 1000000000000000000000000);
 
     // Start the output paragraph for insights
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
