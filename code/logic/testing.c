@@ -1059,9 +1059,8 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
 
     // Footer and execution time display
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time breakdown:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN "Execution time: (%02d) sec, (%03d) ms, (%06d) µs, (%09d) ns, (%012d) ps, (%015d) as\n" FOSSIL_TEST_COLOR_RESET,
-           seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds, attoseconds);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tBreakdown time:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tExecution time: (%02lld) sec, (%03lld) ms, (%06lld) us, (%09lld) ns, (%012lld) ps, (%015lld) as\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds, attoseconds);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
