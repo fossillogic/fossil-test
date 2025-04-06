@@ -779,20 +779,40 @@ void fossil_test_analyze(fossil_test_env_t *env) {
         suite = suite->next;
     }
 
-    // Enhanced analysis with percentages and key insights
+    // Total tests count
+    int total_tests = env->pass_count + env->fail_count + env->skip_count + env->timeout_count;
+
+    // Calculate success rate and other statistics
+    double success_rate = (double)env->pass_count / total_tests * 100;
+    double failure_rate = (double)env->fail_count / total_tests * 100;
+    double skip_rate = (double)env->skip_count / total_tests * 100;
+    double timeout_rate = (double)env->timeout_count / total_tests * 100;
+
+    // Sort conditions from worst case to best case:
+    // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
     printf(FOSSIL_TEST_COLOR_BLUE "\nAnalysis Results:\n" FOSSIL_TEST_COLOR_RESET);
-    if (env->pass_count > 0) {
-        printf("Success rate: %.2f%%\n", (double)env->pass_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
-    }
+
+    // Worst case: Failure rate
     if (env->fail_count > 0) {
-        printf("Failure rate: %.2f%%\n", (double)env->fail_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
+        printf("Failure rate: %.2f%%\n", failure_rate);
     }
-    if (env->skip_count > 0) {
-        printf("Skipped tests: %d\n", skipped_count);
-    }
+
+    // Next worst: Timeout tests
     if (env->timeout_count > 0) {
-        printf("Timeout tests: %d\n", env->timeout_count);
+        printf("Timeout tests: %.2f%%\n", timeout_rate);
     }
+
+    // Skipped tests next
+    if (skipped_count > 0) {
+        printf("Skipped tests: %.2f%% (%d tests)\n", skip_rate, skipped_count);
+    }
+
+    // Best case: Success rate
+    if (env->pass_count > 0) {
+        printf("Success rate: %.2f%%\n", success_rate);
+    }
+
+    // Additional insights
     if (no_assertion_count > 0) {
         printf("Tests with no assertions: %d\n", no_assertion_count);
     }
