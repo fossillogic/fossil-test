@@ -710,7 +710,7 @@ void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
         printf(FOSSIL_TEST_COLOR_BLUE "Running suite: %s\n" FOSSIL_TEST_COLOR_RESET, suite->name);
     }
 
-    if (env->options.shuffle_enabled){
+    if (env->options.shuffle_enabled) {
         shuffle_test_cases(&suite->tests);
     }
 
@@ -722,20 +722,24 @@ void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
         suite->suite_setup_func();
     }
 
-    double total_execution_time = 0.0;
+    clock_t suite_start = clock();
+
     fossil_test_case_t *current_test = suite->tests;
     while (current_test) {
         fossil_test_run_case(current_test, env);
-        total_execution_time += current_test->execution_time;
         current_test = current_test->next;
     }
+
+    clock_t suite_end = clock();
+    double total_execution_time = (double)(suite_end - suite_start) / CLOCKS_PER_SEC;
 
     if (suite->suite_teardown_func) {
         suite->suite_teardown_func();
     }
 
     if (env->options.show_info) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Total execution time for suite %s: %.3f seconds\n" FOSSIL_TEST_COLOR_RESET, suite->name, total_execution_time);
+        printf(FOSSIL_TEST_COLOR_CYAN "Total execution time for suite %s: %.3f seconds\n" FOSSIL_TEST_COLOR_RESET,
+               suite->name, total_execution_time);
     }
 }
 
@@ -786,27 +790,35 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     // Run setup
     fossil_test_case_setup(test_case);
 
-    clock_t test_start_time = clock();
-    clock_t timeout_limit = test_start_time + 3 * 60 * CLOCKS_PER_SEC; // 3 minutes timeout
-
     _ASSERT_COUNT = 0; // Reset assertion count before running the test
+
+    clock_t test_start_time = clock();
+    double timeout_seconds = 180.0; // 3 minutes timeout
+    double elapsed_seconds = 0.0;
 
     if (setjmp(env->env) == 0) { // Attempt to run the test case
         for (int i = 0; i < env->options.repeat_count; i++) {
+            clock_t iter_start = clock();
+
             test_case->test_func();
-            if (clock() > timeout_limit) { // Timeout check
+
+            clock_t iter_end = clock();
+            elapsed_seconds = (double)(iter_end - test_start_time) / CLOCKS_PER_SEC;
+
+            if (elapsed_seconds > timeout_seconds) {
                 test_case->status = TEST_STATUS_TTIMEOUT;
-                printf(FOSSIL_TEST_COLOR_ORANGE "TIMEOUT: " FOSSIL_TEST_COLOR_BLUE " %s\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
+                printf(FOSSIL_TEST_COLOR_ORANGE "TIMEOUT: " FOSSIL_TEST_COLOR_BLUE "%s\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
                 break;
             }
         }
     } else { // Handle failure
         test_case->status = TEST_STATUS_FAIL;
-        printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE " %s\n", test_case->name);
+        printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE "%s\n", test_case->name);
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
     }
 
-    test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
+    clock_t test_end_time = clock();
+    test_case->execution_time = (double)(test_end_time - test_start_time) / CLOCKS_PER_SEC;
 
     // Warn if the test case contains no assertions
     if (_ASSERT_COUNT == 0) {
@@ -820,7 +832,8 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     switch (test_case->status) {
         case TEST_STATUS_PASS:
             if (env->options.show_info) {
-                printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
+                printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE "%s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET,
+                       test_case->name, test_case->execution_time);
             }
             break;
         case TEST_STATUS_FAIL:
@@ -950,7 +963,6 @@ void fossil_test_analyze(fossil_test_env_t *env) {
 
     // Sort conditions from worst case to best case:
     // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
-    printf(FOSSIL_TEST_COLOR_CYAN "\nAnalysis Results:\n" FOSSIL_TEST_COLOR_RESET);
 
     // Worst case: Failure rate
     if (env->fail_count > 0) {
@@ -1097,8 +1109,8 @@ void fossil_test_summary(fossil_test_env_t *env) {
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 
-    fossil_test_comment(env);  // Add comments based on results
     fossil_test_analyze(env);  // Add analysis of test results
+    fossil_test_comment(env);  // Add comments based on results
     fossil_test_suggest(env);  // Add suggestions for improvement
     fossil_test_execution_time(env);
 }
