@@ -1027,70 +1027,26 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
 
     // Anomaly Detection & Optimization Insight
     if (total_execution_time > 5.0) {
-        printf(FOSSIL_TEST_COLOR_CYAN
+        printf(
             "Execution time is exceptionally long, indicating possible critical\n"
             "inefficiencies, extensive test coverage, or hardware constraints.\n"
             "Investigate parallel execution strategies, resource bottlenecks, or\n"
             "excessive test dependencies. Consider breaking test suites into smaller\n"
-            "units to isolate performance-heavy areas.\n" FOSSIL_TEST_COLOR_RESET
+            "units to isolate performance-heavy areas.\n"
         );
     } else if (total_execution_time > 2.0) {
-        printf(FOSSIL_TEST_COLOR_CYAN
+        printf(
             "Execution time is unusually long, suggesting potential bottlenecks\n"
             "or inefficiencies in the test suite. Optimization strategies, such as\n"
             "test parallelization or resource allocation adjustments, could help\n"
-            "reduce time consumption.\n" FOSSIL_TEST_COLOR_RESET
+            "reduce time consumption.\n"
         );
     } else if (total_execution_time < 0.2) {
-        printf(FOSSIL_TEST_COLOR_CYAN
+        printf(
             "Execution time is abnormally short. This could mean tests were\n"
             "skipped or misconfigured. Ensure full test coverage is executed and\n"
             "no critical paths are being inadvertently bypassed in the\n"
-            "environment.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    }
-
-    // Predictive Analysis Based on Execution Time Trends
-    if (total_execution_time > 2.5 && env->fail_count > env->pass_count) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "Long execution times combined with a high failure rate suggest\n"
-            "instability, possibly due to flaky tests, unhandled race conditions,\n"
-            "or poor resource management. Analyze test patterns and stabilize\n"
-            "critical areas.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    } else if (total_execution_time < 0.5 && env->pass_count > env->fail_count) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "Fast execution times with a high pass rate indicate robust,\n"
-            "efficient testing. Maintain current strategies, but continue\n"
-            "monitoring to detect subtle regressions early in the pipeline.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    } else if (env->pass_count == 0 && env->fail_count == 0) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "No valid results recorded. This suggests an environment failure or\n"
-            "skipped execution. Confirm initialization, test registration, and\n"
-            "execution flows are working as intended without suppression or\n"
-            "misconfiguration.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    }
-
-    // Test Quality Prediction Based on Results and Timing
-    if (env->pass_count > env->fail_count && total_execution_time < 1.0) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "High test pass rate and low execution time indicate strong test\n"
-            "quality and efficient implementation. Continue leveraging modular,\n"
-            "independent test cases and assert coverage tracking.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    } else if (env->fail_count > env->pass_count && total_execution_time > 1.0) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "Low test success and long runtime indicate potential architectural or\n"
-            "logical issues. Debug logs, tracing, and fine-grained profiling are\n"
-            "recommended for pinpointing instability sources.\n" FOSSIL_TEST_COLOR_RESET
-        );
-    } else if (env->fail_count == env->pass_count && total_execution_time > 1.5) {
-        printf(FOSSIL_TEST_COLOR_CYAN
-            "Even pass/fail distribution with extended execution suggests\n"
-            "non-determinism or edge cases dominating test coverage. Investigate\n"
-            "timing variability and data-sensitive behaviors.\n" FOSSIL_TEST_COLOR_RESET
+            "environment.\n"
         );
     }
 
