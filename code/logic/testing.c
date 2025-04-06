@@ -897,7 +897,7 @@ void fossil_test_comment(fossil_test_env_t *env) {
     // Dynamic comment based on test result
     if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
         // Positive outcome - playful
-        printf(FOSSIL_TEST_COLOR_GREEN "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
+        printf(FOSSIL_TEST_COLOR_CYAN "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
     } else if (env->fail_count > 0) {
         // Failure detected - humorous to lighten the mood
         printf(FOSSIL_TEST_COLOR_RED "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
@@ -906,7 +906,7 @@ void fossil_test_comment(fossil_test_env_t *env) {
         printf(FOSSIL_TEST_COLOR_ORANGE "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
     } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
         // No results - sarcastic twist
-        printf(FOSSIL_TEST_COLOR_PURPLE "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
+        printf(FOSSIL_TEST_COLOR_CYAN "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
     } else {
         // Mixed results - deeper analysis
         printf(FOSSIL_TEST_COLOR_CYAN "Comment: The test results are mixed. Consider analyzing individual test cases to uncover underlying issues.\n" FOSSIL_TEST_COLOR_RESET);
@@ -924,9 +924,6 @@ void fossil_test_analyze(fossil_test_env_t *env) {
         while (test) {
             if (test->status == TEST_STATUS_SKIP) {
                 env->skip_count++;  // Increment skipped count directly from env
-            }
-            if (_ASSERT_COUNT == 0) {
-                // If no assertions, you can handle logic here if needed, but no longer need a counter
             }
             test = test->next;
         }
@@ -953,32 +950,32 @@ void fossil_test_analyze(fossil_test_env_t *env) {
 
     // Sort conditions from worst case to best case:
     // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
-    printf(FOSSIL_TEST_COLOR_BLUE "\nAnalysis Results:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN "\nAnalysis Results:\n" FOSSIL_TEST_COLOR_RESET);
 
     // Worst case: Failure rate
     if (env->fail_count > 0) {
-        printf("Failure rate: %.2f%%\n", failure_rate);
+        printf(FOSSIL_TEST_COLOR_CYAN "Failure rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, failure_rate);
     }
 
     // Next worst: Timeout tests
     if (env->timeout_count > 0) {
-        printf("Timeout tests: %.2f%%\n", timeout_rate);
+        printf(FOSSIL_TEST_COLOR_CYAN "Timeout tests: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, timeout_rate);
     }
 
     // Skipped tests next
     if (env->skip_count > 0) {
-        printf("Skipped tests: %.2f%% (%d tests)\n", skip_rate, env->skip_count);
+        printf(FOSSIL_TEST_COLOR_CYAN "Skipped tests: %.2f%% (%d tests)\n" FOSSIL_TEST_COLOR_RESET, skip_rate, env->skip_count);
     }
 
     // Best case: Success rate
     if (env->pass_count > 0) {
-        printf("Success rate: %.2f%%\n", success_rate);
+        printf(FOSSIL_TEST_COLOR_CYAN "Success rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, success_rate);
     }
 
     // Additional insights
-    printf("Probability of success: %.2f\n", probability_of_success);
-    printf("Average test rate: %.2f%%\n", average_rate);
-    printf("Prediction (Future Success Rate): %.2f%%\n", prediction);
+    printf(FOSSIL_TEST_COLOR_CYAN "Probability of success: %.2f\n" FOSSIL_TEST_COLOR_RESET, probability_of_success);
+    printf(FOSSIL_TEST_COLOR_CYAN "Average test rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, average_rate);
+    printf(FOSSIL_TEST_COLOR_CYAN "Prediction (Future Success Rate): %.2f%%\n" FOSSIL_TEST_COLOR_RESET, prediction);
 
     // Skipped tests analysis route
     if (env->skip_count > 0) {
@@ -993,16 +990,16 @@ void fossil_test_suggest(fossil_test_env_t *env) {
 
     // Dynamic suggestion based on results and test state
     if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 50]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 50]);
     } else if (env->fail_count > 0) {
         printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 50]);
     } else if (env->pass_count > 0) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 50]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 50]);
     } else if (env->timeout_count > 0) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_suggestions[rand() % 50]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_suggestions[rand() % 50]);
     } else if (env->skip_count > 0) {
         // Skipped tests specific suggestions
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: Review skipped tests for prerequisites or intentional exclusions. Ensure tests are not being skipped due to unmet conditions.\n" FOSSIL_TEST_COLOR_RESET);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: Review skipped tests for prerequisites or intentional exclusions. Ensure tests are not being skipped due to unmet conditions.\n" FOSSIL_TEST_COLOR_RESET);
     }
 }
 
@@ -1052,8 +1049,8 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
 
     // Footer and execution time display
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITALIC "|\tExecution time:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITALIC "|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n" FOSSIL_TEST_COLOR_RESET, (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "|\tExecution time:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n" FOSSIL_TEST_COLOR_RESET, (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
@@ -1097,7 +1094,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     // TUI-like header and bold title
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 
     fossil_test_comment(env);  // Add comments based on results
