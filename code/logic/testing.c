@@ -1016,13 +1016,13 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
 
     // Breakdown into smaller units of time
-    int32_t seconds       = (int32_t)total_execution_time;
-    int32_t milliseconds  = (int32_t)((total_execution_time - seconds) * 1000);
-    int32_t microseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
-    int32_t nanoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
-    int32_t picoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
-    int32_t femtoseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
-    int32_t attoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
+    int64_t seconds       = (int64_t)total_execution_time;
+    int64_t milliseconds  = (int64_t)((total_execution_time - seconds) * 1000);
+    int64_t microseconds  = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
+    int64_t nanoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
+    int64_t picoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
+    int64_t femtoseconds  = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
+    int64_t attoseconds   = (int64_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
 
     // Start the output paragraph for insights
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
