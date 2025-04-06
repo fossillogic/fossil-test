@@ -295,8 +295,8 @@ void fossil_test_run_all(fossil_test_env_t *env);
  */
 #define _FOSSIL_TEST_SKIP(test_name, message) \
     test_name##_test_case.status = TEST_STATUS_SKIP; \
-    test_name##_test_case.failure_message = message; \
-    printf(FOSSIL_TEST_COLOR_YELLOW "SKIPPED: %s - %s\n" FOSSIL_TEST_COLOR_RESET, #test_name, message); \
+    test_name##_test_case.failure_message = message;
+    // printf(FOSSIL_TEST_COLOR_YELLOW "SKIPPED: %s - %s\n" FOSSIL_TEST_COLOR_RESET, #test_name, message); \
 
 /**
  * @brief Macro to define a test case.
