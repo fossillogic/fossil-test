@@ -1097,7 +1097,7 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     // Footer and execution time display
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITALIC "|\tExecution time:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITALIC "|\t(%02ld) sec, (%03ld) ms, (%06ld) us, (%09ld) ns\n" FOSSIL_TEST_COLOR_RESET, (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_ITALIC "|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n" FOSSIL_TEST_COLOR_RESET, (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
