@@ -1023,7 +1023,6 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     int32_t picoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0) * 1000000000000);
     int32_t femtoseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0) * 1000000000000000);
     int32_t attoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0) * 1000000000000000000);
-    int32_t zeptoseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0 - nanoseconds / 1000000000.0 - picoseconds / 1000000000000.0 - femtoseconds / 1000000000000000.0 - attoseconds / 1000000000000000000.0) * 1000000000000000000000);
 
     // Start the output paragraph for insights
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
@@ -1061,8 +1060,8 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     // Footer and execution time display
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time breakdown:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN "Execution time: (%02d) sec, (%03d) ms, (%06d) µs, (%09d) ns, (%012d) ps, (%015d) as, (%018d) zs\n" FOSSIL_TEST_COLOR_RESET,
-           seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds, attoseconds, zeptoseconds);
+    printf(FOSSIL_TEST_COLOR_CYAN "Execution time: (%02d) sec, (%03d) ms, (%06d) µs, (%09d) ns, (%012d) ps, (%015d) as\n" FOSSIL_TEST_COLOR_RESET,
+           seconds, milliseconds, microseconds, nanoseconds, picoseconds, femtoseconds, attoseconds);
     printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
