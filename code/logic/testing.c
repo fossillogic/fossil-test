@@ -793,17 +793,16 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     _ASSERT_COUNT = 0; // Reset assertion count before running the test
 
     clock_t test_start_time = clock();
-    double timeout_seconds = 180.0; // 3 minutes timeout
-    double elapsed_seconds = 0.0;
+    double timeout_seconds = 180.0; // 3-minute timeout
 
-    if (setjmp(env->env) == 0) { // Attempt to run the test case
+    if (setjmp(env->env) == 0) {
         for (int i = 0; i < env->options.repeat_count; i++) {
-            clock_t iter_start = clock();
+            clock_t start_iter = clock();
 
             test_case->test_func();
 
-            clock_t iter_end = clock();
-            elapsed_seconds = (double)(iter_end - test_start_time) / CLOCKS_PER_SEC;
+            clock_t end_iter = clock();
+            double elapsed_seconds = (double)(end_iter - test_start_time) / CLOCKS_PER_SEC;
 
             if (elapsed_seconds > timeout_seconds) {
                 test_case->status = TEST_STATUS_TTIMEOUT;
@@ -811,7 +810,7 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
                 break;
             }
         }
-    } else { // Handle failure
+    } else {
         test_case->status = TEST_STATUS_FAIL;
         printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE "%s\n", test_case->name);
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
@@ -820,15 +819,12 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     clock_t test_end_time = clock();
     test_case->execution_time = (double)(test_end_time - test_start_time) / CLOCKS_PER_SEC;
 
-    // Warn if the test case contains no assertions
     if (_ASSERT_COUNT == 0) {
         printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
     }
 
-    // Run teardown
     fossil_fossil_test_case_teardown(test_case);
 
-    // Log result
     switch (test_case->status) {
         case TEST_STATUS_PASS:
             if (env->options.show_info) {
