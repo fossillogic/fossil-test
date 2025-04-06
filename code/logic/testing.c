@@ -961,7 +961,7 @@ void fossil_test_analyze(fossil_test_env_t *env) {
     }
 
     // Skipped tests next
-    if (skipped_count > 0) {
+    if (env->skip_count > 0) {
         printf("Skipped tests: %.2f%% (%d tests)\n", skip_rate, skipped_count);
     }
 
@@ -976,7 +976,7 @@ void fossil_test_analyze(fossil_test_env_t *env) {
     }
 
     // Skipped tests analysis route
-    if (skipped_count > 0) {
+    if (env->skip_count > 0) {
         printf(FOSSIL_TEST_COLOR_YELLOW "Note: There were %d skipped tests. Please check the conditions or requirements for those tests.\n" FOSSIL_TEST_COLOR_RESET, skipped_count);
     }
 }
