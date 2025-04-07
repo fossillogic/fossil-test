@@ -230,7 +230,48 @@ const char *timeout_messages[] = {
 const char *empty_suite_suggestions[] = {
     "Check if your test suite has defined tests.",
     "Make sure your test cases are properly configured.",
-    "Review the test configuration to ensure it’s correct."
+    "Review the test configuration to ensure it’s correct.",
+    "Verify that your test suite is correctly initialized.",
+    "Check if test scripts are properly linked.",
+    "Ensure your testing framework is correctly set up.",
+    "Double-check if your test directories and files are valid.",
+    "Ensure the tests are compiled correctly.",
+    "Make sure tests are registered with the test runner.",
+    "Verify that all necessary modules are loaded for testing.",
+    "Ensure no tests are excluded or skipped by mistake.",
+    "Check if you’ve specified the correct test entry points.",
+    "Review whether your test framework supports the required features.",
+    "Confirm that all test cases are included in the build process.",
+    "Verify that no test dependencies are missing.",
+    "Ensure that all required test resources are available.",
+    "Check if any testing tools need configuration.",
+    "Make sure your test suite is executed with the right parameters.",
+    "Confirm the right environment variables are set for tests.",
+    "Ensure that tests are properly isolated from the system environment.",
+    "Check if the tests are being executed in the expected environment.",
+    "Verify that your test suite hasn’t been inadvertently disabled.",
+    "Check if your test suite has been corrupted or altered.",
+    "Make sure your testing environment is up-to-date.",
+    "Ensure that the test results are being captured correctly.",
+    "Verify that your testing platform supports your test types.",
+    "Review if your test framework is up-to-date and compatible.",
+    "Ensure tests are not being skipped due to unsupported features.",
+    "Check if you have proper logging or error handling in place.",
+    "Verify the test output directory is correctly specified.",
+    "Check if the test suite outputs meaningful logs or results.",
+    "Ensure that all test dependencies are installed and available.",
+    "Confirm that your build system includes the necessary test files.",
+    "Check for any overlooked configuration settings in the test suite.",
+    "Ensure there are no naming conflicts in the test directory structure.",
+    "Review your test suite’s memory and resource usage.",
+    "Verify that tests are not blocked due to missing permissions.",
+    "Check if tests are running with the required privileges.",
+    "Make sure your test runner is executing tests in the right order.",
+    "Ensure the tests don’t require external resources unavailable in the environment.",
+    "Verify that no steps in your test suite are being skipped inadvertently.",
+    "Check if there’s a version mismatch between your test framework and environment.",
+    "Ensure that you have enough logging output to debug your tests.",
+    "Make sure your test environment matches the production environment closely."
 };
 
 const char *failure_suggestions[] = {
@@ -238,7 +279,45 @@ const char *failure_suggestions[] = {
     "Check for bugs, missing dependencies, or misconfigured tests.",
     "Examine the test environment for potential issues.",
     "Review the test case logic and expected behavior.",
-    "Consider adding more edge cases to capture hidden bugs."
+    "Consider adding more edge cases to capture hidden bugs.",
+    "Check if the failed test cases have valid input data.",
+    "Verify that the expected output is correct for failed tests.",
+    "Ensure there are no race conditions in your tests.",
+    "Review if there are any memory or resource leaks.",
+    "Double-check the test setup and teardown procedures.",
+    "Look for dependency issues or configuration mismatches.",
+    "Verify the test environment matches the expected conditions.",
+    "Make sure the test dependencies are properly installed and up to date.",
+    "Check if recent changes have affected the test behavior.",
+    "Consider increasing the verbosity of your test logs for debugging.",
+    "Ensure tests are not dependent on unpredictable external factors.",
+    "Review the error messages and stack traces for more details.",
+    "Consider running the failed tests in isolation to identify causes.",
+    "Ensure you’re not testing with outdated or incorrect input data.",
+    "Check if the failure is due to a logic error in the application.",
+    "Test the system under a variety of conditions to expose hidden bugs.",
+    "Try different configurations or platforms to identify the issue.",
+    "Check the system’s resource usage to ensure it isn’t causing the failure.",
+    "Verify that the failure doesn’t result from a system or platform limitation.",
+    "Review recent updates in the codebase that might impact test behavior.",
+    "Test the specific test case individually and ensure correct behavior.",
+    "Check for inconsistencies between the test case and actual implementation.",
+    "Ensure that third-party dependencies are compatible with your tests.",
+    "Re-examine the test case for edge cases that were missed.",
+    "Look into whether any time-dependent issues are causing failures.",
+    "Check if there are any environment-specific issues affecting tests.",
+    "Test the system with smaller, isolated inputs to identify bugs.",
+    "Investigate any external resources required for tests to work properly.",
+    "Try running the test suite on a different platform or environment.",
+    "Look into possible memory corruption or incorrect memory handling.",
+    "Check if the test’s timing constraints or limits are too tight.",
+    "Review error-handling mechanisms to ensure proper feedback.",
+    "Consider testing with more realistic inputs to simulate real-world behavior.",
+    "Verify if test failures are isolated or part of a larger systemic issue.",
+    "Make sure test cases correctly handle different user scenarios.",
+    "Check if failures are related to thread safety or parallel execution.",
+    "Consider running tests under various loads to stress the system.",
+    "Try testing with different versions of dependencies to rule out compatibility issues."
 };
 
 const char *success_suggestions[] = {
@@ -246,14 +325,93 @@ const char *success_suggestions[] = {
     "Fantastic! Consider adding performance and stress tests.",
     "Success! Now, look at adding additional tests for edge cases.",
     "Well done! You’re on the right track, keep it up.",
-    "Good job! Now, consider reviewing code for possible optimizations."
+    "Good job! Now, consider reviewing code for possible optimizations.",
+    "Excellent work! Think about testing with larger input datasets.",
+    "Well done! Consider testing under load to simulate real-world conditions.",
+    "Great! Time to refine the code and improve error handling.",
+    "Nice work! Next, consider checking for potential memory leaks.",
+    "Awesome! Try adding tests for concurrency and thread safety.",
+    "Great success! Start testing for edge cases and unexpected inputs.",
+    "Well done! Ensure tests are comprehensive and cover every possible scenario.",
+    "Excellent! Look into integrating continuous integration for automated tests.",
+    "Fantastic job! Start testing the performance of the system under stress.",
+    "Great work! Keep iterating to improve coverage and test completeness.",
+    "Awesome! Make sure to run tests in various environments to ensure compatibility.",
+    "Well done! Try testing with more complex data structures and inputs.",
+    "Excellent! Don’t forget to add edge cases and potential failure modes.",
+    "Nice! Keep up the great work and start testing corner cases.",
+    "Great! Keep building up your test coverage to ensure robust software.",
+    "Nice! Ensure that your tests cover all relevant code paths.",
+    "Fantastic! Consider using mock objects to improve test isolation.",
+    "Awesome! Now look into running automated tests on multiple platforms.",
+    "Excellent! Test your code under different load conditions for scalability.",
+    "Great! Review your test output to ensure all cases are covered.",
+    "Well done! Think about testing for long-term stability and memory usage.",
+    "Fantastic! Time to start profiling the application’s performance.",
+    "Nice work! Think about optimizing the system after completing testing.",
+    "Awesome! Ensure your tests reflect real-world usage patterns.",
+    "Great! Start testing the system with different network configurations.",
+    "Nice! Keep up the good work by testing boundary cases for reliability.",
+    "Excellent! Begin testing different configurations for system flexibility.",
+    "Fantastic! Add integration tests to ensure different components work together.",
+    "Great! Consider using fuzz testing to uncover hidden bugs.",
+    "Well done! Add regression tests to catch issues with new changes.",
+    "Awesome! Time to start integrating tests with your build pipeline.",
+    "Excellent! Keep improving your test cases to cover all edge conditions.",
+    "Nice! Think about automating test execution for faster feedback.",
+    "Fantastic! Keep testing under high load to ensure stability and performance.",
+    "Awesome! Consider testing the system's scalability under high traffic.",
+    "Great! Don’t forget to validate that the system handles all error conditions.",
+    "Nice! Keep testing in various environments for cross-platform compatibility.",
+    "Well done! Think about adding security tests for potential vulnerabilities."
 };
 
 const char *timeout_suggestions[] = {
     "Check resource usage and adjust timeout values.",
     "Investigate slow-running tests and optimize them.",
     "Consider breaking large tests into smaller ones to avoid timeouts.",
-    "Check for any environmental factors affecting test performance."
+    "Check for any environmental factors affecting test performance.",
+    "Consider adjusting the test parameters to reduce execution time.",
+    "Examine the test case to ensure there are no infinite loops or deadlocks.",
+    "Look into possible network issues if tests depend on network resources.",
+    "Consider profiling the test to identify performance bottlenecks.",
+    "Check if the system is running out of memory or resources during tests.",
+    "Try running tests with different configurations to pinpoint the cause.",
+    "Investigate test dependencies to ensure they don’t block execution.",
+    "Ensure your system is not overloaded with other processes during tests.",
+    "Look into optimizing algorithms to reduce test execution time.",
+    "Consider running tests in parallel to speed up overall execution.",
+    "Check if the system has enough hardware resources to handle tests.",
+    "Test with smaller data sets to see if the timeout issue persists.",
+    "Look into reducing unnecessary waits or sleep intervals in the test cases.",
+    "Check if the timeout values are set appropriately for different test cases.",
+    "Investigate if any external services are slowing down the tests.",
+    "Ensure tests are isolated and not dependent on external factors.",
+    "Consider adjusting the execution environment to improve performance.",
+    "Make sure tests are not waiting on unnecessary synchronization.",
+    "Try optimizing your code to avoid long-running operations in tests.",
+    "Check if there are any operations that can be optimized for speed.",
+    "Investigate if the timeout is caused by network latency or delays.",
+    "Ensure that timeout values reflect the actual test execution times.",
+    "Break tests into smaller chunks to better manage timeouts.",
+    "Check the system logs for errors or warnings during test execution.",
+    "Look into improving the algorithmic complexity of long-running tests.",
+    "Consider adding more logging to track where the test is stalling.",
+    "Ensure the environment is clean and not affecting test performance.",
+    "Try testing on a different platform to compare execution times.",
+    "Look into system-wide performance issues affecting the tests.",
+    "Test the system under a reduced load to identify performance bottlenecks.",
+    "Consider adding more granular timeout checks to diagnose issues.",
+    "Investigate whether background processes are affecting test performance.",
+    "Test in a more controlled environment to eliminate external influences.",
+    "Consider using profiling tools to identify long-running sections in the tests.",
+    "Check if running tests in isolation resolves the timeout issues.",
+    "Look into optimizing data access patterns in long-running tests.",
+    "Consider breaking tests into independent smaller tests to improve performance.",
+    "Investigate if there are unnecessary dependencies in the test cases.",
+    "Consider using mock data to speed up test execution and avoid delays.",
+    "Check if large input sizes are contributing to the timeout.",
+    "Investigate if your timeout limits need adjustment for specific tests."
 };
 
 enum {
@@ -552,7 +710,7 @@ void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
         printf(FOSSIL_TEST_COLOR_BLUE "Running suite: %s\n" FOSSIL_TEST_COLOR_RESET, suite->name);
     }
 
-    if (env->options.shuffle_enabled){
+    if (env->options.shuffle_enabled) {
         shuffle_test_cases(&suite->tests);
     }
 
@@ -564,20 +722,24 @@ void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
         suite->suite_setup_func();
     }
 
-    double total_execution_time = 0.0;
+    clock_t suite_start = clock();
+
     fossil_test_case_t *current_test = suite->tests;
     while (current_test) {
         fossil_test_run_case(current_test, env);
-        total_execution_time += current_test->execution_time;
         current_test = current_test->next;
     }
+
+    clock_t suite_end = clock();
+    double total_execution_time = (double)(suite_end - suite_start) / CLOCKS_PER_SEC;
 
     if (suite->suite_teardown_func) {
         suite->suite_teardown_func();
     }
 
     if (env->options.show_info) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Total execution time for suite %s: %.3f seconds\n" FOSSIL_TEST_COLOR_RESET, suite->name, total_execution_time);
+        printf(FOSSIL_TEST_COLOR_CYAN "Total execution time for suite %s: %.3f seconds\n" FOSSIL_TEST_COLOR_RESET,
+               suite->name, total_execution_time);
     }
 }
 
@@ -628,41 +790,40 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     // Run setup
     fossil_test_case_setup(test_case);
 
-    clock_t test_start_time = clock();
-    clock_t timeout_limit = test_start_time + 3 * 60 * CLOCKS_PER_SEC; // 3 minutes timeout
-
     _ASSERT_COUNT = 0; // Reset assertion count before running the test
 
-    if (setjmp(env->env) == 0) { // Attempt to run the test case
+    clock_t start_iter = clock();
+    double timeout_seconds = 180.0; // 3-minute timeout
+
+    if (setjmp(env->env) == 0) {
         for (int i = 0; i < env->options.repeat_count; i++) {
             test_case->test_func();
-            if (clock() > timeout_limit) { // Timeout check
+
+            clock_t now = clock();
+            double elapsed_seconds = (double)(now - start_iter) / CLOCKS_PER_SEC;
+
+            if (elapsed_seconds > timeout_seconds) {
                 test_case->status = TEST_STATUS_TTIMEOUT;
-                printf(FOSSIL_TEST_COLOR_ORANGE "TIMEOUT: " FOSSIL_TEST_COLOR_BLUE " %s\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
+                printf(FOSSIL_TEST_COLOR_ORANGE "TIMEOUT: " FOSSIL_TEST_COLOR_BLUE "%s\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
                 break;
             }
         }
-    } else { // Handle failure
+    } else {
         test_case->status = TEST_STATUS_FAIL;
-        printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE " %s\n", test_case->name);
+        printf(FOSSIL_TEST_COLOR_RED "FAILED: " FOSSIL_TEST_COLOR_BLUE "%s\n", test_case->name);
         printf("Failure Message: %s\n" FOSSIL_TEST_COLOR_RESET, test_case->failure_message);
     }
 
-    test_case->execution_time = (double)(clock() - test_start_time) / CLOCKS_PER_SEC;
+    clock_t end_iter = clock();
+    test_case->execution_time = (double)(end_iter - start_iter) / CLOCKS_PER_SEC;
 
-    // Warn if the test case contains no assertions
-    if (_ASSERT_COUNT == 0) {
-        printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
-    }
-
-    // Run teardown
     fossil_fossil_test_case_teardown(test_case);
 
-    // Log result
     switch (test_case->status) {
         case TEST_STATUS_PASS:
             if (env->options.show_info) {
-                printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE " %s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET, test_case->name, test_case->execution_time);
+                printf(FOSSIL_TEST_COLOR_GREEN "PASSED: " FOSSIL_TEST_COLOR_BLUE "%s (%.3f seconds)\n" FOSSIL_TEST_COLOR_RESET,
+                       test_case->name, test_case->execution_time);
             }
             break;
         case TEST_STATUS_FAIL:
@@ -731,69 +892,168 @@ void fossil_test_init(fossil_test_env_t *env, int argc, char **argv) {
     }
 }
 
-void fossil_test_sanity(fossil_test_env_t *env) {
+void fossil_test_comment(fossil_test_env_t *env) {
     if (!env) {
         return;
     }
 
-    // Sanity analysis based on results
-    if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
-        // Empty test suite: sarcastic tone
-        const char *message = sarcastic_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
-        printf(FOSSIL_TEST_COLOR_YELLOW FOSSIL_TEST_ATTR_ITALIC "Hmm, seems like we ran an empty test suite: %s\n" FOSSIL_TEST_COLOR_RESET, message);
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 3]);
+    // Dynamic comment based on test result
+    if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
+        // Positive outcome - playful
+        printf(FOSSIL_TEST_COLOR_CYAN "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
     } else if (env->fail_count > 0) {
-        // Failures occurred: humorous or frustrated tone
-        const char *message = humorous_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
-        printf(FOSSIL_TEST_COLOR_RED FOSSIL_TEST_ATTR_ITALIC "Whoops! Looks like some tests didn't pass: %s\n" FOSSIL_TEST_COLOR_RESET, message);
-        
-        // Analysis of failures
-        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests failed. Possible causes include code issues, missing dependencies, or misconfigured tests.\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
-        
-        // Suggestion for improvement
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 5]);
-    } else if (env->pass_count > 0) {
-        // Success: positive, motivational tone
-        const char *message = great_news_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
-        printf(FOSSIL_TEST_COLOR_GREEN FOSSIL_TEST_ATTR_ITALIC "Success! All systems go! Tests passed: %s\n" FOSSIL_TEST_COLOR_RESET, message);
-        
-        // Analysis of success
-        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests passed successfully. Great work!\n", env->pass_count);
-        
-        // Suggestion for improvement
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n", success_suggestions[rand() % 5]);
+        // Failure detected - humorous to lighten the mood
+        printf(FOSSIL_TEST_COLOR_RED "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
     } else if (env->timeout_count > 0) {
-        // Timeout occurred: calm, motivating tone
-        const char *message = timeout_messages[rand() % _FOSSIL_TEST_RESPONSE_LENGTH];
-        printf(FOSSIL_TEST_COLOR_ORANGE FOSSIL_TEST_ATTR_ITALIC "Some tests timed out, but we’ll catch them next time: %s\n" FOSSIL_TEST_COLOR_RESET, message);
-        
-        // Analysis of timeouts
-        printf(FOSSIL_TEST_COLOR_CYAN "Analysis: %d tests timed out. This might be due to long execution times or heavy resource usage.\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
-        
-        // Suggestion for improvement
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_suggestions[rand() % 4]);
+        // Timeout encountered - insightful
+        printf(FOSSIL_TEST_COLOR_ORANGE "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
+    } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
+        // No results - sarcastic twist
+        printf(FOSSIL_TEST_COLOR_CYAN "Comment: %s\n" FOSSIL_TEST_COLOR_RESET, sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
     } else {
-        // Unexpected case: neutral tone
-        printf(FOSSIL_TEST_COLOR_RESET "We’ve encountered an unexpected result state. Something's off—let’s look into it.\n");
+        // Mixed results - deeper analysis
+        printf(FOSSIL_TEST_COLOR_CYAN "Comment: The test results are mixed. Consider analyzing individual test cases to uncover underlying issues.\n" FOSSIL_TEST_COLOR_RESET);
+    }
+}
+
+void fossil_test_analyze(fossil_test_env_t *env) {
+    if (!env) {
+        return;
     }
 
-    // Final remarks based on overall results
-    printf(FOSSIL_TEST_COLOR_BLUE "\nFinal Analysis:\n" FOSSIL_TEST_COLOR_RESET);
-    if (env->pass_count > 0) {
-        printf("Success rate: %.2f%%\n", (double)env->pass_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
+    fossil_test_suite_t *suite = env->test_suites;
+    while (suite) {
+        fossil_test_case_t *test = suite->tests;
+        while (test) {
+            if (test->status == TEST_STATUS_SKIP) {
+                env->skip_count++;  // Increment skipped count directly from env
+            }
+            test = test->next;
+        }
+        suite = suite->next;
     }
+
+    // Total tests count
+    int total_tests = env->pass_count + env->fail_count + env->skip_count + env->timeout_count;
+
+    // Calculate success rate and other statistics
+    double success_rate = (double)env->pass_count / (double)total_tests * 100;
+    double failure_rate = (double)env->fail_count / (double)total_tests * 100;
+    double skip_rate = (double)env->skip_count / (double)total_tests * 100;
+    double timeout_rate = (double)env->timeout_count / (double)total_tests * 100;
+
+    // Calculate probability (success probability)
+    double probability_of_success = (double)env->pass_count / total_tests;
+
+    // Calculate average (mean of success, failure, skip, timeout rates)
+    double average_rate = (success_rate + failure_rate + skip_rate + timeout_rate) / 4.0;
+
+    // Prediction (can be based on past success rate or other methods)
+    double prediction = success_rate;  // For simplicity, using the past success rate as prediction
+
+    // Sort conditions from worst case to best case:
+    // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
+
+    // Worst case: Failure rate
     if (env->fail_count > 0) {
-        printf("Failure rate: %.2f%%\n", (double)env->fail_count / (env->pass_count + env->fail_count + env->skip_count + env->timeout_count) * 100);
-    }
-    if (env->skip_count > 0) {
-        printf("Skipped tests: %d\n", env->skip_count);
-    }
-    if (env->timeout_count > 0) {
-        printf("Timeout tests: %d\n", env->timeout_count);
+        printf(FOSSIL_TEST_COLOR_CYAN "Failure rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, failure_rate);
     }
 
-    // Provide overall improvement suggestion
-    printf(FOSSIL_TEST_COLOR_CYAN "Overall Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 5]);
+    // Next worst: Timeout tests
+    if (env->timeout_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN "Timeout tests: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, timeout_rate);
+    }
+
+    // Skipped tests next
+    if (env->skip_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN "Skipped tests: %.2f%% (%d tests)\n" FOSSIL_TEST_COLOR_RESET, skip_rate, env->skip_count);
+    }
+
+    // Best case: Success rate
+    if (env->pass_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN "Success rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, success_rate);
+    }
+
+    // Additional insights
+    printf(FOSSIL_TEST_COLOR_CYAN "Probability of success: %.2f\n" FOSSIL_TEST_COLOR_RESET, probability_of_success);
+    printf(FOSSIL_TEST_COLOR_CYAN "Average test rate: %.2f%%\n" FOSSIL_TEST_COLOR_RESET, average_rate);
+    printf(FOSSIL_TEST_COLOR_CYAN "Prediction (Future Success Rate): %.2f%%\n" FOSSIL_TEST_COLOR_RESET, prediction);
+
+    // Skipped tests analysis route
+    if (env->skip_count > 0) {
+        printf(FOSSIL_TEST_COLOR_YELLOW "Note: There were %d skipped tests. Please check the conditions or requirements for those tests.\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
+    }
+}
+
+void fossil_test_suggest(fossil_test_env_t *env) {
+    if (!env) {
+        return;
+    }
+
+    // Dynamic suggestion based on results and test state
+    if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 50]);
+    } else if (env->fail_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 50]);
+    } else if (env->pass_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 50]);
+    } else if (env->timeout_count > 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, timeout_suggestions[rand() % 50]);
+    } else if (env->skip_count > 0) {
+        // Skipped tests specific suggestions
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: Review skipped tests for prerequisites or intentional exclusions. Ensure tests are not being skipped due to unmet conditions.\n" FOSSIL_TEST_COLOR_RESET);
+    }
+}
+
+// Function to calculate and provide AI-driven insights and predictions based on execution time
+void fossil_test_execution_time(fossil_test_env_t *env) {
+    if (!env) {
+        return;
+    }
+
+    // Calculate total execution time in seconds
+    double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
+
+    // Breakdown into smaller units
+    int32_t seconds       = (int32_t)total_execution_time;
+    int32_t milliseconds  = (int32_t)((total_execution_time - seconds) * 1000);
+    int32_t microseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
+    int32_t nanoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
+
+    // Start the output paragraph for insights
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tInsight: Based on the execution time analysis, we observe the following:\n" FOSSIL_TEST_COLOR_RESET);
+
+    // Anomaly Detection & Optimization Insight
+    if (total_execution_time > 5.0) {
+        printf(
+            "Execution time is exceptionally long, indicating possible critical\n"
+            "inefficiencies, extensive test coverage, or hardware constraints.\n"
+            "Investigate parallel execution strategies, resource bottlenecks, or\n"
+            "excessive test dependencies. Consider breaking test suites into smaller\n"
+            "units to isolate performance-heavy areas.\n"
+        );
+    } else if (total_execution_time > 2.0) {
+        printf(
+            "Execution time is unusually long, suggesting potential bottlenecks\n"
+            "or inefficiencies in the test suite. Optimization strategies, such as\n"
+            "test parallelization or resource allocation adjustments, could help\n"
+            "reduce time consumption.\n"
+        );
+    } else if (total_execution_time < 0.2) {
+        printf(
+            "Execution time is abnormally short. This could mean tests were\n"
+            "skipped or misconfigured. Ensure full test coverage is executed and\n"
+            "no critical paths are being inadvertently bypassed in the\n"
+            "environment.\n"
+        );
+    }
+
+    // Footer and execution time display
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "|\tExecution time:\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n" FOSSIL_TEST_COLOR_RESET, (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 }
 
 void fossil_test_summary(fossil_test_env_t *env) {
@@ -801,6 +1061,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
         return;
     }
 
+    // Check dry run mode
     if (env->options.dry_run) {
         printf(FOSSIL_TEST_COLOR_PURPLE "Dry run mode enabled. No tests were executed or evaluated.\n" FOSSIL_TEST_COLOR_RESET);
         return;
@@ -810,6 +1071,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
     while (suite != NULL) {
         fossil_test_case_t *test = suite->tests;
         while (test != NULL) {
+            // Count test outcomes
             if (test->status == TEST_STATUS_PASS) {
                 env->pass_count++;
             } else if (test->status == TEST_STATUS_FAIL) {
@@ -829,35 +1091,16 @@ void fossil_test_summary(fossil_test_env_t *env) {
         }
         suite = suite->next;
     }
+
     env->end_execution_time = clock();
 
-    // TUI-like header with borders and bold title
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    // TUI-like header and bold title
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tFossil Test Summary\n" FOSSIL_TEST_COLOR_RESET);
+    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==================================================================================\n" FOSSIL_TEST_COLOR_RESET);
 
-    fossil_test_sanity(env); // Add suggestions
-
-    // Execution time summary with a clean format
-    double total_execution_time = (double)(env->end_execution_time - env->start_execution_time) / CLOCKS_PER_SEC;
-    int seconds = (int)total_execution_time;
-    int milliseconds = (int)((total_execution_time - seconds) * 1000);
-    int microseconds = (int)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
-
-    // Displaying execution time in a TUI-like format
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Execution time: (%.2d) sec, (%.2d) ms, (%.3d) µs\n" FOSSIL_TEST_COLOR_RESET, seconds, milliseconds, microseconds);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-
-    // Detailed summary with counts and additional info
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "Test Results:\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Passed: %d\n" FOSSIL_TEST_COLOR_RESET, env->pass_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Failed: %d\n" FOSSIL_TEST_COLOR_RESET, env->fail_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Skipped: %d\n" FOSSIL_TEST_COLOR_RESET, env->skip_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Timed Out: %d\n" FOSSIL_TEST_COLOR_RESET, env->timeout_count);
-    printf(FOSSIL_TEST_COLOR_CYAN "|  Unexpected: %d\n" FOSSIL_TEST_COLOR_RESET, env->unexpected_count);
-
-    // Footer with TUI-style border
-    printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD "==============================================================\n" FOSSIL_TEST_COLOR_RESET);
+    fossil_test_analyze(env);  // Add analysis of test results
+    fossil_test_comment(env);  // Add comments based on results
+    fossil_test_suggest(env);  // Add suggestions for improvement
+    fossil_test_execution_time(env);
 }
