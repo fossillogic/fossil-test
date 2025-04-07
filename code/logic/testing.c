@@ -420,15 +420,18 @@ enum {
 
 static const char *FOSSIL_TEST_OPTIONS[] = {
     "--version - Displays the current version of Fossil Test\n",
-    "--help - Shows help message with usage\n",
-    "--info - Displays detailed information about the test run\n"
+    "--help    - Shows help message with usage\n",
+    "--info    - Displays detailed information about the test run\n"
 };
 
 static const char *FOSSIL_TEST_COMMANDS[] = {
-    "reverse [enable|disable] - Enables or disables reverse order of test execution\n",
-    "repeat [count] - Repeats the test suite a specified number of times\n",
-    "shuffle [enable|disable] - Enables or disables shuffling of test execution order\n",
-    "dry-run [enable|disable] - Enables or disables dry-run mode\n"
+    "reverse   [enable|disable] - Enables or disables reverse order of test execution\n",
+    "repeat    [count]          - Repeats the test suite a specified number of times\n",
+    "shuffle   [enable|disable] - Enables or disables shuffling of test execution order\n",
+    "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
+    "fail-fast [enable|disable] - Stops execution after the first test failure if enabled\n",
+    "quiet     [enable|disable] - Suppresses non-essential output when enabled\n",
+    "color     [enable|disable] - Enables or disables colored output\n"
 };
 
 static const char *FOSSIL_TEST_VERSION = "1.1.8"; // Version of Fossil Test
