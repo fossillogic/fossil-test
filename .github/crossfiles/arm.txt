@@ -3,7 +3,6 @@ c = 'arm-linux-gnueabi-gcc'
 cpp = 'arm-linux-gnueabi-g++'
 ar = 'arm-linux-gnueabi-ar'
 strip = 'arm-linux-gnueabi-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
