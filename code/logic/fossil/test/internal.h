@@ -37,6 +37,7 @@
 
 #include <setjmp.h>
 #include <stddef.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
