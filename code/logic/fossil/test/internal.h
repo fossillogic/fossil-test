@@ -112,7 +112,33 @@ typedef struct {
 } fossil_test_options_t;
 
 
+/**
+ * @brief Prints a formatted title in the TUI with borders, centering the title
+ *        and applying the appropriate colors.
+ * 
+ * @param env The test environment containing options, color preferences, and more.
+ * @param title The title text to display.
+ */
+void fossil_test_tui_title(fossil_test_env_t *env, const char *title);
+
+/**
+ * @brief Prints a formatted message within a box-like structure in the TUI.
+ * 
+ * @param env The test environment containing options, color preferences, and more.
+ * @param title The title of the message.
+ * @param fmt A format string for the message.
+ * @param ... Additional arguments for formatting the message.
+ */
 void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const char *fmt, ...);
+
+/**
+ * @brief Prints a key-value widget, typically for showing status like "Repeat Mode"
+ *        or "Dry Run" inside the TUI interface.
+ * 
+ * @param env The test environment containing options, color preferences, and more.
+ * @param label The label describing the widget (e.g., "Repeat Mode").
+ * @param value The value to display next to the label (e.g., "ON" or "OFF").
+ */
 void fossil_test_tui_widget(fossil_test_env_t *env, const char *label, const char *value);
 
 #ifdef __cplusplus
