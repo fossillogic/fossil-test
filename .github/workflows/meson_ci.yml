@@ -346,9 +346,9 @@ jobs:
 
       - name: Build the Project
         run: |
-          meson compile -C builddir
+          meson compile -C builddir -v
 
       - name: Test the Project
         run: |
-          ./builddir/code/tests/testbed-c
+          meson compile -C builddir -v
 
