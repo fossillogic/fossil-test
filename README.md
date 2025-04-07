@@ -92,37 +92,6 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `quiet [enable/disable]`         | Suppresses non-essential output.                                                              | Ideal for CI pipelines or focused testing.                                                    |
 | `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
 
-### Key Notes Summary:
-- **Version**: Quickly check the installed version of Fossil Test.
-- **Help**: Access usage instructions and command references.
-- **Info**: Get detailed insights about the test run, including test count and duration.
-- **Reverse and Shuffle**: Help debug issues by manipulating test execution order.
-- **Repeat**: Ideal for reliability testing by repeatedly executing tests.
-- **Dry Run**: Provides a preview of the test plan without running the tests, useful for preparation and validation.
-
-### Usage
-
-| Example Command                             | Description                                                                 |
-|--------------------------------------------|-----------------------------------------------------------------------------|
-| `fossil-test --version`                    | Displays the current version of Fossil Test.                               |
-| `fossil-test --help`                       | Shows help message with usage instructions.                                |
-| `fossil-test --info`                       | Displays detailed information about the test run.                          |
-| `fossil-test reverse enable`               | Enables reverse order of test execution.                                   |
-| `fossil-test reverse disable`              | Disables reverse order of test execution.                                  |
-| `fossil-test shuffle enable`               | Enables shuffling of test execution order.                                 |
-| `fossil-test shuffle disable`              | Disables shuffling of test execution order.                                |
-| `fossil-test dry-run enable`               | Enables dry run mode (no actual test execution).                           |
-| `fossil-test dry-run disable`              | Disables dry run mode.                                                     |
-| `fossil-test repeat=5`                     | Repeats the test suite 5 times.                                            |
-| `fossil-test fail-fast enable`             | Stops execution after the first test failure.                              |
-| `fossil-test fail-fast disable`            | Disables fail-fast behavior (run all tests regardless of failures).        |
-| `fossil-test quiet enable`                 | Suppresses non-essential output.                                           |
-| `fossil-test quiet disable`                | Enables standard verbose output.                                           |
-| `fossil-test color enable`                 | Enables colored output for supported terminals.                            |
-| `fossil-test color disable`                | Disables colored output.                                                   |
-
----
-
 ## Configure Build Options
 
 To configure the build system with testing enabled, use the following command:
