@@ -31,43 +31,6 @@
 extern "C" {
 #endif
 
-// Define data structures for Jellyfish AI
-typedef struct {
-    char key[MAX_INPUT_SIZE];
-    char value[MAX_MEMORY_SIZE];
-} jellyfish_memory_t;
-
-typedef struct {
-    char user_input[MAX_INPUT_SIZE];
-    char ai_response[MAX_RESPONSE_SIZE];
-} jellyfish_interaction_t;
-
-typedef struct {
-    char hypothesis[MAX_RESPONSE_SIZE];
-    char evidence[MAX_RESPONSE_SIZE];
-} jellyfish_reasoning_t;
-
-typedef struct {
-    char concepts[MAX_INPUT_SIZE];
-    char details[MAX_RESPONSE_SIZE];
-} jellyfish_learning_t;
-
-typedef struct {
-    jellyfish_memory_t *memory; // Dynamic memory
-    jellyfish_interaction_t *interactions; // Dynamic memory
-    jellyfish_reasoning_t *reasoning; // Dynamic memory
-    jellyfish_learning_t *learning; // Dynamic memory
-    int memory_count;
-    int interaction_count;
-    int reasoning_count;
-    int learning_count;
-    char context[MAX_INPUT_SIZE];
-    char personality[MAX_INPUT_SIZE];
-    bool is_initialized;
-} jellyfish_ai_t;
-
-
-
 typedef enum {
     FOSSIL_TEST_FORMAT_PLAIN,    // Plain text format
     FOSSIL_TEST_FORMAT_CHART,    // Chart format
