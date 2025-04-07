@@ -14,123 +14,129 @@
  */
 #include "fossil/test/internal.h"
 
-#define BORDER_CHAR_TOP_BOTTOM '='
-#define BORDER_CHAR_SIDE       '|'
-#define BORDER_CORNER          '+'
-#define TUI_MAX_WIDTH          80
+#define FOSSIL_TEST_BUFFER_SIZE 1000
 
-static void tui_apply_color(fossil_test_env_t *env, const char *color) {
-    if (env && env->options.color_output && color) {
-        fputs(color, stdout);
+// Function to apply color
+void internal_test_apply_color(const char *color) {
+    if (strcmp(color, "red") == 0) {
+        printf(FOSSIL_TEST_COLOR_RED);
+    } else if (strcmp(color, "green") == 0) {
+        printf(FOSSIL_TEST_COLOR_GREEN);
+    } else if (strcmp(color, "yellow") == 0) {
+        printf(FOSSIL_TEST_COLOR_YELLOW);
+    } else if (strcmp(color, "blue") == 0) {
+        printf(FOSSIL_TEST_COLOR_BLUE);
+    } else if (strcmp(color, "magenta") == 0) {
+        printf(FOSSIL_TEST_COLOR_MAGENTA);
+    } else if (strcmp(color, "cyan") == 0) {
+        printf(FOSSIL_TEST_COLOR_CYAN);
+    } else if (strcmp(color, "white") == 0) {
+        printf(FOSSIL_TEST_COLOR_WHITE);
     }
 }
 
-static void tui_reset_color(fossil_test_env_t *env) {
-    if (env && env->options.color_output) {
-        fputs(FOSSIL_TEST_COLOR_RESET, stdout);
+// Function to apply text attributes (e.g., bold, underline)
+void internal_test_apply_attribute(const char *attribute) {
+    if (strcmp(attribute, "bold") == 0) {
+        printf(FOSSIL_TEST_ATTR_BOLD);
+    } else if (strcmp(attribute, "underline") == 0) {
+        printf(FOSSIL_TEST_ATTR_UNDERLINE);
+    } else if (strcmp(attribute, "reset") == 0) {
+        printf(FOSSIL_TEST_COLOR_RESET);
+    } else if (strcmp(attribute, "normal") == 0) {
+        printf(FOSSIL_TEST_ATTR_NORMAL);
+    } else if (strcmp(attribute, "reversed") == 0) {
+        printf(FOSSIL_TEST_ATTR_REVERSED);
+    } else if (strcmp(attribute, "blink") == 0) {
+        printf(FOSSIL_TEST_ATTR_BLINK);
+    } else if (strcmp(attribute, "hidden") == 0) {
+        printf(FOSSIL_TEST_ATTR_HIDDEN);
     }
 }
 
-static void tui_draw_border(fossil_test_env_t *env, char ch) {
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CORNER);
-    for (int i = 0; i < TUI_MAX_WIDTH - 2; ++i) {
-        putchar(ch);
-    }
-    putchar(BORDER_CORNER);
-    putchar('\n');
-    tui_reset_color(env);
-}
-
-void fossil_test_tui_border(fossil_test_env_t *env) {
-    if (env->options.color_output) {
-        printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD);
-    }
-    for (int i = 0; i < 70; ++i) putchar(BORDER_CHAR_TOP_BOTTOM);
-    printf(FOSSIL_TEST_COLOR_RESET "\n");
-}
-
-void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const char *fmt, ...) {
-    tui_draw_border(env, BORDER_CHAR_TOP_BOTTOM);
-
-    // Print title
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    tui_apply_color(env, FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD);
-    int padding = (TUI_MAX_WIDTH - 2 - (int)strlen(title)) / 2;
-    for (int i = 0; i < padding; ++i) putchar(' ');
-    fputs(title, stdout);
-    for (int i = 0; i < TUI_MAX_WIDTH - 2 - padding - (int)strlen(title); ++i) putchar(' ');
-    tui_reset_color(env);
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    putchar('\n');
-
-    // Print message
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    tui_apply_color(env, FOSSIL_TEST_COLOR_CYAN);
-    putchar(' ');
+// Function to print text with attributes, colors, and format specifiers
+void internal_test_print_with_attributes(const char *format, ...) {
     va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
+    va_start(args, format);
+
+    char buffer[FOSSIL_TEST_BUFFER_SIZE];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+
+    const char *current_pos = buffer;
+    const char *start = NULL;
+    const char *end = NULL;
+
+    while ((start = strchr(current_pos, '{')) != NULL) {
+        printf("%.*s", (int)(start - current_pos), current_pos);
+        end = strchr(start, '}');
+        if (end) {
+            size_t length = end - start - 1;
+            char attributes[length + 1];
+            strncpy(attributes, start + 1, length);
+            attributes[length] = '\0';
+
+            char *color = NULL;
+            char *attribute = NULL;
+            char *comma_pos = strchr(attributes, ',');
+            if (comma_pos) {
+                *comma_pos = '\0';
+                color = attributes;
+                attribute = comma_pos + 1;
+            } else {
+                color = attributes;
+            }
+
+            if (color) internal_test_apply_color(color);
+            if (attribute) internal_test_apply_attribute(attribute);
+
+            current_pos = end + 1;
+        } else {
+            break;
+        }
+    }
+
+    printf("%s", current_pos);
     va_end(args);
-    int printed = vsnprintf(NULL, 0, fmt, args);
-    for (int i = printed + 1; i < TUI_MAX_WIDTH - 2; ++i) putchar(' ');
-    tui_reset_color(env);
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    putchar('\n');
-
-    tui_draw_border(env, BORDER_CHAR_TOP_BOTTOM);
 }
 
-void fossil_test_tui_widget(fossil_test_env_t *env, const char *label, const char *value) {
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    putchar(' ');
-
-    tui_apply_color(env, FOSSIL_TEST_COLOR_CYAN);
-    printf("%s", label);
-    tui_apply_color(env, FOSSIL_TEST_COLOR_WHITE);
-    printf(": %s", value);
-
-    int padding = TUI_MAX_WIDTH - 4 - (int)(strlen(label) + 2 + strlen(value));
-    for (int i = 0; i < padding; ++i) putchar(' ');
-
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(' ');
-    putchar(BORDER_CHAR_SIDE);
-    putchar('\n');
-    tui_reset_color(env);
+// Internal utility function for color printing
+void internal_test_print_color(const char *color, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    printf("%s", color);
+    vprintf(format, args);
+    printf("%s", FOSSIL_TEST_COLOR_RESET);
+    va_end(args);
 }
 
-void fossil_test_tui_title(fossil_test_env_t *env, const char *title) {
-    int len = (int)strlen(title);
-    int total = TUI_MAX_WIDTH - 4; // borders + spaces
-    int padding = (total - len) / 2;
+// Function to print a sanitized string with attributes inside {}
+void internal_test_puts(const char *str) {
+    if (str != NULL) {
+        char sanitized_str[FOSSIL_TEST_BUFFER_SIZE];
+        strncpy(sanitized_str, str, sizeof(sanitized_str));
+        sanitized_str[sizeof(sanitized_str) - 1] = '\0';
+        internal_test_print_with_attributes(sanitized_str);
+    } else {
+        fputs("NULL\n", stderr);
+    }
+}
 
-    // Top border
-    tui_draw_border(env, BORDER_CHAR_TOP_BOTTOM);
+// Function to print a single character
+void internal_test_putchar(char c) {
+    putchar(c);
+}
 
-    // Title line
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(BORDER_CHAR_SIDE);
-    putchar(' ');
+// Function to print a single character in color
+void internal_test_putchar_color(char c, const char *color) {
+    printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
+}
 
-    for (int i = 0; i < padding; ++i) putchar(' ');
-
-    tui_apply_color(env, FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD);
-    fputs(title, stdout);
-    tui_reset_color(env);
-
-    for (int i = 0; i < total - padding - len; ++i) putchar(' ');
-
-    tui_apply_color(env, FOSSIL_TEST_COLOR_BLUE);
-    putchar(' ');
-    putchar(BORDER_CHAR_SIDE);
-    putchar('\n');
-
-    // Bottom border
-    tui_draw_border(env, BORDER_CHAR_TOP_BOTTOM);
+// Function to print sanitized formatted output with attributes
+void internal_test_printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    char buffer[FOSSIL_TEST_BUFFER_SIZE];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    internal_test_print_with_attributes(buffer);
+    va_end(args);
 }
