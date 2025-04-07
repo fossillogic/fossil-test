@@ -480,37 +480,31 @@ fossil_test_options_t fossil_test_init_options(void) {
 }
 
 void usage_info(void) {
-    fossil_test_env_t env = fossil_test_env_default();
+    puts("==================================================");
+    puts("\tUsage: fossil [options] [command]");
+    puts("==================================================");
 
-    fossil_test_tui_border(&env);
-    fossil_test_tui_title(&env, "Usage: fossil [options] [command]");
-    fossil_test_tui_border(&env);
-
-    fossil_test_tui_message(&env, "Options", "");
+    puts("Options:");
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_OPTIONS) / sizeof(FOSSIL_TEST_OPTIONS[0]); i++) {
-        fossil_test_tui_widget(&env, ">", FOSSIL_TEST_OPTIONS[i]);
+        printf("  > %s\n", FOSSIL_TEST_OPTIONS[i]);
     }
 
-    fossil_test_tui_message(&env, "Commands", "");
+    puts("Commands:");
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_COMMANDS) / sizeof(FOSSIL_TEST_COMMANDS[0]); i++) {
-        fossil_test_tui_widget(&env, ">", FOSSIL_TEST_COMMANDS[i]);
+        printf("  > %s\n", FOSSIL_TEST_COMMANDS[i]);
     }
 
-    fossil_test_tui_border(&env);
+    puts("==================================================");
 }
 
 void version_info(void) {
-    fossil_test_env_t env = fossil_test_env_default();
-
-    fossil_test_tui_border(&env);
-    fossil_test_tui_title(&env, "Fossil Logic Test Framework");
-    fossil_test_tui_border(&env);
-
-    fossil_test_tui_widget(&env, "Version", FOSSIL_TEST_VERSION);
-    fossil_test_tui_widget(&env, "Author", FOSSIL_TEST_AUTHOR);
-    fossil_test_tui_widget(&env, "License", FOSSIL_TEST_LICENSE);
-
-    fossil_test_tui_border(&env);
+    puts("==================================================");
+    puts("\tFossil Logic Test Framework");
+    puts("==================================================");
+    printf("  Version: %s\n", FOSSIL_TEST_VERSION);
+    printf("  Author : %s\n", FOSSIL_TEST_AUTHOR);
+    printf("  License: %s\n", FOSSIL_TEST_LICENSE);
+    puts("==================================================");
 }
 
 // Command pallet parser
