@@ -1,6 +1,6 @@
 dir = include_directories('.')
 
-test_code = ['mocking.c', 'testing.c', 'marking.c']
+test_code = ['mocking.c', 'testing.c', 'marking.c', 'internal.c']
 
 fossil_test_lib = library('fossil-test',
     test_code,
