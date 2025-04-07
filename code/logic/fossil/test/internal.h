@@ -112,14 +112,6 @@ typedef struct {
     fossil_test_format_t format; // Store the format type
 } fossil_test_options_t;
 
-// Extern declarations for the arrays
-extern const char *sarcastic_messages[];
-extern const char *humorous_messages[];
-extern const char *great_news_messages[];
-extern const char *timeout_messages[];
-extern const char *empty_suite_suggestions[];
-extern const char *failure_suggestions[];
-
 /**
  * Prints a string to the output.
  *
