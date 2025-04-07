@@ -3,7 +3,6 @@ c = 's390x-linux-gnu-gcc'
 cpp = 's390x-linux-gnu-g++'
 ar = 's390x-linux-gnu-ar'
 strip = 's390x-linux-gnu-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
