@@ -2,25 +2,32 @@
 
 **Fossil Test** is a comprehensive unit testing, mocking, and benchmarking suite created by Fossil Logic, designed to ensure the reliability and performance of C and C++ projects. With support for multiple development methodologies, including Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), Fossil Test provides a versatile foundation for crafting high-quality test cases across various workflows.
 
+Starting with **version 1.1.8**, Fossil Test integrates **Jellyfish AI**, an intelligent assistant module designed to enhance the testing experience. Jellyfish AI assists in detecting potential test coverage gaps, improving feedback clarity, and offering smart diagnostics—making Fossil Test even more intuitive and powerful for developers.
+
 The Fossil suite consists of three complementary frameworks to streamline the development and testing process:
 
 - **Fossil Test**: The core unit testing framework that enables developers to create, manage, and execute unit tests effectively, ensuring each component functions as expected.
 - **Fossil Mock**: A dedicated mocking library that simulates complex dependencies. Using mock objects, developers can isolate and thoroughly test individual components, improving the precision and reliability of test coverage.
 - **Fossil Mark**: A benchmarking tool that provides detailed performance insights by measuring execution time, identifying bottlenecks, and offering in-depth reporting to optimize code efficiency.
 
-Together, **Fossil Test**, **Fossil Mock**, and **Fossil Mark** offer a powerful, integrated toolkit for developing, testing, and optimizing robust software, making them an essential asset for developers committed to quality and performance.
+Together, **Fossil Test**, **Fossil Mock**, and **Fossil Mark** — now supercharged with **Jellyfish AI** — offer a powerful, integrated toolkit for developing, testing, and optimizing robust software, making them an essential asset for developers committed to quality and performance.
 
 ---
 
-**Key Features:**
+## **Key Features**
 
-| Feature                  | Description                                                                                                                                                     |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **BDD, DDD, and TDD Support** | Supports Behavior-Driven, Domain-Driven, and Test-Driven Development styles, catering to various project methodologies.                                        |
-| **Comprehensive Unit Testing** | A full suite of tools for creating, managing, and executing unit tests, ensuring that individual units of code behave as expected.                             |
-| **Mocking Capabilities** | Powerful mocking features allow developers to simulate complex dependencies, ensuring focused and reliable unit tests.                                         |
-| **Performance Tracking** | Measures and reports the performance of each test case, helping developers optimize test execution time and performance.                                         |
-| **Command-Line Interface (CLI)** | A powerful CLI for running tests, generating reports, and managing the test suite, supporting automation and integration workflows.                        |
+| Feature                     | Description                                                                                                                             |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| **Jellyfish AI Integration** | Intelligent assistant for analyzing test coverage, diagnostics, and improving test clarity (available from v1.1.8 onward).               |
+| **BDD, DDD, and TDD Support** | Supports Behavior-Driven, Domain-Driven, and Test-Driven Development styles, catering to various project methodologies.                    |
+| **Comprehensive Unit Testing** | A full suite of tools for creating, managing, and executing unit tests, ensuring that individual units of code behave as expected.         |
+| **Mocking Capabilities**    | Powerful mocking features allow developers to simulate complex dependencies, ensuring focused and reliable unit tests.                 |
+| **Performance Tracking**    | Measures and reports the performance of each test case, helping developers optimize test execution time and performance.                 |
+| **Command-Line Interface (CLI)** | A powerful CLI for running tests, generating reports, and managing the test suite, supporting automation and integration workflows.    |
+
+---
+
+*Note: Jellyfish AI is developed as part of the Fossil Logic ecosystem and is tightly integrated with Fossil Test to offer non-intrusive, intelligent guidance throughout the testing process.*
 
 ---
 
@@ -52,7 +59,7 @@ To get started with Fossil Test, ensure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.1.7
+   revision = v1.1.8
 
    [provide]
    fossil-test = fossil_test_dep
