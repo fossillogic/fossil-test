@@ -493,7 +493,7 @@ void version_info(void) {
     printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tLicense: %s\n", FOSSIL_TEST_LICENSE);
 }
 
-// Parse command-line arguments
+// Command pallet parser
 fossil_test_options_t fossil_options_parse(int argc, char **argv) {
     fossil_test_options_t options = fossil_test_init_options();
     
@@ -532,6 +532,30 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.dry_run = false;
+                i++;
+            }
+        } else if (strcmp(argv[i], "fail-fast") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
+                options.fail_fast = true;
+                i++;
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
+                options.fail_fast = false;
+                i++;
+            }
+        } else if (strcmp(argv[i], "quiet") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
+                options.quiet = true;
+                i++;
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
+                options.quiet = false;
+                i++;
+            }
+        } else if (strcmp(argv[i], "color") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
+                options.color_output = true;
+                i++;
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
+                options.color_output = false;
                 i++;
             }
         }
