@@ -3,7 +3,6 @@ c = 'riscv64-linux-gnu-gcc'
 cpp = 'riscv64-linux-gnu-g++'
 ar = 'riscv64-linux-gnu-ar'
 strip = 'riscv64-linux-gnu-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
