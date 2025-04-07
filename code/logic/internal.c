@@ -42,6 +42,14 @@ static void tui_draw_border(fossil_test_env_t *env, char ch) {
     tui_reset_color(env);
 }
 
+void fossil_test_tui_border(fossil_test_env_t *env) {
+    if (env->options.color_output) {
+        printf(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD);
+    }
+    for (int i = 0; i < 70; ++i) putchar(BORDER_CHAR_TOP_BOTTOM);
+    printf(FOSSIL_TEST_COLOR_RESET "\n");
+}
+
 void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const char *fmt, ...) {
     tui_draw_border(env, BORDER_CHAR_TOP_BOTTOM);
 
