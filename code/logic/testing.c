@@ -817,10 +817,6 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     clock_t end_iter = clock();
     test_case->execution_time = (double)(end_iter - start_iter) / CLOCKS_PER_SEC;
 
-    // if (_ASSERT_COUNT == 0) {
-    //      printf(FOSSIL_TEST_COLOR_YELLOW "WARNING: %s contains no assertions\n" FOSSIL_TEST_COLOR_RESET, test_case->name);
-    // }
-
     fossil_fossil_test_case_teardown(test_case);
 
     switch (test_case->status) {
@@ -998,7 +994,7 @@ void fossil_test_suggest(fossil_test_env_t *env) {
     if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
         printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, empty_suite_suggestions[rand() % 50]);
     } else if (env->fail_count > 0) {
-        printf(FOSSIL_TEST_COLOR_CYAN "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 50]);
+        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, failure_suggestions[rand() % 50]);
     } else if (env->pass_count > 0) {
         printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Suggestion: %s\n" FOSSIL_TEST_COLOR_RESET, success_suggestions[rand() % 50]);
     } else if (env->timeout_count > 0) {
