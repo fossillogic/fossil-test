@@ -3,6 +3,7 @@ c = 'sparc64-linux-gnu-gcc'
 cpp = 'sparc64-linux-gnu-g++'
 ar = 'sparc64-linux-gnu-ar'
 strip = 'sparc64-linux-gnu-strip'
+exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
