@@ -431,7 +431,8 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
     "fail-fast [enable|disable] - Stops execution after the first test failure if enabled\n",
     "quiet     [enable|disable] - Suppresses non-essential output when enabled\n",
-    "color     [enable|disable] - Enables or disables colored output\n"
+    "color     [enable|disable] - Enables or disables colored output\n",
+    "format    [option name]    - Summary format options (jellyfish, chart, table, plain)\n"
 };
 
 static const char *FOSSIL_TEST_VERSION = "1.1.8"; // Version of Fossil Test
@@ -474,6 +475,7 @@ fossil_test_options_t fossil_test_init_options(void) {
     options.fail_fast = false;
     options.quiet = false;
     options.color_output = true; // default to true for better UX
+    options.format = FOSSIL_TEST_FORMAT_PLAIN; // Default format is plain
     return options;
 }
 
@@ -557,11 +559,32 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 i++;
             }
         } else if (strcmp(argv[i], "color") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "on") == 0) {
                 options.color_output = true;
                 i++;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "off") == 0) {
                 options.color_output = false;
+                i++;
+            }
+        } else if (strcmp(argv[i], "format") == 0) {
+            if (i + 1 < argc) {
+                if (strcmp(argv[i + 1], "plain") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_PLAIN;
+                } else if (strcmp(argv[i + 1], "chart") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_CHART;
+                } else if (strcmp(argv[i + 1], "table") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_TABLE;
+                } else if (strcmp(argv[i + 1], "json") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_JSON;
+                } else if (strcmp(argv[i + 1], "xml") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_XML;
+                } else if (strcmp(argv[i + 1], "html") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_HTML;
+                } else if (strcmp(argv[i + 1], "markdown") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_MARKDOWN;
+                } else if (strcmp(argv[i + 1], "csv") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_CSV;
+                }
                 i++;
             }
         }
