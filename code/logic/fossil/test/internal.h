@@ -17,24 +17,23 @@
 
 #define MAX_NAME_LENGTH 256
 
-// Color codes
-#define FOSSIL_TEST_COLOR_RESET   "\033[0m"  // Reset
-#define FOSSIL_TEST_COLOR_GREEN   "\033[32m" // Green
-#define FOSSIL_TEST_COLOR_RED     "\033[31m" // Red
-#define FOSSIL_TEST_COLOR_YELLOW  "\033[33m" // Yellow
-#define FOSSIL_TEST_COLOR_BLUE    "\033[34m" // Blue
-#define FOSSIL_TEST_COLOR_MAGENTA "\033[35m" // Magenta
-#define FOSSIL_TEST_COLOR_CYAN    "\033[36m" // Cyan
-#define FOSSIL_TEST_COLOR_WHITE   "\033[97m" // White
-#define FOSSIL_TEST_COLOR_PURPLE  "\033[35m" // Purple
-#define FOSSIL_TEST_COLOR_ORANGE  "\033[38;5;208m" // Orange
+// Define color codes for output
+#define FOSSIL_TEST_COLOR_RESET       "\033[0m"
+#define FOSSIL_TEST_COLOR_RED         "\033[31m"
+#define FOSSIL_TEST_COLOR_GREEN       "\033[32m"
+#define FOSSIL_TEST_COLOR_YELLOW      "\033[33m"
+#define FOSSIL_TEST_COLOR_BLUE        "\033[34m"
+#define FOSSIL_TEST_COLOR_MAGENTA     "\033[35m"
+#define FOSSIL_TEST_COLOR_CYAN        "\033[36m"
+#define FOSSIL_TEST_COLOR_WHITE       "\033[37m"
 
-#define FOSSIL_TEST_ATTR_BOLD     "\033[1m"  // Bold
-#define FOSSIL_TEST_ATTR_DIM      "\033[2m"  // Dim
-#define FOSSIL_TEST_ATTR_UNDERLINE "\033[4m" // Underline
-#define FOSSIL_TEST_ATTR_ITALIC    "\033[3m" // Italic
-#define FOSSIL_TEST_ATTR_REVERSE   "\033[7m" // Reverse
-#define FOSSIL_TEST_ATTR_STRIKETHROUGH "\033[9m" // Strikethrough
+// Define text attributes
+#define FOSSIL_TEST_ATTR_BOLD         "\033[1m"
+#define FOSSIL_TEST_ATTR_UNDERLINE    "\033[4m"
+#define FOSSIL_TEST_ATTR_REVERSED     "\033[7m"
+#define FOSSIL_TEST_ATTR_BLINK        "\033[5m"
+#define FOSSIL_TEST_ATTR_HIDDEN       "\033[8m"
+#define FOSSIL_TEST_ATTR_NORMAL       "\033[22m"
 
 #include <setjmp.h>
 #include <stddef.h>
