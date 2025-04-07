@@ -113,38 +113,42 @@ typedef struct {
 
 
 /**
- * @brief Prints a formatted title in the TUI with borders, centering the title
- *        and applying the appropriate colors.
- * 
- * @param env The test environment containing options, color preferences, and more.
- * @param title The title text to display.
+ * Prints a string to the output.
+ *
+ * @param str The string to be printed.
  */
-void fossil_test_tui_title(fossil_test_env_t *env, const char *title);
+void internal_puts(const char *str);
 
 /**
- * @brief Prints a formatted message within a box-like structure in the TUI.
- * 
- * @param env The test environment containing options, color preferences, and more.
- * @param title The title of the message.
- * @param fmt A format string for the message.
- * @param ... Additional arguments for formatting the message.
+ * Prints a formatted string to the output.
+ *
+ * @param format The format string.
+ * @param ... The additional arguments to be formatted.
  */
-void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const char *fmt, ...);
+void internal_printf(const char *format, ...);
 
 /**
- * @brief Prints a key-value widget, typically for showing status like "Repeat Mode"
- *        or "Dry Run" inside the TUI interface.
- * 
- * @param env The test environment containing options, color preferences, and more.
- * @param label The label describing the widget (e.g., "Repeat Mode").
- * @param value The value to display next to the label (e.g., "ON" or "OFF").
+ * Prints a string to the output with a specified color.
+ *
+ * @param color The color code to be applied.
+ * @param str The string to be printed.
  */
-void fossil_test_tui_widget(fossil_test_env_t *env, const char *label, const char *value);
+void internal_print_color(const char *color, const char *format, ...);
 
 /**
- * Draws a full-width border line using the configured color and style.
+ * Prints a character to the output.
+ *
+ * @param c The character to be printed.
  */
-void fossil_test_tui_border(fossil_test_env_t *env);
+void internal_putchar(char c);
+
+/**
+ * Prints a character to the output with a specified color.
+ *
+ * @param c The character to be printed.
+ * @param color The color code to be applied.
+ */
+void internal_putchar_color(char c, const char *color);
 
 #ifdef __cplusplus
 }
