@@ -79,6 +79,14 @@ extern "C" {
  * @var fossil_test_options_t::dry_run
  * Flag to indicate if the tests should be run in dry-run mode (no actual execution).
  * 
+ * @var fossil_test_options_t::fail_fast
+ * Flag to enable fail-fast behavior, stopping test execution after the first failure.
+ * 
+ * @var fossil_test_options_t::quiet
+ * Flag to suppress most non-essential output for minimal console logging.
+ * 
+ * @var fossil_test_options_t::color_output
+ * Flag to enable or disable colorized output in the console.
  */
 typedef struct {
     bool show_version;
@@ -89,6 +97,9 @@ typedef struct {
     int32_t repeat_count;
     bool shuffle_enabled;
     bool dry_run;
+    bool fail_fast;
+    bool quiet;
+    bool color_output;
 } fossil_test_options_t;
 
 #ifdef __cplusplus
