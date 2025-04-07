@@ -3,7 +3,6 @@ c = 'mips-linux-gnu-gcc'
 cpp = 'mips-linux-gnu-g++'
 ar = 'mips-linux-gnu-ar'
 strip = 'mips-linux-gnu-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
