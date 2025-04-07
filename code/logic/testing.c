@@ -468,6 +468,9 @@ fossil_test_options_t fossil_test_init_options(void) {
     options.repeat_count = 1;
     options.shuffle_enabled = false;
     options.dry_run = false;
+    options.fail_fast = false;
+    options.quiet = false;
+    options.color_output = true; // default to true for better UX
     return options;
 }
 
