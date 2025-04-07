@@ -17,24 +17,6 @@
 
 #define MAX_NAME_LENGTH 256
 
-// Define color codes for output
-#define FOSSIL_TEST_COLOR_RESET       "\033[0m"
-#define FOSSIL_TEST_COLOR_RED         "\033[31m"
-#define FOSSIL_TEST_COLOR_GREEN       "\033[32m"
-#define FOSSIL_TEST_COLOR_YELLOW      "\033[33m"
-#define FOSSIL_TEST_COLOR_BLUE        "\033[34m"
-#define FOSSIL_TEST_COLOR_MAGENTA     "\033[35m"
-#define FOSSIL_TEST_COLOR_CYAN        "\033[36m"
-#define FOSSIL_TEST_COLOR_WHITE       "\033[37m"
-
-// Define text attributes
-#define FOSSIL_TEST_ATTR_BOLD         "\033[1m"
-#define FOSSIL_TEST_ATTR_UNDERLINE    "\033[4m"
-#define FOSSIL_TEST_ATTR_REVERSED     "\033[7m"
-#define FOSSIL_TEST_ATTR_BLINK        "\033[5m"
-#define FOSSIL_TEST_ATTR_HIDDEN       "\033[8m"
-#define FOSSIL_TEST_ATTR_NORMAL       "\033[22m"
-
 #include <setjmp.h>
 #include <stddef.h>
 #include <stdarg.h>
@@ -148,6 +130,13 @@ typedef struct {
     fossil_test_format_t format; // Store the format type
 } fossil_test_options_t;
 
+// Extern declarations for the arrays
+extern const char *sarcastic_messages[];
+extern const char *humorous_messages[];
+extern const char *great_news_messages[];
+extern const char *timeout_messages[];
+extern const char *empty_suite_suggestions[];
+extern const char *failure_suggestions[];
 
 /**
  * Prints a string to the output.
