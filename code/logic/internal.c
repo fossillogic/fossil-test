@@ -17,7 +17,7 @@
 #define FOSSIL_TEST_BUFFER_SIZE 1000
 
 // Function to apply color
-void internal_apply_color(const char *color) {
+void internal_test_apply_color(const char *color) {
     if (strcmp(color, "red") == 0) {
         printf(FOSSIL_TEST_COLOR_RED);
     } else if (strcmp(color, "green") == 0) {
@@ -36,7 +36,7 @@ void internal_apply_color(const char *color) {
 }
 
 // Function to apply text attributes (e.g., bold, underline)
-void internal_apply_attribute(const char *attribute) {
+void internal_test_apply_attribute(const char *attribute) {
     if (strcmp(attribute, "bold") == 0) {
         printf(FOSSIL_TEST_ATTR_BOLD);
     } else if (strcmp(attribute, "underline") == 0) {
@@ -55,7 +55,7 @@ void internal_apply_attribute(const char *attribute) {
 }
 
 // Function to print text with attributes, colors, and format specifiers
-void internal_print_with_attributes(const char *format, ...) {
+void internal_test_print_with_attributes(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -86,8 +86,8 @@ void internal_print_with_attributes(const char *format, ...) {
                 color = attributes;
             }
 
-            if (color) internal_apply_color(color);
-            if (attribute) internal_apply_attribute(attribute);
+            if (color) internal_test_apply_color(color);
+            if (attribute) internal_test_apply_attribute(attribute);
 
             current_pos = end + 1;
         } else {
@@ -100,7 +100,7 @@ void internal_print_with_attributes(const char *format, ...) {
 }
 
 // Internal utility function for color printing
-void internal_print_color(const char *color, const char *format, ...) {
+void internal_test_print_color(const char *color, const char *format, ...) {
     va_list args;
     va_start(args, format);
     printf("%s", color);
@@ -110,33 +110,33 @@ void internal_print_color(const char *color, const char *format, ...) {
 }
 
 // Function to print a sanitized string with attributes inside {}
-void internal_puts(const char *str) {
+void internal_test_puts(const char *str) {
     if (str != NULL) {
         char sanitized_str[FOSSIL_TEST_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0';
-        internal_print_with_attributes(sanitized_str);
+        internal_test_print_with_attributes(sanitized_str);
     } else {
         fputs("NULL\n", stderr);
     }
 }
 
 // Function to print a single character
-void internal_putchar(char c) {
+void internal_test_putchar(char c) {
     putchar(c);
 }
 
 // Function to print a single character in color
-void internal_putchar_color(char c, const char *color) {
+void internal_test_putchar_color(char c, const char *color) {
     printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
 }
 
 // Function to print sanitized formatted output with attributes
-void internal_printf(const char *format, ...) {
+void internal_test_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
     char buffer[FOSSIL_TEST_BUFFER_SIZE];
     vsnprintf(buffer, sizeof(buffer), format, args);
-    internal_print_with_attributes(buffer);
+    internal_test_print_with_attributes(buffer);
     va_end(args);
 }
