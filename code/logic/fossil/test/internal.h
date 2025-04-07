@@ -141,6 +141,11 @@ void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const ch
  */
 void fossil_test_tui_widget(fossil_test_env_t *env, const char *label, const char *value);
 
+/**
+ * Draws a full-width border line using the configured color and style.
+ */
+void fossil_test_tui_border(fossil_test_env_t *env);
+
 #ifdef __cplusplus
 }
 #endif
