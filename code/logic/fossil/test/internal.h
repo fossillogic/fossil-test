@@ -49,6 +49,14 @@
 extern "C" {
 #endif
 
+typedef enum {
+    FOSSIL_TEST_FORMAT_PLAIN,    // Plain text format
+    FOSSIL_TEST_FORMAT_CHART,    // Chart format
+    FOSSIL_TEST_FORMAT_TABLE,    // Table format
+    FOSSIL_TEST_FORMAT_MARKDOWN, // Markdown format
+    FOSSIL_TEST_FORMAT_JELLYFISH // Jellyfish format
+} fossil_test_format_t;
+
 /**
  * @struct fossil_test_options_t
  * @brief Structure to hold various options for fossil testing.
@@ -100,6 +108,7 @@ typedef struct {
     bool fail_fast;
     bool quiet;
     bool color_output;
+    fossil_test_format_t format; // Store the format type
 } fossil_test_options_t;
 
 #ifdef __cplusplus
