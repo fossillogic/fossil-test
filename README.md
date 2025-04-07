@@ -1,6 +1,6 @@
 # ***Fossil Test by Fossil Logic***
 
-**Fossil Test** is a powerful and flexible unit testing, mocking, and benchmarking suite developed by Fossil Logic to ensure the reliability, clarity, and performance of C and C++ projects. Supporting multiple development methodologies—including Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD)—Fossil Test offers a versatile foundation for building high-quality, maintainable test suites across diverse workflows.
+**Fossil Test** is a powerful and flexible unit testing, mocking, and benchmarking suite developed by Fossil Logic to ensure the reliability, clarity, and performance of **C**, **C++**, and **Python** projects. Supporting multiple development methodologies—including Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD)—Fossil Test offers a versatile foundation for building high-quality, maintainable test suites across diverse workflows. Starting with version 1.1.8, it integrates **Jellyfish AI**, an intelligent system designed to apply AI where it makes sense—enhancing test coverage insights, feedback clarity, and overall developer experience.
 
 The Fossil suite consists of three complementary frameworks to streamline the development and testing process:
 
