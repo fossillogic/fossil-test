@@ -26,7 +26,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        msvc_version: [2015, 2017, 2019, 2022]
+        msvc_version: [2015, 2017, 2019, 2022, 2025]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,6 +51,8 @@ jobs:
             choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
           } elseif ($env:msvc_version -eq "2022") {
             choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
+          } elseif ($env:msvc_version -eq "2025") {
+            choco install visualstudio2025buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
           }
           $env:CC="cl.exe"
           $env:CXX="cl.exe"
