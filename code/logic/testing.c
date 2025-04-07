@@ -574,16 +574,10 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                     options.format = FOSSIL_TEST_FORMAT_CHART;
                 } else if (strcmp(argv[i + 1], "table") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_TABLE;
-                } else if (strcmp(argv[i + 1], "json") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_JSON;
-                } else if (strcmp(argv[i + 1], "xml") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_XML;
-                } else if (strcmp(argv[i + 1], "html") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_HTML;
+                } else  if (strcmp(argv[i + 1], "jellyfish") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_JELLYFISH;
                 } else if (strcmp(argv[i + 1], "markdown") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_MARKDOWN;
-                } else if (strcmp(argv[i + 1], "csv") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_CSV;
                 }
                 i++;
             }
