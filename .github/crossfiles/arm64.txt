@@ -3,6 +3,7 @@ c = 'aarch64-linux-gnu-gcc'
 cpp = 'aarch64-linux-gnu-g++'
 ar = 'aarch64-linux-gnu-ar'
 strip = 'aarch64-linux-gnu-strip'
+exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
