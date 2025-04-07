@@ -169,8 +169,6 @@ To configure the build system with testing enabled, use the following command:
 meson setup builddir -Dwith_test=enabled
 ```
 
-For CMake, ensure the appropriate flags and dependencies are passed during the configuration step.
-
 ---
 
 ## ***Contributing and Support***
