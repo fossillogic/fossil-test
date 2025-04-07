@@ -350,5 +350,5 @@ jobs:
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v
+          ./builddir/code/tests/testbed-c
 
