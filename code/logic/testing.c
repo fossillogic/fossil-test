@@ -429,7 +429,7 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "shuffle   [enable|disable] - Enables or disables shuffling of test execution order\n",
     "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
     "fail-fast [enable|disable] - Stops execution after the first test failure if enabled\n",
-    "quiet     [enable|disable] - Suppresses non-essential output when enabled\n",
+    "ci        [enable|disable] - Suppresses non-essential output when enabled\n",
     "color     [enable|disable] - Enables or disables colored output\n",
     "format    [option name]    - Summary format options (jellyfish, chart, table, plain)\n"
 };
@@ -557,7 +557,7 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 options.fail_fast = false;
                 i++;
             }
-        } else if (strcmp(argv[i], "quiet") == 0) {
+        } else if (strcmp(argv[i], "ci") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.quiet = true;
                 i++;
@@ -566,10 +566,10 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 i++;
             }
         } else if (strcmp(argv[i], "color") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "on") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.color_output = true;
                 i++;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "off") == 0) {
+            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.color_output = false;
                 i++;
             }
