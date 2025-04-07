@@ -3,7 +3,6 @@ c = 'mipsel-linux-gnu-gcc'
 cpp = 'mipsel-linux-gnu-g++'
 ar = 'mipsel-linux-gnu-ar'
 strip = 'mipsel-linux-gnu-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
