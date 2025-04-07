@@ -116,7 +116,7 @@ typedef struct {
  *
  * @param str The string to be printed.
  */
-void internal_puts(const char *str);
+void internal_test_puts(const char *str);
 
 /**
  * Prints a formatted string to the output.
@@ -124,22 +124,23 @@ void internal_puts(const char *str);
  * @param format The format string.
  * @param ... The additional arguments to be formatted.
  */
-void internal_printf(const char *format, ...);
+void internal_test_printf(const char *format, ...);
 
 /**
  * Prints a string to the output with a specified color.
  *
  * @param color The color code to be applied.
- * @param str The string to be printed.
+ * @param format The format string.
+ * @param ... The additional arguments to be formatted.
  */
-void internal_print_color(const char *color, const char *format, ...);
+void internal_test_print_color(const char *color, const char *format, ...);
 
 /**
  * Prints a character to the output.
  *
  * @param c The character to be printed.
  */
-void internal_putchar(char c);
+void internal_test_putchar(char c);
 
 /**
  * Prints a character to the output with a specified color.
@@ -147,7 +148,7 @@ void internal_putchar(char c);
  * @param c The character to be printed.
  * @param color The color code to be applied.
  */
-void internal_putchar_color(char c, const char *color);
+void internal_test_putchar_color(char c, const char *color);
 
 #ifdef __cplusplus
 }
