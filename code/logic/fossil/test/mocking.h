@@ -17,11 +17,7 @@
 #ifndef FOSSIL_MOCK_MOCKUP_H
 #define FOSSIL_MOCK_MOCKUP_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <string.h>
+#include "internal.h"
 
 #ifdef __cplusplus
 extern "C" {
