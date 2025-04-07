@@ -15,10 +15,7 @@
 #ifndef FOSSIL_MARK_BENCHMARK_H
 #define FOSSIL_MARK_BENCHMARK_H
 
-#include <stdio.h>
-#include <stdint.h>
-#include <time.h>
-#include <float.h>
+#include "internal.h"
 
 #ifdef __cplusplus
 extern "C" {
