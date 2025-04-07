@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
+#include <float.h>
 
 #ifdef __cplusplus
 extern "C" {
