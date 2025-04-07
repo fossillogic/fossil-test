@@ -3,7 +3,6 @@ c = 'powerpc-linux-gnu-gcc'
 cpp = 'powerpc-linux-gnu-g++'
 ar = 'powerpc-linux-gnu-ar'
 strip = 'powerpc-linux-gnu-strip'
-exe_wrapper = './code/tests/tools/bedrock-wrapper.py'
 
 [host_machine]
 system = 'linux'
