@@ -111,6 +111,10 @@ typedef struct {
     fossil_test_format_t format; // Store the format type
 } fossil_test_options_t;
 
+
+void fossil_test_tui_message(fossil_test_env_t *env, const char *title, const char *fmt, ...);
+void fossil_test_tui_widget(fossil_test_env_t *env, const char *label, const char *value);
+
 #ifdef __cplusplus
 }
 #endif
