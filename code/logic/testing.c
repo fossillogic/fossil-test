@@ -480,25 +480,37 @@ fossil_test_options_t fossil_test_init_options(void) {
 }
 
 void usage_info(void) {
-    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "Usage: fossil [options] [command]"                                   FOSSIL_TEST_COLOR_RESET);
-    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
-    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tOptions:" FOSSIL_TEST_COLOR_RESET);
+    fossil_test_env_t env = fossil_test_env_default();
+
+    fossil_test_tui_border(&env);
+    fossil_test_tui_title(&env, "Usage: fossil [options] [command]");
+    fossil_test_tui_border(&env);
+
+    fossil_test_tui_message(&env, "Options", "");
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_OPTIONS) / sizeof(FOSSIL_TEST_OPTIONS[0]); i++) {
-        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_OPTIONS[i]);
+        fossil_test_tui_widget(&env, ">", FOSSIL_TEST_OPTIONS[i]);
     }
 
-    puts(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_BOLD   "\tCommands:" FOSSIL_TEST_COLOR_RESET);
+    fossil_test_tui_message(&env, "Commands", "");
     for (size_t i = 0; i < sizeof(FOSSIL_TEST_COMMANDS) / sizeof(FOSSIL_TEST_COMMANDS[0]); i++) {
-        printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\t>\t%s" FOSSIL_TEST_COLOR_RESET, FOSSIL_TEST_COMMANDS[i]);
+        fossil_test_tui_widget(&env, ">", FOSSIL_TEST_COMMANDS[i]);
     }
-    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "===================================================================" FOSSIL_TEST_COLOR_RESET);
+
+    fossil_test_tui_border(&env);
 }
 
 void version_info(void) {
-    puts(FOSSIL_TEST_COLOR_BLUE FOSSIL_TEST_ATTR_BOLD   "Fossil Logic Test Framework");
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tVersion: %s\n", FOSSIL_TEST_VERSION);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tAuthor: %s\n", FOSSIL_TEST_AUTHOR);
-    printf(FOSSIL_TEST_COLOR_CYAN FOSSIL_TEST_ATTR_ITALIC "\tLicense: %s\n", FOSSIL_TEST_LICENSE);
+    fossil_test_env_t env = fossil_test_env_default();
+
+    fossil_test_tui_border(&env);
+    fossil_test_tui_title(&env, "Fossil Logic Test Framework");
+    fossil_test_tui_border(&env);
+
+    fossil_test_tui_widget(&env, "Version", FOSSIL_TEST_VERSION);
+    fossil_test_tui_widget(&env, "Author", FOSSIL_TEST_AUTHOR);
+    fossil_test_tui_widget(&env, "License", FOSSIL_TEST_LICENSE);
+
+    fossil_test_tui_border(&env);
 }
 
 // Command pallet parser
