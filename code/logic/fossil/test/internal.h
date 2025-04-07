@@ -191,6 +191,14 @@ void internal_test_putchar_color(char c, const char *color);
 // Function declarations
 void jellyfish_ai_init(jellyfish_ai_t *ai);
 void jellyfish_ai_cleanup(jellyfish_ai_t *ai);
+// Fossil Test integration
+void jellyfish_ai_log_interaction(jellyfish_ai_t *ai, const char *input, const char *response);
+void jellyfish_ai_log_memory(jellyfish_ai_t *ai, const char *key, const char *value);
+void jellyfish_ai_log_reasoning(jellyfish_ai_t *ai, const char *hypothesis, const char *evidence);
+void jellyfish_ai_log_learning(jellyfish_ai_t *ai, const char *concept, const char *details);
+
+// Optional utility for test result analysis
+const char* jellyfish_ai_generate_response(jellyfish_ai_t *ai, const char *input);
 
 #ifdef __cplusplus
 }
