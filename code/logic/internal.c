@@ -99,47 +99,44 @@ void internal_test_print_with_attributes(const char *format, ...) {
     va_end(args);
 }
 
-void internal_test_print_color(fossil_test_env_t *env, const char *color, const char *format, ...) {
+// Internal utility function for color printing
+void internal_test_print_color(const char *color, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    if (env->options.color_output) {
-        printf("%s", color);
-        vprintf(format, args);
-        printf("%s", FOSSIL_TEST_COLOR_RESET);
-    } else {
-        vprintf(format, args);
-    }
+    printf("%s", color);
+    vprintf(format, args);
+    printf("%s", FOSSIL_TEST_COLOR_RESET);
     va_end(args);
 }
 
-void internal_test_puts(fossil_test_env_t *env, const char *str) {
+// Function to print a sanitized string with attributes inside {}
+void internal_test_puts(const char *str) {
     if (str != NULL) {
         char sanitized_str[FOSSIL_TEST_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0';
-        internal_test_print_with_attributes(env, sanitized_str);
+        internal_test_print_with_attributes(sanitized_str);
     } else {
         fputs("NULL\n", stderr);
     }
 }
 
-void internal_test_putchar(fossil_test_env_t *env, char c) {
+// Function to print a single character
+void internal_test_putchar(char c) {
     putchar(c);
 }
 
-void internal_test_putchar_color(fossil_test_env_t *env, char c, const char *color) {
-    if (env->options.color_output) {
-        printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
-    } else {
-        putchar(c);
-    }
+// Function to print a single character in color
+void internal_test_putchar_color(char c, const char *color) {
+    printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
 }
 
-void internal_test_printf(fossil_test_env_t *env, const char *format, ...) {
+// Function to print sanitized formatted output with attributes
+void internal_test_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
     char buffer[FOSSIL_TEST_BUFFER_SIZE];
     vsnprintf(buffer, sizeof(buffer), format, args);
-    internal_test_print_with_attributes(env, buffer);
+    internal_test_print_with_attributes(buffer);
     va_end(args);
 }
