@@ -429,9 +429,9 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "shuffle   [enable|disable] - Enables or disables shuffling of test execution order\n",
     "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
     "fail-fast [enable|disable] - Stops execution after the first test failure if enabled\n",
-    "ci        [enable|disable] - Suppresses non-essential output when enabled\n",
+    "summary   [option name]    - Sets the summary mode (plain, verbose, ci, jellyfish)\n",
     "color     [enable|disable] - Enables or disables colored output\n",
-    "format    [option name]    - Summary format options (jellyfish, chart, table, plain)\n"
+    "format    [option name]    - Output format options (jellyfish, chart, table, plain, markdown)\n"
 };
 
 static const char *FOSSIL_TEST_VERSION = "1.1.8"; // Version of Fossil Test
@@ -472,7 +472,7 @@ fossil_test_options_t fossil_test_init_options(void) {
     options.shuffle_enabled = false;
     options.dry_run = false;
     options.fail_fast = false;
-    options.quiet = false;
+    options.summary = FOSSIL_TEST_SUMMARY_PLAIN;
     options.color_output = true; // default to true for better UX
     options.format = FOSSIL_TEST_FORMAT_PLAIN; // Default format is plain
     return options;
@@ -557,12 +557,17 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 options.fail_fast = false;
                 i++;
             }
-        } else if (strcmp(argv[i], "ci") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                options.quiet = true;
-                i++;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                options.quiet = false;
+        } else if (strcmp(argv[i], "summary") == 0) {
+            if (i + 1 < argc) {
+                if (strcmp(argv[i + 1], "plain") == 0) {
+                    options.summary = FOSSIL_TEST_SUMMARY_PLAIN;
+                } else if (strcmp(argv[i + 1], "verbose") == 0) {
+                    options.summary = FOSSIL_TEST_SUMMARY_VERBOSE;
+                } else if (strcmp(argv[i + 1], "ci") == 0) {
+                    options.summary = FOSSIL_TEST_SUMMARY_CI;
+                } else if (strcmp(argv[i + 1], "jellyfish") == 0) {
+                    options.summary = FOSSIL_TEST_SUMMARY_JELLYFISH;
+                }
                 i++;
             }
         } else if (strcmp(argv[i], "color") == 0) {
@@ -581,7 +586,7 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                     options.format = FOSSIL_TEST_FORMAT_CHART;
                 } else if (strcmp(argv[i + 1], "table") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_TABLE;
-                } else  if (strcmp(argv[i + 1], "jellyfish") == 0) {
+                } else if (strcmp(argv[i + 1], "jellyfish") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_JELLYFISH;
                 } else if (strcmp(argv[i + 1], "markdown") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_MARKDOWN;
