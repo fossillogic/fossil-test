@@ -58,6 +58,13 @@ typedef enum {
     FOSSIL_TEST_FORMAT_JELLYFISH // Jellyfish format
 } fossil_test_format_t;
 
+typedef enum {
+    FOSSIL_TEST_SUMMARY_PLAIN,
+    FOSSIL_TEST_SUMMARY_VERBOSE,
+    FOSSIL_TEST_SUMMARY_CI,
+    FOSSIL_TEST_SUMMARY_JELLYFISH
+} fossil_test_summary_t;
+
 /**
  * @struct fossil_test_options_t
  * @brief Structure to hold various options for fossil testing.
@@ -107,9 +114,9 @@ typedef struct {
     bool shuffle_enabled;
     bool dry_run;
     bool fail_fast;
-    bool quiet;
     bool color_output;
-    fossil_test_format_t format; // Store the format type
+    fossil_test_summary_t summary;     // Replaces 'quiet'
+    fossil_test_format_t format;       // Store the format type
 } fossil_test_options_t;
 
 /**
