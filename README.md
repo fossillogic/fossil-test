@@ -90,8 +90,8 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                               |
 | `fail-fast [enable/disable]`     | Stops execution after the first test failure.                                                 | Useful for quickly identifying regressions.                                                   |
 | `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
-| `format <plain/chart/table/jellyfish/markdown>` | Selects the output format for test results.                                         | Affects how test data is displayed; useful for visual or machine-parsed output.          |
-| `summary <plain/verbose/ci/jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
+| `format <plain, chart, table, jellyfish, markdown>` | Selects the output format for test results.                                         | Affects how test data is displayed; useful for visual or machine-parsed output.          |
+| `summary <plain, verbose, ci, jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
 
 ## Configure Build Options
 
