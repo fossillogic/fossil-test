@@ -89,7 +89,7 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.      | Ideal for verifying test selection criteria before actual execution.                         |
 | `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                               |
 | `fail-fast [enable/disable]`     | Stops execution after the first test failure.                                                 | Useful for quickly identifying regressions.                                                   |
-| `summary <plain|verbose|ci|jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
+| `summary <plain/verbose/ci/jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
 | `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
 
 ## Configure Build Options
