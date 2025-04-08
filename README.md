@@ -87,9 +87,9 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                          | Useful for debugging or ensuring the tests don't depend on execution order.                  |
 | `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                        | Helps identify order-dependent issues in the test suite.                                     |
 | `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.      | Ideal for verifying test selection criteria before actual execution.                         |
-| `repeat=<number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                               |
+| `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                               |
 | `fail-fast [enable/disable]`     | Stops execution after the first test failure.                                                 | Useful for quickly identifying regressions.                                                   |
-| `ci [enable/disable]`            | Suppresses non-essential output.                                                              | Ideal for CI pipelines or focused testing.                                                    |
+| `summary <plain|verbose|ci|jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
 | `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
 
 ## Configure Build Options
