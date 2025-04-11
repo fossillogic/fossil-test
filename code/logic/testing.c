@@ -1167,10 +1167,6 @@ void fossil_test_analyze(fossil_test_env_t *env) {
 
         case FOSSIL_TEST_SUMMARY_JELLYFISH:
             // Jellyfish Mode: Detailed output with insights and suggestions
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-            internal_test_printf("{cyan}{italic}\tTest Analysis and Insights (Jellyfish Mode):{reset}\n");
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-
             if (env->fail_count > 0) {
                 internal_test_printf("Failure Rate: %.2f%%\n", failure_rate);
                 internal_test_printf("Consider reviewing the failed tests for possible issues with the environment, misconfigurations, or test logic.\n");
@@ -1195,8 +1191,6 @@ void fossil_test_analyze(fossil_test_env_t *env) {
             if (env->skip_count > 0) {
                 internal_test_printf("{yellow}Note: There were %d skipped tests. Please check the conditions or requirements for those tests.{reset}\n", env->skip_count);
             }
-
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
             break;
 
         default:
@@ -1251,10 +1245,6 @@ void fossil_test_suggest(fossil_test_env_t *env) {
 
         case FOSSIL_TEST_SUMMARY_JELLYFISH:
             // Jellyfish Mode: Detailed suggestions with insights
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-            internal_test_printf("{cyan}{italic}\tTest Suggestions and Insights (Jellyfish Mode):{reset}\n");
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-
             if (env->fail_count > 0) {
                 internal_test_printf(
                     "Test failures detected. Suggestion: %s\n", failure_suggestions[rand() % 50]);
@@ -1282,8 +1272,6 @@ void fossil_test_suggest(fossil_test_env_t *env) {
                     "Ensure tests are not being skipped due to unmet conditions.\n"
                 );
             }
-
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
             break;
 
         default:
@@ -1327,9 +1315,6 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
 
         case FOSSIL_TEST_SUMMARY_JELLYFISH:
             // Jellyfish Mode: Detailed analysis with insights
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-            internal_test_printf("{cyan}{italic}\tExecution Time Insights (Jellyfish Mode):{reset}\n");
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
 
             // Anomaly Detection & Optimization Insight
             if (total_execution_time > 5.0) {
@@ -1357,11 +1342,9 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
             }
 
             // Footer and execution time display
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
             internal_test_printf("{cyan}{italic}|\tExecution time:{reset}\n");
             internal_test_printf("{cyan}{italic}|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n{reset}", 
                                   seconds, milliseconds, microseconds, nanoseconds);
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
             break;
 
         default:
@@ -1406,15 +1389,21 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     env->end_execution_time = clock();
 
+    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+    internal_test_printf("{cyan}{italic}\tFossil Smart Test                                                             {reset}\n");
+    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+
     switch (env->options.summary) {
         case FOSSIL_TEST_SUMMARY_PLAIN:
             internal_test_printf("{blue}{bold}Fossil Test Summary:{reset}\n");
-            internal_test_printf("{green}Passed:   %d{reset}\n", env->pass_count);
-            internal_test_printf("{red}Failed:   %d{reset}\n", env->fail_count);
-            internal_test_printf("{yellow}Skipped:  %d{reset}\n", env->skip_count);
-            internal_test_printf("{magenta}Timeouts: %d{reset}\n", env->timeout_count);
-            internal_test_printf("{blue}Other:    %d{reset}\n", env->unexpected_count);
+            internal_test_printf("{cyan}{italic}Passed:   {green}%d{reset}\n", env->pass_count);
+            internal_test_printf("{cyan}{italic}Failed:   {red}%d{reset}\n", env->fail_count);
+            internal_test_printf("{cyan}{italic}Skipped:  {yellow}%d{reset}\n", env->skip_count);
+            internal_test_printf("{cyan}{italic}Timeouts: {magenta}%d{reset}\n", env->timeout_count);
+            internal_test_printf("{blue}{bold}Other:    {blue}%d{reset}\n", env->unexpected_count);
+            fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
+            fossil_test_suggest(env);   // Suggestions for test coverage or structure
             fossil_test_execution_time(env);
             break;
 
@@ -1426,15 +1415,13 @@ void fossil_test_summary(fossil_test_env_t *env) {
             internal_test_printf("TIMEOUT=%d\n", env->timeout_count);
             internal_test_printf("OTHER=%d\n", env->unexpected_count);
             internal_test_printf("{blue}::endgroup::\n");
+            fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
+            fossil_test_suggest(env);   // Suggestions for test coverage or structure
             fossil_test_execution_time(env);
             break;
 
         case FOSSIL_TEST_SUMMARY_JELLYFISH:
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-            internal_test_printf("{cyan}{italic}\tFossil Smart Test Summary (Jellyfish Mode){reset}\n");
-            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-
             fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
             fossil_test_suggest(env);   // Suggestions for test coverage or structure
@@ -1444,5 +1431,7 @@ void fossil_test_summary(fossil_test_env_t *env) {
         default:
             internal_test_printf("{red}Unknown summary mode.{reset}\n");
             break;
+
+        internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
     }
 }
