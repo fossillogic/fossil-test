@@ -428,10 +428,9 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "repeat    [count]          - Repeats the test suite a specified number of times\n",
     "shuffle   [enable|disable] - Enables or disables shuffling of test execution order\n",
     "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
-    "fail-fast [enable|disable] - Stops execution after the first test failure if enabled\n",
-    "summary   [option name]    - Sets the summary mode (plain, verbose, ci, jellyfish)\n",
+    "summary   [option name]    - Sets the summary mode (plain, ci, jellyfish)\n",
     "color     [enable|disable] - Enables or disables colored output\n",
-    "format    [option name]    - Output format options (jellyfish, chart, table, plain, markdown)\n"
+    "format    [option name]    - Output format options (plain, ci, jellyfish)\n"
 };
 
 static const char *FOSSIL_TEST_VERSION = "1.1.8"; // Version of Fossil Test
@@ -471,7 +470,6 @@ fossil_test_options_t fossil_test_init_options(void) {
     options.repeat_count = 1;
     options.shuffle_enabled = false;
     options.dry_run = false;
-    options.fail_fast = false;
     options.summary = FOSSIL_TEST_SUMMARY_PLAIN;
     options.color_output = true; // default to true for better UX
     options.format = FOSSIL_TEST_FORMAT_PLAIN; // Default format is plain
@@ -547,14 +545,6 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
                 i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.dry_run = false;
-                i++;
-            }
-        } else if (strcmp(argv[i], "fail-fast") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                options.fail_fast = true;
-                i++;
-            } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                options.fail_fast = false;
                 i++;
             }
         } else if (strcmp(argv[i], "summary") == 0) {
