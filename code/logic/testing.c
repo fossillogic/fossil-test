@@ -561,9 +561,11 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
         } else if (strcmp(argv[i], "color") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
                 options.color_output = true;
+                internal_test_set_color_output(options.color_output);
                 i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
                 options.color_output = false;
+                internal_test_set_color_output(options.color_output);
                 i++;
             }
         } else if (strcmp(argv[i], "format") == 0) {
