@@ -16,6 +16,8 @@
 
 #define FOSSIL_TEST_BUFFER_SIZE 1000
 
+static bool internal_test_color_enabled = true;
+
 // Function to apply color
 void internal_test_apply_color(const char *color) {
     if (strcmp(color, "red") == 0) {
@@ -99,13 +101,22 @@ void internal_test_print_with_attributes(const char *format, ...) {
     va_end(args);
 }
 
+// Setter to initialize color flag from options
+void internal_test_set_color_output(bool enabled) {
+    internal_test_color_enabled = enabled;
+}
+
 // Internal utility function for color printing
 void internal_test_print_color(const char *color, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    printf("%s", color);
-    vprintf(format, args);
-    printf("%s", FOSSIL_TEST_COLOR_RESET);
+    if (internal_test_color_enabled) {
+        printf("%s", color);
+        vprintf(format, args);
+        printf("%s", FOSSIL_TEST_COLOR_RESET);
+    } else {
+        vprintf(format, args);
+    }
     va_end(args);
 }
 
@@ -128,7 +139,11 @@ void internal_test_putchar(char c) {
 
 // Function to print a single character in color
 void internal_test_putchar_color(char c, const char *color) {
-    printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
+    if (internal_test_color_enabled) {
+        printf("%s%c%s", color, c, FOSSIL_TEST_COLOR_RESET);
+    } else {
+        putchar(c);
+    }
 }
 
 // Function to print sanitized formatted output with attributes
@@ -137,6 +152,21 @@ void internal_test_printf(const char *format, ...) {
     va_start(args, format);
     char buffer[FOSSIL_TEST_BUFFER_SIZE];
     vsnprintf(buffer, sizeof(buffer), format, args);
-    internal_test_print_with_attributes(buffer);
+
+    if (internal_test_color_enabled) {
+        internal_test_print_with_attributes(buffer);
+    } else {
+        // Strip color tags before printing
+        for (char *p = buffer; *p;) {
+            if (*p == '{') {
+                // Skip until closing '}'
+                while (*p && *p != '}') p++;
+                if (*p == '}') p++;
+            } else {
+                putchar(*p++);
+            }
+        }
+    }
+
     va_end(args);
 }
