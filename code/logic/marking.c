@@ -43,6 +43,7 @@ clock_t start_time;
 #define _GNU_SOURCE
 #endif
 
+
 void fossil_test_start_benchmark(void) {
 #if defined(_WIN32)
     QueryPerformanceFrequency(&frequency);

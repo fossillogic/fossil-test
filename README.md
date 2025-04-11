@@ -57,7 +57,7 @@ To get started with Fossil Test, ensure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.1.8
+   revision = v1.2.0
 
    [provide]
    fossil-test = fossil_test_dep
@@ -79,87 +79,18 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 ### Commands and Options
 
-| Command                         | Description                                                                                   | Notes                                                                                          |
+| Command                          | Description                                                                                   | Notes                                                                                         |
 |----------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | `--version`                      | Displays the current version of Fossil Test.                                                  | Useful for verifying the version of the tool in use.                                          |
 | `--help`                         | Shows help message with usage instructions.                                                   | Provides a quick reference for all available commands.                                        |
-| `--info`                         | Displays detailed information about the test run.                                             | Includes information such as test count, duration, and configuration.                        |
-| `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                           | Useful for debugging or ensuring the tests don't depend on execution order.                  |
-| `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                         | Helps identify order-dependent issues in the test suite.                                     |
-| `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.       | Ideal for verifying test selection criteria before actual execution.                         |
-| `repeat=<number>`                | Repeats the test suite a specified number of times.                                            | Handy for stress-testing or reproducing intermittent failures.                               |
-
-### Key Notes Summary:
-- **Version**: Quickly check the installed version of Fossil Test.
-- **Help**: Access usage instructions and command references.
-- **Info**: Get detailed insights about the test run, including test count and duration.
-- **Reverse and Shuffle**: Help debug issues by manipulating test execution order.
-- **Repeat**: Ideal for reliability testing by repeatedly executing tests.
-- **Dry Run**: Provides a preview of the test plan without running the tests, useful for preparation and validation.
-
-### Usage
-
-To use the Fossil Test CLI, navigate to your project directory and run the desired command. For example, to check the version of Fossil Test, use:
-
-```sh
-fossil-test --version
-```
-
-To display help information, use:
-
-```sh
-fossil-test --help
-```
-
-For detailed information about the test run, use:
-
-```sh
-fossil-test --info
-```
-
-To enable reverse order of test execution, use:
-
-```sh
-fossil-test reverse enable
-```
-
-To disable reverse order of test execution, use:
-
-```sh
-fossil-test reverse disable
-```
-
-To enable shuffling of test execution order, use:
-
-```sh
-fossil-test shuffle enable
-```
-
-To disable shuffling of test execution order, use:
-
-```sh
-fossil-test shuffle disable
-```
-
-To perform a dry run, use:
-
-```sh
-fossil-test dry-run enable
-```
-
-To disable dry run mode, use:
-
-```sh
-fossil-test dry-run disable
-```
-
-To repeat the test suite a specified number of times, use:
-
-```sh
-fossil-test repeat=<number>
-```
-
----
+| `--info`                         | Displays detailed information about the test run.                                             | Includes information such as test count, duration, and configuration.                         |
+| `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                          | Useful for debugging or ensuring the tests don't depend on execution order.                   |
+| `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                        | Helps identify order-dependent issues in the test suite.                                      |
+| `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.      | Ideal for verifying test selection criteria before actual execution.                          |
+| `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                                |
+| `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
+| `format <plain, ci, jellyfish>`  | Selects the output format for test results.                                                   | Affects how test data is displayed; useful for visual or machine-parsed output.               |
+| `summary <plain, ci, jellyfish>` | Sets the level of summary output after test execution.                                        | `ci` is minimal, `jellyfish` is smart test mode, and `plain` is default classic.              |
 
 ## Configure Build Options
 
