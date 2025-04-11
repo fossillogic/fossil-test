@@ -1015,21 +1015,58 @@ void fossil_test_comment(fossil_test_env_t *env) {
     }
 
     // Dynamic comment based on test result
-    if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
-        // Positive outcome - playful
-        internal_test_printf("{cyan}Comment: %s{reset}\n", great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
-    } else if (env->fail_count > 0) {
-        // Failure detected - humorous to lighten the mood
-        internal_test_printf("{red}Comment: %s{reset}\n", humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
-    } else if (env->timeout_count > 0) {
-        // Timeout encountered - insightful
-        internal_test_printf("{orange}Comment: %s{reset}\n", timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
-    } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
-        // No results - sarcastic twist
-        internal_test_printf("{cyan}Comment: %s{reset}\n", sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
-    } else {
-        // Mixed results - deeper analysis
-        internal_test_printf("{cyan}Comment: The test results are mixed. Consider analyzing individual test cases to uncover underlying issues.{reset}\n");
+    switch (env->options.summary) {
+        case FOSSIL_TEST_SUMMARY_PLAIN:
+            // Plain Mode: Simple comments without extra formatting
+            if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("{cyan}Comment: %s{reset}\n", great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
+            } else if (env->fail_count > 0) {
+                internal_test_printf("{red}Comment: %s{reset}\n", humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
+            } else if (env->timeout_count > 0) {
+                internal_test_printf("{orange}Comment: %s{reset}\n", timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
+            } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("{cyan}Comment: %s{reset}\n", sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
+            } else {
+                internal_test_printf("{cyan}Comment: The test results are mixed. Consider analyzing individual test cases to uncover underlying issues.{reset}\n");
+            }
+            break;
+
+        case FOSSIL_TEST_SUMMARY_CI:
+            // CI Mode: CI-friendly comments, typically no extra decoration, focused on results
+            if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("COMMENT=Success! %s\n", great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
+            } else if (env->fail_count > 0) {
+                internal_test_printf("COMMENT=Oops, there were failures: %s\n", humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
+            } else if (env->timeout_count > 0) {
+                internal_test_printf("COMMENT=Timeout encountered: %s\n", timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
+            } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("COMMENT=No results! %s\n", sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
+            } else {
+                internal_test_printf("COMMENT=Mixed results: Consider reviewing individual test cases.\n");
+            }
+            break;
+
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
+            // Jellyfish Mode: Playful, humorous, or insightful with additional context
+            if (env->pass_count > 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("{blue}{bold}Great News!{reset} {cyan}%s{reset}\n", great_news_messages[rand() % (sizeof(great_news_messages) / sizeof(great_news_messages[0]))]);
+            } else if (env->fail_count > 0) {
+                internal_test_printf("{red}{bold}Oops, Something Went Wrong!{reset} {orange}%s{reset}\n", humorous_messages[rand() % (sizeof(humorous_messages) / sizeof(humorous_messages[0]))]);
+                internal_test_printf("{red}Failure detected, please review test logs for more information.{reset}\n");
+            } else if (env->timeout_count > 0) {
+                internal_test_printf("{orange}{bold}Timeouts Happened!{reset} {yellow}%s{reset}\n", timeout_messages[rand() % (sizeof(timeout_messages) / sizeof(timeout_messages[0]))]);
+                internal_test_printf("{yellow}It might be worth investigating system performance or external factors.{reset}\n");
+            } else if (env->pass_count == 0 && env->fail_count == 0 && env->timeout_count == 0) {
+                internal_test_printf("{cyan}{bold}No Results?{reset} {magenta}%s{reset}\n", sarcastic_messages[rand() % (sizeof(sarcastic_messages) / sizeof(sarcastic_messages[0]))]);
+                internal_test_printf("{magenta}Perhaps there were no tests run or something went awry!{reset}\n");
+            } else {
+                internal_test_printf("{blue}{italic}Mixed Results Detected!{reset} {green}A closer look at individual test cases might reveal more details.{reset}\n");
+            }
+            break;
+
+        default:
+            internal_test_printf("{red}Unknown summary mode.{reset}\n");
+            break;
     }
 }
 
@@ -1068,37 +1105,103 @@ void fossil_test_analyze(fossil_test_env_t *env) {
     // Prediction (can be based on past success rate or other methods)
     double prediction = success_rate;  // For simplicity, using the past success rate as prediction
 
-    // Sort conditions from worst case to best case:
-    // 1. Failure Rate -> 2. Timeout Rate -> 3. Skipped Rate -> 4. Success Rate
+    // Switch for summary modes
+    switch (env->options.summary) {
+        case FOSSIL_TEST_SUMMARY_PLAIN:
+            // Plain Mode: Basic output without extra formatting
+            if (env->fail_count > 0) {
+                internal_test_printf("{cyan}Failure rate: %.2f%%{reset}\n", failure_rate);
+            }
+            if (env->timeout_count > 0) {
+                internal_test_printf("{cyan}Timeout tests: %.2f%%{reset}\n", timeout_rate);
+            }
+            if (env->skip_count > 0) {
+                internal_test_printf("{cyan}Skipped tests: %.2f%% (%d tests){reset}\n", skip_rate, env->skip_count);
+            }
+            if (env->pass_count > 0) {
+                internal_test_printf("{cyan}Success rate: %.2f%%{reset}\n", success_rate);
+            }
 
-    // Worst case: Failure rate
-    if (env->fail_count > 0) {
-        internal_test_printf("{cyan}Failure rate: %.2f%%{reset}\n", failure_rate);
-    }
+            internal_test_printf("{cyan}Probability of success: %.2f{reset}\n", probability_of_success);
+            internal_test_printf("{cyan}Average test rate: %.2f%%{reset}\n", average_rate);
+            internal_test_printf("{cyan}Prediction (Future Success Rate): %.2f%%{reset}\n", prediction);
+            if (env->skip_count > 0) {
+                internal_test_printf("{yellow}Note: There were %d skipped tests. Please check the conditions or requirements for those tests.{reset}\n", env->skip_count);
+            }
+            break;
 
-    // Next worst: Timeout tests
-    if (env->timeout_count > 0) {
-        internal_test_printf("{cyan}Timeout tests: %.2f%%{reset}\n", timeout_rate);
-    }
+        case FOSSIL_TEST_SUMMARY_CI:
+            // CI Mode: CI-friendly output for automated systems
+            if (env->fail_count > 0) {
+                internal_test_printf("::group::{bold}Test Failure Analysis (CI Mode){reset}\n");
+                internal_test_printf("FAILURE_RATE=%.2f%%\n", failure_rate);
+                internal_test_printf("::endgroup::\n");
+            }
+            if (env->timeout_count > 0) {
+                internal_test_printf("::group::{bold}Test Timeout Analysis (CI Mode){reset}\n");
+                internal_test_printf("TIMEOUT_RATE=%.2f%%\n", timeout_rate);
+                internal_test_printf("::endgroup::\n");
+            }
+            if (env->skip_count > 0) {
+                internal_test_printf("::group::{bold}Test Skipped Analysis (CI Mode){reset}\n");
+                internal_test_printf("SKIP_RATE=%.2f%%\n", skip_rate);
+                internal_test_printf("SKIPPED_TESTS=%d\n", env->skip_count);
+                internal_test_printf("::endgroup::\n");
+            }
+            if (env->pass_count > 0) {
+                internal_test_printf("::group::{bold}Test Success Analysis (CI Mode){reset}\n");
+                internal_test_printf("SUCCESS_RATE=%.2f%%\n", success_rate);
+                internal_test_printf("::endgroup::\n");
+            }
 
-    // Skipped tests next
-    if (env->skip_count > 0) {
-        internal_test_printf("{cyan}Skipped tests: %.2f%% (%d tests){reset}\n", skip_rate, env->skip_count);
-    }
+            internal_test_printf("SUCCESS_PROBABILITY=%.2f\n", probability_of_success);
+            internal_test_printf("AVERAGE_TEST_RATE=%.2f%%\n", average_rate);
+            internal_test_printf("PREDICTION=%.2f%%\n", prediction);
 
-    // Best case: Success rate
-    if (env->pass_count > 0) {
-        internal_test_printf("{cyan}Success rate: %.2f%%{reset}\n", success_rate);
-    }
+            if (env->skip_count > 0) {
+                internal_test_printf("::group::{bold}Skipped Tests Analysis (CI Mode){reset}\n");
+                internal_test_printf("SKIPPED_TESTS=There were %d skipped tests. Please verify conditions or requirements for those tests.\n", env->skip_count);
+                internal_test_printf("::endgroup::\n");
+            }
+            break;
 
-    // Additional insights
-    internal_test_printf("{cyan}Probability of success: %.2f{reset}\n", probability_of_success);
-    internal_test_printf("{cyan}Average test rate: %.2f%%{reset}\n", average_rate);
-    internal_test_printf("{cyan}Prediction (Future Success Rate): %.2f%%{reset}\n", prediction);
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
+            // Jellyfish Mode: Detailed output with insights and suggestions
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}\tTest Analysis and Insights (Jellyfish Mode):{reset}\n");
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
 
-    // Skipped tests analysis route
-    if (env->skip_count > 0) {
-        internal_test_printf("{yellow}Note: There were %d skipped tests. Please check the conditions or requirements for those tests.{reset}\n", env->skip_count);
+            if (env->fail_count > 0) {
+                internal_test_printf("Failure Rate: %.2f%%\n", failure_rate);
+                internal_test_printf("Consider reviewing the failed tests for possible issues with the environment, misconfigurations, or test logic.\n");
+            }
+            if (env->timeout_count > 0) {
+                internal_test_printf("Timeout Rate: %.2f%%\n", timeout_rate);
+                internal_test_printf("Investigate system resources, network conditions, or tests prone to timeouts.\n");
+            }
+            if (env->skip_count > 0) {
+                internal_test_printf("Skipped Tests: %.2f%% (%d tests)\n", skip_rate, env->skip_count);
+                internal_test_printf("Ensure tests are not being skipped due to unmet conditions. Review the prerequisites or intentional exclusions.\n");
+            }
+            if (env->pass_count > 0) {
+                internal_test_printf("Success Rate: %.2f%%\n", success_rate);
+                internal_test_printf("Great job! Consider reviewing the successful tests for potential optimizations or edge cases.\n");
+            }
+
+            internal_test_printf("Probability of Success: %.2f\n", probability_of_success);
+            internal_test_printf("Average Test Rate: %.2f%%\n", average_rate);
+            internal_test_printf("Prediction (Future Success Rate): %.2f%%\n", prediction);
+
+            if (env->skip_count > 0) {
+                internal_test_printf("{yellow}Note: There were %d skipped tests. Please check the conditions or requirements for those tests.{reset}\n", env->skip_count);
+            }
+
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            break;
+
+        default:
+            internal_test_printf("{red}Unknown summary mode.{reset}\n");
+            break;
     }
 }
 
@@ -1107,18 +1210,85 @@ void fossil_test_suggest(fossil_test_env_t *env) {
         return;
     }
 
-    // Dynamic suggestion based on results and test state
-    if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
-        internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", empty_suite_suggestions[rand() % 50]);
-    } else if (env->fail_count > 0) {
-        internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", failure_suggestions[rand() % 50]);
-    } else if (env->pass_count > 0) {
-        internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", success_suggestions[rand() % 50]);
-    } else if (env->timeout_count > 0) {
-        internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", timeout_suggestions[rand() % 50]);
-    } else if (env->skip_count > 0) {
-        // Skipped tests specific suggestions
-        internal_test_printf("{cyan}{italic}Suggestion: Review skipped tests for prerequisites or intentional exclusions. Ensure tests are not being skipped due to unmet conditions.{reset}\n");
+    // Switch for summary modes
+    switch (env->options.summary) {
+        case FOSSIL_TEST_SUMMARY_PLAIN:
+            // Plain Mode: Display basic suggestions
+            if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
+                internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", empty_suite_suggestions[rand() % 50]);
+            } else if (env->fail_count > 0) {
+                internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", failure_suggestions[rand() % 50]);
+            } else if (env->pass_count > 0) {
+                internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", success_suggestions[rand() % 50]);
+            } else if (env->timeout_count > 0) {
+                internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", timeout_suggestions[rand() % 50]);
+            } else if (env->skip_count > 0) {
+                internal_test_printf("{cyan}{italic}Suggestion: Review skipped tests for prerequisites or intentional exclusions. Ensure tests are not being skipped due to unmet conditions.{reset}\n");
+            }
+            break;
+
+        case FOSSIL_TEST_SUMMARY_CI:
+            // CI Mode: CI-friendly suggestion format
+            if (env->fail_count > 0) {
+                internal_test_printf("::group::{bold}Test Failure Suggestion (CI Mode){reset}\n");
+                internal_test_printf("FAILURE_SUGGESTION=%s\n", failure_suggestions[rand() % 50]);
+                internal_test_printf("::endgroup::\n");
+            } else if (env->pass_count > 0) {
+                internal_test_printf("::group::{bold}Test Success Suggestion (CI Mode){reset}\n");
+                internal_test_printf("SUCCESS_SUGGESTION=%s\n", success_suggestions[rand() % 50]);
+                internal_test_printf("::endgroup::\n");
+            } else if (env->timeout_count > 0) {
+                internal_test_printf("::group::{bold}Test Timeout Suggestion (CI Mode){reset}\n");
+                internal_test_printf("TIMEOUT_SUGGESTION=%s\n", timeout_suggestions[rand() % 50]);
+                internal_test_printf("::endgroup::\n");
+            } else if (env->skip_count > 0) {
+                internal_test_printf("::group::{bold}Test Skipped Suggestion (CI Mode){reset}\n");
+                internal_test_printf("SKIPPED_SUGGESTION=Review skipped tests for prerequisites or intentional exclusions.\n");
+                internal_test_printf("Ensure tests are not being skipped due to unmet conditions.\n");
+                internal_test_printf("::endgroup::\n");
+            }
+            break;
+
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
+            // Jellyfish Mode: Detailed suggestions with insights
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}\tTest Suggestions and Insights (Jellyfish Mode):{reset}\n");
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+
+            if (env->fail_count > 0) {
+                internal_test_printf(
+                    "Test failures detected. Suggestion: %s\n", failure_suggestions[rand() % 50]);
+                internal_test_printf(
+                    "Investigate test failures for potential root causes such as misconfigured tests,\n"
+                    "environmental issues, or incorrect assumptions.\n"
+                );
+            } else if (env->pass_count > 0) {
+                internal_test_printf(
+                    "Tests passed successfully. Suggestion: %s\n", success_suggestions[rand() % 50]);
+                internal_test_printf(
+                    "Consider reviewing passed tests for optimizations or any edge cases that might\n"
+                    "be worth investigating further.\n"
+                );
+            } else if (env->timeout_count > 0) {
+                internal_test_printf(
+                    "Test timeouts detected. Suggestion: %s\n", timeout_suggestions[rand() % 50]);
+                internal_test_printf(
+                    "Investigate system resources, network conditions, or specific tests that\n"
+                    "are prone to timeouts.\n"
+                );
+            } else if (env->skip_count > 0) {
+                internal_test_printf(
+                    "Skipped tests detected. Suggestion: Review skipped tests for prerequisites or intentional exclusions.\n"
+                    "Ensure tests are not being skipped due to unmet conditions.\n"
+                );
+            }
+
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            break;
+
+        default:
+            internal_test_printf("{red}Unknown summary mode.{reset}\n");
+            break;
     }
 }
 
@@ -1136,41 +1306,68 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     int32_t microseconds  = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0) * 1000000);
     int32_t nanoseconds   = (int32_t)((total_execution_time - seconds - milliseconds / 1000.0 - microseconds / 1000000.0) * 1000000000);
 
-    // Start the output paragraph for insights
-    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-    internal_test_printf("{cyan}{italic}\tInsight: Based on the execution time analysis, we observe the following:{reset}\n");
+    // Switch for summary modes
+    switch (env->options.summary) {
+        case FOSSIL_TEST_SUMMARY_PLAIN:
+            // Plain Mode: Display basic execution time without additional analysis
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}\tExecution Time Analysis (Plain Mode):{reset}\n");
+            internal_test_printf("{cyan}{italic}|\tExecution time: %02d sec, %03d ms, %06d us, %09d ns{reset}\n",
+                                  seconds, milliseconds, microseconds, nanoseconds);
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            break;
 
-    // Anomaly Detection & Optimization Insight
-    if (total_execution_time > 5.0) {
-        internal_test_printf(
-            "Execution time is exceptionally long, indicating possible critical\n"
-            "inefficiencies, extensive test coverage, or hardware constraints.\n"
-            "Investigate parallel execution strategies, resource bottlenecks, or\n"
-            "excessive test dependencies. Consider breaking test suites into smaller\n"
-            "units to isolate performance-heavy areas.\n"
-        );
-    } else if (total_execution_time > 2.0) {
-        internal_test_printf(
-            "Execution time is unusually long, suggesting potential bottlenecks\n"
-            "or inefficiencies in the test suite. Optimization strategies, such as\n"
-            "test parallelization or resource allocation adjustments, could help\n"
-            "reduce time consumption.\n"
-        );
-    } else if (total_execution_time < 0.2) {
-        internal_test_printf(
-            "Execution time is abnormally short. This could mean tests were\n"
-            "skipped or misconfigured. Ensure full test coverage is executed and\n"
-            "no critical paths are being inadvertently bypassed in the\n"
-            "environment.\n"
-        );
+        case FOSSIL_TEST_SUMMARY_CI:
+            // CI Mode: Simple summary in CI-friendly format
+            internal_test_printf("::group::{bold}Execution Time (CI Mode){reset}\n");
+            internal_test_printf("EXECUTION_TIME=%02d sec %03d ms %06d us %09d ns\n", 
+                                  seconds, milliseconds, microseconds, nanoseconds);
+            internal_test_printf("::endgroup::\n");
+            break;
+
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
+            // Jellyfish Mode: Detailed analysis with insights
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}\tExecution Time Insights (Jellyfish Mode):{reset}\n");
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+
+            // Anomaly Detection & Optimization Insight
+            if (total_execution_time > 5.0) {
+                internal_test_printf(
+                    "Execution time is exceptionally long, indicating possible critical\n"
+                    "inefficiencies, extensive test coverage, or hardware constraints.\n"
+                    "Investigate parallel execution strategies, resource bottlenecks, or\n"
+                    "excessive test dependencies. Consider breaking test suites into smaller\n"
+                    "units to isolate performance-heavy areas.\n"
+                );
+            } else if (total_execution_time > 2.0) {
+                internal_test_printf(
+                    "Execution time is unusually long, suggesting potential bottlenecks\n"
+                    "or inefficiencies in the test suite. Optimization strategies, such as\n"
+                    "test parallelization or resource allocation adjustments, could help\n"
+                    "reduce time consumption.\n"
+                );
+            } else if (total_execution_time < 0.2) {
+                internal_test_printf(
+                    "Execution time is abnormally short. This could mean tests were\n"
+                    "skipped or misconfigured. Ensure full test coverage is executed and\n"
+                    "no critical paths are being inadvertently bypassed in the\n"
+                    "environment.\n"
+                );
+            }
+
+            // Footer and execution time display
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}|\tExecution time:{reset}\n");
+            internal_test_printf("{cyan}{italic}|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n{reset}", 
+                                  seconds, milliseconds, microseconds, nanoseconds);
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            break;
+
+        default:
+            internal_test_printf("{red}Unknown summary mode.{reset}\n");
+            break;
     }
-
-    // Footer and execution time display
-    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-    internal_test_printf("{cyan}{italic}|\tExecution time:{reset}\n");
-    internal_test_printf("{cyan}{italic}|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n{reset}", 
-                          (int32_t)seconds, (int32_t)milliseconds, (int32_t)microseconds, (int32_t)nanoseconds);
-    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
 }
 
 void fossil_test_summary(fossil_test_env_t *env) {
