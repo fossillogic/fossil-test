@@ -561,8 +561,6 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
             if (i + 1 < argc) {
                 if (strcmp(argv[i + 1], "plain") == 0) {
                     options.summary = FOSSIL_TEST_SUMMARY_PLAIN;
-                } else if (strcmp(argv[i + 1], "verbose") == 0) {
-                    options.summary = FOSSIL_TEST_SUMMARY_VERBOSE;
                 } else if (strcmp(argv[i + 1], "ci") == 0) {
                     options.summary = FOSSIL_TEST_SUMMARY_CI;
                 } else if (strcmp(argv[i + 1], "jellyfish") == 0) {
@@ -582,14 +580,10 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
             if (i + 1 < argc) {
                 if (strcmp(argv[i + 1], "plain") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_PLAIN;
-                } else if (strcmp(argv[i + 1], "chart") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_CHART;
-                } else if (strcmp(argv[i + 1], "table") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_TABLE;
+                } else if (strcmp(argv[i + 1], "ci") == 0) {
+                    options.format = FOSSIL_TEST_FORMAT_CI;
                 } else if (strcmp(argv[i + 1], "jellyfish") == 0) {
                     options.format = FOSSIL_TEST_FORMAT_JELLYFISH;
-                } else if (strcmp(argv[i + 1], "markdown") == 0) {
-                    options.format = FOSSIL_TEST_FORMAT_MARKDOWN;
                 }
                 i++;
             }
@@ -760,13 +754,25 @@ void fossil_fossil_test_case_teardown(fossil_test_case_t *test_case) {
 }
 
 // Runs a test suite
+// Runs a test suite
 void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
     if (!suite || !env) {
         return;
     }
 
     if (env->options.show_info) {
-        internal_test_printf("{blue,bold}Running suite: %s{reset}\n", suite->name);
+        switch (env->options.format) {
+            case FOSSIL_TEST_FORMAT_CI:
+                internal_test_printf("[SUITE] %s\n", suite->name);
+                break;
+            case FOSSIL_TEST_FORMAT_JELLYFISH:
+                internal_test_printf("{brightblue}[Suite: %s]{reset}\n", suite->name);
+                break;
+            case FOSSIL_TEST_FORMAT_PLAIN:
+            default:
+                internal_test_printf("{blue,bold}Running suite: %s{reset}\n", suite->name);
+                break;
+        }
     }
 
     if (env->options.shuffle_enabled) {
@@ -797,7 +803,18 @@ void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env) {
     }
 
     if (env->options.show_info) {
-        internal_test_printf("{cyan}Total execution time for suite %s: %.3f seconds{reset}\n", suite->name, total_execution_time);
+        switch (env->options.format) {
+            case FOSSIL_TEST_FORMAT_CI:
+                internal_test_printf("[SUITE DONE] %s (%.3fs)\n", suite->name, total_execution_time);
+                break;
+            case FOSSIL_TEST_FORMAT_JELLYFISH:
+                internal_test_printf("{cyan}⏱ Suite %s completed in %.3f seconds{reset}\n", suite->name, total_execution_time);
+                break;
+            case FOSSIL_TEST_FORMAT_PLAIN:
+            default:
+                internal_test_printf("{cyan}Total execution time for suite %s: %.3f seconds{reset}\n", suite->name, total_execution_time);
+                break;
+        }
     }
 }
 
@@ -835,9 +852,7 @@ void fossil_test_assert_internal(bool condition, const char *message, const char
 
 // Runs a test case
 void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env) {
-    if (!test_case || !env) {
-        return;
-    }
+    if (!test_case || !env) return;
 
     if (env->options.dry_run) {
         internal_test_printf("{purple}Dry run mode enabled. No tests will be executed.{reset}\n");
@@ -845,14 +860,11 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
     }
 
     test_case->status = TEST_STATUS_PASS;
-
-    // Run setup
     fossil_test_case_setup(test_case);
 
-    _ASSERT_COUNT = 0; // Reset assertion count before running the test
-
+    _ASSERT_COUNT = 0;
     clock_t start_iter = clock();
-    double timeout_seconds = 180.0; // 3-minute timeout
+    double timeout_seconds = 180.0;
 
     if (setjmp(env->env) == 0) {
         for (int i = 0; i < env->options.repeat_count; i++) {
@@ -860,41 +872,94 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
 
             clock_t now = clock();
             double elapsed_seconds = (double)(now - start_iter) / CLOCKS_PER_SEC;
-
             if (elapsed_seconds > timeout_seconds) {
                 test_case->status = TEST_STATUS_TTIMEOUT;
-                internal_test_printf("{orange}TIMEOUT: {blue}%s{reset}\n", test_case->name);
                 break;
             }
         }
     } else {
         test_case->status = TEST_STATUS_FAIL;
-        internal_test_printf("{red}FAILED: {blue}%s{reset}\n", test_case->name);
-        internal_test_printf("Failure Message: %s{reset}\n", test_case->failure_message);
     }
 
     clock_t end_iter = clock();
     test_case->execution_time = (double)(end_iter - start_iter) / CLOCKS_PER_SEC;
-
     fossil_fossil_test_case_teardown(test_case);
 
+    // Output based on format
     switch (test_case->status) {
         case TEST_STATUS_PASS:
             if (env->options.show_info) {
-                internal_test_printf("{green}PASSED: {blue}%s (%.3f seconds){reset}\n", test_case->name, test_case->execution_time);
+                switch (env->options.format) {
+                    case FOSSIL_TEST_FORMAT_PLAIN:
+                        internal_test_printf("{green}PASSED: %s (%.3fs){reset}\n", test_case->name, test_case->execution_time);
+                        break;
+                    case FOSSIL_TEST_FORMAT_CI:
+                        internal_test_printf("{green}::notice file=%s,line=0::PASSED: %s (%.3fs){reset}\n",
+                                             test_case->name, test_case->name, test_case->execution_time);
+                        break;
+                    case FOSSIL_TEST_FORMAT_JELLYFISH:
+                        internal_test_printf("{green}✔ PASS: {blue}%s {dim}(%.3fs){reset}\n",
+                                             test_case->name, test_case->execution_time);
+                        break;
+                }
             }
+            env->pass_count++;
             break;
+
         case TEST_STATUS_FAIL:
             env->fail_count++;
+            switch (env->options.format) {
+                case FOSSIL_TEST_FORMAT_PLAIN:
+                    internal_test_printf("{red}FAILED: %s{reset}\n", test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_CI:
+                    internal_test_printf("{red}::error file=%s,line=0::FAILED: %s{reset}\n",
+                                         test_case->name, test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_JELLYFISH:
+                    internal_test_printf("{red}✖ FAIL: {blue}%s{reset}\n", test_case->name);
+                    if (test_case->failure_message) {
+                        internal_test_printf("{red}  → Reason: %s{reset}\n", test_case->failure_message);
+                    }
+                    break;
+            }
             break;
+
         case TEST_STATUS_SKIP:
             env->skip_count++;
+            switch (env->options.format) {
+                case FOSSIL_TEST_FORMAT_PLAIN:
+                    internal_test_printf("{yellow}SKIPPED: %s{reset}\n", test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_CI:
+                    internal_test_printf("{yellow}::warning file=%s,line=0::SKIPPED: %s{reset}\n",
+                                         test_case->name, test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_JELLYFISH:
+                    internal_test_printf("{yellow}⚠ SKIP: {blue}%s{reset}\n", test_case->name);
+                    break;
+            }
             break;
+
         case TEST_STATUS_TTIMEOUT:
             env->timeout_count++;
+            switch (env->options.format) {
+                case FOSSIL_TEST_FORMAT_PLAIN:
+                    internal_test_printf("{orange}TIMEOUT: %s\n{reset}", test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_CI:
+                    internal_test_printf("{orange}::error file=%s,line=0::TIMEOUT: %s{reset}\n",
+                                         test_case->name, test_case->name);
+                    break;
+                case FOSSIL_TEST_FORMAT_JELLYFISH:
+                    internal_test_printf("{orange}⏳ TIMEOUT: {blue}%s{reset}\n", test_case->name);
+                    break;
+            }
             break;
+
         default:
             env->unexpected_count++;
+            internal_test_printf("{magenta}Unexpected test result for: %s{reset}\n", test_case->name);
             break;
     }
 }
@@ -1121,7 +1186,6 @@ void fossil_test_summary(fossil_test_env_t *env) {
         return;
     }
 
-    // Check dry run mode
     if (env->options.dry_run) {
         internal_test_printf("{purple}Dry run mode enabled. No tests were executed or evaluated.{reset}\n");
         return;
@@ -1131,12 +1195,11 @@ void fossil_test_summary(fossil_test_env_t *env) {
     while (suite != NULL) {
         fossil_test_case_t *test = suite->tests;
         while (test != NULL) {
-            // Count test outcomes
             if (test->status == TEST_STATUS_PASS) {
                 env->pass_count++;
             } else if (test->status == TEST_STATUS_FAIL) {
                 env->fail_count++;
-                if (test->failure_message) {
+                if (test->failure_message && env->options.summary != FOSSIL_TEST_SUMMARY_CI) {
                     internal_test_printf("{red}Test '%s' failed: %s{reset}\n", test->name, test->failure_message);
                 }
             } else if (test->status == TEST_STATUS_SKIP) {
@@ -1154,13 +1217,43 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
     env->end_execution_time = clock();
 
-    // TUI-like header and bold title
-    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
-    internal_test_printf("{cyan}{italic}\tFossil Test Summary{reset}\n");
-    internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+    switch (env->options.summary) {
+        case FOSSIL_TEST_SUMMARY_PLAIN:
+            internal_test_printf("{blue}{bold}Fossil Test Summary:{reset}\n");
+            internal_test_printf("{green}Passed:   %d{reset}\n", env->pass_count);
+            internal_test_printf("{red}Failed:   %d{reset}\n", env->fail_count);
+            internal_test_printf("{yellow}Skipped:  %d{reset}\n", env->skip_count);
+            internal_test_printf("{magenta}Timeouts: %d{reset}\n", env->timeout_count);
+            internal_test_printf("{blue}Other:    %d{reset}\n", env->unexpected_count);
+            fossil_test_comment(env);   // AI-style comments
+            fossil_test_execution_time(env);
+            break;
 
-    fossil_test_analyze(env);  // Add analysis of test results
-    fossil_test_comment(env);  // Add comments based on results
-    fossil_test_suggest(env);  // Add suggestions for improvement
-    fossil_test_execution_time(env);
+        case FOSSIL_TEST_SUMMARY_CI:
+            internal_test_printf("{blue}::group::{bold}Fossil Test Summary{reset}\n");
+            internal_test_printf("PASS=%d\n", env->pass_count);
+            internal_test_printf("FAIL=%d\n", env->fail_count);
+            internal_test_printf("SKIP=%d\n", env->skip_count);
+            internal_test_printf("TIMEOUT=%d\n", env->timeout_count);
+            internal_test_printf("OTHER=%d\n", env->unexpected_count);
+            internal_test_printf("{blue}::endgroup::\n");
+            fossil_test_comment(env);   // AI-style comments
+            fossil_test_execution_time(env);
+            break;
+
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+            internal_test_printf("{cyan}{italic}\tFossil Smart Test Summary (Jellyfish Mode){reset}\n");
+            internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
+
+            fossil_test_analyze(env);   // Deep insights
+            fossil_test_comment(env);   // AI-style comments
+            fossil_test_suggest(env);   // Suggestions for test coverage or structure
+            fossil_test_execution_time(env);
+            break;
+
+        default:
+            internal_test_printf("{red}Unknown summary mode.{reset}\n");
+            break;
+    }
 }
