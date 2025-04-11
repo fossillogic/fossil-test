@@ -1207,6 +1207,7 @@ void fossil_test_suggest(fossil_test_env_t *env) {
     // Switch for summary modes
     switch (env->options.summary) {
         case FOSSIL_TEST_SUMMARY_PLAIN:
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
             // Plain Mode: Display basic suggestions
             if (env->pass_count == 0 && env->fail_count == 0 && env->skip_count == 0 && env->timeout_count == 0 && env->empty_count > 0) {
                 internal_test_printf("{cyan}{italic}Suggestion: %s{reset}\n", empty_suite_suggestions[rand() % 50]);
@@ -1243,37 +1244,6 @@ void fossil_test_suggest(fossil_test_env_t *env) {
             }
             break;
 
-        case FOSSIL_TEST_SUMMARY_JELLYFISH:
-            // Jellyfish Mode: Detailed suggestions with insights
-            if (env->fail_count > 0) {
-                internal_test_printf(
-                    "Test failures detected. Suggestion: %s\n", failure_suggestions[rand() % 50]);
-                internal_test_printf(
-                    "Investigate test failures for potential root causes such as misconfigured tests,\n"
-                    "environmental issues, or incorrect assumptions.\n"
-                );
-            } else if (env->pass_count > 0) {
-                internal_test_printf(
-                    "Tests passed successfully. Suggestion: %s\n", success_suggestions[rand() % 50]);
-                internal_test_printf(
-                    "Consider reviewing passed tests for optimizations or any edge cases that might\n"
-                    "be worth investigating further.\n"
-                );
-            } else if (env->timeout_count > 0) {
-                internal_test_printf(
-                    "Test timeouts detected. Suggestion: %s\n", timeout_suggestions[rand() % 50]);
-                internal_test_printf(
-                    "Investigate system resources, network conditions, or specific tests that\n"
-                    "are prone to timeouts.\n"
-                );
-            } else if (env->skip_count > 0) {
-                internal_test_printf(
-                    "Skipped tests detected. Suggestion: Review skipped tests for prerequisites or intentional exclusions.\n"
-                    "Ensure tests are not being skipped due to unmet conditions.\n"
-                );
-            }
-            break;
-
         default:
             internal_test_printf("{red}Unknown summary mode.{reset}\n");
             break;
@@ -1297,6 +1267,7 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
     // Switch for summary modes
     switch (env->options.summary) {
         case FOSSIL_TEST_SUMMARY_PLAIN:
+        case FOSSIL_TEST_SUMMARY_JELLYFISH:
             // Plain Mode: Display basic execution time without additional analysis
             internal_test_printf("{blue}{bold}=================================================================================={reset}\n");
             internal_test_printf("{cyan}{italic}\tExecution Time Analysis (Plain Mode):{reset}\n");
@@ -1311,40 +1282,6 @@ void fossil_test_execution_time(fossil_test_env_t *env) {
             internal_test_printf("EXECUTION_TIME=%02d sec %03d ms %06d us %09d ns\n", 
                                   seconds, milliseconds, microseconds, nanoseconds);
             internal_test_printf("::endgroup::\n");
-            break;
-
-        case FOSSIL_TEST_SUMMARY_JELLYFISH:
-            // Jellyfish Mode: Detailed analysis with insights
-
-            // Anomaly Detection & Optimization Insight
-            if (total_execution_time > 5.0) {
-                internal_test_printf(
-                    "Execution time is exceptionally long, indicating possible critical\n"
-                    "inefficiencies, extensive test coverage, or hardware constraints.\n"
-                    "Investigate parallel execution strategies, resource bottlenecks, or\n"
-                    "excessive test dependencies. Consider breaking test suites into smaller\n"
-                    "units to isolate performance-heavy areas.\n"
-                );
-            } else if (total_execution_time > 2.0) {
-                internal_test_printf(
-                    "Execution time is unusually long, suggesting potential bottlenecks\n"
-                    "or inefficiencies in the test suite. Optimization strategies, such as\n"
-                    "test parallelization or resource allocation adjustments, could help\n"
-                    "reduce time consumption.\n"
-                );
-            } else if (total_execution_time < 0.2) {
-                internal_test_printf(
-                    "Execution time is abnormally short. This could mean tests were\n"
-                    "skipped or misconfigured. Ensure full test coverage is executed and\n"
-                    "no critical paths are being inadvertently bypassed in the\n"
-                    "environment.\n"
-                );
-            }
-
-            // Footer and execution time display
-            internal_test_printf("{cyan}{italic}|\tExecution time:{reset}\n");
-            internal_test_printf("{cyan}{italic}|\t(%02d) sec, (%03d) ms, (%06d) us, (%09d) ns\n{reset}", 
-                                  seconds, milliseconds, microseconds, nanoseconds);
             break;
 
         default:
@@ -1409,12 +1346,12 @@ void fossil_test_summary(fossil_test_env_t *env) {
 
         case FOSSIL_TEST_SUMMARY_CI:
             internal_test_printf("{blue}::group::{bold}Fossil Test Summary{reset}\n");
-            internal_test_printf("PASS=%d\n", env->pass_count);
-            internal_test_printf("FAIL=%d\n", env->fail_count);
-            internal_test_printf("SKIP=%d\n", env->skip_count);
-            internal_test_printf("TIMEOUT=%d\n", env->timeout_count);
-            internal_test_printf("OTHER=%d\n", env->unexpected_count);
-            internal_test_printf("{blue}::endgroup::\n");
+            internal_test_printf("{cyan}PASS=%d{reset}\n", env->pass_count);
+            internal_test_printf("{cyan}FAIL=%d{reset}\n", env->fail_count);
+            internal_test_printf("{cyan}SKIP=%d{reset}\n", env->skip_count);
+            internal_test_printf("{cyan}TIMEOUT=%d{reset}\n", env->timeout_count);
+            internal_test_printf("{cyan}OTHER=%d{reset}\n", env->unexpected_count);
+            internal_test_printf("{blue}::endgroup::{reset}\n");
             fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
             fossil_test_suggest(env);   // Suggestions for test coverage or structure
