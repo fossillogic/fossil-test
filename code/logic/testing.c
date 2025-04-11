@@ -886,7 +886,7 @@ void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env)
                         internal_test_printf("{green}PASSED: %s (%.3fs){reset}\n", test_case->name, test_case->execution_time);
                         break;
                     case FOSSIL_TEST_FORMAT_CI:
-                        internal_test_printf("{green}::notice file=%s,line=0::PASSED: %s (%.3fs){reset}\n",
+                        internal_test_printf("::notice file=%s,line=0::PASSED: %s (%.3fs)\n",
                                              test_case->name, test_case->name, test_case->execution_time);
                         break;
                     case FOSSIL_TEST_FORMAT_JELLYFISH:
