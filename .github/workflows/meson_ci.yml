@@ -60,7 +60,7 @@ jobs:
         run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}
 
       - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-arg='summary ci'
+        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-arg='--info'
 
       - name: Upload Test Log
         if: failure()
@@ -100,7 +100,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='--info format jellyfish summary jellyfish'
+        run: meson test -C builddir -v --test-arg='--info format ci summary ci'
   
       - name: Upload Test Log
         if: failure()
