@@ -1135,28 +1135,25 @@ void fossil_test_analyze(fossil_test_env_t *env) {
             if (env->fail_count > 0) {
                 internal_test_printf("::group::{bold}Test Failure Analysis (CI Mode){reset}\n");
                 internal_test_printf("FAILURE_RATE=%.2f%%\n", failure_rate);
-                internal_test_printf("::endgroup::\n");
             }
             if (env->timeout_count > 0) {
                 internal_test_printf("::group::{bold}Test Timeout Analysis (CI Mode){reset}\n");
                 internal_test_printf("TIMEOUT_RATE=%.2f%%\n", timeout_rate);
-                internal_test_printf("::endgroup::\n");
             }
             if (env->skip_count > 0) {
                 internal_test_printf("::group::{bold}Test Skipped Analysis (CI Mode){reset}\n");
                 internal_test_printf("SKIP_RATE=%.2f%%\n", skip_rate);
                 internal_test_printf("SKIPPED_TESTS=%d\n", env->skip_count);
-                internal_test_printf("::endgroup::\n");
             }
             if (env->pass_count > 0) {
                 internal_test_printf("::group::{bold}Test Success Analysis (CI Mode){reset}\n");
                 internal_test_printf("SUCCESS_RATE=%.2f%%\n", success_rate);
-                internal_test_printf("::endgroup::\n");
             }
 
             internal_test_printf("SUCCESS_PROBABILITY=%.2f\n", probability_of_success);
             internal_test_printf("AVERAGE_TEST_RATE=%.2f%%\n", average_rate);
             internal_test_printf("PREDICTION=%.2f%%\n", prediction);
+            internal_test_printf("::endgroup::\n");
 
             if (env->skip_count > 0) {
                 internal_test_printf("::group::{bold}Skipped Tests Analysis (CI Mode){reset}\n");
@@ -1338,21 +1335,19 @@ void fossil_test_summary(fossil_test_env_t *env) {
             internal_test_printf("{cyan}{italic}Skipped:  {yellow}%d{reset}\n", env->skip_count);
             internal_test_printf("{cyan}{italic}Timeouts: {magenta}%d{reset}\n", env->timeout_count);
             internal_test_printf("{blue}{bold}Other:    {blue}%d{reset}\n", env->unexpected_count);
-            fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
             fossil_test_suggest(env);   // Suggestions for test coverage or structure
             fossil_test_execution_time(env);
             break;
 
         case FOSSIL_TEST_SUMMARY_CI:
-            internal_test_printf("{blue}::group::{bold}Fossil Test Summary{reset}\n");
+            internal_test_printf("{blue}::group::Fossil Test Summary{reset}\n");
             internal_test_printf("{cyan}PASS=%d{reset}\n", env->pass_count);
             internal_test_printf("{cyan}FAIL=%d{reset}\n", env->fail_count);
             internal_test_printf("{cyan}SKIP=%d{reset}\n", env->skip_count);
             internal_test_printf("{cyan}TIMEOUT=%d{reset}\n", env->timeout_count);
             internal_test_printf("{cyan}OTHER=%d{reset}\n", env->unexpected_count);
             internal_test_printf("{blue}::endgroup::{reset}\n");
-            fossil_test_analyze(env);   // Deep insights
             fossil_test_comment(env);   // AI-style comments
             fossil_test_suggest(env);   // Suggestions for test coverage or structure
             fossil_test_execution_time(env);
