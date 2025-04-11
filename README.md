@@ -79,19 +79,18 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 ### Commands and Options
 
-| Command                         | Description                                                                                   | Notes                                                                                          |
+| Command                          | Description                                                                                   | Notes                                                                                         |
 |----------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | `--version`                      | Displays the current version of Fossil Test.                                                  | Useful for verifying the version of the tool in use.                                          |
 | `--help`                         | Shows help message with usage instructions.                                                   | Provides a quick reference for all available commands.                                        |
-| `--info`                         | Displays detailed information about the test run.                                             | Includes information such as test count, duration, and configuration.                        |
-| `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                          | Useful for debugging or ensuring the tests don't depend on execution order.                  |
-| `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                        | Helps identify order-dependent issues in the test suite.                                     |
-| `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.      | Ideal for verifying test selection criteria before actual execution.                         |
-| `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                               |
-| `fail-fast [enable/disable]`     | Stops execution after the first test failure.                                                 | Useful for quickly identifying regressions.                                                   |
+| `--info`                         | Displays detailed information about the test run.                                             | Includes information such as test count, duration, and configuration.                         |
+| `reverse [enable/disable]`       | Enables or disables reverse order of test execution.                                          | Useful for debugging or ensuring the tests don't depend on execution order.                   |
+| `shuffle [enable/disable]`       | Enables or disables shuffling of test execution order.                                        | Helps identify order-dependent issues in the test suite.                                      |
+| `dry-run [enable/disable]`       | Enables or disables dry run mode, showing which tests will execute without running them.      | Ideal for verifying test selection criteria before actual execution.                          |
+| `repeat <number>`                | Repeats the test suite a specified number of times.                                           | Handy for stress-testing or reproducing intermittent failures.                                |
 | `color [enable/disable]`         | Enables or disables colored output.                                                           | Enhances readability in supported terminals.                                                  |
-| `format <plain, chart, table, jellyfish, markdown>` | Selects the output format for test results.                                         | Affects how test data is displayed; useful for visual or machine-parsed output.          |
-| `summary <plain, verbose, ci, jellyfish>` | Sets the level of summary output after test execution.                                 | `ci` is minimal, `verbose` is detailed, `jellyfish` is styled, and `plain` is default.       |
+| `format <plain, ci, jellyfish>`  | Selects the output format for test results.                                                   | Affects how test data is displayed; useful for visual or machine-parsed output.               |
+| `summary <plain, ci, jellyfish>` | Sets the level of summary output after test execution.                                        | `ci` is minimal, `jellyfish` is smart test mode, and `plain` is default classic.              |
 
 ## Configure Build Options
 
