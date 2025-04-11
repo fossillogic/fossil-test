@@ -428,12 +428,12 @@ static const char *FOSSIL_TEST_COMMANDS[] = {
     "repeat    [count]          - Repeats the test suite a specified number of times\n",
     "shuffle   [enable|disable] - Enables or disables shuffling of test execution order\n",
     "dry-run   [enable|disable] - Enables or disables dry-run mode\n",
-    "summary   [option name]    - Sets the summary mode (plain, ci, jellyfish)\n",
+    "summary   [option name   ] - Sets the summary mode (plain, ci, jellyfish)\n",
     "color     [enable|disable] - Enables or disables colored output\n",
-    "format    [option name]    - Output format options (plain, ci, jellyfish)\n"
+    "format    [option name   ] - Output format options (plain, ci, jellyfish)\n"
 };
 
-static const char *FOSSIL_TEST_VERSION = "1.1.8"; // Version of Fossil Test
+static const char *FOSSIL_TEST_VERSION = "1.2.0"; // Version of Fossil Test
 static const char *FOSSIL_TEST_AUTHOR = "Michael Gene Brockus (Dreamer)"; // Author of Fossil Test
 static const char *FOSSIL_TEST_LICENSE = "Mozilla Public License 2.0"; // License of Fossil Test
 
