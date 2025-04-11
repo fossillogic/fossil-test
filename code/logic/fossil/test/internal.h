@@ -51,16 +51,13 @@ extern "C" {
 #endif
 
 typedef enum {
-    FOSSIL_TEST_FORMAT_PLAIN,    // Plain text format
-    FOSSIL_TEST_FORMAT_CHART,    // Chart format
-    FOSSIL_TEST_FORMAT_TABLE,    // Table format
-    FOSSIL_TEST_FORMAT_MARKDOWN, // Markdown format
-    FOSSIL_TEST_FORMAT_JELLYFISH // Jellyfish format
+    FOSSIL_TEST_FORMAT_PLAIN,
+    FOSSIL_TEST_FORMAT_CI,
+    FOSSIL_TEST_FORMAT_JELLYFISH
 } fossil_test_format_t;
 
 typedef enum {
     FOSSIL_TEST_SUMMARY_PLAIN,
-    FOSSIL_TEST_SUMMARY_VERBOSE,
     FOSSIL_TEST_SUMMARY_CI,
     FOSSIL_TEST_SUMMARY_JELLYFISH
 } fossil_test_summary_t;
