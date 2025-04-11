@@ -110,7 +110,6 @@ typedef struct {
     int32_t repeat_count;
     bool shuffle_enabled;
     bool dry_run;
-    bool fail_fast;
     bool color_output;
     fossil_test_summary_t summary;     // Replaces 'quiet'
     fossil_test_format_t format;       // Store the format type
