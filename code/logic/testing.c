@@ -1341,13 +1341,13 @@ void fossil_test_summary(fossil_test_env_t *env) {
             break;
 
         case FOSSIL_TEST_SUMMARY_CI:
-            internal_test_printf("{blue}::group::Fossil Test Summary{reset}\n");
-            internal_test_printf("{cyan}PASS=%d{reset}\n", env->pass_count);
-            internal_test_printf("{cyan}FAIL=%d{reset}\n", env->fail_count);
-            internal_test_printf("{cyan}SKIP=%d{reset}\n", env->skip_count);
-            internal_test_printf("{cyan}TIMEOUT=%d{reset}\n", env->timeout_count);
-            internal_test_printf("{cyan}OTHER=%d{reset}\n", env->unexpected_count);
-            internal_test_printf("{blue}::endgroup::{reset}\n");
+            internal_test_printf("::group::{bold}Fossil Test Summary{reset}\n");
+            internal_test_printf("PASS=%d\n", env->pass_count);
+            internal_test_printf("FAIL=%d\n", env->fail_count);
+            internal_test_printf("SKIP=%d\n", env->skip_count);
+            internal_test_printf("TIMEOUT=%d\n", env->timeout_count);
+            internal_test_printf("OTHER=%d\n", env->unexpected_count);
+            internal_test_printf("::endgroup::\n");
             fossil_test_comment(env);   // AI-style comments
             fossil_test_suggest(env);   // Suggestions for test coverage or structure
             fossil_test_execution_time(env);
