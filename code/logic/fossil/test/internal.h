@@ -154,6 +154,9 @@ void internal_test_putchar(char c);
  */
 void internal_test_putchar_color(char c, const char *color);
 
+// Set global color output flag
+void internal_test_set_color_output(bool enabled);
+
 #ifdef __cplusplus
 }
 #endif
