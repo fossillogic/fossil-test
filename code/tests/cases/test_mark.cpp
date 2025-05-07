@@ -58,4 +58,6 @@ FOSSIL_TEST(cpp_mark_start_and_stop) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_mark_test_cases) {
     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_start_and_stop);
+
+    FOSSIL_TEST_REGISTER(cpp_mark_suite);
 }

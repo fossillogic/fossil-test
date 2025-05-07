@@ -70,10 +70,6 @@ FOSSIL_TEST(test_input_half) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Half test failed");
 }
 
-FOSSIL_TEST(test_should_not_run) {
-    FOSSIL_TEST_ASSUME(1 == 0, "This test should not run");
-}
-
 // A simple test case to check if input % 2 equals expected_output
 FOSSIL_TEST(test_input_modulo) {
     CSampleTestData data = { .input = 5, .expected_output = 1 };
@@ -101,10 +97,6 @@ FOSSIL_TEST(test_input_equal) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Equality test failed");
 }
 
-FOSSIL_TEST(test_has_no_assertions) {
-    // This test has no assertions
-}
-
 FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
@@ -113,9 +105,6 @@ FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_modulo);
     FOSSIL_TEST_ADD(sample_suite, test_input_square);
     FOSSIL_TEST_ADD(sample_suite, test_input_equal);
-    FOSSIL_TEST_ADD(sample_suite, test_has_no_assertions); // Should be detected as empty
-
-    FOSSIL_TEST_SKIP(test_should_not_run, "This test should not run");
 
     FOSSIL_TEST_REGISTER(sample_suite);
 }

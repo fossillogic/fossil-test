@@ -14,7 +14,7 @@
  */
 #include <fossil/pizza/framework.h>
 #include <string>
-#include <cstr>
+#include <cstring>
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * *

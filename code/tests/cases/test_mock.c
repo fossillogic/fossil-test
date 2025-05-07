@@ -171,4 +171,6 @@ FOSSIL_TEST_GROUP(c_mock_test_cases) {
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_function_creation);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_alias_creation);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_struct_creation);
+
+    FOSSIL_TEST_REGISTER(c_mock_suite);
 } // end of group
