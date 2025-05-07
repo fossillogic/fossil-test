@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include <time.h>
 
+jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
+static int _ASSERT_COUNT = 0; // Counter for the number of assertions
+
 #ifndef CLOCK_MONOTONIC
 #define CLOCK_MONOTONIC 1
 #endif
@@ -173,4 +176,50 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
     }
     pizza_sys_memory_free(engine->suites);
     return FOSSIL_PIZZA_SUCCESS;
+}
+
+// -- Assume --
+
+/**
+ * @brief Internal function to handle assertions with anomaly detection.
+ * 
+ * This function is used internally by the test framework to handle assertions
+ * and detect duplicate assertions. It is not intended to be called directly.
+ * 
+ * @param condition The condition to check.
+ * @param message The message to display if the condition is false.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
+ */
+
+void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
+    static const char *last_message = NULL; // Store the last assertion message
+    static const char *last_file = NULL;    // Store the last file name
+    static int last_line = 0;               // Store the last line number
+    static const char *last_func = NULL;    // Store the last function name
+    static int anomaly_count = 0;           // Counter for anomaly detection
+
+    _ASSERT_COUNT++; // Increment the assertion count
+
+    if (!condition) {
+        // Check if the current assertion is the same or similar to the last one
+        if (last_message && strstr(message, last_message) != NULL &&
+            last_file && strcmp(last_file, file) == 0 &&
+            last_line == line &&
+            last_func && strcmp(last_func, func) == 0) {
+            anomaly_count++;
+            internal_test_printf("{yellow}Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]{reset}\n",
+                                 message, file, line, func, anomaly_count);
+        } else {
+            anomaly_count = 0; // Reset anomaly count for new assertion
+            last_message = message;
+            last_file = file;
+            last_line = line;
+            last_func = func;
+            internal_test_printf("{red}Assertion failed: %s (%s:%d in %s){reset}\n", message, file, line, func);
+        }
+
+        longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
+    }
 }

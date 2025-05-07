@@ -172,6 +172,21 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
  */
 int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
 
+
+/**
+ * @brief Internal function to handle assertions with anomaly detection.
+ * 
+ * This function is used internally by the test framework to handle assertions
+ * and detect duplicate assertions. It is not intended to be called directly.
+ * 
+ * @param condition The condition to check.
+ * @param message The message to display if the condition is false.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
+ */
+void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
+
 #ifdef __cplusplus
 }
 #endif
@@ -406,6 +421,23 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
     name##_test_group(&engine)
 #endif
 
+/**
+ * @brief Macro to assume a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and may abort the execution of the test case or test suite.
+ */
+#define FOSSIL_TEST_ASSUME(condition, message) \
+    pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
+
+/**
+ * @brief Macro to assume a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and may abort the execution of the test case or test suite.
+ */
+#define FOSSIL_TEST_ASSERT(condition, message) \
+    pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
 
 #endif
