@@ -170,7 +170,7 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
 /** Cleans up and ends the test engine.
  * @param engine Pointer to the engine instance.
  */
-void fossil_pizza_end(fossil_pizza_engine_t* engine);
+int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
 
 #ifdef __cplusplus
 }
@@ -310,17 +310,6 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
 #define FOSSIL_RUN_SUITE(suite) \
     fossil_pizza_run_suite(&suite_##suite)
 
-/** @brief Macro to run all test suites in the engine.
- * 
- * This macro is used to run all test suites that have been added to the test
- * engine. It will execute each suite and its associated test cases, collecting
- * results and printing a summary at the end.
- * 
- * @param engine The engine instance containing the test suites.
- */
-#define FOSSIL_RUN_ALL(engine) \
-    fossil_pizza_run_all(engine)
-
 /** @brief Macro to start the test engine.
  * 
  * This macro is used to initialize and start the test engine. It should be called
@@ -344,8 +333,19 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
  * 
  * @param engine The engine instance containing the test results.
  */
-#define FOSSIL_SUMMARY(engine) \
+#define FOSSIL_SUMMARY() \
     fossil_pizza_summary(&engine)
+
+/** @brief Macro to run all test suites in the engine.
+ * 
+ * This macro is used to run all test suites that have been added to the test
+ * engine. It will execute each suite and its associated test cases, collecting
+ * results and printing a summary at the end.
+ * 
+ * @param engine The engine instance containing the test suites.
+ */
+#define FOSSIL_RUN_ALL() \
+    fossil_pizza_run_all(&engine)
 
 /** @brief Macro to end the test engine.
  * 
@@ -354,7 +354,7 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
  * 
  * @param engine The engine instance to end.
  */
-#define FOSSIL_END(engine) \
+#define FOSSIL_END() \
     fossil_pizza_end(&engine)
 
 /**
@@ -368,10 +368,10 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 #ifdef __cplusplus
 #define FOSSIL_TEST_GROUP(name) \
-    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
+    extern "C" void name##_test_group(fossil_pizza_engine_t *engine)
 #else
 #define FOSSIL_TEST_GROUP(name) \
-    void name##_test_group(fossil_pizza_engine_t *_env)
+    void name##_test_group(fossil_pizza_engine_t *engine)
 #endif
 
 /**
@@ -384,10 +384,10 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 #ifdef __cplusplus
 #define FOSSIL_TEST_EXPORT(name) \
-    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
+    extern "C" void name##_test_group(fossil_pizza_engine_t *engine)
 #else
 #define FOSSIL_TEST_EXPORT(name) \
-    void name##_test_group(fossil_pizza_engine_t *_env)
+    void name##_test_group(fossil_pizza_engine_t *engine)
 #endif
 
 /**
@@ -400,10 +400,10 @@ void fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 #ifdef __cplusplus
 #define FOSSIL_TEST_IMPORT(name) \
-    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
+    extern "C" void name##_test_group(fossil_pizza_engine_t *engine)
 #else
 #define FOSSIL_TEST_IMPORT(name) \
-    name##_test_group(&_env)
+    name##_test_group(&engine)
 #endif
 
 
