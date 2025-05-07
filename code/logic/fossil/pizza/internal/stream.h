@@ -48,7 +48,7 @@ extern fossil_fstream_t *FOSSIL_STDERR;
 #define FOSSIL_STDOUT (FOSSIL_STDOUT)
 #define FOSSIL_STDERR (FOSSIL_STDERR)
 
-extern int32_t FOSSIL_IO_COLOR_ENABLE; // Flag to enable/disable color output
+extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
 
 /** 
  * This code provides a robust set of functions for formatting and manipulating terminal output, 

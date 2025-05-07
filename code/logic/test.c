@@ -560,10 +560,10 @@ fossil_test_options_t fossil_options_parse(int argc, char **argv) {
             }
         } else if (strcmp(argv[i], "color") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "enable") == 0) {
-                FOSSIL_IO_COLOR_ENABLE = true;
+                PIZZA_IO_COLOR_ENABLE = true;
                 i++;
             } else if (i + 1 < argc && strcmp(argv[i + 1], "disable") == 0) {
-                FOSSIL_IO_COLOR_ENABLE = false;
+                PIZZA_IO_COLOR_ENABLE = false;
                 i++;
             }
         } else if (strcmp(argv[i], "format") == 0) {
