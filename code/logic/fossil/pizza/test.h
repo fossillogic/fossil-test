@@ -199,7 +199,22 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * 
  * @param test_name The name of the test case to define.
  */
+
+#ifdef __cplusplus
 #define FOSSIL_TEST(test_name) \
+    extern "C" void test_name##_run(void); \
+    static fossil_pizza_case_t test_case_##test_name = { \
+        (cstr)#test_name, \
+        nullptr, \
+        nullptr, \
+        test_name##_run, \
+        0, \
+        FOSSIL_PIZZA_CASE_EMPTY \
+    }; \
+    extern "C" void test_name##_run(void)
+#else
+#define FOSSIL_TEST(test_name) \
+    void test_name##_run(void); \
     static fossil_pizza_case_t test_case_##test_name = { \
         .name = #test_name, \
         .setup = NULL, \
@@ -209,6 +224,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         .result = FOSSIL_PIZZA_CASE_EMPTY \
     }; \
     void test_name##_run(void)
+#endif
 
 /** @brief Macro to set a test case's setup function.
  * 
@@ -220,7 +236,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param before The name of the setup function to call before the test case.
  */
 #define FOSSIL_TEST_SET_BEFORE(test_name, before) \
-    test_case_##test_name.setup = setup_##before
+    test_case_##test_name.setup = setup_before_##before
 
 /** @brief Macro to set a test case's setup function.
  * 
@@ -232,7 +248,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param before The name of the setup function to call before the test case.
  */
 #define FOSSIL_TEST_SET_AFTER(test_name, after) \
-    test_case_##test_name.teardown = teardown_##after
+    test_case_##test_name.teardown = teardown_after_##after
 
 /** @brief Macro to define a test suite.
  * 
@@ -242,6 +258,23 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * 
  * @param suite_name The name of the suite to define.
  */
+#ifdef __cplusplus
+#define FOSSIL_SUITE(suite) \
+    void setup_##suite(void); \
+    void teardown_##suite(void); \
+    static fossil_pizza_suite_t suite_##suite { \
+        (cstr)#suite, \
+        nullptr, \
+        0, \
+        0, \
+        setup_##suite, \
+        teardown_##suite, \
+        0, \
+        0, \
+        0, \
+        {0} \
+    }
+#else
 #define FOSSIL_SUITE(suite) \
     void setup_##suite(void); \
     void teardown_##suite(void); \
@@ -257,6 +290,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         .total_possible = 0, \
         .score = {0} \
     }
+#endif
 
 /** @brief Macro to define a test setup function.
  * 
@@ -289,7 +323,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param test_setup The name of the setup function to define.
  */
 #define FOSSIL_BEFORE(test_setup) \
-    void setup_##test_setup(void)
+    void setup_before_##test_setup(void)
 
 /** @brief Macro to define a test teardown function.
  * 
@@ -300,7 +334,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param test_teardown The name of the teardown function to define.
  */
 #define FOSSIL_AFTER(test_teardown) \
-    void teardown_##test_teardown(void)
+    void teardown_after_##test_teardown(void)
 
 /** @brief Macro to add a test case to a specific suite.
  * 
@@ -372,6 +406,9 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
 #define FOSSIL_END() \
     fossil_pizza_end(&engine)
 
+#define FOSSIL_TEST_REGISTER(suite) \
+    fossil_pizza_add_suite(engine, suite_##suite)
+
 /**
  * @brief Macro to define a test group.
  * 
@@ -439,5 +476,44 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
 #define FOSSIL_TEST_ASSERT(condition, message) \
     pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
+
+/**
+ * @brief Macro for defining a Given step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Given step in a behavior-driven development test.
+ * The Given step is used to specify the initial context of a test case.
+ * 
+ * @param description The description of the Given step.
+ */
+#define GIVEN(description) \
+    if (0) { \
+        printf( "Given %s\n" , description); \
+    }
+
+/**
+ * @brief Macro for defining a When step in a behavior-driven development test.
+ * 
+ * This macro is used to define a When step in a behavior-driven development test.
+ * The When step is used to specify the action that is being tested.
+ * 
+ * @param description The description of the When step.
+ */
+#define WHEN(description) \
+    if (0) { \
+        printf( "When %s\n" , description); \
+    }
+
+/**
+ * @brief Macro for defining a Then step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Then step in a behavior-driven development test.
+ * The Then step is used to specify the expected outcome of a test case.
+ * 
+ * @param description The description of the Then step.
+ */
+#define THEN(description) \
+    if (0) { \
+        printf( "Then %s\n" , description); \
+    }
 
 #endif
