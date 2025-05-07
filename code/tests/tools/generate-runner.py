@@ -54,9 +54,9 @@ int main(int argc, char **argv) {
 
         # Complete with footer
         footer = """\n
-    FOSSIL_TEST_RUN();
-    FOSSIL_TEST_SUMMARY();
-    FOSSIL_TEST_END();
+    FOSSIL_RUN_ALL();
+    FOSSIL_SUMMARY();
+    return FOSSIL_END();
 } // end of main
 """
 
