@@ -13,9 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/pizza/mock.h"
-#include "fossil/pizza/internal/stream.h"
-
-extern char *_custom_fossil_test_strdup(const char *str);
+#include "fossil/pizza/common.h"
 
 // *****************************************************************************
 // Function declarations
@@ -61,7 +59,7 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         return;
     }
 
-    call->function_name = _custom_fossil_test_strdup(function_name);
+    call->function_name = pizza_io_cstr_dup(function_name);
     if (!call->function_name) {
         free(call);
         return;
@@ -75,7 +73,7 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     for (int i = 0; i < num_args; ++i) {
-        call->arguments[i] = _custom_fossil_test_strdup(arguments[i]);
+        call->arguments[i] = pizza_io_cstr_dup(arguments[i]);
         if (!call->arguments[i]) {
             for (int j = 0; j < i; ++j) {
                 free(call->arguments[j]);

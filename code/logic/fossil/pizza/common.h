@@ -22,6 +22,26 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <stdio.h>
+#include <float.h>
+#include <ctype.h>
+
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach/mach_time.h>
+#else
+#include <sys/time.h>
+#include <time.h>
+#endif
+
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #ifdef __cplusplus
 extern "C" {

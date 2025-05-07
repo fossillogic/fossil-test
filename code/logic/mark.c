@@ -13,35 +13,20 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/pizza/mark.h"
-#include "fossil/pizza/internal/stream.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <float.h>
-#include <stdarg.h>
+#include "fossil/pizza/common.h"
 
 #if defined(_WIN32)
-#include <windows.h>
 static LARGE_INTEGER frequency;
 static LARGE_INTEGER start_time;
 #elif defined(__APPLE__)
-#include <mach/mach_time.h>
 clock_t start_time;
 #else
-#include <sys/time.h>
-#include <time.h>
 clock_t start_time;
 #endif
 
-#ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 199309L
+#ifndef CLOCK_MONOTONIC
+#define CLOCK_MONOTONIC 1
 #endif
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 
 void fossil_test_start_benchmark(void) {
 #if defined(_WIN32)
