@@ -15,9 +15,9 @@
 #ifndef FOSSIL_TEST_FRAMEWORK_H
 #define FOSSIL_TEST_FRAMEWORK_H
 
-#include "marking.h"
-#include "testing.h"
-#include "mocking.h"
 #include "assume.h"
+#include "mark.h"
+#include "test.h"
+#include "mock.h"
 
 #endif
