@@ -15,7 +15,7 @@
 #ifndef FOSSIL_MARK_BENCHMARK_H
 #define FOSSIL_MARK_BENCHMARK_H
 
-#include "internal/internal.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {

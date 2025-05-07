@@ -15,410 +15,347 @@
 #ifndef FOSSIL_TEST_INTERNAL_H
 #define FOSSIL_TEST_INTERNAL_H
 
-#include "internal/internal.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @enum test_status
- * @brief Enumeration to represent the status of a test.
- * 
- * This enumeration defines the possible status values for a test, including
- * pass, fail, skip, empty, and timeout.
- */
+// --- Return codes ---
+enum {
+    FOSSIL_PIZZA_SUCCESS = 0,
+    FOSSIL_PIZZA_FAILURE = -1
+};
+
 typedef enum {
-    TEST_STATUS_PASS,
-    TEST_STATUS_FAIL,
-    TEST_STATUS_SKIP,
-    TEST_STATUS_EMPTY,
-    TEST_STATUS_TTIMEOUT
-} fossil_test_status_t;
+    FOSSIL_PIZZA_CASE_EMPTY = 0,
+    FOSSIL_PIZZA_CASE_PASS,
+    FOSSIL_PIZZA_CASE_FAIL,
+    FOSSIL_PIZZA_CASE_TIMEOUT,
+    FOSSIL_PIZZA_CASE_SKIPPED,
+    FOSSIL_PIZZA_CASE_UNEXPECTED
+} fossil_pizza_case_result_t;
 
-/**
- * @struct test_case
- * @brief Structure to hold a test case.
- * 
- * This structure contains fields to hold information about a test case, including
- * the name, test function, setup function, teardown function, status, failure message,
- * execution time, and a pointer to the next test case.
- * 
- * @var test_case::name
- * Test case name
- * 
- * @var test_case::test_func
- * Pointer to test function
- * 
- * @var test_case::setup_func
- * Pointer to setup function (optional)
- * 
- * @var test_case::teardown_func
- * Pointer to teardown function (optional)
- * 
- * @var test_case::status
- * Test status (pass, fail, skip)
- * 
- * @var test_case::failure_message
- * Failure message (if any)
- * 
- * @var test_case::execution_time
- * Execution time of the test
- * 
- * @var test_case::next
- * Pointer to next test case in the list
+// --- Pizza Data Types ---
+typedef enum {
+    FOSSIL_PIZZA_TYPE_I8,
+    FOSSIL_PIZZA_TYPE_I16,
+    FOSSIL_PIZZA_TYPE_I32,
+    FOSSIL_PIZZA_TYPE_I64,
+    FOSSIL_PIZZA_TYPE_U8,
+    FOSSIL_PIZZA_TYPE_U16,
+    FOSSIL_PIZZA_TYPE_U32,
+    FOSSIL_PIZZA_TYPE_U64,
+    FOSSIL_PIZZA_TYPE_HEX,
+    FOSSIL_PIZZA_TYPE_OCTAL,
+    FOSSIL_PIZZA_TYPE_FLOAT,
+    FOSSIL_PIZZA_TYPE_DOUBLE,
+    FOSSIL_PIZZA_TYPE_WSTR,
+    FOSSIL_PIZZA_TYPE_CSTR,
+    FOSSIL_PIZZA_TYPE_CCHAR,
+    FOSSIL_PIZZA_TYPE_WCHAR,
+    FOSSIL_PIZZA_TYPE_BOOL,
+    FOSSIL_PIZZA_TYPE_SIZE,
+    FOSSIL_PIZZA_TYPE_ANY
+} fossil_pizza_type_t;
+
+typedef struct {
+    char *data;
+    bool mutable_flag;
+} fossil_pizza_value_t;
+
+typedef struct {
+    char* name;
+    char* description;
+    char* id;
+} fossil_pizza_attribute_t;
+
+typedef struct {
+    fossil_pizza_type_t type;
+    fossil_pizza_value_t value;
+    fossil_pizza_attribute_t attribute;
+} fossil_pizza_t;
+
+// --- Score Struct ---
+typedef struct {
+    int passed;
+    int failed;
+    int skipped;
+    int timeout;
+    int unexpected;
+    int empty;
+} fossil_pizza_score_t;
+
+// --- Test Case ---
+typedef struct {
+    char* name;
+    void (*setup)(void);
+    void (*teardown)(void);
+    void (*run)(void);
+    uint64_t elapsed_ns;
+    fossil_pizza_case_result_t result;
+} fossil_pizza_case_t;
+
+// In fossil_pizza_suite_t
+typedef struct {
+    char* suite_name;
+    fossil_pizza_case_t* cases;
+    size_t count;
+    size_t capacity;
+    void (*setup)(void);
+    void (*teardown)(void);
+    uint64_t time_elapsed_ns;
+    int total_score;
+    int total_possible;
+    fossil_pizza_score_t score;
+} fossil_pizza_suite_t;
+
+// In fossil_pizza_engine_t
+typedef struct {
+    fossil_pizza_suite_t* suites;
+    size_t count;
+    size_t capacity;
+    int score_total;
+    int score_possible;
+    fossil_pizza_score_t score;
+} fossil_pizza_engine_t;
+
+// --- Initialization ---
+
+/** * Initializes a new fossil_pizza_engine_t instance.
+ * @param engine Pointer to the engine to initialize.
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return 0 on success, -1 on failure.
  */
-typedef struct test_case {
-    const char *name;                    
-    void (*test_func)(void);             
-    void (*setup_func)(void);            
-    void (*teardown_func)(void);         
-    fossil_test_status_t status;                
-    const char *failure_message;         
-    double execution_time;               
-    struct test_case *next;              
-} fossil_test_case_t;
+int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv);
 
-/**
- * @struct fossil_test_suite_t
- * @brief Structure to hold a test suite.
- * 
- * This structure contains fields to hold information about a test suite, including
- * the name, suite setup function, suite teardown function, total execution time,
- * list of test cases, and a pointer to the next test suite.
- * 
- * @var fossil_test_suite_t::name
- * Suite name
- * 
- * @var fossil_test_suite_t::suite_setup_func
- * Pointer to suite setup function (optional)
- * 
- * @var fossil_test_suite_t::suite_teardown_func
- * Pointer to suite teardown function (optional)
- * 
- * @var fossil_test_suite_t::total_execution_time
- * Total execution time of all test cases
- * 
- * @var fossil_test_suite_t::tests
- * List of test cases
- * 
- * @var fossil_test_suite_t::next
- * Pointer to next suite in the list
+// --- Adding Test Suites and Cases ---
+
+/** Adds a test suite to the engine.
+ * @param engine Pointer to the engine instance.
+ * @param suite The suite to add.
+ * @return 0 on success, -1 on failure.
  */
-typedef struct fossil_test_suite_t {
-    const char *name;
-    void (*suite_setup_func)(void);
-    void (*suite_teardown_func)(void);
-    double total_execution_time;
-    fossil_test_case_t *tests;
-    struct fossil_test_suite_t *next;
-} fossil_test_suite_t;
+int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t suite);
 
-/**
- * @struct fossil_test_env
- * @brief Structure to hold the environment for fossil tests.
- * 
- * This structure contains various fields to manage and track the state of 
- * test execution, including options, counts of different test outcomes, 
- * execution times, and a list of test suites.
- * 
- * @var fossil_test_env::options
- * Configuration options for the fossil test environment.
- * 
- * @var fossil_test_env::env
- * Environment buffer for handling non-local jumps (e.g., setjmp/longjmp).
- * 
- * @var fossil_test_env::total_tests
- * Total number of tests to be executed.
- * 
- * @var fossil_test_env::pass_count
- * Count of tests that have passed.
- * 
- * @var fossil_test_env::fail_count
- * Count of tests that have failed.
- * 
- * @var fossil_test_env::skip_count
- * Count of tests that have been skipped.
- * 
- * @var fossil_test_env::empty_count
- * Count of tests that are empty (i.e., no test cases).
- * 
- * @var fossil_test_env::timeout_count
- * Count of tests that have timed out.
- * 
- * @var fossil_test_env::unexpected_count
- * Count of tests that have encountered unexpected errors.
- * 
- * @var fossil_test_env::start_execution_time
- * Timestamp marking the start of test execution.
- * 
- * @var fossil_test_env::end_execution_time
- * Timestamp marking the end of test execution.
- * 
- * @var fossil_test_env::test_suites
- * Pointer to the list of test suites to be executed.
+/** Adds a test case to a suite.
+ * @param suite Pointer to the suite instance.
+ * @param test_case Pointer to the test case to add.
+ * @return 0 on success, -1 on failure.
  */
-typedef struct fossil_test_env {
-    fossil_test_options_t options;
-    jmp_buf env;
-    int32_t total_tests;
-    int32_t pass_count;
-    int32_t fail_count;
-    int32_t skip_count;
-    int32_t empty_count;
-    int32_t timeout_count;
-    int32_t unexpected_count;
-    double start_execution_time;
-    double end_execution_time;
-    fossil_test_suite_t *test_suites;
-} fossil_test_env_t;
+int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case);
 
-// *****************************************************************************
-// Function declarations
-// *****************************************************************************
+// --- Execution ---
 
-/**
- * @brief Creates a new test suite.
- * 
- * @param name The name of the test suite.
- * @return A pointer to the created test suite.
+/** Runs a single test suite.
+ * @param suite Pointer to the suite instance.
+ * @return 0 on success, -1 on failure.
  */
-fossil_test_suite_t* fossil_test_create_suite(const char *name);
+int fossil_pizza_run_suite(fossil_pizza_suite_t* suite);
 
-/**
- * @brief Registers a test suite with the test environment.
- * 
- * @param env The test environment.
- * @param suite The test suite to register.
+/** Runs all test suites in the engine.
+ * @param engine Pointer to the engine instance.
+ * @return 0 on success, -1 on failure.
  */
-void fossil_test_register_suite(fossil_test_env_t *env, fossil_test_suite_t *suite);
+int fossil_pizza_run_all(fossil_pizza_engine_t* engine);
 
-/**
- * @brief Adds a test case to a test suite.
- * 
- * @param suite The test suite.
- * @param test_case The test case to add.
+// --- Summary + Teardown ---
+
+/** Prints a summary of the test results.
+ * @param engine Pointer to the engine instance.
  */
-void fossil_test_add_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case);
+void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
 
-/**
- * @brief Removes a test case from a test suite.
- * 
- * @param suite The test suite.
- * @param test_case The test case to remove.
+/** Cleans up and ends the test engine.
+ * @param engine Pointer to the engine instance.
  */
-void fossil_test_remove_case(fossil_test_suite_t *suite, fossil_test_case_t *test_case);
+void fossil_pizza_end(fossil_pizza_engine_t* engine);
 
-/**
- * @brief Sets up a test case.
- * 
- * @param test_case The test case to set up.
- */
-void fossil_test_case_setup(fossil_test_case_t *test_case);
-
-/**
- * @brief Tears down a test case.
- * 
- * @param test_case The test case to tear down.
- */
-void fossil_fossil_test_case_teardown(fossil_test_case_t *test_case);
-
-/**
- * @brief Runs a test case.
- * 
- * @param test_case The test case to run.
- * @param env The test environment.
- */
-void fossil_test_run_case(fossil_test_case_t *test_case, fossil_test_env_t *env);
-
-/**
- * @brief Runs all test cases in a test suite.
- * 
- * @param suite The test suite to run.
- * @param env The test environment.
- */
-void fossil_test_run_suite(fossil_test_suite_t *suite, fossil_test_env_t *env);
-
-/**
- * @brief Internal function to handle assertions with anomaly detection.
- * 
- * This function is used internally by the test framework to handle assertions
- * and detect duplicate assertions. It is not intended to be called directly.
- * 
- * @param condition The condition to check.
- * @param message The message to display if the condition is false.
- * @param file The file name where the assertion occurred.
- * @param line The line number where the assertion occurred.
- * @param func The function name where the assertion occurred.
- */
-void fossil_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
-
-/**
- * @brief Initializes the test environment.
- * 
- * @param env The test environment to initialize.
- */
-void fossil_test_init(fossil_test_env_t *env, int argc, char **argv);
-
-/**
- * @brief Prints a summary of the test results.
- * 
- * @param env The test environment.
- */
-void fossil_test_summary(fossil_test_env_t *env);
-
-/**
- * @brief Runs all test suites and test cases in the test environment.
- * 
- * @param env The test environment.
- */
-void fossil_test_run_all(fossil_test_env_t *env);
-
-// *****************************************************************************
-// Macro definitions
-// *****************************************************************************
-
-/**
- * @brief Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
- */
-#define _FOSSIL_TEST_ASSUME(condition, message) \
-    fossil_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
-
-/**
- * @brief Macro to fail a test case.
- * 
- * This macro is used to fail a test case with a specific message. The test case
- * will be marked as failed, and the message will be displayed in the test results.
- */
-#define _FOSSIL_TEST_SKIP(test_name, message) \
-    test_name##_test_case.status = TEST_STATUS_SKIP; \
-    test_name##_test_case.failure_message = message;
-
-/**
- * @brief Macro to define a test case.
- * 
- * This macro is used to define a test case, which is a single unit of testing
- * that verifies the correctness of a specific functionality. The test case
- * should contain the logic to set up the environment, execute the functionality,
- * and verify the results.
- * 
- * @param test_name The name of the test case.
- */
 #ifdef __cplusplus
-#define _FOSSIL_TEST_CASE(test_name) \
-    void test_name##_test_func(void); \
-    fossil_test_case_t test_name##_test_case = { \
-        #test_name, \
-        test_name##_test_func, \
-        nullptr, \
-        nullptr, \
-        TEST_STATUS_PASS, \
-        nullptr, \
-        0.0, \
-        nullptr \
-    }; \
-    void test_name##_test_func(void)
-#else
-#define _FOSSIL_TEST_CASE(test_name) \
-    void test_name##_test_func(void); \
-    fossil_test_case_t test_name##_test_case = { \
-        .name = #test_name, \
-        .test_func = test_name##_test_func, \
-        .setup_func = NULL, \
-        .teardown_func = NULL, \
-        .status = TEST_STATUS_PASS, \
-        .failure_message = NULL, \
-        .execution_time = 0.0, \
-        .next = NULL \
-    }; \
-    void test_name##_test_func(void)
+}
 #endif
 
-/**
- * @brief Macro to define a test suite.
+/** @brief Macro to define a test case.
+ * 
+ * This macro is used to define a test case, which is a single unit of testing
+ * that verifies a specific functionality or behavior. The test case can be
+ * executed independently or as part of a test suite.
+ * 
+ * @param test_name The name of the test case to define.
+ */
+#define FOSSIL_TEST(test_name) \
+    static fossil_pizza_case_t test_case_##test_name = { \
+        .name = #test_name, \
+        .setup = NULL, \
+        .teardown = NULL, \
+        .run = test_name##_run, \
+        .elapsed_ns = 0, \
+        .result = FOSSIL_PIZZA_CASE_EMPTY \
+    }; \
+    void test_name##_run(void)
+
+/** @brief Macro to set a test case's setup function.
+ * 
+ * This macro is used to specify a setup function for a test case. The setup
+ * function will be called before the test case is executed, allowing for any
+ * necessary initialization or preparation.
+ * 
+ * @param test_name The name of the test case.
+ * @param before The name of the setup function to call before the test case.
+ */
+#define FOSSIL_TEST_SET_BEFORE(test_name, before) \
+    test_case_##test_name.setup = setup_##before
+
+/** @brief Macro to set a test case's setup function.
+ * 
+ * This macro is used to specify a setup function for a test case. The setup
+ * function will be called before the test case is executed, allowing for any
+ * necessary initialization or preparation.
+ * 
+ * @param test_name The name of the test case.
+ * @param before The name of the setup function to call before the test case.
+ */
+#define FOSSIL_TEST_SET_AFTER(test_name, after) \
+    test_case_##test_name.teardown = teardown_##after
+
+/** @brief Macro to define a test suite.
  * 
  * This macro is used to define a test suite, which is a collection of test cases
  * that are related to each other. The test suite can be executed as a whole to
  * verify the correctness of a group of functionalities.
  * 
- * @param suite_name The name of the test suite.
+ * @param suite_name The name of the suite to define.
  */
-#ifdef __cplusplus
-#define _FOSSIL_TEST_SUITE(suite_name) \
-    void suite_name##_setup_func(void); \
-    void suite_name##_teardown_func(void); \
-    fossil_test_suite_t suite_name = { \
-        #suite_name, \
-        suite_name##_setup_func, \
-        suite_name##_teardown_func, \
-        0.0, \
-        nullptr, \
-        nullptr \
+#define FOSSIL_SUITE(suite) \
+    void setup_##suite(void); \
+    void teardown_##suite(void); \
+    static fossil_pizza_suite_t suite_##suite = { \
+        .suite_name = #suite, \
+        .cases = NULL, \
+        .count = 0, \
+        .capacity = 0, \
+        .setup = setup_##suite, \
+        .teardown = teardown_##suite, \
+        .time_elapsed_ns = 0, \
+        .total_score = 0, \
+        .total_possible = 0, \
+        .score = {0} \
     }
-#else
-#define _FOSSIL_TEST_SUITE(suite_name) \
-    void suite_name##_setup_func(void); \
-    void suite_name##_teardown_func(void); \
-    fossil_test_suite_t suite_name = { \
-        .name = #suite_name, \
-        .suite_setup_func = suite_name##_setup_func, \
-        .suite_teardown_func = suite_name##_teardown_func, \
-        .total_execution_time = 0.0, \
-        .tests = NULL, \
-        .next = NULL \
+
+/** @brief Macro to define a test setup function.
+ * 
+ * This macro is used to define a setup function for a test case or suite. The
+ * setup function will be called before the test case or suite is executed, and
+ * can be used to initialize resources or set up the test environment.
+ * 
+ * @param test_setup The name of the setup function to define.
+ */
+#define FOSSIL_SETUP(test_setup) \
+    void setup_##test_setup(void)
+
+/** @brief Macro to define a test setup function.
+ * 
+ * This macro is used to define a setup function for a test case or suite. The
+ * setup function will be called before the test case or suite is executed, and
+ * can be used to initialize resources or set up the test environment.
+ * 
+ * @param test_setup The name of the setup function to define.
+ */
+#define FOSSIL_TEARDOWN(test_teardown) \
+    void teardown_##test_teardown(void)
+
+/** @brief Macro to define a test setup function.
+ * 
+ * This macro is used to define a setup function for a test case or suite. The
+ * setup function will be called before the test case or suite is executed, and
+ * can be used to initialize resources or set up the test environment.
+ * 
+ * @param test_setup The name of the setup function to define.
+ */
+#define FOSSIL_BEFORE(test_setup) \
+    void setup_##test_setup(void)
+
+/** @brief Macro to define a test teardown function.
+ * 
+ * This macro is used to define a teardown function for a test case or suite. The
+ * teardown function will be called after the test case or suite has been executed, and
+ * can be used to clean up resources or reset the test environment.
+ *
+ * @param test_teardown The name of the teardown function to define.
+ */
+#define FOSSIL_AFTER(test_teardown) \
+    void teardown_##test_teardown(void)
+
+/** @brief Macro to add a test case to a specific suite.
+ * 
+ * This macro is used to add a test case to a specific test suite that has been
+ * defined in the test engine. It will link the test case to the suite and
+ * ensure it is executed when the suite is run.
+ * 
+ * @param suite The name of the suite to which the test case will be added.
+ * @param test_case The name of the test case to add.
+ */
+#define FOSSIL_TEST_ADD(suite, test_case) \
+    fossil_pizza_add_case(&suite_##suite, test_case_##test_case)
+
+/** @brief Macro to run a specific test suite.
+ * 
+ * This macro is used to run a specific test suite that has been defined in the
+ * test engine. It will execute all test cases within the specified suite and
+ * print the results.
+ * 
+ * @param suite The name of the suite to run.
+ */
+#define FOSSIL_RUN_SUITE(suite) \
+    fossil_pizza_run_suite(&suite_##suite)
+
+/** @brief Macro to run all test suites in the engine.
+ * 
+ * This macro is used to run all test suites that have been added to the test
+ * engine. It will execute each suite and its associated test cases, collecting
+ * results and printing a summary at the end.
+ * 
+ * @param engine The engine instance containing the test suites.
+ */
+#define FOSSIL_RUN_ALL(engine) \
+    fossil_pizza_run_all(engine)
+
+/** @brief Macro to start the test engine.
+ * 
+ * This macro is used to initialize and start the test engine. It should be called
+ * at the beginning of the test execution to set up the environment for running
+ * tests.
+ * 
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ */
+#define FOSSIL_TEST_START(argc, argv) \
+    fossil_pizza_engine_t engine; \
+    if (fossil_pizza_start(&engine, argc, argv) != FOSSIL_PIZZA_SUCCESS) { \
+        return FOSSIL_PIZZA_FAILURE; \
     }
-#endif
 
-/**
- * @brief Macro to define a setup function for a test.
+/** @brief Macro to print a summary of the test results.
  * 
- * This macro is used to declare a setup function that will be executed before
- * each test case in a test suite. The setup function should contain the logic
- * to initialize the environment or state required for the test cases.
+ * This macro is used to print a summary of the test results after all tests have
+ * been run. It provides an overview of the number of tests passed, failed, and
+ * skipped.
  * 
- * @param name The name of the setup function.
+ * @param engine The engine instance containing the test results.
  */
-#define _FOSSIL_TEST_SETUP(name) \
-    void name##_setup_func(void)
+#define FOSSIL_SUMMARY(engine) \
+    fossil_pizza_summary(&engine)
 
-/**
- * @brief Macro to define a teardown function for a test.
+/** @brief Macro to end the test engine.
  * 
- * This macro is used to declare a teardown function that will be executed after
- * each test case in a test suite. The teardown function should contain the logic
- * to clean up the environment or state after the test cases have been executed.
+ * This macro is used to clean up and end the test engine after all tests have
+ * been run. It should be called at the end of the test execution.
  * 
- * @param name The name of the teardown function.
+ * @param engine The engine instance to end.
  */
-#define _FOSSIL_TEST_TEARDOWN(name) \
-    void name##_teardown_func(void)
-
-/**
- * @brief Macro to register a test suite with the test framework.
- * 
- * This macro is used to register a test suite with the test framework. The test
- * suite will be added to the list of test suites that will be executed by the
- * test runner.
- * 
- * @param suite The test suite to register.
- */
-#define _FOSSIL_TEST_REGISTER(suite) \
-    fossil_test_register_suite(_env, &suite)
-
-/**
- * @brief Macro to add a test case to a test suite.
- * 
- * This macro is used to add a test case to a test suite. The test case will be
- * executed when the test suite is run.
- * 
- * @param suite The test suite to add the test case to.
- * @param test The test case to add.
- */
-#define _FOSSIL_TEST_ADD(suite, test) \
-    fossil_test_add_case(&suite, &(test##_test_case))
+#define FOSSIL_END(engine) \
+    fossil_pizza_end(&engine)
 
 /**
  * @brief Macro to define a test group.
@@ -430,11 +367,11 @@ void fossil_test_run_all(fossil_test_env_t *env);
  * @param name The name of the test group.
  */
 #ifdef __cplusplus
-#define _FOSSIL_TEST_GROUP(name) \
-    extern "C" void name##_test_group(fossil_test_env_t *_env)
+#define FOSSIL_TEST_GROUP(name) \
+    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
 #else
-#define _FOSSIL_TEST_GROUP(name) \
-    void name##_test_group(fossil_test_env_t *_env)
+#define FOSSIL_TEST_GROUP(name) \
+    void name##_test_group(fossil_pizza_engine_t *_env)
 #endif
 
 /**
@@ -445,8 +382,13 @@ void fossil_test_run_all(fossil_test_env_t *env);
  * 
  * @param name The name of the test group to export.
  */
-#define _FOSSIL_TEST_EXPORT(name) \
-    void name##_test_group(fossil_test_env_t *_env)
+#ifdef __cplusplus
+#define FOSSIL_TEST_EXPORT(name) \
+    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
+#else
+#define FOSSIL_TEST_EXPORT(name) \
+    void name##_test_group(fossil_pizza_engine_t *_env)
+#endif
 
 /**
  * @brief Macro to import a test group.
@@ -456,257 +398,14 @@ void fossil_test_run_all(fossil_test_env_t *env);
  * 
  * @param name The name of the test group to import.
  */
-#define _FOSSIL_TEST_IMPORT(name) \
-    name##_test_group(&_env)
-
-// Main runner management macros
-
-/**
- * @brief Macro to start the test runner.
- * 
- * This macro is used to start the test runner, which will initialize the test
- * environment and set up the necessary structures for running the test cases.
- */
-#define _FOSSIL_TEST_START(argc, argv) \
-    fossil_test_env_t _env; \
-    fossil_test_init(&_env, argc, argv)
-
-/**
- * @brief Macro to run all test cases in the test suite.
- * 
- * This macro is used to run all test cases in the test suite. The test cases
- * will be executed in the order they were added to the suite.
- */
-#define _FOSSIL_TEST_RUN() \
-    fossil_test_run_all(&_env)
-
-/**
- * @brief Macro to print the test summary.
- * 
- * This macro is used to print the test summary, which includes the number of
- * tests that passed, failed, and were skipped.
- */
-#define _FOSSIL_TEST_SUMMARY() \
-    fossil_test_summary(&_env)
-
-/**
- * @brief Macro to end the test runner.
- * 
- * This macro is used to end the test runner, which will clean up the test
- * framework and return the appropriate exit code based on the test results.
- */
-#define _FOSSIL_TEST_END()  \
-    int fail_count = _env.fail_count; \
-    return fail_count > 0 ? EXIT_FAILURE : EXIT_SUCCESS
-
-// Behavior-driven development macros for Given, When, Then structure
-
-/**
- * @brief Macro for defining a Given step in a behavior-driven development test.
- * 
- * This macro is used to define a Given step in a behavior-driven development test.
- * The Given step is used to specify the initial context of a test case.
- * 
- * @param description The description of the Given step.
- */
-#define _GIVEN(description) \
-    if (0) { \
-        printf("Given %s\n", description); \
-    }
-
-/**
- * @brief Macro for defining a When step in a behavior-driven development test.
- * 
- * This macro is used to define a When step in a behavior-driven development test.
- * The When step is used to specify the action that is being tested.
- * 
- * @param description The description of the When step.
- */
-#define _WHEN(description) \
-    if (0) { \
-        printf("When %s\n", description); \
-    }
-
-/**
- * @brief Macro for defining a Then step in a behavior-driven development test.
- * 
- * This macro is used to define a Then step in a behavior-driven development test.
- * The Then step is used to specify the expected outcome of a test case.
- * 
- * @param description The description of the Then step.
- */
-#define _THEN(description) \
-    if (0) { \
-        printf("Then %s\n", description); \
-    }
-
-// *****************************************************************************
-// Public API Macros
-// *****************************************************************************
-
-/**
- * Macro to define a given step in a test case.
- * This macro is used to define a given step in a test case. The given step
- * should contain the setup logic required to prepare the environment for the
- * test case.
- */
-#define GIVEN(description) _GIVEN(description)
-
-/**
- * Macro to define a when step in a test case.
- * This macro is used to define a when step in a test case. The when step should
- * contain the logic to execute the functionality that is being tested.
- */
-#define WHEN(description) _WHEN(description)
-
-/**
- * Macro to define a then step in a test case.
- * This macro is used to define a then step in a test case. The then step should
- * contain the logic to verify the correctness of the functionality that was
- * tested.
- */
-#define THEN(description) _THEN(description)
-
-/**
- * Macro to define a test group.
- * This macro is used to define a test group, which is a collection of test
- * cases that are related to each other. The test group can be executed as a
- * whole to verify the correctness of a group of functionalities.
- */
-#define FOSSIL_TEST_GROUP(name) \
-    _FOSSIL_TEST_GROUP(name)
-
-/**
- * Macro to export a test group.
- * This macro is used to export a test group from a test file. The test group
- * will be available to other test files that import it.
- */
-#define FOSSIL_TEST_EXPORT(name) \
-    _FOSSIL_TEST_EXPORT(name)
-
-/**
- * Macro to import a test group.
- * This macro is used to import a test group into the test runner. The test group
- * will be executed when the test runner is run.
- */
-#define FOSSIL_TEST_IMPORT(name) \
-    _FOSSIL_TEST_IMPORT(name)
-
-/**
- * Macro to start the test runner.
- * This macro is used to start the test runner, which will initialize the test
- * framework and prepare to run all test cases in the test suite.
- */
-#define FOSSIL_TEST_START(argc, argv) \
-    _FOSSIL_TEST_START(argc, argv)
-
-/**
- * Macro to run all test cases in the test suite.
- * This macro is used to run all test cases in the test suite. The test cases
- * will be executed in sequence, and the results will be output to the console.
- */
-#define FOSSIL_TEST_RUN() \
-    _FOSSIL_TEST_RUN()
-
-/**
- * Macro to print a summary of the test results.
- * This macro is used to print a summary of the test results after all test
- * cases have been executed. The summary will include the number of test cases
- * that passed, failed, and were skipped.
- */
-#define FOSSIL_TEST_SUMMARY() \
-    _FOSSIL_TEST_SUMMARY()
-
-/**
- * Macro to end the test runner.
- * This macro is used to end the test runner, which will clean up the test
- * framework and return the appropriate exit code based on the test results.
- */
-#define FOSSIL_TEST_END() \
-    _FOSSIL_TEST_END()
-
-/**
- * Macro to define a test case.
- * This macro is used to declare a test case function that will be executed
- * as part of the test suite. The test case function should contain the logic
- * to verify the correctness of a specific functionality.
- */
-#define FOSSIL_TEST_ADD(suite, test_case) \
-    _FOSSIL_TEST_ADD(suite, test_case)
-
-/**
- * Macro to define a test suite.
- * This macro is used to declare a test suite, which is a collection of test
- * cases that are related to each other. The test suite can be executed as a
- * whole to verify the correctness of a group of functionalities.
- */
-#define FOSSIL_TEST_SUITE(suite_name) \
-    _FOSSIL_TEST_SUITE(suite_name)
-
-/**
- * Macro to register a test suite with the test framework.
- * This macro is used to register a test suite with the test framework. The test
- * suite will be added to the list of test suites that will be executed by the
- * test runner.
- */
-#define FOSSIL_TEST_REGISTER(suite) \
-    _FOSSIL_TEST_REGISTER(suite)
-
-/**
- * Macro to define a setup function for a test.
- * This macro is used to declare a setup function that will be executed before
- * each test case in a test suite. The setup function should contain the logic
- * to initialize the environment or state required for the test cases.
- */
-#define FOSSIL_SETUP(name) \
-    _FOSSIL_TEST_SETUP(name)
-
-/**
- * Macro to define a teardown function for a test.
- * This macro is used to declare a teardown function that will be executed after
- * each test case in a test suite. The teardown function should contain the logic
- * to clean up the environment or state after the test cases have been executed.
- */
-#define FOSSIL_TEARDOWN(name) \
-    _FOSSIL_TEST_TEARDOWN(name)
-
-/**
- * Macro to define a test case.
- * This macro is used to declare a test case function that will be executed
- * as part of the test suite. The test case function should contain the logic
- * to verify the correctness of a specific functionality.
- */
-#define FOSSIL_TEST_CASE(name) \
-    _FOSSIL_TEST_CASE(name)
-
-/**
- * Macro to skip a test case.
- * This macro is used to skip a test case in the test runner. The test case will
- * be marked as skipped, and the specified message will be output to the console.
- */
-#define FOSSIL_TEST_SKIP(test_name, message) \
-    _FOSSIL_TEST_SKIP(test_name, message)
-
-/**
- * Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
- */
-#define FOSSIL_TEST_ASSUME(condition, message) \
-    _FOSSIL_TEST_ASSUME(condition, message)
-
-/**
- * Macro to assert a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and abort the execution of the test case or test suite.
- */
-#define FOSSIL_TEST_ASSERT(condition, message) \
-    _FOSSIL_TEST_ASSUME(condition, message)
-
 #ifdef __cplusplus
-}
+#define FOSSIL_TEST_IMPORT(name) \
+    extern "C" void name##_test_group(fossil_pizza_engine_t *_env)
+#else
+#define FOSSIL_TEST_IMPORT(name) \
+    name##_test_group(&_env)
 #endif
+
+
 
 #endif

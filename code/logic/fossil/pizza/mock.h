@@ -15,7 +15,7 @@
 #ifndef FOSSIL_MOCK_MOCKUP_H
 #define FOSSIL_MOCK_MOCKUP_H
 
-#include "internal/internal.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
