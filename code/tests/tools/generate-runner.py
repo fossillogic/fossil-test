@@ -27,7 +27,7 @@ class TestRunnerGenerator:
         # Prepare header content for the test runner
         header = """
 // Generated Fossil Logic Test Runner
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test List
