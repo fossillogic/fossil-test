@@ -7,15 +7,15 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #ifndef FOSSIL_TEST_INTERNAL_H
 #define FOSSIL_TEST_INTERNAL_H
 
-#include "internal.h"
+#include "internal/internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -539,6 +539,171 @@ void fossil_test_run_all(fossil_test_env_t *env);
     if (0) { \
         printf(FOSSIL_TEST_COLOR_MAGENTA "Then %s\n" FOSSIL_TEST_COLOR_RESET, description); \
     }
+
+// *****************************************************************************
+// Public API Macros
+// *****************************************************************************
+
+/**
+ * Macro to define a given step in a test case.
+ * This macro is used to define a given step in a test case. The given step
+ * should contain the setup logic required to prepare the environment for the
+ * test case.
+ */
+#define GIVEN(description) _GIVEN(description)
+
+/**
+ * Macro to define a when step in a test case.
+ * This macro is used to define a when step in a test case. The when step should
+ * contain the logic to execute the functionality that is being tested.
+ */
+#define WHEN(description) _WHEN(description)
+
+/**
+ * Macro to define a then step in a test case.
+ * This macro is used to define a then step in a test case. The then step should
+ * contain the logic to verify the correctness of the functionality that was
+ * tested.
+ */
+#define THEN(description) _THEN(description)
+
+/**
+ * Macro to define a test group.
+ * This macro is used to define a test group, which is a collection of test
+ * cases that are related to each other. The test group can be executed as a
+ * whole to verify the correctness of a group of functionalities.
+ */
+#define FOSSIL_TEST_GROUP(name) \
+    _FOSSIL_TEST_GROUP(name)
+
+/**
+ * Macro to export a test group.
+ * This macro is used to export a test group from a test file. The test group
+ * will be available to other test files that import it.
+ */
+#define FOSSIL_TEST_EXPORT(name) \
+    _FOSSIL_TEST_EXPORT(name)
+
+/**
+ * Macro to import a test group.
+ * This macro is used to import a test group into the test runner. The test group
+ * will be executed when the test runner is run.
+ */
+#define FOSSIL_TEST_IMPORT(name) \
+    _FOSSIL_TEST_IMPORT(name)
+
+/**
+ * Macro to start the test runner.
+ * This macro is used to start the test runner, which will initialize the test
+ * framework and prepare to run all test cases in the test suite.
+ */
+#define FOSSIL_TEST_START(argc, argv) \
+    _FOSSIL_TEST_START(argc, argv)
+
+/**
+ * Macro to run all test cases in the test suite.
+ * This macro is used to run all test cases in the test suite. The test cases
+ * will be executed in sequence, and the results will be output to the console.
+ */
+#define FOSSIL_TEST_RUN() \
+    _FOSSIL_TEST_RUN()
+
+/**
+ * Macro to print a summary of the test results.
+ * This macro is used to print a summary of the test results after all test
+ * cases have been executed. The summary will include the number of test cases
+ * that passed, failed, and were skipped.
+ */
+#define FOSSIL_TEST_SUMMARY() \
+    _FOSSIL_TEST_SUMMARY()
+
+/**
+ * Macro to end the test runner.
+ * This macro is used to end the test runner, which will clean up the test
+ * framework and return the appropriate exit code based on the test results.
+ */
+#define FOSSIL_TEST_END() \
+    _FOSSIL_TEST_END()
+
+/**
+ * Macro to define a test case.
+ * This macro is used to declare a test case function that will be executed
+ * as part of the test suite. The test case function should contain the logic
+ * to verify the correctness of a specific functionality.
+ */
+#define FOSSIL_TEST_ADD(suite, test_case) \
+    _FOSSIL_TEST_ADD(suite, test_case)
+
+/**
+ * Macro to define a test suite.
+ * This macro is used to declare a test suite, which is a collection of test
+ * cases that are related to each other. The test suite can be executed as a
+ * whole to verify the correctness of a group of functionalities.
+ */
+#define FOSSIL_TEST_SUITE(suite_name) \
+    _FOSSIL_TEST_SUITE(suite_name)
+
+/**
+ * Macro to register a test suite with the test framework.
+ * This macro is used to register a test suite with the test framework. The test
+ * suite will be added to the list of test suites that will be executed by the
+ * test runner.
+ */
+#define FOSSIL_TEST_REGISTER(suite) \
+    _FOSSIL_TEST_REGISTER(suite)
+
+/**
+ * Macro to define a setup function for a test.
+ * This macro is used to declare a setup function that will be executed before
+ * each test case in a test suite. The setup function should contain the logic
+ * to initialize the environment or state required for the test cases.
+ */
+#define FOSSIL_SETUP(name) \
+    _FOSSIL_TEST_SETUP(name)
+
+/**
+ * Macro to define a teardown function for a test.
+ * This macro is used to declare a teardown function that will be executed after
+ * each test case in a test suite. The teardown function should contain the logic
+ * to clean up the environment or state after the test cases have been executed.
+ */
+#define FOSSIL_TEARDOWN(name) \
+    _FOSSIL_TEST_TEARDOWN(name)
+
+/**
+ * Macro to define a test case.
+ * This macro is used to declare a test case function that will be executed
+ * as part of the test suite. The test case function should contain the logic
+ * to verify the correctness of a specific functionality.
+ */
+#define FOSSIL_TEST_CASE(name) \
+    _FOSSIL_TEST_CASE(name)
+
+/**
+ * Macro to skip a test case.
+ * This macro is used to skip a test case in the test runner. The test case will
+ * be marked as skipped, and the specified message will be output to the console.
+ */
+#define FOSSIL_TEST_SKIP(test_name, message) \
+    _FOSSIL_TEST_SKIP(test_name, message)
+
+/**
+ * Macro to assume a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and may abort the execution of the test case or test suite.
+ */
+#define FOSSIL_TEST_ASSUME(condition, message) \
+    _FOSSIL_TEST_ASSUME(condition, message)
+
+/**
+ * Macro to assert a condition in a test runner.
+ * This macro is used to assert that a specific condition is true within a test
+ * runner. If the condition is false, the test runner will output the specified
+ * message and abort the execution of the test case or test suite.
+ */
+#define FOSSIL_TEST_ASSERT(condition, message) \
+    _FOSSIL_TEST_ASSUME(condition, message)
 
 #ifdef __cplusplus
 }
