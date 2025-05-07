@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_tdd_suite);
+FOSSIL_SUITE(cpp_tdd_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_tdd_suite) {
@@ -43,7 +43,7 @@ FOSSIL_TEARDOWN(cpp_tdd_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int) {
+FOSSIL_TEST(cpp_assume_run_of_int) {
     int x = 42;
     int y = 20;
 
@@ -55,7 +55,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int8) {
+FOSSIL_TEST(cpp_assume_run_of_int8) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -67,7 +67,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int8) {
     FOSSIL_TEST_ASSUME((int8_t)y <= (int8_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int16) {
+FOSSIL_TEST(cpp_assume_run_of_int16) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -79,7 +79,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int16) {
     FOSSIL_TEST_ASSUME((int16_t)y <= (int16_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int32) {
+FOSSIL_TEST(cpp_assume_run_of_int32) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -91,7 +91,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int32) {
     FOSSIL_TEST_ASSUME((int32_t)y <= (int32_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int64) {
+FOSSIL_TEST(cpp_assume_run_of_int64) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -103,7 +103,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int64) {
     FOSSIL_TEST_ASSUME((int64_t)y <= (int64_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int8_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_int8_shortcut) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -115,7 +115,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int8_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I8((int8_t)y, (int8_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int16_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_int16_shortcut) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -127,7 +127,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int16_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I16((int16_t)y, (int16_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int32_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_int32_shortcut) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -139,7 +139,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int32_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I32((int32_t)y, (int32_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_int64_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_int64_shortcut) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -151,7 +151,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_int64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_I64((int64_t)y, (int64_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint) {
+FOSSIL_TEST(cpp_assume_run_of_uint) {
     unsigned int x = 42;
     unsigned int y = 20;
 
@@ -163,7 +163,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint8) {
+FOSSIL_TEST(cpp_assume_run_of_uint8) {
     uint8_t x = 42;
     uint8_t y = 20;
 
@@ -175,7 +175,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint8) {
     FOSSIL_TEST_ASSUME((uint8_t)y <= (uint8_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint16) {
+FOSSIL_TEST(cpp_assume_run_of_uint16) {
     uint16_t x = 42;
     uint16_t y = 20;
 
@@ -187,7 +187,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint16) {
     FOSSIL_TEST_ASSUME((uint16_t)y <= (uint16_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint32) {
+FOSSIL_TEST(cpp_assume_run_of_uint32) {
     uint32_t x = 42;
     uint32_t y = 20;
 
@@ -199,7 +199,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint32) {
     FOSSIL_TEST_ASSUME((uint32_t)y <= (uint32_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint64) {
+FOSSIL_TEST(cpp_assume_run_of_uint64) {
     uint64_t x = 42;
     uint64_t y = 20;
 
@@ -211,7 +211,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint64) {
     FOSSIL_TEST_ASSUME((uint64_t)y <= (uint64_t)x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint8_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_uint8_shortcut) {
     uint8_t x = 42;
     uint8_t y = 20;
 
@@ -223,7 +223,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint8_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_U8((uint8_t)y, (uint8_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint16_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_uint16_shortcut) {
     uint16_t x = 42;
     uint16_t y = 20;
 
@@ -235,7 +235,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint16_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_U16((uint16_t)y, (uint16_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint32_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_uint32_shortcut) {
     uint32_t x = 42;
     uint32_t y = 20;
 
@@ -247,7 +247,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint32_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_U32((uint32_t)y, (uint32_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_uint64_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_uint64_shortcut) {
     uint64_t x = 42;
     uint64_t y = 20;
 
@@ -259,7 +259,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_uint64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_U64((uint64_t)y, (uint64_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex) {
+FOSSIL_TEST(cpp_assume_run_of_hex) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -271,7 +271,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex8) {
+FOSSIL_TEST(cpp_assume_run_of_hex8) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -283,7 +283,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex8) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex16) {
+FOSSIL_TEST(cpp_assume_run_of_hex16) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -295,7 +295,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex16) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex32) {
+FOSSIL_TEST(cpp_assume_run_of_hex32) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -307,7 +307,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex32) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex64) {
+FOSSIL_TEST(cpp_assume_run_of_hex64) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -319,7 +319,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex64) {
     FOSSIL_TEST_ASSUME(y <= x, "Should have passed the test case");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex8_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_hex8_shortcut) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -331,7 +331,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex8_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_H8((int)y, (int)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex16_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_hex16_shortcut) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -343,7 +343,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex16_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_H16((int)y, (int)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex32_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_hex32_shortcut) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -355,7 +355,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex32_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_H32((int)y, (int)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_hex64_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_hex64_shortcut) {
     int x = 0x2A; // Hex for 42
     int y = 0x14; // Hex for 20
 
@@ -367,7 +367,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_hex64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_H64((int)y, (int)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal8_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_octal8_shortcut) {
     int8_t x = 042; // Octal for 42
     int8_t y = 020; // Octal for 20
 
@@ -379,7 +379,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_octal8_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_O8((int8_t)y, (int8_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal16_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_octal16_shortcut) {
     int16_t x = 042; // Octal for 42
     int16_t y = 020; // Octal for 20
 
@@ -391,7 +391,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_octal16_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_O16((int16_t)y, (int16_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal32_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_octal32_shortcut) {
     int32_t x = 042; // Octal for 42
     int32_t y = 020; // Octal for 20
 
@@ -403,7 +403,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_octal32_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_O32((int32_t)y, (int32_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_octal64_shortcut) {
+FOSSIL_TEST(cpp_assume_run_of_octal64_shortcut) {
     int64_t x = 042; // Octal for 42
     int64_t y = 020; // Octal for 20
 
@@ -415,7 +415,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_octal64_shortcut) {
     ASSUME_ITS_LESS_OR_EQUAL_O64((int64_t)y, (int64_t)x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_float32) {
+FOSSIL_TEST(cpp_assume_run_of_float32) {
     float x = 42.0f;
     float y = 20.0f;
 
@@ -427,7 +427,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_float32) {
     ASSUME_ITS_LESS_OR_EQUAL_F32(y, x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_float64) {
+FOSSIL_TEST(cpp_assume_run_of_float64) {
     double x = 42.0;
     double y = 20.0;
 
@@ -439,7 +439,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_float64) {
     ASSUME_ITS_LESS_OR_EQUAL_F64(y, x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_true) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_true) {
     bool x = true;
     bool y = false;
 
@@ -450,7 +450,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_true) {
     ASSUME_NOT_FALSE(x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_false) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_false) {
     bool x = false;
     bool y = true;
 
@@ -461,7 +461,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_false) {
     ASSUME_NOT_TRUE(x);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_expression) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_expression) {
     int a = 5;
     int b = 10;
 
@@ -472,7 +472,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_expression) {
     ASSUME_NOT_FALSE(a < b);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_expression_negation) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_expression_negation) {
     int a = 5;
     int b = 10;
 
@@ -483,7 +483,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_expression_negation) {
     ASSUME_NOT_FALSE(!(a > b));
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_complex_expression) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_complex_expression) {
     int a = 5;
     int b = 10;
     int c = 15;
@@ -495,7 +495,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_complex_expression) {
     ASSUME_NOT_FALSE((a < b) && (b < c));
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_complex_expression_negation) {
+FOSSIL_TEST(cpp_assume_run_of_boolean_complex_expression_negation) {
     int a = 5;
     int b = 10;
     int c = 15;
@@ -507,7 +507,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_boolean_complex_expression_negation) {
     ASSUME_NOT_FALSE(!((a > b) || (b > c)));
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_null_pointer) {
+FOSSIL_TEST(cpp_assume_run_of_null_pointer) {
     void *ptr = nullptr;
 
     // Test cases
@@ -515,7 +515,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_null_pointer) {
     ASSUME_NOT_CNULL((void *)0x1); // Assuming a non-nullptr pointer
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_pointer_equality) {
+FOSSIL_TEST(cpp_assume_run_of_pointer_equality) {
     int a = 42;
     int *ptr1 = &a;
     int *ptr2 = &a;
@@ -526,7 +526,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_pointer_equality) {
     ASSUME_NOT_EQUAL_PTR(ptr1, ptr3);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_size_equality) {
+FOSSIL_TEST(cpp_assume_run_of_size_equality) {
     size_t size1 = 42;
     size_t size2 = 42;
     size_t size3 = 20;
@@ -536,7 +536,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_size_equality) {
     ASSUME_NOT_EQUAL_SIZE(size1, size3);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_size_comparison) {
+FOSSIL_TEST(cpp_assume_run_of_size_comparison) {
     size_t size1 = 42;
     size_t size2 = 20;
 
@@ -549,7 +549,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_size_comparison) {
     ASSUME_ITS_MORE_OR_EQUAL_SIZE(size1, size1);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range) {
+FOSSIL_TEST(cpp_assume_run_of_within_range) {
     int x = 42;
     int y = 20;
 
@@ -558,7 +558,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range) {
     ASSUME_NOT_WITHIN_RANGE(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u8) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_u8) {
     uint8_t x = 42;
     uint8_t y = 20;
 
@@ -567,7 +567,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u8) {
     ASSUME_NOT_WITHIN_RANGE_U8(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u16) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_u16) {
     uint16_t x = 42;
     uint16_t y = 20;
 
@@ -576,7 +576,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u16) {
     ASSUME_NOT_WITHIN_RANGE_U16(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u32) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_u32) {
     uint32_t x = 42;
     uint32_t y = 20;
 
@@ -585,7 +585,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u32) {
     ASSUME_NOT_WITHIN_RANGE_U32(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u64) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_u64) {
     uint64_t x = 42;
     uint64_t y = 20;
 
@@ -594,7 +594,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_u64) {
     ASSUME_NOT_WITHIN_RANGE_U64(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i8) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_i8) {
     int8_t x = 42;
     int8_t y = 20;
 
@@ -603,7 +603,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i8) {
     ASSUME_NOT_WITHIN_RANGE_I8(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i16) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_i16) {
     int16_t x = 42;
     int16_t y = 20;
 
@@ -612,7 +612,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i16) {
     ASSUME_NOT_WITHIN_RANGE_I16(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i32) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_i32) {
     int32_t x = 42;
     int32_t y = 20;
 
@@ -621,7 +621,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i32) {
     ASSUME_NOT_WITHIN_RANGE_I32(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i64) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_i64) {
     int64_t x = 42;
     int64_t y = 20;
 
@@ -630,7 +630,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_i64) {
     ASSUME_NOT_WITHIN_RANGE_I64(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_f32) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_f32) {
     float x = 42.0f;
     float y = 20.0f;
 
@@ -639,7 +639,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_f32) {
     ASSUME_NOT_WITHIN_RANGE_F32(y, 21.0f, 30.0f);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_f64) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_f64) {
     double x = 42.0;
     double y = 20.0;
 
@@ -648,7 +648,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_f64) {
     ASSUME_NOT_WITHIN_RANGE_F64(y, 21.0, 30.0);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_bchar) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_bchar) {
     uint8_t x = 42;
     uint8_t y = 20;
 
@@ -657,7 +657,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_bchar) {
     ASSUME_NOT_WITHIN_RANGE_BCHAR(y, 21, 30);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_cchar) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_cchar) {
     char x = 'A';
     char y = 'B';
 
@@ -666,7 +666,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_cchar) {
     ASSUME_NOT_WITHIN_RANGE_CCHAR(y, 'C', 'Z');
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_wchar) {
+FOSSIL_TEST(cpp_assume_run_of_within_range_wchar) {
     wchar_t x = L'A';
     wchar_t y = L'B';
 
@@ -675,7 +675,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_within_range_wchar) {
     ASSUME_NOT_WITHIN_RANGE_WCHAR(y, L'C', L'Z');
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_wstr) {
+FOSSIL_TEST(cpp_assume_run_of_wstr) {
     const wchar_t *str1 = L"Hello";
     const wchar_t *str2 = L"Hello";
     const wchar_t *str3 = L"World";
@@ -686,7 +686,7 @@ FOSSIL_TEST_CASE(cpp_assume_run_of_wstr) {
     ASSUME_ITS_LENGTH_EQUAL_WSTR(str1, 5);
 } // end case
 
-FOSSIL_TEST_CASE(cpp_assume_run_of_cstr) {
+FOSSIL_TEST(cpp_assume_run_of_cstr) {
     std::string str1 = "Hello";
     std::string str2 = "Hello";
     std::string str3 = "World";

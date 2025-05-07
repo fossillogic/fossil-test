@@ -24,7 +24,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_mark_suite);
+FOSSIL_SUITE(cpp_mark_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_mark_suite) {
@@ -45,7 +45,7 @@ FOSSIL_TEARDOWN(cpp_mark_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // A test case to check if the benchmark stop works correctly
-FOSSIL_TEST_CASE(cpp_mark_start_and_stop) {
+FOSSIL_TEST(cpp_mark_start_and_stop) {
     std::string benchmark_stop_test_name = "stop_test";
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
@@ -58,6 +58,4 @@ FOSSIL_TEST_CASE(cpp_mark_start_and_stop) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_mark_test_cases) {
     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_start_and_stop);
-
-    FOSSIL_TEST_REGISTER(cpp_mark_suite);
 }

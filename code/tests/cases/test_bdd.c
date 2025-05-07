@@ -22,7 +22,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(bdd_suite);
+FOSSIL_SUITE(bdd_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(bdd_suite) {
@@ -42,7 +42,7 @@ FOSSIL_TEARDOWN(bdd_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(xbdd_logic_test) {
+FOSSIL_TEST(xbdd_logic_test) {
     GIVEN("a valid statement is passed") {
         // Set up the context
         bool givenExecuted = true;
@@ -63,7 +63,7 @@ FOSSIL_TEST_CASE(xbdd_logic_test) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_user_account) {
+FOSSIL_TEST(xbdd_user_account) {
     GIVEN("a user's account with sufficient balance") {
         // Set up the context
         float accountBalance = 500.0;
@@ -85,7 +85,7 @@ FOSSIL_TEST_CASE(xbdd_user_account) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_empty_cart) {
+FOSSIL_TEST(xbdd_empty_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -103,7 +103,7 @@ FOSSIL_TEST_CASE(xbdd_empty_cart) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_valid_login) {
+FOSSIL_TEST(xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";
@@ -137,7 +137,7 @@ FOSSIL_TEST_CASE(xbdd_valid_login) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_invalid_login) {
+FOSSIL_TEST(xbdd_invalid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
         const char* validUsername = "user123";
@@ -158,7 +158,7 @@ FOSSIL_TEST_CASE(xbdd_invalid_login) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_insufficient_balance) {
+FOSSIL_TEST(xbdd_insufficient_balance) {
     GIVEN("a user's account with insufficient balance") {
         // Set up the context
         float accountBalance = 100.0;
@@ -181,7 +181,7 @@ FOSSIL_TEST_CASE(xbdd_insufficient_balance) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_add_multiple_items_to_cart) {
+FOSSIL_TEST(xbdd_add_multiple_items_to_cart) {
     GIVEN("a user with an empty shopping cart") {
         // Set up the context
         int cartItemCount = 0;
@@ -198,7 +198,7 @@ FOSSIL_TEST_CASE(xbdd_add_multiple_items_to_cart) {
     }
 } // end of case
 
-FOSSIL_TEST_CASE(xbdd_remove_item_from_cart) {
+FOSSIL_TEST(xbdd_remove_item_from_cart) {
     GIVEN("a user with a shopping cart containing 2 items") {
         // Set up the context
         int cartItemCount = 2;

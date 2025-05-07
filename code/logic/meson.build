@@ -1,10 +1,8 @@
 dir = include_directories('.')
 
-test_code = ['mock.c', 'test.c', 'mark.c',
-            # internal source files below
-             'stream.c']
+test_code = ['mock.c', 'test.c', 'mark.c', 'common.c']
 
-fossil_test_lib = library('fossil-test',
+fossil_test_lib = library('pizza-test',
     test_code,
     install: true,
     include_directories: dir)

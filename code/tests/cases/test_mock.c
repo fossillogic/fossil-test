@@ -24,7 +24,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_mock_suite);
+FOSSIL_SUITE(c_mock_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(c_mock_suite) {
@@ -56,7 +56,7 @@ FOSSIL_MOCK_FUNC(int, mock_function, int a, int b) {
 // Domain-Driven Design (DDD) usage in the Fossil Logic project.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(c_mock_call_list_initialization) {
+FOSSIL_TEST(c_mock_call_list_initialization) {
     // Example of initializing a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
     fossil_mock_init(&list);
@@ -67,7 +67,7 @@ FOSSIL_TEST_CASE(c_mock_call_list_initialization) {
     FOSSIL_TEST_ASSUME(list.size == 0, "fossil_mock_calllist_t size should be 0 after initialization");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_call_list_addition) {
+FOSSIL_TEST(c_mock_call_list_addition) {
     // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
     fossil_mock_init(&list);
@@ -82,7 +82,7 @@ FOSSIL_TEST_CASE(c_mock_call_list_addition) {
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[1], "arg2") == 0, "Second argument should be 'arg2'");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_call_list_destruction) {
+FOSSIL_TEST(c_mock_call_list_destruction) {
     // Example of destroying a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
     fossil_mock_init(&list);
@@ -95,7 +95,7 @@ FOSSIL_TEST_CASE(c_mock_call_list_destruction) {
     fossil_mock_destroy(&list); // not allowed to access due to the object being freed
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_call_list_initialization_macro) {
+FOSSIL_TEST(c_mock_call_list_initialization_macro) {
     // Example of initializing a fossil_mock_calllist_t using the macro
     fossil_mock_calllist_t list;
     MOCK_INIT(list);
@@ -106,7 +106,7 @@ FOSSIL_TEST_CASE(c_mock_call_list_initialization_macro) {
     FOSSIL_TEST_ASSUME(list.size == 0, "fossil_mock_calllist_t size should be 0 after initialization");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_call_list_addition_macro) {
+FOSSIL_TEST(c_mock_call_list_addition_macro) {
     // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t using the macro
     fossil_mock_calllist_t list;
     MOCK_INIT(list);
@@ -121,7 +121,7 @@ FOSSIL_TEST_CASE(c_mock_call_list_addition_macro) {
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[1], "arg2") == 0, "Second argument should be 'arg2'");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_call_list_destruction_macro) {
+FOSSIL_TEST(c_mock_call_list_destruction_macro) {
     // Example of destroying a fossil_mock_calllist_t using the macro
     fossil_mock_calllist_t list;
     MOCK_INIT(list);
@@ -135,12 +135,12 @@ FOSSIL_TEST_CASE(c_mock_call_list_destruction_macro) {
     MOCK_DESTROY(list); // not allowed to access due to the object being freed
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_function_creation) {
+FOSSIL_TEST(c_mock_function_creation) {
     // Test cases
     FOSSIL_TEST_ASSUME(fossil_mockup_mock_function(2, 3) == 5, "Mock function should return the sum of its arguments");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_alias_creation) {
+FOSSIL_TEST(c_mock_alias_creation) {
     // Example of creating a type alias using the macro
     
 
@@ -149,7 +149,7 @@ FOSSIL_TEST_CASE(c_mock_alias_creation) {
     FOSSIL_TEST_ASSUME(x == 10, "Mock alias should behave like the original type");
 } // end case
 
-FOSSIL_TEST_CASE(c_mock_struct_creation) {
+FOSSIL_TEST(c_mock_struct_creation) {
     // Test cases
     MockStruct instance;
     instance.a = 5;
@@ -171,6 +171,4 @@ FOSSIL_TEST_GROUP(c_mock_test_cases) {
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_function_creation);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_alias_creation);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_struct_creation);
-
-    FOSSIL_TEST_REGISTER(c_mock_suite);
 } // end of group

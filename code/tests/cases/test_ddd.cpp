@@ -90,7 +90,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_ddd_suite);
+FOSSIL_SUITE(cpp_ddd_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_ddd_suite) {
@@ -109,7 +109,7 @@ FOSSIL_TEARDOWN(cpp_ddd_suite) {
 // Domain-Driven Design (DDD) usage in the Fossil Logic project.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(cpp_ddd_entity_creation) {
+FOSSIL_TEST(cpp_ddd_entity_creation) {
     // Example of creating an entity
     Entity entity(42, "Sample Entity");
 
@@ -118,7 +118,7 @@ FOSSIL_TEST_CASE(cpp_ddd_entity_creation) {
     FOSSIL_TEST_ASSUME(entity.name == "Sample Entity", "Entity name should be 'Sample Entity'");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_ddd_value_object_equality) {
+FOSSIL_TEST(cpp_ddd_value_object_equality) {
     // Example of value object equality
     ValueObject vo1(10, 20);
     ValueObject vo2(10, 20);
@@ -127,7 +127,7 @@ FOSSIL_TEST_CASE(cpp_ddd_value_object_equality) {
     FOSSIL_TEST_ASSUME(vo1 == vo2, "Value objects should be equal");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_ddd_aggregate_root_behavior) {
+FOSSIL_TEST(cpp_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
     AggregateRoot ar(1);
     ar.addChild(Entity(2, "Child Entity"));
@@ -137,7 +137,7 @@ FOSSIL_TEST_CASE(cpp_ddd_aggregate_root_behavior) {
     FOSSIL_TEST_ASSUME(ar.children[0].id == 2, "Child entity ID should be 2");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_ddd_repository_usage) {
+FOSSIL_TEST(cpp_ddd_repository_usage) {
     // Example of repository usage
     Repository repo;
     Entity entity(1, "Repo Entity");
@@ -148,7 +148,7 @@ FOSSIL_TEST_CASE(cpp_ddd_repository_usage) {
     FOSSIL_TEST_ASSUME(repo.get(1).id == 1, "Retrieved entity ID should be 1");
 } // end case
 
-FOSSIL_TEST_CASE(cpp_ddd_service_layer) {
+FOSSIL_TEST(cpp_ddd_service_layer) {
     // Example of service layer usage
     Service service;
     Entity entity(1, "Service Entity");
