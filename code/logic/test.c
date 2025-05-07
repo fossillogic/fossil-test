@@ -12,8 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/testing.h"
-#include "fossil/test/internal/stream.h"
+#include "fossil/pizza/test.h"
+#include "fossil/pizza/internal/stream.h"
 
 // Array of messages for each category
 const char *sarcastic_messages[] = {

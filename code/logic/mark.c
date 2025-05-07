@@ -12,7 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/marking.h"
+#include "fossil/pizza/mark.h"
+#include "fossil/pizza/internal/stream.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

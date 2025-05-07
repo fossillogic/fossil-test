@@ -12,7 +12,7 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/internal/stream.h"
+#include "fossil/pizza/internal/stream.h"
 
 int32_t FOSSIL_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 

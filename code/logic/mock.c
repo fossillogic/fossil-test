@@ -12,7 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/mocking.h"
+#include "fossil/pizza/mock.h"
+#include "fossil/pizza/internal/stream.h"
 
 extern char *_custom_fossil_test_strdup(const char *str);
 
