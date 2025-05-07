@@ -511,7 +511,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
  */
 #define _GIVEN(description) \
     if (0) { \
-        printf(FOSSIL_TEST_COLOR_MAGENTA "Given %s\n" FOSSIL_TEST_COLOR_RESET, description); \
+        printf("Given %s\n", description); \
     }
 
 /**
@@ -524,7 +524,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
  */
 #define _WHEN(description) \
     if (0) { \
-        printf(FOSSIL_TEST_COLOR_MAGENTA "When %s\n" FOSSIL_TEST_COLOR_RESET, description); \
+        printf("When %s\n", description); \
     }
 
 /**
@@ -537,7 +537,7 @@ void fossil_test_run_all(fossil_test_env_t *env);
  */
 #define _THEN(description) \
     if (0) { \
-        printf(FOSSIL_TEST_COLOR_MAGENTA "Then %s\n" FOSSIL_TEST_COLOR_RESET, description); \
+        printf("Then %s\n", description); \
     }
 
 // *****************************************************************************
