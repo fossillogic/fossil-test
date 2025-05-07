@@ -157,12 +157,20 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
 }
 
 // --- End / Cleanup ---
-void fossil_pizza_end(fossil_pizza_engine_t* engine) {
-    if (!engine) return;
+int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
+    if (!engine) return FOSSIL_PIZZA_FAILURE;
     for (size_t i = 0; i < engine->count; ++i) {
-        pizza_sys_memory_free(engine->suites[i].cases);
+        fossil_pizza_suite_t* suite = &engine->suites[i];
+        if (suite->cases) {
+            for (size_t j = 0; j < suite->count; ++j) {
+                fossil_pizza_case_t* test_case = &suite->cases[j];
+                if (test_case->teardown) {
+                    test_case->teardown();
+                }
+            }
+            pizza_sys_memory_free(suite->cases);
+        }
     }
     pizza_sys_memory_free(engine->suites);
-    engine->suites = NULL;
-    engine->count = engine->capacity = 0;
+    return FOSSIL_PIZZA_SUCCESS;
 }
