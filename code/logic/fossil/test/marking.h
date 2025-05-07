@@ -9,7 +9,7 @@
  * Author: Michael Gene Brockus (Dreamer)
  * Date: 04/05/2014
  *
- * Copyright (C) 2014 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #ifndef FOSSIL_MARK_BENCHMARK_H

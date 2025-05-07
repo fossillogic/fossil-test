@@ -1,17 +1,15 @@
 /*
  * -----------------------------------------------------------------------------
- * File: framework.hpp
  * Project: Fossil Logic
- * Description: This file implments the framework for mockup testing.
- * 
+ *
  * This file is part of the Fossil Logic project, which aims to develop high-
  * performance, cross-platform applications and libraries. The code contained
  * herein is subject to the terms and conditions defined in the project license.
- * 
+ *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
- * 
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Date: 04/05/2014
+ *
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #include "fossil/test/mocking.h"

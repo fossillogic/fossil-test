@@ -7,12 +7,12 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/test/internal.h"
+#include "fossil/test/internal/internal.h"
 
 #define FOSSIL_TEST_BUFFER_SIZE 1000
 
