@@ -33,6 +33,7 @@ static uint64_t fossil_pizza_now_ns(void) {
 
 // --- Start ---
 int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
+    (void)argc;
     if (!engine || !argv) return FOSSIL_PIZZA_FAILURE;
 
     pizza_sys_memory_set(engine, 0, sizeof(*engine));
@@ -211,19 +212,6 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 }
 
 // -- Assume --
-
-/**
- * @brief Internal function to handle assertions with anomaly detection.
- * 
- * This function is used internally by the test framework to handle assertions
- * and detect duplicate assertions. It is not intended to be called directly.
- * 
- * @param condition The condition to check.
- * @param message The message to display if the condition is false.
- * @param file The file name where the assertion occurred.
- * @param line The line number where the assertion occurred.
- * @param func The function name where the assertion occurred.
- */
 
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
     static const char *last_message = NULL; // Store the last assertion message
