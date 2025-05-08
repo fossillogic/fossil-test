@@ -34,11 +34,6 @@ pizza_sys_memory_t pizza_sys_memory_alloc(size_t size) {
 }
 
 pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size) {
-    if (ptr == NULL) {
-        fprintf(stderr, "Error: pizza_sys_memory_realloc() - Pointer is NULL.\n");
-        return NULL;
-    }
-
     pizza_sys_memory_t new_ptr = realloc(ptr, size);
     if (!new_ptr && size > 0) {
         fprintf(stderr, "Error: pizza_sys_memory_realloc() - Memory reallocation failed.\n");
