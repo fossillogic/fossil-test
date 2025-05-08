@@ -48,6 +48,221 @@ extern "C" {
 #endif
 
 // *****************************************************************************
+// Safe operations
+// *****************************************************************************
+
+// Ensure null pointer definitions across C and C++ environments
+#ifndef FOSSIL_CNULL
+
+/**
+ * @brief Safe and consistent null pointer definition for modern C++ and C standards.
+ *
+ * This section defines `null` for both C and C++ environments. 
+ * The definitions ensure compatibility across different language versions, providing 
+ * a clear and consistent way to represent null pointers. 
+ *
+ * - **C23 and Later:** In C23 (`__STDC_VERSION__ >= 202311L`), `null` is introduced 
+ *   as a type-safe null pointer constant. The `null` macro directly maps to this 
+ *   standard definition.
+ *
+ * - **Older C Standards (C11 and Below):** If C23 is not detected, `null` is defined 
+ *   using `((void*)0)`, which is the traditional representation of a null pointer.
+ *   and portable representation of a null pointer in C.
+ *
+ * This abstraction guarantees that null pointer values are handled consistently 
+ * across different compilers and platforms, reducing the risk of undefined behavior 
+ * in pointer operations.
+ */
+#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
+    #define null    nullptr
+#else
+    #define null    ((void*)0)
+#endif
+
+#endif // FOSSIL_CNULL
+
+/**
+ * @brief Nullify a pointer safely.
+ * 
+ * Ensures that the pointer is explicitly set to `null`.
+ */
+#define nullify(ptr) ((ptr) = null)
+
+/**
+ * @brief Check if a pointer is not null safely.
+ *
+ * Prevents misuse of potentially null pointers.
+ */
+#define notnull(ptr) ((ptr) != null)
+
+/**
+ * @brief Option-like behavior to return a pointer or a default value.
+ *
+ * Mimics Rust's `Option::unwrap_or()` safely.
+ */
+#define unwrap_or(ptr, default_val) ((ptr) ? (ptr) : (default_val))
+
+/**
+ * @brief Unwraps a pointer safely or terminates if it's null.
+ *
+ * Mimics Rust's `Option::unwrap()`.
+ */
+#define unwrap(ptr) ((notnull(ptr)) ? (ptr) : (fprintf(stderr, "Fatal error: called unwrap() on a null pointer at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), null))
+
+/**
+ * @brief Safely casts one pointer type to another with null-checking.
+ *
+ * Mimics Rust's `as` with additional null safety. If the input is `null`,
+ * it returns `null` instead of attempting an invalid cast.
+ *
+ * @param type The target type for the cast.
+ * @param ptr The pointer to cast.
+ * @return The casted pointer or `null` if the input pointer is null.
+ */
+#ifdef __cplusplus
+    #define safe_cast(type, ptr) ((notnull(ptr)) ? (static_cast<type>(ptr)) : null)
+#else
+    #define safe_cast(type, ptr) ((notnull(ptr)) ? ((type)(ptr)) : null)
+#endif
+
+/**
+ * @brief Marks a variable as intentionally unused to prevent warnings.
+ */
+#ifndef unused
+    #if defined(__GNUC__) || defined(__clang__)
+        #define unused(x) (void)(x)
+    #else
+        #define unused(x) /* no-op */
+    #endif
+#endif
+
+/**
+ * @brief Compiler hints for nullable and nonnull values.
+ *
+ * Provides stronger safety checks at compile time.
+ */
+#if defined(__clang__) || defined(__GNUC__)
+    #define nullable __attribute__((nullable))
+    #define nonnull  __attribute__((nonnull))
+#elif defined(_MSC_VER)
+    #define nullable _Null_terminated_
+    #define nonnull  _In_
+#else
+    #define nullable
+    #define nonnull
+#endif
+
+/**
+ * @brief Compiler branch prediction hints for likely and unlikely conditions.
+ *
+ * Helps the compiler optimize branches based on expected conditions.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+    #define likely(x)   __builtin_expect(!!(x), 1)
+    #define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+    #define likely(x)   (x)
+    #define unlikely(x) (x)
+#endif
+
+// Safe string and character constants
+
+/**
+ * @brief Null terminators for C and wide strings.
+ */
+#define term '\0'
+
+/**
+ * @brief Newline constants for C and wide strings.
+ */
+#define newline '\n'
+
+/**
+ * @brief Empty string constants for C and wide strings.
+ */
+#define empty ""
+
+/**
+ * @brief Ensure safe cleanup by nullifying pointers after use.
+ *
+ * Mimics Rust's memory safety using explicit pointer management.
+ */
+#define drop(ptr) do { nullify(ptr); } while (0)
+
+/**
+ * @brief Panic behavior for immediate program termination with error message.
+ * 
+ * This macro causes the program to immediately terminate with an error message,
+ * similar to Rust's `panic!()` functionality.
+ *
+ * @param msg The message to display when panicking.
+ */
+#define panic(msg) (fprintf(stderr, "Panic: %s\n", msg), exit(EXIT_FAILURE))
+
+/**
+ * @brief Mimics Rust's Option type.
+ * 
+ * The `optional` macro represents a nullable pointer that can be either `null` or a valid pointer.
+ * It can be used to model optional values that may or may not be present.
+ */
+#define optional(ptr) ((ptr) ? (ptr) : null)
+
+/**
+ * @brief `Option` structure to mimic Rust's `Option<T>`.
+ * 
+ * This structure allows representation of an optional value where it can either contain a value
+ * (`Some`) or be `None` (`null`).
+ */
+typedef struct {
+    void* value;  // The value held by the Option (could be a pointer to any type)
+    int is_some;  // Flag indicating whether the Option is `Some` (1) or `None` (0)
+} Option;
+
+/**
+ * @brief Creates an `Option` with a value (Some).
+ *
+ * @param val The value to wrap in the Option.
+ * @return The created `Option` containing the value.
+ */
+#ifdef __cplusplus
+    #define some(val) (Option{val, 1})
+#else
+    #define some(val) ((Option){(void*)(val), 1})
+#endif
+
+/**
+ * @brief Creates an empty `Option` (None).
+ *
+ * @return An `Option` representing `None`.
+ */
+#ifdef __cplusplus
+    #define none() (Option{null, 0})
+#else
+    #define none() ((Option){null, 0})
+#endif
+
+/**
+ * @brief Unwraps the `Option`. If it's `Some`, return the value; if it's `None`, panic.
+ *
+ * Mimics Rust's `Option::unwrap()`.
+ *
+ * @param opt The `Option` to unwrap.
+ * @return The value inside the `Option`.
+ */
+#define unwrap_option(opt) ((opt).is_some ? (opt).value : (fprintf(stderr, "Panic: Unwrapped a None value at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), null))
+
+/**
+ * @brief Returns the value inside the `Option` or a default value if it's `None`.
+ *
+ * Mimics Rust's `Option::unwrap_or()`.
+ *
+ * @param opt The `Option` to unwrap.
+ * @param default_val The default value to return if the `Option` is `None`.
+ * @return The value inside the `Option`, or the default value if `None`.
+ */
+#define unwrap_or_option(opt, default_val) ((opt).is_some ? (opt).value : (default_val))
+
+// *****************************************************************************
 // Memory management
 // *****************************************************************************
 
