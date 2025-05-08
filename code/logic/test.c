@@ -33,7 +33,6 @@ static uint64_t fossil_pizza_now_ns(void) {
 
 // --- Start ---
 int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
-    (void)argc;
     if (!engine || !argv) return FOSSIL_PIZZA_FAILURE;
 
     pizza_sys_memory_set(engine, 0, sizeof(*engine));
@@ -42,6 +41,7 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
     engine->capacity = 0;
     engine->score_total = 0;
     engine->score_possible = 0;
+    engine->pallet = fossil_pizza_pallet_create();
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
 
     return FOSSIL_PIZZA_SUCCESS;

@@ -118,6 +118,7 @@ typedef struct {
     int score_total;
     int score_possible;
     fossil_pizza_score_t score;
+    fossil_pizza_pallet_t pallet;
 } fossil_pizza_engine_t;
 
 // --- Initialization ---
