@@ -34,10 +34,6 @@ void fossil_test_start_benchmark(void) {
     QueryPerformanceCounter(&start_time);
 #elif defined(__APPLE__)
     start_time = mach_absolute_time();
-#elif defined(_POSIX_VERSION)
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    start_time = ts.tv_sec * 1e9 + ts.tv_nsec;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -55,10 +51,6 @@ uint64_t fossil_test_stop_benchmark(void) {
     mach_timebase_info_data_t timebase;
     mach_timebase_info(&timebase);
     return (end_time - start_time) * timebase.numer / timebase.denom;
-#elif defined(_POSIX_VERSION)
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (ts.tv_sec * 1e9 + ts.tv_nsec) - start_time;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);
