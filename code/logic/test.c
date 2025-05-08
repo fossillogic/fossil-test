@@ -19,6 +19,7 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
 
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
