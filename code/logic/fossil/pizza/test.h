@@ -272,7 +272,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         0, \
         0, \
         0, \
-        {0} \
+        {0, 0, 0, 0, 0, 0} \
     }
 #else
 #define FOSSIL_SUITE(suite) \
@@ -288,7 +288,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         .time_elapsed_ns = 0, \
         .total_score = 0, \
         .total_possible = 0, \
-        .score = {0} \
+        .score = {0, 0, 0, 0, 0, 0} \
     }
 #endif
 
