@@ -139,8 +139,6 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     engine->score_possible = 0;
 
     for (size_t i = 0; i < engine->count; ++i) {
-        if (&engine->suites[i] == NULL) continue;
-
         fossil_pizza_run_suite(&engine->suites[i]);
 
         engine->score_total += engine->suites[i].total_score;
@@ -162,10 +160,9 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
     pizza_io_printf("{blue}================================={reset}\n");
-    pizza_io_printf("{blue}=== Fossil Pizza Test Summary ==={reset}\n");
+    pizza_io_printf("{blue}==={cyan} Fossil Pizza Test Summary {blue}==={reset}\n");
     pizza_io_printf("{blue}================================={reset}\n");
-    pizza_io_printf("{blue}Suites run:{cyan} %4zu\n{reset}", engine->count);
-    pizza_io_printf("{blue}Total     :{cyan} %4d\n{reset}", engine->score_possible);
+    pizza_io_printf("{blue}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d\n{reset}", engine->count, engine->score_possible);
     pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
     pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
     pizza_io_printf("{blue}Skipped   :{cyan} %4d\n{reset}", engine->score.skipped);
@@ -173,6 +170,23 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
     pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
     pizza_io_printf("{blue}\nScore:{cyan} %d/%d\n{reset}", engine->score_total, engine->score_possible);
+
+    uint64_t total_elapsed_ns = 0;
+    for (size_t i = 0; i < engine->count; ++i) {
+        total_elapsed_ns += engine->suites[i].time_elapsed_ns;
+    }
+
+    uint64_t total_elapsed_us = total_elapsed_ns / 1000;
+    uint64_t total_elapsed_ms = total_elapsed_us / 1000;
+    uint64_t total_elapsed_s = total_elapsed_ms / 1000;
+    uint64_t minutes = total_elapsed_s / 60;
+    uint64_t seconds = total_elapsed_s % 60;
+    uint64_t microseconds = total_elapsed_us % 1000;
+    uint64_t nanoseconds = total_elapsed_ns % 1000;
+
+    pizza_io_printf("{blue}Elapsed Time:{white} %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n{reset}",
+                    minutes, seconds, microseconds, nanoseconds);
+
     pizza_io_printf("{blue}\n================================={reset}\n");
 }
 
