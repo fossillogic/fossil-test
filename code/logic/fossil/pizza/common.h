@@ -266,51 +266,133 @@ typedef struct {
 // Command Pallet
 // *****************************************************************************
 
-typedef enum {
-    PIZZA_CLI_FLAG_STRING,
-    PIZZA_CLI_FLAG_INT,
-    PIZZA_CLI_FLAG_FLOAT,
-    PIZZA_CLI_FLAG_BOOL,
-    PIZZA_CLI_FLAG_FEATURE, // auto/enable/disable
-    PIZZA_CLI_FLAG_ARRAY
-} pizza_cli_flag_type_t;
-
-typedef struct pizza_cli_flag_t {
-    const char *name;
-    const char *alias; // optional
-    pizza_cli_flag_type_t type;
-    void *value;
-    const char *default_value;
-    const char *description;
-    struct pizza_cli_flag_t *next;
-} pizza_cli_flag_t;
-
-typedef struct pizza_cli_command_t {
-    const char *name;
-    const char *description;
-    pizza_cli_flag_t *flags;
-    struct pizza_cli_command_t *subcommands;
-    struct pizza_cli_command_t *next;
-    void (*handler)(void); // Function to call when command is run
-} pizza_cli_command_t;
+typedef struct {
+    char* name;
+    char* description;
+    char* value;
+} fossil_pizza_command_t;
 
 typedef struct {
-    pizza_cli_command_t *root;
-    const char *config_file;
-} pizza_cli_context_t;
+    char* name;
+    char* description;
+    char* value;
+} fossil_pizza_flag_t;
 
+typedef struct {
+    char* name;
+    char* description;
+    char* value;
+} fossil_pizza_option_t;
 
-int pizza_cli_parse_ini(const char *filename, pizza_cli_context_t *ctx);
+typedef struct {
+    char* name;
+    char* description;
+    char* value;
+} fossil_pizza_config_t;
 
-pizza_cli_context_t *pizza_cli_create(void);
+typedef struct {
+    fossil_pizza_command_t* commands;
+    size_t command_count;
+    fossil_pizza_flag_t* flags;
+    size_t flag_count;
+    fossil_pizza_option_t* options;
+    size_t option_count;
+    fossil_pizza_config_t* configs;
+    size_t config_count;
+} fossil_pizza_pallet_t;
 
-void pizza_cli_destroy(pizza_cli_context_t *ctx);
+/**
+ * @brief Parses command line arguments and populates the pallet structure.
+ *
+ * This function processes command line arguments and fills the pallet structure
+ * with the parsed commands, flags, options, and configurations.
+ *
+ * @param pallet Pointer to the pallet structure to populate.
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ */
+fossil_pizza_pallet_t fossil_pizza_pallet_create(void);
 
-pizza_cli_command_t *pizza_cli_add_command(pizza_cli_context_t *ctx, const char *name, const char *desc);
+// *****************************************************************************
+// Soap sanitizer
+// *****************************************************************************
 
-void pizza_cli_add_flag(pizza_cli_command_t *cmd, const char *name, const char *alias, pizza_cli_flag_type_t type, const char *default_val, const char *desc);
+/**
+ * @brief Sanitize input text by removing or replacing "rot-brain" and meme-based language.
+ *
+ * @param text The input text to sanitize.
+ * @return A dynamically allocated sanitized string (must be freed by the caller).
+ */
+char *pizza_io_soap_sanitize(const char *text);
 
-int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv);
+/**
+ * @brief Suggest proper alternatives for rot-brain words or grammar fixes.
+ *
+ * @param text The input text.
+ * @return A dynamically allocated string with suggestions (must be freed by the caller).
+ */
+char *pizza_io_soap_suggest(const char *text);
+
+/**
+ * @brief Add a custom word or phrase to the filter.
+ *
+ * @param phrase The phrase to add.
+ * @return 0 on success, nonzero on failure.
+ */
+int pizza_io_soap_add_custom_filter(const char *phrase);
+
+/**
+ * @brief Clear all custom filters.
+ */
+void pizza_io_soap_clear_custom_filters(void);
+
+/**
+ * @brief Detect the tone of a sentence.
+ *
+ * @param text The input text.
+ * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
+ */
+const char *pizza_io_soap_detect_tone(const char *text);
+
+// *****************************************************************************
+// Jellyfish AI
+// *****************************************************************************
+
+typedef enum {
+    PIZZA_AI_TONE_PLAIN,
+    PIZZA_AI_TONE_CI,
+    PIZZA_AI_TONE_HUMAN,
+    PIZZA_AI_TONE_DOGE
+} pizza_ai_tone_t;
+
+typedef struct {
+    size_t passed;
+    size_t failed;
+    size_t skipped;
+    size_t total;
+    double runtime_seconds;
+} pizza_ai_result_stats_t;
+
+typedef struct {
+    char* short_summary;
+    char* detailed_message;
+    pizza_ai_tone_t tone;
+} pizza_ai_summary_t;
+
+// Analyze raw results and produce stats
+pizza_ai_result_stats_t pizza_ai_analyze(size_t total, size_t passed, size_t failed, size_t skipped, double runtime);
+
+// Generate a short summary string (one line)
+char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
+
+// Generate a more detailed multi-line message (dynamic text)
+char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
+
+// Full summary struct (includes both forms)
+pizza_ai_summary_t pizza_ai_create_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
+
+// Cleanup summary strings
+void pizza_ai_free_summary(pizza_ai_summary_t* summary);
 
 // *****************************************************************************
 // Memory management

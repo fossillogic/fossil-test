@@ -18,103 +18,537 @@
 // *****************************************************************************
 // command pallet
 // *****************************************************************************
-// flags: --version, --help, --config, --verbose, --quiet, --no-color, --this
-// catagories: general, mock, test, mock, sanity
-pizza_cli_context_t *pizza_cli_create(void) {
-    pizza_cli_context_t *ctx = (pizza_cli_context_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_context_t));
-    if (!ctx) {
-        fprintf(stderr, "Error: Failed to create CLI context.\n");
-        return NULL;
-    }
-    ctx->root = NULL;
-    ctx->config_file = NULL;
-    return ctx;
+
+fossil_pizza_pallet_t fossil_pizza_pallet_create(void) {
+    fossil_pizza_pallet_t pallet = {0};
+
+    // Global flags
+    static fossil_pizza_flag_t global_flags[] = {
+        { "--dry-run",  "Run without executing test cases", null },
+        { "--version",  "Show version information",         null },
+        { "--help",     "Show help message",                null },
+        { "--host",     "Specify target host",              null },
+        { "--this",     "Use current test context",         null }
+    };
+
+    // Commands
+    static fossil_pizza_command_t commands[] = {
+        { "run",     "Execute test cases",                   null },
+        { "filter",  "Filter test cases",                    null },
+        { "sort",    "Sort test cases",                      null },
+        { "shuffle", "Shuffle test cases",                   null },
+        { "color",   "Toggle colored output",                "auto" },
+        { "threads", "Enable or disable multithreaded run",  "auto" },
+        { "theme",   "Set test output theme",                "pizza" },
+        { "verbose", "Set verbosity level",                  "plain" }
+    };
+
+    // Command-specific flags
+    static fossil_pizza_flag_t command_flags[] = {
+        // run
+        { "--fail-fast", "Stop on first failure",     null },
+        { "--skip",      "Skip matching tests",       null },
+        { "--only",      "Run only specific tests",   null },
+        { "--repeat",    "Repeat tests N times",      null },
+        { "--format",    "Select output format",      null },
+
+        // filter
+        { "--test-name",  "Match test names",         null },
+        { "--suite-name", "Match suite names",        null },
+        { "--tag",        "Match tag values",         null },
+
+        // sort
+        { "--by",    "Sort by criteria",              null },
+        { "--order", "Ascending or descending",       null },
+
+        // shuffle
+        { "--seed",  "Random seed",                   null },
+        { "--count", "Number of shuffles",            null },
+        { "--by",    "Shuffle strategy",              null }
+    };
+
+    // Options (e.g., used as pre-bound configuration pairs)
+    static fossil_pizza_option_t options[] = {
+        { "color",   "Color output setting",          "auto" },
+        { "threads", "Threading strategy",            "auto" },
+        { "theme",   "Output theme",                  "pizza" },
+        { "verbose", "Verbosity level",               "plain" }
+    };
+
+    // Configs (can be used to store runtime-applied resolved values)
+    static fossil_pizza_config_t configs[] = {
+        { "color",   "Final color setting",           null },
+        { "threads", "Final thread use",              null },
+        { "theme",   "Final test output theme",       null },
+        { "verbose", "Final verbosity level",         null }
+    };
+
+    // Assign all arrays and counts
+    pallet.flags         = global_flags;
+    pallet.flag_count    = sizeof(global_flags) / sizeof(global_flags[0]);
+    pallet.commands      = commands;
+    pallet.command_count = sizeof(commands) / sizeof(commands[0]);
+    pallet.options       = options;
+    pallet.option_count  = sizeof(options) / sizeof(options[0]);
+    pallet.configs       = configs;
+    pallet.config_count  = sizeof(configs) / sizeof(configs[0]);
+
+    return pallet;
 }
 
-void pizza_cli_destroy(pizza_cli_context_t *ctx) {
-    if (!ctx) {
-        fprintf(stderr, "Error: Invalid context.\n");
-        return;
-    }
+// *****************************************************************************
+// soap sanitizer
+// *****************************************************************************
 
-    // Free all commands and flags
-    pizza_cli_command_t *cmd = ctx->root;
-    while (cmd) {
-        pizza_cli_command_t *next_cmd = cmd->next;
-        pizza_sys_memory_free(cmd);
-        cmd = next_cmd;
-    }
+#define MAX_CUSTOM_FILTERS 64
 
-    pizza_sys_memory_free(ctx);
+/** Lookup table for rot-brain words and their suggested replacements */
+static const struct {
+    const char *bad;
+    const char *suggested;
+} FOSSIL_SOAP_SUGGESTIONS[] = {
+    {"rizz", "charisma"},
+    {"skibidi", "dance"},
+    {"yeet", "throw"},
+    {"sus", "suspicious"},
+    {"vibe", "atmosphere"},
+    {"lit", "exciting"},
+    {"no cap", "honestly"},
+    {"bet", "okay"},
+    {"fam", "family"},
+    {"bruh", "brother"},
+    {"flex", "show off"},
+    {"ghost", "ignore"},
+    {"goat", "legend"},
+    {"gucci", "good"},
+    {"hype", "exciting"},
+    {"janky", "low-quality"},
+    {"lowkey", "somewhat"},
+    {"mood", "feeling"},
+    {"salty", "bitter"},
+    {"shade", "insult"},
+    {"slay", "impress"},
+    {"snatched", "stylish"},
+    {"stan", "superfan"},
+    {"tea", "gossip"},
+    {"thirsty", "desperate"},
+    {"woke", "aware"},
+    {"yolo", "live once"},
+    {"zaddy", "attractive man"},
+    {"drip", "fashion"},
+    {"fire", "amazing"},
+    {"lol", "funny"},
+    {"omg", "surprising"},
+    {"brb", "be right back"},
+    {"idk", "I don't know"},
+    {"imo", "in my opinion"},
+    {"lmao", "laughing"},
+    {"nvm", "never mind"},
+    {"tbh", "to be honest"},
+    {"tldr", "too long"},
+    {"ttyl", "talk to you later"},
+    {"wyd", "what are you doing"},
+    {"wtf", "what the heck"},
+    {"yolo", "you only live once"},
+    {"rot-brain", "stupid"},
+    {"rot brain", "stupid"},
+    {"rotbrain", "stupid"},
+    {null, null} // Sentinel to mark the end
+};
+
+/** Grammar suggestions for common mistakes */
+static const struct {
+    const char *incorrect;
+    const char *correct;
+} FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[] = {
+    {"gonna", "going to"},
+    {"ain't", "isn't"},
+    {"should of", "should have"},
+    {"could of", "could have"},
+    {"not never", "never"},
+    {"free gift", "gift"},
+    {"very unique", "unique"},
+    {null, null} // Sentinel to mark the end
+};
+
+/** Lookup table for sarcastic phrases */
+static const char *SARCASTIC_PHRASES[] = {
+    "Oh, great",
+    "Yeah, right",
+    "Nice job",
+    "Well done",
+    "Good luck with that",
+    "Sure, why not",
+    "Fantastic",
+    "Brilliant",
+    "Wonderful",
+    "Perfect",
+    null // Sentinel to mark the end
+};
+
+/** Lookup table for formal phrases */
+static const char *FORMAL_PHRASES[] = {
+    "Dear Sir or Madam",
+    "To whom it may concern",
+    "Yours sincerely",
+    "Yours faithfully",
+    "Best regards",
+    "Respectfully",
+    "I would like to",
+    "I am writing to",
+    "Please find attached",
+    "Thank you for your consideration",
+    null // Sentinel to mark the end
+};
+
+static char custom_storage[MAX_CUSTOM_FILTERS][64];
+static const char *custom_filters[MAX_CUSTOM_FILTERS] = {0};
+
+/** Lookup table for words that need to be skipped due to misdetection */
+static const char *SKIP_WORDS[] = {
+    "limit",
+    "size",
+    null // Sentinel to mark the end
+};
+
+/**
+ * @brief Convert leetspeak to normal letters.
+ */
+static void pizza_io_soap_normalize_leetspeak(char *word) {
+    for (size_t i = 0; word[i] != '\0'; i++) {
+        switch (word[i]) {
+            case '0': word[i] = 'o'; break;
+            case '1': word[i] = 'i'; break;
+            case '3': word[i] = 'e'; break;
+            case '4': word[i] = 'a'; break;
+            case '5': word[i] = 's'; break;
+            case '7': word[i] = 't'; break;
+            case '$': word[i] = 's'; break;
+        }
+    }
 }
 
-pizza_cli_command_t *pizza_cli_add_command(pizza_cli_context_t *ctx, const char *name, const char *desc) {
-    if (!ctx || !name || !desc) {
-        fprintf(stderr, "Error: Invalid context, name, or description.\n");
-        return NULL;
+/**
+ * @brief Fuzzy matching using Levenshtein distance.
+ */
+static int fuzzy_match(const char *str1, const char *str2) {
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    size_t dist[len1 + 1][len2 + 1];
+
+    for (size_t i = 0; i <= len1; i++) dist[i][0] = i;
+    for (size_t j = 0; j <= len2; j++) dist[0][j] = j;
+
+    for (size_t i = 1; i <= len1; i++) {
+        for (size_t j = 1; j <= len2; j++) {
+            int cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1;
+            dist[i][j] = fmin(fmin(dist[i - 1][j] + 1, dist[i][j - 1] + 1), dist[i - 1][j - 1] + cost);
+        }
     }
-
-    pizza_cli_command_t *cmd = (pizza_cli_command_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_command_t));
-    if (!cmd) {
-        fprintf(stderr, "Error: Failed to create command.\n");
-        return NULL;
-    }
-
-    cmd->name = name;
-    cmd->description = desc;
-    cmd->flags = NULL;
-    cmd->subcommands = NULL;
-    cmd->next = ctx->root;
-    ctx->root = cmd;
-
-    return cmd;
+    return dist[len1][len2];
 }
 
-void pizza_cli_add_flag(pizza_cli_command_t *cmd, const char *name, const char *alias, pizza_cli_flag_type_t type, const char *default_val, const char *desc) {
-    if (!cmd || !name || !desc) {
-        fprintf(stderr, "Error: Invalid command, name, or description.\n");
-        return;
+/**
+ * @brief Check if a word should be skipped.
+ */
+static int should_skip_word(const char *word) {
+    for (size_t i = 0; SKIP_WORDS[i] != null; i++) {
+        if (strcmp(word, SKIP_WORDS[i]) == 0) {
+            return 1;
+        }
     }
-
-    pizza_cli_flag_t *flag = (pizza_cli_flag_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_flag_t));
-    if (!flag) {
-        fprintf(stderr, "Error: Failed to create flag.\n");
-        return;
-    }
-
-    flag->name = name;
-    flag->alias = alias;
-    flag->type = type;
-    flag->value = NULL; // Initialize value to NULL
-    flag->default_value = default_val;
-    flag->description = desc;
-    flag->next = cmd->flags;
-    cmd->flags = flag;
+    return 0;
 }
 
-int pizza_cli_parse_ini(const char *filename, pizza_cli_context_t *ctx) {
-    if (!filename || !ctx) {
-        fprintf(stderr, "Error: Invalid filename or context.\n");
-        return -1;
+/**
+ * @brief Case-insensitive string comparison.
+ */
+static int custom_strcasecmp(const char *s1, const char *s2) {
+    while (*s1 && *s2) {
+        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) {
+            return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+        }
+        s1++;
+        s2++;
     }
-
-    // Implement INI parsing logic here
-    // ...
-
-    return 0; // Return 0 on success
+    return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
 }
 
-int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv) {
-    unused(argc); // Unused parameter
-    if (!ctx || !argv) {
-        fprintf(stderr, "Error: Invalid context or arguments.\n");
-        return -1;
+/**
+ * @brief Case-insensitive substring search.
+ */
+static const char *custom_strcasestr(const char *haystack, const char *needle) {
+    if (!*needle) return haystack;
+
+    for (; *haystack; haystack++) {
+        if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle)) {
+            const char *h = haystack, *n = needle;
+            while (*h && *n && tolower((unsigned char)*h) == tolower((unsigned char)*n)) {
+                h++;
+                n++;
+            }
+            if (!*n) return haystack;
+        }
+    }
+    return null;
+}
+
+/**
+ * @brief Look up a suggested alternative for a given word, checking both custom filters and predefined suggestions.
+ */
+static const char *pizza_io_soap_get_suggestion(const char *word) {
+    if (should_skip_word(word)) {
+        return null;
     }
 
-    // Implement command-line parsing logic here
-    // ...
+    // Check in custom filters first
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS && custom_filters[i] != null; i++) {
+        if (custom_strcasecmp(word, custom_filters[i]) == 0) {
+            return custom_filters[i];  // Use the custom filter word itself as suggestion
+        }
+        if (fuzzy_match(word, custom_filters[i]) <= 2) {
+            return custom_filters[i];  // Return fuzzy match result
+        }
+    }
 
-    return 0; // Return 0 on success
+    // Check in predefined suggestions
+    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
+        if (custom_strcasecmp(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 0) {
+            return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
+        }
+    }
+
+    // Check in grammar suggestions
+    for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect != null; i++) {
+        if (custom_strcasecmp(word, FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect) == 0) {
+            return FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].correct;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @brief Sanitize input text by removing or replacing "rot-brain" and meme-based language.
+ * @param censor_char Character to use for censored words (e.g., "*" or "#").
+ */
+char *pizza_io_soap_sanitize(const char *text) {
+    if (!text) return null;
+
+    size_t len = strlen(text);
+    char *output = (char *)malloc(len * 2 + 1); // Allocate more space to handle replacements
+    if (!output) return null;
+
+    size_t out_idx = 0;
+    char word[64];
+    size_t word_idx = 0;
+
+    for (size_t i = 0; text[i] != '\0'; i++) {
+        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-') {
+            word[word_idx++] = text[i];
+            if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
+        } else {
+            word[word_idx] = '\0';
+            pizza_io_soap_normalize_leetspeak(word);
+            const char *suggested = pizza_io_soap_get_suggestion(word);
+            if (word_idx > 0 && suggested && !should_skip_word(word)) {
+                for (size_t j = 0; j < strlen(suggested); j++) {
+                    output[out_idx++] = suggested[j];
+                }
+            } else {
+                for (size_t j = 0; j < word_idx; j++) {
+                    output[out_idx++] = word[j];
+                }
+            }
+            output[out_idx++] = text[i];
+            word_idx = 0;
+        }
+    }
+    word[word_idx] = '\0';
+    pizza_io_soap_normalize_leetspeak(word);
+    const char *suggested = pizza_io_soap_get_suggestion(word);
+    if (word_idx > 0 && suggested && !should_skip_word(word)) {
+        for (size_t j = 0; j < strlen(suggested); j++) {
+            output[out_idx++] = suggested[j];
+        }
+    } else {
+        for (size_t j = 0; j < word_idx; j++) {
+            output[out_idx++] = word[j];
+        }
+    }
+    output[out_idx] = '\0';
+    return output;
+}
+
+char *pizza_io_soap_suggest(const char *text) {
+    if (!text) return null;
+
+    size_t len = strlen(text);
+    char *output = (char *)malloc(len * 2 + 64); // Allocate more space to handle replacements
+    if (!output) return null;
+
+    size_t out_idx = 0;
+    char word[64];
+    size_t word_idx = 0;
+
+    for (size_t i = 0; text[i] != '\0'; i++) {
+        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-') {
+            word[word_idx++] = text[i];
+            if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
+        } else {
+            word[word_idx] = '\0';
+            pizza_io_soap_normalize_leetspeak(word);
+            const char *suggested = pizza_io_soap_get_suggestion(word);
+            if (word_idx > 0 && suggested && !should_skip_word(word)) {
+                strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+                out_idx += strlen(suggested);
+            } else {
+                strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+                out_idx += word_idx;
+            }
+            output[out_idx++] = text[i];
+            word_idx = 0;
+        }
+    }
+    word[word_idx] = '\0';
+    pizza_io_soap_normalize_leetspeak(word);
+    const char *suggested = pizza_io_soap_get_suggestion(word);
+    if (word_idx > 0 && suggested && !should_skip_word(word)) {
+        strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+        out_idx += strlen(suggested);
+    } else {
+        strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+        out_idx += word_idx;
+    }
+    output[out_idx] = '\0';
+    return output;
+}
+
+/**
+ * @brief Add a custom word or phrase to the filter.
+ */
+int pizza_io_soap_add_custom_filter(const char *phrase) {
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
+        if (custom_filters[i] == null) {
+            size_t j = 0;
+            while (phrase[j] != '\0' && j < sizeof(custom_storage[i]) - 1) {
+                custom_storage[i][j] = tolower((unsigned char)phrase[j]);
+                j++;
+            }
+            custom_storage[i][j] = '\0';
+            custom_filters[i] = custom_storage[i];
+            return 0;
+        }
+    }
+    return -1;
+}
+
+/**
+ * @brief Clear all custom filters.
+ */
+void pizza_io_soap_clear_custom_filters(void) {
+    memset(custom_filters, 0, sizeof(custom_filters));
+}
+
+const char *pizza_io_soap_detect_tone(const char *text) {
+    for (size_t i = 0; SARCASTIC_PHRASES[i] != null; i++) {
+        if (custom_strcasestr(text, SARCASTIC_PHRASES[i])) {
+            return "sarcastic";
+        }
+    }
+
+    for (size_t i = 0; FORMAL_PHRASES[i] != null; i++) {
+        if (custom_strcasestr(text, FORMAL_PHRASES[i])) {
+            return "formal";
+        }
+    }
+
+    return "casual";
+}
+
+// *****************************************************************************
+// Jellyfish AI
+// *****************************************************************************
+
+// Analyze raw results and produce stats
+pizza_ai_result_stats_t pizza_ai_analyze(size_t total, size_t passed, size_t failed, size_t skipped, double runtime) {
+    pizza_ai_result_stats_t stats = {0};
+    stats.total = total;
+    stats.passed = passed;
+    stats.failed = failed;
+    stats.skipped = skipped;
+    stats.runtime_seconds = runtime;
+
+    return stats;
+}
+
+// Generate a short summary string (one line)
+char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
+    char* summary = null;
+    switch (tone) {
+        case PIZZA_AI_TONE_PLAIN:
+            asprintf(&summary, "Total: %zu, Passed: %zu, Failed: %zu, Skipped: %zu", stats.total, stats.passed, stats.failed, stats.skipped);
+            break;
+        case PIZZA_AI_TONE_CI:
+            asprintf(&summary, "CI: %zu/%zu (%zu%%)", stats.passed, stats.total, (stats.passed * 100) / stats.total);
+            break;
+        case PIZZA_AI_TONE_HUMAN:
+            asprintf(&summary, "You passed %zu out of %zu tests. Good job!", stats.passed, stats.total);
+            break;
+        case PIZZA_AI_TONE_DOGE:
+            asprintf(&summary, "Wow! %zu/%zu tests passed. Much success!", stats.passed, stats.total);
+            break;
+        default:
+            asprintf(&summary, "Unknown tone");
+            break;
+    }
+    return summary;
+}
+
+// Generate a more detailed multi-line message (dynamic text)
+char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
+    char* message = null;
+    switch (tone) {
+        case PIZZA_AI_TONE_PLAIN:
+            asprintf(&message, "Test Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
+                     stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
+            break;
+        case PIZZA_AI_TONE_CI:
+            asprintf(&message, "CI Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
+                     stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
+            break;
+        case PIZZA_AI_TONE_HUMAN:
+            asprintf(&message, "Detailed Results:\nYou passed %zu out of %zu tests.\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
+                     stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
+            break;
+        case PIZZA_AI_TONE_DOGE:
+            asprintf(&message, "Detailed Results:\nWow! You passed %zu out of %zu tests!\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
+                     stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
+            break;
+        default:
+            asprintf(&message, "Unknown tone");
+            break;
+    }
+    return message;
+}
+
+// Full summary struct (includes both forms)
+pizza_ai_summary_t pizza_ai_create_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
+    pizza_ai_summary_t summary = {0};
+    summary.short_summary = pizza_ai_generate_summary(stats, tone);
+    summary.detailed_message = pizza_ai_generate_message(stats, tone);
+    summary.tone = tone;
+    return summary;
+}
+
+// Cleanup summary strings
+void pizza_ai_free_summary(pizza_ai_summary_t* summary) {
+    if (summary) {
+        pizza_sys_memory_free(summary->short_summary);
+        pizza_sys_memory_free(summary->detailed_message);
+        summary->short_summary = null;
+        summary->detailed_message = null;
+    }
 }
 
 // *****************************************************************************
@@ -124,13 +558,13 @@ int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv) {
 pizza_sys_memory_t pizza_sys_memory_alloc(size_t size) {
     if (size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_alloc() - Cannot allocate zero bytes.\n");
-        return NULL;
+        return null;
     }
     
     pizza_sys_memory_t ptr = malloc(size);
     if (!ptr) {
         fprintf(stderr, "Error: pizza_sys_memory_alloc() - Memory allocation failed.\n");
-        return NULL;
+        return null;
     }
     return ptr;
 }
@@ -139,7 +573,7 @@ pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size)
     pizza_sys_memory_t new_ptr = realloc(ptr, size);
     if (!new_ptr && size > 0) {
         fprintf(stderr, "Error: pizza_sys_memory_realloc() - Memory reallocation failed.\n");
-        return NULL;
+        return null;
     }
     return new_ptr;
 }
@@ -147,26 +581,26 @@ pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size)
 pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size) {
     if (num == 0 || size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
-        return NULL;
+        return null;
     }
 
     pizza_sys_memory_t ptr = calloc(num, size);
     if (!ptr) {
         fprintf(stderr, "Error: pizza_sys_memory_calloc() - Memory allocation failed.\n");
-        return NULL;
+        return null;
     }
     return ptr;
 }
 
 pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_init() - Pointer is NULL.\n");
-        return NULL;
+        fprintf(stderr, "Error: pizza_sys_memory_init() - Pointer is null.\n");
+        return null;
     }
 
     if (size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_init() - Cannot initialize zero bytes.\n");
-        return NULL;
+        return null;
     }
 
     return memset(ptr, value, size);
@@ -174,21 +608,21 @@ pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, in
 
 void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_free() - Pointer is NULL.\n");
+        fprintf(stderr, "Error: pizza_sys_memory_free() - Pointer is null.\n");
         return;
     }
-    free(ptr); // No need for NULL check, free() already handles NULL.
+    free(ptr); // No need for null check, free() already handles null.
 }
 
 pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size) {
     if (!dest || !src) {
-        fprintf(stderr, "Error: pizza_sys_memory_copy() - Source or destination is NULL.\n");
-        return NULL;
+        fprintf(stderr, "Error: pizza_sys_memory_copy() - Source or destination is null.\n");
+        return null;
     }
 
     if (size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_copy() - Cannot copy zero bytes.\n");
-        return NULL;
+        return null;
     }
     
     return memcpy(dest, src, size);
@@ -196,13 +630,13 @@ pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sy
 
 pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_set() - Pointer is NULL.\n");
-        return NULL;
+        fprintf(stderr, "Error: pizza_sys_memory_set() - Pointer is null.\n");
+        return null;
     }
 
     if (size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_set() - Cannot set zero bytes.\n");
-        return NULL;
+        return null;
     }
     
     return memset(ptr, value, size);
@@ -211,12 +645,12 @@ pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, s
 pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size) {
     if (!src || size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_dup() - Invalid source or zero size.\n");
-        return NULL;
+        return null;
     }
 
     pizza_sys_memory_t dest = pizza_sys_memory_alloc(size);
     if (!dest) {
-        return NULL;  // Error already handled in pizza_sys_memory_alloc
+        return null;  // Error already handled in pizza_sys_memory_alloc
     }
 
     return memcpy(dest, src, size);
@@ -243,21 +677,21 @@ int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memo
 pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size) {
     if (!dest || !src || size == 0) {
         fprintf(stderr, "Error: pizza_sys_memory_move() - Invalid source or destination pointers, or zero size.\n");
-        return NULL;
+        return null;
     }
 
     return memmove(dest, src, size);
 }
 
 pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size) {
-    if (ptr == NULL) {
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Pointer is NULL.\n");
-        return NULL;
+    if (ptr == null) {
+        fprintf(stderr, "Error: pizza_sys_memory_resize() - Pointer is null.\n");
+        return null;
     }
 
     if (new_size == 0) {
         pizza_sys_memory_free(ptr);
-        return NULL;
+        return null;
     }
 
     // Allocate new memory
@@ -410,11 +844,11 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 
     // Variable to keep track of the current position in the buffer
     const char *current_pos = buffer;
-    const char *start = NULL;
-    const char *end = NULL;
+    const char *start = null;
+    const char *end = null;
 
     // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
-    while ((start = strchr(current_pos, '{')) != NULL) {
+    while ((start = strchr(current_pos, '{')) != null) {
         // Print text before '{'
         printf("%.*s", (int)(start - current_pos), current_pos);
         
@@ -428,12 +862,12 @@ void pizza_io_print_with_attributes(const char *format, ...) {
             attributes[length] = '\0';
 
             // Split by comma to separate color, attribute, or position
-            char *color = NULL;
-            char *attribute = NULL;
-            char *pos = NULL;
+            char *color = null;
+            char *attribute = null;
+            char *pos = null;
             char *comma_pos = strchr(attributes, ',');
             if (comma_pos) {
-                *comma_pos = '\0';  // Null-terminate the first part
+                *comma_pos = '\0';  // null-terminate the first part
                 color = attributes; // Color or position part
                 attribute = comma_pos + 1; // Attribute part
             } else {
@@ -467,7 +901,7 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 
 // Function to print a sanitized formatted string to a specific file stream with attributes
 void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
-    if (str != NULL && stream != NULL) {
+    if (str != null && stream != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
@@ -488,7 +922,7 @@ void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
 
 // Function to print a sanitized string with attributes inside {}
 void pizza_io_puts(const char *str) {
-    if (str != NULL) {
+    if (str != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
@@ -522,7 +956,7 @@ void pizza_io_printf(const char *format, ...) {
 
 // Function to print a sanitized string to a specific file stream
 void pizza_io_fputs(pizza_fstream_t *stream, const char *str) {
-    if (str != NULL && stream != NULL) {
+    if (str != null && stream != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
@@ -590,7 +1024,7 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 
 cstr pizza_io_cstr_create(const char *init) {
-    if (!init) return NULL;
+    if (!init) return null;
     size_t length = strlen(init);
     cstr str = (cstr)malloc(length + 1);
     if (str) {
@@ -606,12 +1040,12 @@ void pizza_io_cstr_free(cstr str) {
 }
 
 cstr pizza_io_cstr_copy(ccstr str) {
-    if (!str) return NULL;
+    if (!str) return null;
     return pizza_io_cstr_create(str);
 }
 
 cstr pizza_io_cstr_dup(ccstr str) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t length = strlen(str);
     cstr new_str = (cstr)malloc(length + 1);
     if (new_str) {
@@ -621,7 +1055,7 @@ cstr pizza_io_cstr_dup(ccstr str) {
 }
 
 cstr pizza_io_cstr_concat(ccstr s1, ccstr s2) {
-    if (!s1 || !s2) return NULL;
+    if (!s1 || !s2) return null;
     size_t length1 = strlen(s1);
     size_t length2 = strlen(s2);
     cstr str = (cstr)malloc(length1 + length2 + 1);
@@ -661,7 +1095,7 @@ void pizza_io_cstr_trim(cstr str) {
 }
 
 cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
-    if (!str || !count) return NULL;
+    if (!str || !count) return null;
     size_t length = strlen(str);
     size_t num_delimiters = 0;
     for (size_t i = 0; i < length; i++) {
@@ -689,7 +1123,7 @@ cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
                         free(result[j]);
                     }
                     free(result);
-                    return NULL;
+                    return null;
                 }
             }
         }
@@ -704,14 +1138,14 @@ cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
                 free(result[j]);
             }
             free(result);
-            return NULL;
+            return null;
         }
     }
     return result;
 }
 
 cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
-    if (!str || !old || !new_str) return NULL;
+    if (!str || !old || !new_str) return null;
     size_t old_length = strlen(old);
     size_t new_length = strlen(new_str);
     size_t count = 0;
@@ -746,7 +1180,7 @@ cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
 }
 
 cstr pizza_io_cstr_to_upper(cstr str) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
     if (result) {
@@ -759,7 +1193,7 @@ cstr pizza_io_cstr_to_upper(cstr str) {
 }
 
 cstr pizza_io_cstr_to_lower(cstr str) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
     if (result) {
@@ -792,10 +1226,10 @@ int pizza_io_cstr_ends_with(ccstr str, ccstr suffix) {
 }
 
 cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t str_length = strlen(str);
     if (start >= str_length) {
-        return NULL;
+        return null;
     }
     cstr result = (cstr)malloc(length + 1);
     if (result) {
@@ -810,7 +1244,7 @@ cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length) {
 }
 
 cstr pizza_io_cstr_reverse(cstr str) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
     if (result) {
@@ -824,11 +1258,11 @@ cstr pizza_io_cstr_reverse(cstr str) {
 
 int pizza_io_cstr_contains(ccstr str, ccstr substr) {
     if (!str || !substr) return 0;
-    return strstr(str, substr) != NULL;
+    return strstr(str, substr) != null;
 }
 
 cstr pizza_io_cstr_repeat(ccstr str, size_t count) {
-    if (!str || count == 0) return NULL;
+    if (!str || count == 0) return null;
     size_t length = strlen(str);
     size_t new_length = length * count;
     cstr result = (cstr)malloc(new_length + 1);
@@ -842,7 +1276,7 @@ cstr pizza_io_cstr_repeat(ccstr str, size_t count) {
 }
 
 cstr pizza_io_cstr_strip(ccstr str, char ch) {
-    if (!str) return NULL;
+    if (!str) return null;
     size_t length = strlen(str);
     size_t start = 0;
     size_t end = length - 1;
@@ -865,7 +1299,7 @@ size_t pizza_io_cstr_count(ccstr str, ccstr substr) {
     if (!str || !substr) return 0;
     size_t count = 0;
     size_t length = strlen(substr);
-    while ((str = strstr(str, substr)) != NULL) {
+    while ((str = strstr(str, substr)) != null) {
         count++;
         str += length;
     }
@@ -873,7 +1307,7 @@ size_t pizza_io_cstr_count(ccstr str, ccstr substr) {
 }
 
 cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
-    if (!str || total_length == 0) return NULL;
+    if (!str || total_length == 0) return null;
     size_t length = strlen(str);
     if (length >= total_length) {
         return pizza_io_cstr_copy(str);
@@ -889,7 +1323,7 @@ cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
 }
 
 cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
-    if (!str || total_length == 0) return NULL;
+    if (!str || total_length == 0) return null;
     size_t length = strlen(str);
     if (length >= total_length) {
         return pizza_io_cstr_copy(str);
