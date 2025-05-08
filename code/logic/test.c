@@ -27,7 +27,7 @@ static int _ASSERT_COUNT = 0; // Counter for the number of assertions
 // --- Internal helper for timing ---
 static uint64_t fossil_pizza_now_ns(void) {
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, null);
     return (uint64_t)tv.tv_sec * 1000000000ULL + (uint64_t)tv.tv_usec * 1000ULL;
 }
 
@@ -37,7 +37,7 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
     if (!engine || !argv) return FOSSIL_PIZZA_FAILURE;
 
     pizza_sys_memory_set(engine, 0, sizeof(*engine));
-    engine->suites = NULL;
+    engine->suites = null;
     engine->count = 0;
     engine->capacity = 0;
     engine->score_total = 0;
@@ -214,20 +214,20 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 // -- Assume --
 
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
-    static const char *last_message = NULL; // Store the last assertion message
-    static const char *last_file = NULL;    // Store the last file name
+    static const char *last_message = null; // Store the last assertion message
+    static const char *last_file = null;    // Store the last file name
     static int last_line = 0;               // Store the last line number
-    static const char *last_func = NULL;    // Store the last function name
+    static const char *last_func = null;    // Store the last function name
     static int anomaly_count = 0;           // Counter for anomaly detection
 
     _ASSERT_COUNT++; // Increment the assertion count
 
     if (!condition) {
         // Check if the current assertion is the same or similar to the last one
-        if (last_message && strstr(message, last_message) != NULL &&
-            last_file && strcmp(last_file, file) == 0 &&
+        if (last_message && strstr(message, last_message) != null &&
+            last_file && pizza_io_cstr_compare(last_file, file) == 0 &&
             last_line == line &&
-            last_func && strcmp(last_func, func) == 0) {
+            last_func && pizza_io_cstr_compare(last_func, func) == 0) {
             anomaly_count++;
             pizza_io_printf("{yellow}Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]{reset}\n",
                                  message, file, line, func, anomaly_count);

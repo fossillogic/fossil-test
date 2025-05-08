@@ -36,7 +36,7 @@ void fossil_test_start_benchmark(void) {
     start_time = mach_absolute_time();
 #else
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, null);
     start_time = (uint64_t)tv.tv_sec * 1e6 + tv.tv_usec;
 #endif
 }
@@ -53,7 +53,7 @@ uint64_t fossil_test_stop_benchmark(void) {
     return (end_time - start_time) * timebase.numer / timebase.denom;
 #else
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, null);
     uint64_t end_time = (uint64_t)tv.tv_sec * 1e6 + tv.tv_usec;
     return (end_time - start_time) * 1e3;
 #endif
@@ -64,36 +64,36 @@ void assume_duration(double expected, double actual, double unit) {
     double elapsed_seconds = elapsed_time / (1e9 / unit);  // Convert to the desired time unit
     
     if (elapsed_seconds < expected) {
-        printf("Benchmark failed: expected %f, got %f\n", expected, actual);
+        pizza_io_printf("Benchmark failed: expected %f, got %f\n", expected, actual);
     }
 }
 
 // Marks a test case as timeout with a specified time and prints it to stderr.
 void fossil_test_benchmark(char* duration_type, double expected, double actual) {
-    if (duration_type == NULL) {
-        printf("Error: duration_type is NULL\n");
+    if (duration_type == null) {
+        pizza_io_printf("Error: duration_type is null\n");
         return;
     }
 
-    if (strcmp(duration_type, "minutes") == 0) {
+    if (pizza_io_cstr_compare(duration_type, "minutes") == 0) {
         assume_duration(expected, actual, 60.0);
-    } else if (strcmp(duration_type, "seconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "seconds") == 0) {
         assume_duration(expected, actual, 1.0);
-    } else if (strcmp(duration_type, "milliseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "milliseconds") == 0) {
         assume_duration(expected, actual, 0.001);
-    } else if (strcmp(duration_type, "microseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "microseconds") == 0) {
         assume_duration(expected, actual, 1e-6);
-    } else if (strcmp(duration_type, "nanoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "nanoseconds") == 0) {
         assume_duration(expected, actual, 1e-9);
-    } else if (strcmp(duration_type, "picoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "picoseconds") == 0) {
         assume_duration(expected, actual, 1e-12);
-    } else if (strcmp(duration_type, "femtoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "femtoseconds") == 0) {
         assume_duration(expected, actual, 1e-15);
-    } else if (strcmp(duration_type, "attoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "attoseconds") == 0) {
         assume_duration(expected, actual, 1e-18);
-    } else if (strcmp(duration_type, "zeptoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "zeptoseconds") == 0) {
         assume_duration(expected, actual, 1e-21);
-    } else if (strcmp(duration_type, "yoctoseconds") == 0) {
+    } else if (pizza_io_cstr_compare(duration_type, "yoctoseconds") == 0) {
         assume_duration(expected, actual, 1e-24);
     } else {
         printf("Unknown option: %s\n", duration_type);
@@ -101,13 +101,13 @@ void fossil_test_benchmark(char* duration_type, double expected, double actual) 
 } // end of func
 
 void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
 
-    if (name == NULL) {
-        printf("Error: name is NULL\n");
+    if (name == null) {
+        pizza_io_printf("Error: name is null\n");
         return;
     }
 
@@ -120,8 +120,8 @@ void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name) {
 }
 
 void fossil_benchmark_start(fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
 
@@ -132,8 +132,8 @@ void fossil_benchmark_start(fossil_mark_t* benchmark) {
 }
 
 void fossil_benchmark_stop(fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
 
@@ -153,40 +153,40 @@ void fossil_benchmark_stop(fossil_mark_t* benchmark) {
 }
 
 double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return 0.0;
     }
     return benchmark->total_duration;
 }
 
 double fossil_benchmark_min_time(const fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return 0.0;
     }
     return benchmark->min_duration;
 }
 
 double fossil_benchmark_max_time(const fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return 0.0;
     }
     return benchmark->max_duration;
 }
 
 double fossil_benchmark_avg_time(const fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return 0.0;
     }
     return benchmark->num_samples > 0 ? benchmark->total_duration / benchmark->num_samples : 0.0;
 }
 
 void fossil_benchmark_reset(fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
     benchmark->num_samples = 0;
@@ -196,25 +196,25 @@ void fossil_benchmark_reset(fossil_mark_t* benchmark) {
 }
 
 void fossil_benchmark_report(const fossil_mark_t* benchmark) {
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
-    printf("\033[1;36mBenchmark : %s\n", benchmark->name);
-    printf("\033[1;32mTotal Time: %.6f seconds\n", fossil_benchmark_elapsed_seconds(benchmark));
-    printf("\033[1;32mMin Time  : %.6f seconds\n", fossil_benchmark_min_time(benchmark));
-    printf("\033[1;32mMax Time  : %.6f seconds\n", fossil_benchmark_max_time(benchmark));
-    printf("\033[1;32mAvg Time  : %.6f seconds\n", fossil_benchmark_avg_time(benchmark));
+    pizza_io_printf("\033[1;36mBenchmark : %s\n", benchmark->name);
+    pizza_io_printf("\033[1;32mTotal Time: %.6f seconds\n", fossil_benchmark_elapsed_seconds(benchmark));
+    pizza_io_printf("\033[1;32mMin Time  : %.6f seconds\n", fossil_benchmark_min_time(benchmark));
+    pizza_io_printf("\033[1;32mMax Time  : %.6f seconds\n", fossil_benchmark_max_time(benchmark));
+    pizza_io_printf("\033[1;32mAvg Time  : %.6f seconds\n", fossil_benchmark_avg_time(benchmark));
 }
 
 void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark) {
-    if (scoped_benchmark == NULL) {
-        printf("Error: scoped_benchmark is NULL\n");
+    if (scoped_benchmark == null) {
+        pizza_io_printf("Error: scoped_benchmark is null\n");
         return;
     }
 
-    if (benchmark == NULL) {
-        printf("Error: benchmark is NULL\n");
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
         return;
     }
 
@@ -223,8 +223,8 @@ void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil
 }
 
 void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark) {
-    if (scoped_benchmark == NULL) {
-        printf("Error: scoped_benchmark is NULL\n");
+    if (scoped_benchmark == null) {
+        pizza_io_printf("Error: scoped_benchmark is null\n");
         return;
     }
 

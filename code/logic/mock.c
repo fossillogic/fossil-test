@@ -23,8 +23,8 @@ void fossil_mock_init(fossil_mock_calllist_t *list) {
     if (!list) {
         return;
     }
-    list->head = NULL;
-    list->tail = NULL;
+    list->head = null;
+    list->tail = null;
     list->size = 0;
 }
 
@@ -36,16 +36,16 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
     fossil_mock_call_t *current = list->head;
     while (current) {
         fossil_mock_call_t *next = current->next;
-        free(current->function_name);
+        pizza_sys_memory_free(current->function_name);
         for (int i = 0; i < current->num_args; ++i) {
-            free(current->arguments[i]);
+            pizza_sys_memory_free(current->arguments[i]);
         }
-        free(current->arguments);
-        free(current);
+        pizza_sys_memory_free(current->arguments);
+        pizza_sys_memory_free(current);
         current = next;
     }
-    list->head = NULL;
-    list->tail = NULL;
+    list->head = null;
+    list->tail = null;
     list->size = 0;
 }
 
@@ -54,21 +54,21 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         return;
     }
 
-    fossil_mock_call_t *call = (fossil_mock_call_t *)malloc(sizeof(fossil_mock_call_t));
+    fossil_mock_call_t *call = (fossil_mock_call_t *)pizza_sys_memory_alloc(sizeof(fossil_mock_call_t));
     if (!call) {
         return;
     }
 
     call->function_name = pizza_io_cstr_dup(function_name);
     if (!call->function_name) {
-        free(call);
+        pizza_sys_memory_free(call);
         return;
     }
 
     call->arguments = (char **)malloc(num_args * sizeof(char *));
     if (!call->arguments) {
-        free(call->function_name);
-        free(call);
+        pizza_sys_memory_free(call->function_name);
+        pizza_sys_memory_free(call);
         return;
     }
 
@@ -76,17 +76,17 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         call->arguments[i] = pizza_io_cstr_dup(arguments[i]);
         if (!call->arguments[i]) {
             for (int j = 0; j < i; ++j) {
-                free(call->arguments[j]);
+                pizza_sys_memory_free(call->arguments[j]);
             }
-            free(call->arguments);
-            free(call->function_name);
-            free(call);
+            pizza_sys_memory_free(call->arguments);
+            pizza_sys_memory_free(call->function_name);
+            pizza_sys_memory_free(call);
             return;
         }
     }
 
     call->num_args = num_args;
-    call->next = NULL;
+    call->next = null;
 
     if (list->tail) {
         list->tail->next = call;
@@ -104,15 +104,15 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
 
     fossil_mock_call_t *current = list->head;
     while (current) {
-        printf("Function: %s\n", current->function_name);
-        printf("Arguments: ");
+        pizza_io_printf("Function: %s\n", current->function_name);
+        pizza_io_printf("Arguments: ");
         for (int i = 0; i < current->num_args; ++i) {
-            printf("%s", current->arguments[i]);
+            pizza_io_printf("%s", current->arguments[i]);
             if (i < current->num_args - 1) {
-                printf(", ");
+                pizza_io_printf(", ");
             }
         }
-        printf("\n");
+        pizza_io_printf("\n");
         current = current->next;
     }
 }
