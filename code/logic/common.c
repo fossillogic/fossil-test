@@ -16,6 +16,107 @@
 #include <stdio.h>
 
 // *****************************************************************************
+// command pallet
+// *****************************************************************************
+// flags: --version, --help, --config, --verbose, --quiet, --no-color, --this
+// commands: shuffle, repeate, search, reverse, list, color
+pizza_cli_context_t *pizza_cli_create(void) {
+    pizza_cli_context_t *ctx = (pizza_cli_context_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_context_t));
+    if (!ctx) {
+        fprintf(stderr, "Error: Failed to create CLI context.\n");
+        return NULL;
+    }
+    ctx->root = NULL;
+    ctx->config_file = NULL;
+    return ctx;
+}
+
+void pizza_cli_destroy(pizza_cli_context_t *ctx) {
+    if (!ctx) {
+        fprintf(stderr, "Error: Invalid context.\n");
+        return;
+    }
+
+    // Free all commands and flags
+    pizza_cli_command_t *cmd = ctx->root;
+    while (cmd) {
+        pizza_cli_command_t *next_cmd = cmd->next;
+        pizza_sys_memory_free(cmd);
+        cmd = next_cmd;
+    }
+
+    pizza_sys_memory_free(ctx);
+}
+
+pizza_cli_command_t *pizza_cli_add_command(pizza_cli_context_t *ctx, const char *name, const char *desc) {
+    if (!ctx || !name || !desc) {
+        fprintf(stderr, "Error: Invalid context, name, or description.\n");
+        return NULL;
+    }
+
+    pizza_cli_command_t *cmd = (pizza_cli_command_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_command_t));
+    if (!cmd) {
+        fprintf(stderr, "Error: Failed to create command.\n");
+        return NULL;
+    }
+
+    cmd->name = name;
+    cmd->description = desc;
+    cmd->flags = NULL;
+    cmd->subcommands = NULL;
+    cmd->next = ctx->root;
+    ctx->root = cmd;
+
+    return cmd;
+}
+
+void pizza_cli_add_flag(pizza_cli_command_t *cmd, const char *name, const char *alias, pizza_cli_flag_type_t type, const char *default_val, const char *desc) {
+    if (!cmd || !name || !desc) {
+        fprintf(stderr, "Error: Invalid command, name, or description.\n");
+        return;
+    }
+
+    pizza_cli_flag_t *flag = (pizza_cli_flag_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_flag_t));
+    if (!flag) {
+        fprintf(stderr, "Error: Failed to create flag.\n");
+        return;
+    }
+
+    flag->name = name;
+    flag->alias = alias;
+    flag->type = type;
+    flag->value = NULL; // Initialize value to NULL
+    flag->default_value = default_val;
+    flag->description = desc;
+    flag->next = cmd->flags;
+    cmd->flags = flag;
+}
+
+int pizza_cli_parse_ini(const char *filename, pizza_cli_context_t *ctx) {
+    if (!filename || !ctx) {
+        fprintf(stderr, "Error: Invalid filename or context.\n");
+        return -1;
+    }
+
+    // Implement INI parsing logic here
+    // ...
+
+    return 0; // Return 0 on success
+}
+
+int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv) {
+    if (!ctx || !argv) {
+        fprintf(stderr, "Error: Invalid context or arguments.\n");
+        return -1;
+    }
+
+    // Implement command-line parsing logic here
+    // ...
+
+    return 0; // Return 0 on success
+}
+
+// *****************************************************************************
 // memory management
 // *****************************************************************************
 

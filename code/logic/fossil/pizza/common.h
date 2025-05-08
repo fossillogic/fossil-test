@@ -180,7 +180,7 @@ extern "C" {
 /**
  * @brief Empty string constants for C and wide strings.
  */
-#define empty ""
+#define cempty ""
 
 /**
  * @brief Ensure safe cleanup by nullifying pointers after use.
@@ -197,7 +197,7 @@ extern "C" {
  *
  * @param msg The message to display when panicking.
  */
-#define panic(msg) (fprintf(stderr, "Panic: %s\n", msg), exit(EXIT_FAILURE))
+#define panic(msg) (pizza_io_fprintf(PIZZA_STDERR, "Panic: %s\n", msg), exit(EXIT_FAILURE))
 
 /**
  * @brief Mimics Rust's Option type.
@@ -261,6 +261,56 @@ typedef struct {
  * @return The value inside the `Option`, or the default value if `None`.
  */
 #define unwrap_or_option(opt, default_val) ((opt).is_some ? (opt).value : (default_val))
+
+// *****************************************************************************
+// Command Pallet
+// *****************************************************************************
+
+typedef enum {
+    PIZZA_CLI_FLAG_STRING,
+    PIZZA_CLI_FLAG_INT,
+    PIZZA_CLI_FLAG_FLOAT,
+    PIZZA_CLI_FLAG_BOOL,
+    PIZZA_CLI_FLAG_FEATURE, // auto/enable/disable
+    PIZZA_CLI_FLAG_ARRAY
+} pizza_cli_flag_type_t;
+
+typedef struct pizza_cli_flag_t {
+    const char *name;
+    const char *alias; // optional
+    pizza_cli_flag_type_t type;
+    void *value;
+    const char *default_value;
+    const char *description;
+    struct pizza_cli_flag_t *next;
+} pizza_cli_flag_t;
+
+typedef struct pizza_cli_command_t {
+    const char *name;
+    const char *description;
+    pizza_cli_flag_t *flags;
+    struct pizza_cli_command_t *subcommands;
+    struct pizza_cli_command_t *next;
+    void (*handler)(void); // Function to call when command is run
+} pizza_cli_command_t;
+
+typedef struct {
+    pizza_cli_command_t *root;
+    const char *config_file;
+} pizza_cli_context_t;
+
+
+int pizza_cli_parse_ini(const char *filename, pizza_cli_context_t *ctx);
+
+pizza_cli_context_t *pizza_cli_create(void);
+
+void pizza_cli_destroy(pizza_cli_context_t *ctx);
+
+pizza_cli_command_t *pizza_cli_add_command(pizza_cli_context_t *ctx, const char *name, const char *desc);
+
+void pizza_cli_add_flag(pizza_cli_command_t *cmd, const char *name, const char *alias, pizza_cli_flag_type_t type, const char *default_val, const char *desc);
+
+int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv);
 
 // *****************************************************************************
 // Memory management
