@@ -19,7 +19,7 @@
 // command pallet
 // *****************************************************************************
 // flags: --version, --help, --config, --verbose, --quiet, --no-color, --this
-// commands: shuffle, repeate, search, reverse, list, color
+// catagories: general, mock, test, mock, sanity
 pizza_cli_context_t *pizza_cli_create(void) {
     pizza_cli_context_t *ctx = (pizza_cli_context_t *)pizza_sys_memory_alloc(sizeof(pizza_cli_context_t));
     if (!ctx) {
@@ -105,6 +105,7 @@ int pizza_cli_parse_ini(const char *filename, pizza_cli_context_t *ctx) {
 }
 
 int pizza_cli_parse(pizza_cli_context_t *ctx, int argc, char **argv) {
+    unused(argc); // Unused parameter
     if (!ctx || !argv) {
         fprintf(stderr, "Error: Invalid context or arguments.\n");
         return -1;
