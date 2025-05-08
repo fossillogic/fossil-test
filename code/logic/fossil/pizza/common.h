@@ -202,10 +202,10 @@ extern "C" {
 /**
  * @brief Mimics Rust's Option type.
  * 
- * The `optional` macro represents a nullable pointer that can be either `null` or a valid pointer.
+ * The `coptional` macro represents a nullable pointer that can be either `null` or a valid pointer.
  * It can be used to model optional values that may or may not be present.
  */
-#define optional(ptr) ((ptr) ? (ptr) : null)
+#define coptional(ptr) ((ptr) ? (ptr) : null)
 
 /**
  * @brief `Option` structure to mimic Rust's `Option<T>`.
