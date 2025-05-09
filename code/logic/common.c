@@ -100,11 +100,11 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (strcmp(argv[i] + 6, "enable") == 0) {
-                pallet.color = 1;
+                pallet.color = "enabled";
             } else if (strcmp(argv[i] + 6, "disable") == 0) {
-                pallet.color = 0;
+                pallet.color = "disabled";
             } else if (strcmp(argv[i] + 6, "auto") == 0) {
-                pallet.color = -1; // Auto mode, system default
+                pallet.color = "auto"; // Auto mode, system default
             }
         } else if (strncmp(argv[i], "threads=", 8) == 0) {
             pallet.threads = argv[i] + 8;
@@ -533,11 +533,17 @@ char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t t
 
     switch (tone) {
         case PIZZA_AI_TONE_PLAIN:
-            snprintf(summary, 256, "Total: %zu, Passed: %zu, Failed: %zu, Skipped: %zu", stats.total, stats.passed, stats.failed, stats.skipped);
-            break;
-        case PIZZA_AI_TONE_CI:
+            snprintf(summary, 256, "Total: %llu, Passed: %llu, Failed: %llu, Skipped: %llu", 
+                     (unsigned long long)stats.total, (unsigned long long)stats.passed, 
+                     (unsigned long long)stats.failed, (unsigned long long)stats.skipped);
+            snprintf(summary, 256, "CI: %llu/%llu (%llu%%)", 
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total, 
+                     (unsigned long long)((stats.passed * 100) / stats.total));
+            snprintf(summary, 256, "You passed %llu out of %llu tests. Good job!", 
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
             snprintf(summary, 256, "CI: %zu/%zu (%zu%%)", stats.passed, stats.total, (stats.passed * 100) / stats.total);
-            break;
+            snprintf(summary, 256, "Wow! %llu/%llu tests passed. Much success!", 
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
         case PIZZA_AI_TONE_HUMAN:
             snprintf(summary, 256, "You passed %zu out of %zu tests. Good job!", stats.passed, stats.total);
             break;
