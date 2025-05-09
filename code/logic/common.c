@@ -20,55 +20,59 @@
 // *****************************************************************************
 
 static void _show_help(void) {
-    printf("Usage: fossil_pizza [options] [command]\n");
-    printf("Options:\n");
-    printf("  --dry-run          Perform a dry run without executing commands\n");
-    printf("  --version          Show version information\n");
-    printf("  --help             Show this help message\n");
-    printf("  --host <host>      Specify the host name or address\n");
-    printf("  --this             Use the current context\n");
-    printf("Commands:\n");
-    printf("  run                Execute tests with optional parameters\n");
-    printf("  filter             Filter tests based on criteria\n");
-    printf("  sort               Sort tests by specified criteria\n");
-    printf("  shuffle            Shuffle tests with optional parameters\n");
-    printf("  color=<mode>       Set color mode (enable, disable, auto)\n");
-    printf("  threads=<count>    Specify the number of threads to use\n");
-    printf("  theme=<name>       Set the theme (fossil, catch, doctest, etc.)\n");
-    printf("  verbose=<level>    Set verbosity level (plain, ci, doge, human)\n");
-    printf("Use 'fossil_pizza <command> --help' for more information on a specific command.\n");
+    pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
+    pizza_io_printf("{blue}Options:{reset}\n");
+    pizza_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
+    pizza_io_printf("{cyan}  --version          Show version information{reset}\n");
+    pizza_io_printf("{cyan}  --help             Show this help message{reset}\n");
+    pizza_io_printf("{cyan}  --host <host>      Specify the host name or address{reset}\n");
+    pizza_io_printf("{cyan}  --this             Use the current context{reset}\n");
+    pizza_io_printf("{blue}Commands:{reset}\n");
+    pizza_io_printf("{cyan}  run                Execute tests with optional parameters{reset}\n");
+    pizza_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
+    pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
+    pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
+    pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
+    pizza_io_printf("{cyan}  threads=<count>    Specify the number of threads to use{reset}\n");
+    pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
+    pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge, human){reset}\n");
+    exit(EXIT_SUCCESS);
 }
 
-static _show_subhelp_run(void) {
-    printf("Run command options:\n");
-    printf("  --fail-fast        Stop on the first failure\n");
-    printf("  --skip             Skip tests\n");
-    printf("  --only <test>      Run only the specified test\n");
-    printf("  --repeat <count>   Repeat the test a specified number of times\n");
-    printf("  --help             Show help for run command\n");
+static void _show_subhelp_run(void) {
+    pizza_io_printf("{blue}Run command options:{reset}\n");
+    pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
+    pizza_io_printf("{cyan}  --skip             Skip tests{reset}\n");
+    pizza_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
+    pizza_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
+    pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
+    exit(EXIT_SUCCESS);
 }
 
-static _show_subhelp_filter(void) {
-    printf("Filter command options:\n");
-    printf("  --test-name <name> Filter by test name\n");
-    printf("  --suite-name <name> Filter by suite name\n");
-    printf("  --tag <tag>        Filter by tag\n");
-    printf("  --help             Show help for filter command\n");
+static void _show_subhelp_filter(void) {
+    pizza_io_printf("{blue}Filter command options:{reset}\n");
+    pizza_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
+    pizza_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
+    pizza_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
+    pizza_io_printf("{cyan}  --help             Show help for filter command{reset}\n");
+    exit(EXIT_SUCCESS);
 }
 
-static _show_subhelp_sort(void) {
-    printf("Sort command options:\n");
-    printf("  --by <criteria>    Sort by specified criteria\n");
-    printf("  --order <asc|desc> Sort in ascending or descending order\n");
-    printf("  --help             Show help for sort command\n");
+static void _show_subhelp_sort(void) {
+    pizza_io_printf("{blue}Sort command options:{reset}\n");
+    pizza_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
+    pizza_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
+    pizza_io_printf("{cyan}  --help             Show help for sort command{reset}\n");
+    exit(EXIT_SUCCESS);
 }
 
-static _show_subhelp_shuffle(void) {
-    printf("Shuffle command options:\n");
-    printf("  --seed <seed>      Specify the seed for shuffling\n");
-    printf("  --count <count>    Number of items to shuffle\n");
-    printf("  --by <criteria>    Shuffle by specified criteria\n");
-    printf("  --help             Show help for shuffle command\n");
+static void _show_subhelp_shuffle(void) {
+    pizza_io_printf("{blue}Shuffle command options:{reset}\n");
+    pizza_io_printf("{cyan}  --seed <seed>      Specify the seed for shuffling{reset}\n");
+    pizza_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
+    pizza_io_printf("{cyan}  --by <criteria>    Shuffle by specified criteria{reset}\n");
+    pizza_io_printf("{cyan}  --help             Show help for shuffle command{reset}\n");
+    exit(EXIT_SUCCESS);
 }
 
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
@@ -81,7 +85,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
         } else if (strcmp(argv[i], "--version") == 0) {
             pallet.version = 1;
         } else if (strcmp(argv[i], "--help") == 0) {
-            pallet.help = 1;
+            _show_help();
         } else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) {
             pallet.host = argv[++i];
         } else if (strcmp(argv[i], "--this") == 0) {
@@ -93,19 +97,19 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             pallet.run.repeat = 1;
 
             for (int j = i + 1; j < argc; j++) {
-            if (strcmp(argv[j], "--fail-fast") == 0) {
-            pallet.run.fail_fast = 1;
-            } else if (strcmp(argv[j], "--skip") == 0) {
-            pallet.run.skip = 1;
-            } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
-            pallet.run.only = argv[++j];
-            } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
-            pallet.run.repeat = atoi(argv[++j]);
-            } else if (strcmp(argv[j], "--help") == 0) {
-            pallet.run.help = 1;
-            } else {
-            break;
-            }
+                if (strcmp(argv[j], "--fail-fast") == 0) {
+                    pallet.run.fail_fast = 1;
+                } else if (strcmp(argv[j], "--skip") == 0) {
+                    pallet.run.skip = 1;
+                } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
+                    pallet.run.only = argv[++j];
+                } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
+                    pallet.run.repeat = atoi(argv[++j]);
+                } else if (strcmp(argv[j], "--help") == 0) {
+                    _show_subhelp_run();
+                } else {
+                    break;
+                }
             }
         } else if (strcmp(argv[i], "filter") == 0) {
             pallet.filter.test_name = null;
@@ -113,32 +117,32 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             pallet.filter.tag = null;
 
             for (int j = i + 1; j < argc; j++) {
-            if (strcmp(argv[j], "--test-name") == 0 && j + 1 < argc) {
-            pallet.filter.test_name = argv[++j];
-            } else if (strcmp(argv[j], "--suite-name") == 0 && j + 1 < argc) {
-            pallet.filter.suite_name = argv[++j];
-            } else if (strcmp(argv[j], "--tag") == 0 && j + 1 < argc) {
-            pallet.filter.tag = argv[++j];
-            } else if (strcmp(argv[j], "--help") == 0) {
-            pallet.filter.help = 1;
-            } else {
-            break;
-            }
+                if (strcmp(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                    pallet.filter.test_name = argv[++j];
+                } else if (strcmp(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                    pallet.filter.suite_name = argv[++j];
+                } else if (strcmp(argv[j], "--tag") == 0 && j + 1 < argc) {
+                    pallet.filter.tag = argv[++j];
+                } else if (strcmp(argv[j], "--help") == 0) {
+                    _show_subhelp_filter();
+                } else {
+                    break;
+                }
             }
         } else if (strcmp(argv[i], "sort") == 0) {
             pallet.sort.by = null;
             pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
-            if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
-            pallet.sort.by = argv[++j];
-            } else if (strcmp(argv[j], "--order") == 0 && j + 1 < argc) {
-            pallet.sort.order = argv[++j];
-            } else if (strcmp(argv[j], "--help") == 0) {
-            pallet.sort.help = 1;
-            } else {
-            break;
-            }
+                if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                    pallet.sort.by = argv[++j];
+                } else if (strcmp(argv[j], "--order") == 0 && j + 1 < argc) {
+                    pallet.sort.order = argv[++j];
+                } else if (strcmp(argv[j], "--help") == 0) {
+                    _show_subhelp_sort();
+                } else {
+                    break;
+                }
             }
         } else if (strcmp(argv[i], "shuffle") == 0) {
             pallet.shuffle.seed = null;
@@ -146,25 +150,25 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
-            if (strcmp(argv[j], "--seed") == 0 && j + 1 < argc) {
-            pallet.shuffle.seed = argv[++j];
-            } else if (strcmp(argv[j], "--count") == 0 && j + 1 < argc) {
-            pallet.shuffle.count = atoi(argv[++j]);
-            } else if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
-            pallet.shuffle.by = argv[++j];
-            } else if (strcmp(argv[j], "--help") == 0) {
-            pallet.shuffle.help = 1;
-            } else {
-            break;
-            }
+                if (strcmp(argv[j], "--seed") == 0 && j + 1 < argc) {
+                    pallet.shuffle.seed = argv[++j];
+                } else if (strcmp(argv[j], "--count") == 0 && j + 1 < argc) {
+                    pallet.shuffle.count = atoi(argv[++j]);
+                } else if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                    pallet.shuffle.by = argv[++j];
+                } else if (strcmp(argv[j], "--help") == 0) {
+                    _show_subhelp_shuffle();
+                } else {
+                    break;
+                }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (strcmp(argv[i] + 6, "enable") == 0) {
-            pallet.color = "enabled";
+                pallet.color = "enabled";
             } else if (strcmp(argv[i] + 6, "disable") == 0) {
-            pallet.color = "disabled";
+                pallet.color = "disabled";
             } else if (strcmp(argv[i] + 6, "auto") == 0) {
-            pallet.color = "auto"; // Auto mode, system default
+                pallet.color = "auto"; // Auto mode, system default
             }
         } else if (strncmp(argv[i], "threads=", 8) == 0) {
             pallet.threads = argv[i] + 8;
@@ -878,56 +882,56 @@ int32_t FOSSIL_IO_ATTR_ENABLE = 1; // Flag to enable/disable attribute output
 // Function to apply color
 void pizza_io_apply_color(const char *color) {
     if (strcmp(color, "red") == 0) {
-        printf(FOSSIL_IO_COLOR_RED);
+        pizza_io_printf(FOSSIL_IO_COLOR_RED);
     } else if (strcmp(color, "green") == 0) {
-        printf(FOSSIL_IO_COLOR_GREEN);
+        pizza_io_printf(FOSSIL_IO_COLOR_GREEN);
     } else if (strcmp(color, "yellow") == 0) {
-        printf(FOSSIL_IO_COLOR_YELLOW);
+        pizza_io_printf(FOSSIL_IO_COLOR_YELLOW);
     } else if (strcmp(color, "blue") == 0) {
-        printf(FOSSIL_IO_COLOR_BLUE);
+        pizza_io_printf(FOSSIL_IO_COLOR_BLUE);
     } else if (strcmp(color, "magenta") == 0) {
-        printf(FOSSIL_IO_COLOR_MAGENTA);
+        pizza_io_printf(FOSSIL_IO_COLOR_MAGENTA);
     } else if (strcmp(color, "cyan") == 0) {
-        printf(FOSSIL_IO_COLOR_CYAN);
+        pizza_io_printf(FOSSIL_IO_COLOR_CYAN);
     } else if (strcmp(color, "white") == 0) {
-        printf(FOSSIL_IO_COLOR_WHITE);
+        pizza_io_printf(FOSSIL_IO_COLOR_WHITE);
     }
     // Bright colors
     else if (strcmp(color, "bright_red") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_RED);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_RED);
     } else if (strcmp(color, "bright_green") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
     } else if (strcmp(color, "bright_yellow") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
     } else if (strcmp(color, "bright_blue") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
     } else if (strcmp(color, "bright_magenta") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
     } else if (strcmp(color, "bright_cyan") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
     } else if (strcmp(color, "bright_white") == 0) {
-        printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
+        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
     }
 }
 
 // Function to apply text attributes (e.g., bold, underline)
 void pizza_io_apply_attribute(const char *attribute) {
     if (strcmp(attribute, "bold") == 0) {
-        printf(FOSSIL_IO_ATTR_BOLD);
+        pizza_io_printf(FOSSIL_IO_ATTR_BOLD);
     } else if (strcmp(attribute, "underline") == 0) {
-        printf(FOSSIL_IO_ATTR_UNDERLINE);
+        pizza_io_printf(FOSSIL_IO_ATTR_UNDERLINE);
     } else if (strcmp(attribute, "reversed") == 0) {
-        printf(FOSSIL_IO_ATTR_REVERSED);
+        pizza_io_printf(FOSSIL_IO_ATTR_REVERSED);
     } else if (strcmp(attribute, "blink") == 0) {
-        printf(FOSSIL_IO_ATTR_BLINK);
+        pizza_io_printf(FOSSIL_IO_ATTR_BLINK);
     } else if (strcmp(attribute, "hidden") == 0) {
-        printf(FOSSIL_IO_ATTR_HIDDEN);
+        pizza_io_printf(FOSSIL_IO_ATTR_HIDDEN);
     } else if (strcmp(attribute, "normal") == 0) {
-        printf(FOSSIL_IO_ATTR_NORMAL);
+        pizza_io_printf(FOSSIL_IO_ATTR_NORMAL);
     } else if (strcmp(attribute, "italic") == 0) {
-        printf(FOSSIL_IO_ATTR_ITALIC);
+        pizza_io_printf(FOSSIL_IO_ATTR_ITALIC);
     } else if (strcmp(attribute, "strikethrough") == 0) {
-        printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
+        pizza_io_printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
     }
 }
 
@@ -935,16 +939,16 @@ void pizza_io_apply_attribute(const char *attribute) {
 void pizza_io_apply_position(const char *pos) {
     if (strcmp(pos, "top") == 0) {
         // Apply position logic for top
-        printf("\033[H"); // Move cursor to the top
+        pizza_io_printf("\033[H"); // Move cursor to the top
     } else if (strcmp(pos, "bottom") == 0) {
         // Apply position logic for bottom
-        printf("\033[1000H"); // Move cursor to the bottom (just as an example)
+        pizza_io_printf("\033[1000H"); // Move cursor to the bottom (just as an example)
     } else if (strcmp(pos, "left") == 0) {
         // Apply position logic for left
-        printf("\033[1000;0H"); // Move cursor to the left
+        pizza_io_printf("\033[1000;0H"); // Move cursor to the left
     } else if (strcmp(pos, "right") == 0) {
         // Apply position logic for right
-        printf("\033[1000;1000H"); // Move cursor to the right
+        pizza_io_printf("\033[1000;1000H"); // Move cursor to the right
     }
     // Add more positions if needed
 }
@@ -966,7 +970,7 @@ void pizza_io_print_with_attributes(const char *format, ...) {
     // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
     while ((start = strchr(current_pos, '{')) != null) {
         // Print text before '{'
-        printf("%.*s", (int)(start - current_pos), current_pos);
+        pizza_io_printf("%.*s", (int)(start - current_pos), current_pos);
         
         // Find the matching '}'
         end = strchr(start, '}');
@@ -1010,7 +1014,7 @@ void pizza_io_print_with_attributes(const char *format, ...) {
     }
 
     // Print remaining text after last '}'
-    printf("%s", current_pos);
+    pizza_io_printf("%s", current_pos);
 
     va_end(args);
 }
@@ -1102,19 +1106,19 @@ void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...) {
 // TUI PART
 
 void pizza_io_clear_screen(void) {
-    printf("\033[2J\033[H");
+    pizza_io_printf("\033[2J\033[H");
 }
 
 void pizza_io_move_cursor(int row, int col) {
-    printf("\033[%d;%dH", row, col);
+    pizza_io_printf("\033[%d;%dH", row, col);
 }
 
 void pizza_io_hide_cursor(void) {
-    printf("\033[?25l");
+    pizza_io_printf("\033[?25l");
 }
 
 void pizza_io_show_cursor(void) {
-    printf("\033[?25h");
+    pizza_io_printf("\033[?25h");
 }
 
 void pizza_io_draw_horizontal_line(int length, char ch) {

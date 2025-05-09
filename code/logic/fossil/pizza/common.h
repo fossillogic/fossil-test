@@ -287,7 +287,6 @@ typedef enum {
 typedef struct {
     int dry_run;               // Flag for dry run mode
     int version;               // Flag for version information
-    int help;                  // Flag for help information
     const char* host;          // Host name or address
     int use_current_context;   // Flag to use current context
     struct {
@@ -295,27 +294,23 @@ typedef struct {
         int skip;              // Flag for --skip
         const char* only;      // Value for --only
         int repeat;            // Value for --repeat
-        int help;             // Flag for --help
     } run;                     // Run command flags
 
     struct {
         const char* test_name; // Value for --test-name
         const char* suite_name;// Value for --suite-name
         const char* tag;       // Value for --tag
-        int help;             // Flag for --help
     } filter;                  // Filter command flags
 
     struct {
         const char* by;        // Value for --by
         const char* order;     // Value for --order
-        int help;             // Flag for --help
     } sort;                    // Sort command flags
 
     struct {
         const char* seed;      // Value for --seed
         int count;             // Value for --count
         const char* by;        // Value for --by
-        int help;             // Flag for --help
     } shuffle;                 // Shuffle command flags
     const char* color;         // Color option
     const char* threads;       // Number of threads option
