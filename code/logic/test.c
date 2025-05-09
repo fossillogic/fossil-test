@@ -161,17 +161,25 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
 // --- Summary Report ---
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
+
+    pizza_sys_hostinfo_system_t system_info;
+    pizza_sys_hostinfo_endianness_t endianness_info;
+
+    pizza_sys_hostinfo_get_system(&system_info);
+    pizza_sys_hostinfo_get_endianness(&endianness_info);
+
     pizza_io_printf("{blue}========================================================================={reset}\n");
-    pizza_io_printf("{blue}==={cyan} Fossil Pizza Test Summary {blue}==={reset}\n");
+    pizza_io_printf("{blue}==={cyan} Fossil Pizza Test Summary {blue}===: os{magenta} %s {blue}endianess:{magenta} %s {reset}\n",
+        system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
     pizza_io_printf("{blue}========================================================================={reset}\n");
-    pizza_io_printf("{blue}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d\n{reset}", engine->count, engine->score_possible);
+    pizza_io_printf("{blue}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
+        engine->count, engine->score_possible, engine->score_total, engine->score_possible);
     pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
     pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
     pizza_io_printf("{blue}Skipped   :{cyan} %4d\n{reset}", engine->score.skipped);
     pizza_io_printf("{blue}Timeouts  :{cyan} %4d\n{reset}", engine->score.timeout);
     pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
     pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
-    pizza_io_printf("{blue}\nScore:{cyan} %d/%d\n{reset}", engine->score_total, engine->score_possible);
 
     uint64_t total_elapsed_ns = 0;
     for (size_t i = 0; i < engine->count; ++i) {
@@ -186,10 +194,17 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     uint64_t microseconds = total_elapsed_us % 1000;
     uint64_t nanoseconds = total_elapsed_ns % 1000;
 
+    pizza_io_printf("{blue}\n========================================================================={reset}\n");
     pizza_io_printf("{blue}Elapsed Time:{white} %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n{reset}",
                     minutes, seconds, microseconds, nanoseconds);
 
-    pizza_io_printf("{blue}\n========================================================================={reset}\n");
+    // Calculate averages
+    double avg_time_per_suite_ns = (engine->count > 0) ? (double)total_elapsed_ns / engine->count : 0;
+    double avg_time_per_test_ns = (engine->score_possible > 0) ? (double)total_elapsed_ns / engine->score_possible : 0;
+
+    pizza_io_printf("{blue}Average Time per Suite:{white} %.2f nanoseconds\n{reset}", avg_time_per_suite_ns);
+    pizza_io_printf("{blue}Average Time per Test :{white} %.2f nanoseconds\n{reset}", avg_time_per_test_ns);
+    pizza_io_printf("{blue}========================================================================={reset}\n");
 }
 
 // --- End / Cleanup ---

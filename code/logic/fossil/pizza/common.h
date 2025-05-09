@@ -27,13 +27,21 @@
 #include <ctype.h>
 #include <math.h>
 
-#if defined(_WIN32)
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
 #elif defined(__APPLE__)
-#include <mach/mach_time.h>
+    #include <sys/utsname.h>
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <sys/sysctl.h>
+    #include <mach/mach_time.h>
 #else
-#include <sys/time.h>
-#include <time.h>
+    #include <sys/utsname.h>
+    #include <sys/sysinfo.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <sys/time.h>
+    #include <unistd.h>
 #endif
 
 #ifndef _POSIX_C_SOURCE
@@ -330,6 +338,52 @@ typedef struct {
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
 
 // *****************************************************************************
+// Host information
+// *****************************************************************************
+
+// Memory information structure
+typedef struct {
+    uint64_t total_memory; // in bytes
+    uint64_t free_memory;  // in bytes
+} pizza_sys_hostinfo_memory_t;
+
+// Endianness information structure
+typedef struct {
+    int is_little_endian; // 1 if little-endian, 0 if big-endian
+} pizza_sys_hostinfo_endianness_t;
+
+// System information structure
+typedef struct {
+    char os_name[128];
+    char os_version[128];
+    char kernel_version[128];
+} pizza_sys_hostinfo_system_t;
+
+/**
+ * Retrieve system information.
+ *
+ * @param info A pointer to a structure that will be filled with system information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
+
+/**
+ * Retrieve memory information.
+ *
+ * @param info A pointer to a structure that will be filled with memory information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info);
+
+/**
+ * Retrieve endianness information.
+ *
+ * @param info A pointer to a structure that will be filled with endianness information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info);
+
+// *****************************************************************************
 // Soap sanitizer
 // *****************************************************************************
 
@@ -369,46 +423,6 @@ void pizza_io_soap_clear_custom_filters(void);
  * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
  */
 const char *pizza_io_soap_detect_tone(const char *text);
-
-// *****************************************************************************
-// Jellyfish AI
-// *****************************************************************************
-
-typedef enum {
-    PIZZA_AI_TONE_PLAIN,
-    PIZZA_AI_TONE_CI,
-    PIZZA_AI_TONE_HUMAN,
-    PIZZA_AI_TONE_DOGE
-} pizza_ai_tone_t;
-
-typedef struct {
-    size_t passed;
-    size_t failed;
-    size_t skipped;
-    size_t total;
-    double runtime_seconds;
-} pizza_ai_result_stats_t;
-
-typedef struct {
-    char* short_summary;
-    char* detailed_message;
-    pizza_ai_tone_t tone;
-} pizza_ai_summary_t;
-
-// Analyze raw results and produce stats
-pizza_ai_result_stats_t pizza_ai_analyze(size_t total, size_t passed, size_t failed, size_t skipped, double runtime);
-
-// Generate a short summary string (one line)
-char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
-
-// Generate a more detailed multi-line message (dynamic text)
-char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
-
-// Full summary struct (includes both forms)
-pizza_ai_summary_t pizza_ai_create_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone);
-
-// Cleanup summary strings
-void pizza_ai_free_summary(pizza_ai_summary_t* summary);
 
 // *****************************************************************************
 // Memory management

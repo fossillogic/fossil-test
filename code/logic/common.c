@@ -211,6 +211,65 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 }
 
 // *****************************************************************************
+// Host information
+// *****************************************************************************
+
+int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
+    if (!info) return -1;
+#ifdef _WIN32
+    OSVERSIONINFO osvi;
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (!GetVersionEx(&osvi)) return -1;
+    snprintf(info->os_name, sizeof(info->os_name), "Windows");
+    snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
+    snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
+#elif defined(__APPLE__)
+    struct utsname sysinfo;
+    if (uname(&sysinfo) != 0) return -1;
+    strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
+    strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
+    strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
+#else
+    struct utsname sysinfo;
+    if (uname(&sysinfo) != 0) return -1;
+    strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
+    strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
+    strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
+#endif
+    return 0;
+}
+
+int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
+    if (!info) return -1;
+#ifdef _WIN32
+    MEMORYSTATUSEX statex;
+    statex.dwLength = sizeof(statex);
+    if (!GlobalMemoryStatusEx(&statex)) return -1;
+    info->total_memory = statex.ullTotalPhys;
+    info->free_memory = statex.ullAvailPhys;
+#elif defined(__APPLE__)
+    int64_t memsize;
+    size_t len = sizeof(memsize);
+    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
+    info->total_memory = memsize;
+    info->free_memory = 0; // macOS does not provide free memory info in the same way
+#else
+    struct sysinfo sys_info;
+    if (sysinfo(&sys_info) != 0) return -1;
+    info->total_memory = sys_info.totalram;
+    info->free_memory = sys_info.freeram;
+#endif
+    return 0;
+}
+
+int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
+    if (!info) return -1;
+    uint16_t test = 0x0001;
+    info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
+    return 0;
+}
+
+// *****************************************************************************
 // soap sanitizer
 // *****************************************************************************
 
@@ -581,101 +640,6 @@ const char *pizza_io_soap_detect_tone(const char *text) {
 }
 
 // *****************************************************************************
-// Jellyfish AI
-// *****************************************************************************
-
-// Analyze raw results and produce stats
-pizza_ai_result_stats_t pizza_ai_analyze(size_t total, size_t passed, size_t failed, size_t skipped, double runtime) {
-    pizza_ai_result_stats_t stats = {0};
-    stats.total = total;
-    stats.passed = passed;
-    stats.failed = failed;
-    stats.skipped = skipped;
-    stats.runtime_seconds = runtime;
-
-    return stats;
-}
-
-// Generate a short summary string (one line)
-char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
-    char* summary = (char*)malloc(256); // Allocate memory for the summary
-    if (!summary) return null;
-
-    switch (tone) {
-        case PIZZA_AI_TONE_PLAIN:
-            snprintf(summary, 256, "Total: %llu, Passed: %llu, Failed: %llu, Skipped: %llu", 
-                     (unsigned long long)stats.total, (unsigned long long)stats.passed, 
-                     (unsigned long long)stats.failed, (unsigned long long)stats.skipped);
-            break;
-        case PIZZA_AI_TONE_CI:
-            snprintf(summary, 256, "CI: %llu/%llu (%llu%%)", 
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total, 
-                     (unsigned long long)((stats.passed * 100) / stats.total));
-            break;
-        case PIZZA_AI_TONE_HUMAN:
-            snprintf(summary, 256, "You passed %llu out of %llu tests. Good job!", 
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
-            break;
-        case PIZZA_AI_TONE_DOGE:
-            snprintf(summary, 256, "Wow! %llu/%llu tests passed. Much success!", 
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
-            break;
-        default:
-            snprintf(summary, 256, "Unknown tone");
-            break;
-    }
-    return summary;
-}
-
-// Generate a more detailed multi-line message (dynamic text)
-char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
-    char* message = (char*)malloc(512); // Allocate memory for the message
-    if (!message) return null;
-
-    switch (tone) {
-        case PIZZA_AI_TONE_PLAIN:
-            snprintf(message, 512, "Test Results:\nTotal: %llu\nPassed: %llu\nFailed: %llu\nSkipped: %llu\nRuntime: %.2f seconds",
-                     (unsigned long long)stats.total, (unsigned long long)stats.passed, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
-            break;
-        case PIZZA_AI_TONE_CI:
-            snprintf(message, 512, "CI Results:\nTotal: %llu\nPassed: %llu\nFailed: %llu\nSkipped: %llu\nRuntime: %.2f seconds",
-                     (unsigned long long)stats.total, (unsigned long long)stats.passed, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
-            break;
-        case PIZZA_AI_TONE_HUMAN:
-            snprintf(message, 512, "Detailed Results:\nYou passed %llu out of %llu tests.\nFailed tests: %llu\nSkipped tests: %llu\nTotal runtime: %.2f seconds",
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
-            break;
-        case PIZZA_AI_TONE_DOGE:
-            snprintf(message, 512, "Detailed Results:\nWow! You passed %llu out of %llu tests!\nFailed tests: %llu\nSkipped tests: %llu\nTotal runtime: %.2f seconds",
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
-            break;
-        default:
-            snprintf(message, 512, "Unknown tone");
-            break;
-    }
-    return message;
-}
-
-// Full summary struct (includes both forms)
-pizza_ai_summary_t pizza_ai_create_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
-    pizza_ai_summary_t summary = {0};
-    summary.short_summary = pizza_ai_generate_summary(stats, tone);
-    summary.detailed_message = pizza_ai_generate_message(stats, tone);
-    summary.tone = tone;
-    return summary;
-}
-
-// Cleanup summary strings
-void pizza_ai_free_summary(pizza_ai_summary_t* summary) {
-    if (summary) {
-        pizza_sys_memory_free(summary->short_summary);
-        pizza_sys_memory_free(summary->detailed_message);
-        summary->short_summary = null;
-        summary->detailed_message = null;
-    }
-}
-
-// *****************************************************************************
 // memory management
 // *****************************************************************************
 
@@ -915,6 +879,8 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
     } else if (strcmp(color, "bright_white") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
+    } else {
+        printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
     }
 }
 
@@ -936,6 +902,8 @@ void pizza_io_apply_attribute(const char *attribute) {
         printf(FOSSIL_IO_ATTR_ITALIC);
     } else if (strcmp(attribute, "strikethrough") == 0) {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
+    } else {
+        printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
     }
 }
 
@@ -968,11 +936,11 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 
     // Variable to keep track of the current position in the buffer
     const char *current_pos = buffer;
-    const char *start = NULL;
-    const char *end = NULL;
+    const char *start = null;
+    const char *end = null;
 
     // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
-    while ((start = strchr(current_pos, '{')) != NULL) {
+    while ((start = strchr(current_pos, '{')) != null) {
         // Print text before '{'
         printf("%.*s", (int)(start - current_pos), current_pos);
         
@@ -986,9 +954,9 @@ void pizza_io_print_with_attributes(const char *format, ...) {
             attributes[length] = '\0';
 
             // Split by comma to separate color, attribute, or position
-            char *color = NULL;
-            char *attribute = NULL;
-            char *pos = NULL;
+            char *color = null;
+            char *attribute = null;
+            char *pos = null;
             char *comma_pos = strchr(attributes, ',');
             if (comma_pos) {
                 *comma_pos = '\0';  // null-terminate the first part
@@ -1025,7 +993,7 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 
 // Function to print a sanitized formatted string to a specific file stream with attributes
 void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
-    if (str != NULL && stream != NULL) {
+    if (str != null && stream != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
