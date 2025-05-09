@@ -484,22 +484,24 @@ pizza_ai_result_stats_t pizza_ai_analyze(size_t total, size_t passed, size_t fai
 
 // Generate a short summary string (one line)
 char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
-    char* summary = null;
+    char* summary = (char*)malloc(256); // Allocate memory for the summary
+    if (!summary) return null;
+
     switch (tone) {
         case PIZZA_AI_TONE_PLAIN:
-            asprintf(&summary, "Total: %zu, Passed: %zu, Failed: %zu, Skipped: %zu", stats.total, stats.passed, stats.failed, stats.skipped);
+            snprintf(summary, 256, "Total: %zu, Passed: %zu, Failed: %zu, Skipped: %zu", stats.total, stats.passed, stats.failed, stats.skipped);
             break;
         case PIZZA_AI_TONE_CI:
-            asprintf(&summary, "CI: %zu/%zu (%zu%%)", stats.passed, stats.total, (stats.passed * 100) / stats.total);
+            snprintf(summary, 256, "CI: %zu/%zu (%zu%%)", stats.passed, stats.total, (stats.passed * 100) / stats.total);
             break;
         case PIZZA_AI_TONE_HUMAN:
-            asprintf(&summary, "You passed %zu out of %zu tests. Good job!", stats.passed, stats.total);
+            snprintf(summary, 256, "You passed %zu out of %zu tests. Good job!", stats.passed, stats.total);
             break;
         case PIZZA_AI_TONE_DOGE:
-            asprintf(&summary, "Wow! %zu/%zu tests passed. Much success!", stats.passed, stats.total);
+            snprintf(summary, 256, "Wow! %zu/%zu tests passed. Much success!", stats.passed, stats.total);
             break;
         default:
-            asprintf(&summary, "Unknown tone");
+            snprintf(summary, 256, "Unknown tone");
             break;
     }
     return summary;
@@ -507,26 +509,28 @@ char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t t
 
 // Generate a more detailed multi-line message (dynamic text)
 char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t tone) {
-    char* message = null;
+    char* message = (char*)malloc(512); // Allocate memory for the message
+    if (!message) return null;
+
     switch (tone) {
         case PIZZA_AI_TONE_PLAIN:
-            asprintf(&message, "Test Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
+            snprintf(message, 512, "Test Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
                      stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_CI:
-            asprintf(&message, "CI Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
+            snprintf(message, 512, "CI Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
                      stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_HUMAN:
-            asprintf(&message, "Detailed Results:\nYou passed %zu out of %zu tests.\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
+            snprintf(message, 512, "Detailed Results:\nYou passed %zu out of %zu tests.\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
                      stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_DOGE:
-            asprintf(&message, "Detailed Results:\nWow! You passed %zu out of %zu tests!\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
+            snprintf(message, 512, "Detailed Results:\nWow! You passed %zu out of %zu tests!\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
                      stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
             break;
         default:
-            asprintf(&message, "Unknown tone");
+            snprintf(message, 512, "Unknown tone");
             break;
     }
     return message;
