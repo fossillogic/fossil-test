@@ -1,6 +1,6 @@
 dir = include_directories('.')
 
-test_code = ['mock.c', 'test.c', 'mark.c', 'common.c']
+test_code = ['mock.c', 'test.c', 'mark.c', 'sanity.c', 'common.c']
 
 fossil_test_lib = library('pizza-test',
     test_code,
