@@ -133,6 +133,8 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 pallet.verbose = PIZZA_VERBOSE_CI;
             } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
+            } else if (strcmp(verbose_str, "human") == 0) {
+                pallet.verbose = PIZZA_VERBOSE_HUMAN;
             }
         }
     }
@@ -536,19 +538,19 @@ char* pizza_ai_generate_summary(pizza_ai_result_stats_t stats, pizza_ai_tone_t t
             snprintf(summary, 256, "Total: %llu, Passed: %llu, Failed: %llu, Skipped: %llu", 
                      (unsigned long long)stats.total, (unsigned long long)stats.passed, 
                      (unsigned long long)stats.failed, (unsigned long long)stats.skipped);
+            break;
+        case PIZZA_AI_TONE_CI:
             snprintf(summary, 256, "CI: %llu/%llu (%llu%%)", 
                      (unsigned long long)stats.passed, (unsigned long long)stats.total, 
                      (unsigned long long)((stats.passed * 100) / stats.total));
+            break;
+        case PIZZA_AI_TONE_HUMAN:
             snprintf(summary, 256, "You passed %llu out of %llu tests. Good job!", 
                      (unsigned long long)stats.passed, (unsigned long long)stats.total);
-            snprintf(summary, 256, "CI: %zu/%zu (%zu%%)", stats.passed, stats.total, (stats.passed * 100) / stats.total);
-            snprintf(summary, 256, "Wow! %llu/%llu tests passed. Much success!", 
-                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
-        case PIZZA_AI_TONE_HUMAN:
-            snprintf(summary, 256, "You passed %zu out of %zu tests. Good job!", stats.passed, stats.total);
             break;
         case PIZZA_AI_TONE_DOGE:
-            snprintf(summary, 256, "Wow! %zu/%zu tests passed. Much success!", stats.passed, stats.total);
+            snprintf(summary, 256, "Wow! %llu/%llu tests passed. Much success!", 
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total);
             break;
         default:
             snprintf(summary, 256, "Unknown tone");

@@ -280,6 +280,7 @@ typedef enum {
 typedef enum {
     PIZZA_VERBOSE_PLAIN,
     PIZZA_VERBOSE_CI,
+    PIZZA_VERBOSE_HUMAN,
     PIZZA_VERBOSE_DOGE
 } fossil_pizza_cli_verbose_t;
 
