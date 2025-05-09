@@ -312,7 +312,6 @@ typedef struct {
         int count;             // Value for --count
         const char* by;        // Value for --by
     } shuffle;                 // Shuffle command flags
-    const char* color;         // Color option
     const char* threads;       // Number of threads option
     fossil_pizza_cli_theme_t theme;  // Theme option
     fossil_pizza_cli_verbose_t verbose;  // Verbose option

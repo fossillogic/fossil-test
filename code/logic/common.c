@@ -164,11 +164,15 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (strcmp(argv[i] + 6, "enable") == 0) {
-                pallet.color = "enabled";
+                PIZZA_IO_COLOR_ENABLE = 1;
             } else if (strcmp(argv[i] + 6, "disable") == 0) {
-                pallet.color = "disabled";
+                PIZZA_IO_COLOR_ENABLE = 0;
             } else if (strcmp(argv[i] + 6, "auto") == 0) {
-                pallet.color = "auto"; // Auto mode, system default
+                if (isatty(fileno(stdout))) {
+                    PIZZA_IO_COLOR_ENABLE = 1;
+                } else {
+                    PIZZA_IO_COLOR_ENABLE = 0;
+                }
             }
         } else if (strncmp(argv[i], "threads=", 8) == 0) {
             pallet.threads = argv[i] + 8;
