@@ -12,8 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#ifndef FOSSIL_MARK_BENCHMARK_H
-#define FOSSIL_MARK_BENCHMARK_H
+#ifndef FOSSIL_MARK_H
+#define FOSSIL_MARK_H
 
 #include "common.h"
 

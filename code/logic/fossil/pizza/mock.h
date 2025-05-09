@@ -12,8 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#ifndef FOSSIL_MOCK_MOCKUP_H
-#define FOSSIL_MOCK_MOCKUP_H
+#ifndef FOSSIL_MOCK_H
+#define FOSSIL_MOCK_H
 
 #include "common.h"
 

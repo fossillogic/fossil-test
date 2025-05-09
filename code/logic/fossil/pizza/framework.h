@@ -16,6 +16,7 @@
 #define FOSSIL_TEST_FRAMEWORK_H
 
 #include "assume.h"
+#include "sanity.h"
 #include "mark.h"
 #include "test.h"
 #include "mock.h"

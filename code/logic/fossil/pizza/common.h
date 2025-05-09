@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <float.h>
 #include <ctype.h>
+#include <math.h>
 
 #if defined(_WIN32)
 #include <windows.h>

@@ -12,8 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#ifndef FOSSIL_TEST_INTERNAL_H
-#define FOSSIL_TEST_INTERNAL_H
+#ifndef FOSSIL_TEST_H
+#define FOSSIL_TEST_H
 
 #include "common.h"
 
