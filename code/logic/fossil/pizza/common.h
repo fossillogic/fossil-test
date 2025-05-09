@@ -267,39 +267,36 @@ typedef struct {
 // Command Pallet
 // *****************************************************************************
 
-typedef struct {
-    char* name;
-    char* description;
-    char* value;
-} fossil_pizza_command_t;
+typedef enum {
+    PIZZA_THEME_FOSSIL,      // C,C++ Fossil Test Framework
+    PIZZA_THEME_CATCH,       // C++   Test Framework
+    PIZZA_THEME_DOCTEST,     // C++   Test Framework
+    PIZZA_THEME_CPPUTEST,    // C     Test Framework
+    PIZZA_THEME_TAP,         // C     Test Framework
+    PIZZA_THEME_GOOGLETEST,  // C++   Test Framework
+    PIZZA_THEME_UNITY        // C     Test Framework
+} fossil_pizza_cli_theme_t;
+
+typedef enum {
+    PIZZA_VERBOSE_PLAIN,
+    PIZZA_VERBOSE_CI,
+    PIZZA_VERBOSE_DOGE
+} fossil_pizza_cli_verbose_t;
 
 typedef struct {
-    char* name;
-    char* description;
-    char* value;
-} fossil_pizza_flag_t;
-
-typedef struct {
-    char* name;
-    char* description;
-    char* value;
-} fossil_pizza_option_t;
-
-typedef struct {
-    char* name;
-    char* description;
-    char* value;
-} fossil_pizza_config_t;
-
-typedef struct {
-    fossil_pizza_command_t* commands;
-    size_t command_count;
-    fossil_pizza_flag_t* flags;
-    size_t flag_count;
-    fossil_pizza_option_t* options;
-    size_t option_count;
-    fossil_pizza_config_t* configs;
-    size_t config_count;
+    int dry_run;               // Flag for dry run mode
+    int version;               // Flag for version information
+    int help;                  // Flag for help information
+    const char* host;          // Host name or address
+    int use_current_context;   // Flag to use current context
+    int run;                  // Flag to run the test
+    int filter;               // Flag to filter tests
+    int sort;                 // Flag to sort tests
+    int shuffle;              // Flag to shuffle tests
+    const char* color;         // Color option
+    const char* threads;       // Number of threads option
+    fossil_pizza_cli_theme_t theme;  // Theme option
+    fossil_pizza_cli_verbose_t verbose;  // Verbose option
 } fossil_pizza_pallet_t;
 
 /**
@@ -312,7 +309,7 @@ typedef struct {
  * @param argc The number of command line arguments.
  * @param argv The command line arguments.
  */
-fossil_pizza_pallet_t fossil_pizza_pallet_create(void);
+fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
 
 // *****************************************************************************
 // Soap sanitizer

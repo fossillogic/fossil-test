@@ -19,79 +19,67 @@
 // command pallet
 // *****************************************************************************
 
-fossil_pizza_pallet_t fossil_pizza_pallet_create(void) {
+fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
 
-    // Global flags
-    static fossil_pizza_flag_t global_flags[] = {
-        { "--dry-run",  "Run without executing test cases", null },
-        { "--version",  "Show version information",         null },
-        { "--help",     "Show help message",                null },
-        { "--host",     "Specify target host",              null },
-        { "--this",     "Use current test context",         null }
-    };
-
-    // Commands
-    static fossil_pizza_command_t commands[] = {
-        { "run",     "Execute test cases",                   null },
-        { "filter",  "Filter test cases",                    null },
-        { "sort",    "Sort test cases",                      null },
-        { "shuffle", "Shuffle test cases",                   null },
-        { "color",   "Toggle colored output",                "auto" },
-        { "threads", "Enable or disable multithreaded run",  "auto" },
-        { "theme",   "Set test output theme",                "pizza" },
-        { "verbose", "Set verbosity level",                  "plain" }
-    };
-
-    // Command-specific flags
-    static fossil_pizza_flag_t command_flags[] = {
-        // run
-        { "--fail-fast", "Stop on first failure",     null },
-        { "--skip",      "Skip matching tests",       null },
-        { "--only",      "Run only specific tests",   null },
-        { "--repeat",    "Repeat tests N times",      null },
-        { "--format",    "Select output format",      null },
-
-        // filter
-        { "--test-name",  "Match test names",         null },
-        { "--suite-name", "Match suite names",        null },
-        { "--tag",        "Match tag values",         null },
-
-        // sort
-        { "--by",    "Sort by criteria",              null },
-        { "--order", "Ascending or descending",       null },
-
-        // shuffle
-        { "--seed",  "Random seed",                   null },
-        { "--count", "Number of shuffles",            null },
-        { "--by",    "Shuffle strategy",              null }
-    };
-
-    // Options (e.g., used as pre-bound configuration pairs)
-    static fossil_pizza_option_t options[] = {
-        { "color",   "Color output setting",          "auto" },
-        { "threads", "Threading strategy",            "auto" },
-        { "theme",   "Output theme",                  "pizza" },
-        { "verbose", "Verbosity level",               "plain" }
-    };
-
-    // Configs (can be used to store runtime-applied resolved values)
-    static fossil_pizza_config_t configs[] = {
-        { "color",   "Final color setting",           null },
-        { "threads", "Final thread use",              null },
-        { "theme",   "Final test output theme",       null },
-        { "verbose", "Final verbosity level",         null }
-    };
-
-    // Assign all arrays and counts
-    pallet.flags         = global_flags;
-    pallet.flag_count    = sizeof(global_flags) / sizeof(global_flags[0]);
-    pallet.commands      = commands;
-    pallet.command_count = sizeof(commands) / sizeof(commands[0]);
-    pallet.options       = options;
-    pallet.option_count  = sizeof(options) / sizeof(options[0]);
-    pallet.configs       = configs;
-    pallet.config_count  = sizeof(configs) / sizeof(configs[0]);
+    // Parse command-line arguments
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--dry-run") == 0) {
+            pallet.dry_run = 1;
+        } else if (strcmp(argv[i], "--version") == 0) {
+            pallet.version = 1;
+        } else if (strcmp(argv[i], "--help") == 0) {
+            pallet.help = 1;
+        } else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) {
+            pallet.host = argv[++i];
+        } else if (strcmp(argv[i], "--this") == 0) {
+            pallet.use_current_context = 1;
+        } else if (strcmp(argv[i], "run") == 0) {
+            pallet.run = 1;
+        } else if (strcmp(argv[i], "filter") == 0) {
+            pallet.filter = 1;
+        } else if (strcmp(argv[i], "sort") == 0) {
+            pallet.sort = 1;
+        } else if (strcmp(argv[i], "shuffle") == 0) {
+            pallet.shuffle = 1;
+        } else if (strncmp(argv[i], "color=", 6) == 0) {
+            if (strcmp(argv[i] + 6, "enable") == 0) {
+                pallet.color = 1;
+            } else if (strcmp(argv[i] + 6, "disable") == 0) {
+                pallet.color = 0;
+            } else if (strcmp(argv[i] + 6, "auto") == 0) {
+                pallet.color = -1; // Auto mode, system default
+            }
+        } else if (strncmp(argv[i], "threads=", 8) == 0) {
+            pallet.threads = argv[i] + 8;
+        } else if (strncmp(argv[i], "theme=", 6) == 0) {
+            const char* theme_str = argv[i] + 6;
+            if (strcmp(theme_str, "fossil") == 0) {
+                pallet.theme = PIZZA_THEME_FOSSIL;
+            } else if (strcmp(theme_str, "catch") == 0) {
+                pallet.theme = PIZZA_THEME_CATCH;
+            } else if (strcmp(theme_str, "doctest") == 0) {
+                pallet.theme = PIZZA_THEME_DOCTEST;
+            } else if (strcmp(theme_str, "cpputest") == 0) {
+                pallet.theme = PIZZA_THEME_CPPUTEST;
+            } else if (strcmp(theme_str, "tap") == 0) {
+                pallet.theme = PIZZA_THEME_TAP;
+            } else if (strcmp(theme_str, "googletest") == 0) {
+                pallet.theme = PIZZA_THEME_GOOGLETEST;
+            } else if (strcmp(theme_str, "unity") == 0) {
+                pallet.theme = PIZZA_THEME_UNITY;
+            }
+        } else if (strncmp(argv[i], "verbose=", 8) == 0) {
+            const char* verbose_str = argv[i] + 8;
+            if (strcmp(verbose_str, "plain") == 0) {
+                pallet.verbose = PIZZA_VERBOSE_PLAIN;
+            } else if (strcmp(verbose_str, "ci") == 0) {
+                pallet.verbose = PIZZA_VERBOSE_CI;
+            } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
+                pallet.verbose = PIZZA_VERBOSE_DOGE;
+            }
+        }
+    }
 
     return pallet;
 }
@@ -514,20 +502,20 @@ char* pizza_ai_generate_message(pizza_ai_result_stats_t stats, pizza_ai_tone_t t
 
     switch (tone) {
         case PIZZA_AI_TONE_PLAIN:
-            snprintf(message, 512, "Test Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
-                     stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
+            snprintf(message, 512, "Test Results:\nTotal: %llu\nPassed: %llu\nFailed: %llu\nSkipped: %llu\nRuntime: %.2f seconds",
+                     (unsigned long long)stats.total, (unsigned long long)stats.passed, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_CI:
-            snprintf(message, 512, "CI Results:\nTotal: %zu\nPassed: %zu\nFailed: %zu\nSkipped: %zu\nRuntime: %.2f seconds",
-                     stats.total, stats.passed, stats.failed, stats.skipped, stats.runtime_seconds);
+            snprintf(message, 512, "CI Results:\nTotal: %llu\nPassed: %llu\nFailed: %llu\nSkipped: %llu\nRuntime: %.2f seconds",
+                     (unsigned long long)stats.total, (unsigned long long)stats.passed, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_HUMAN:
-            snprintf(message, 512, "Detailed Results:\nYou passed %zu out of %zu tests.\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
-                     stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
+            snprintf(message, 512, "Detailed Results:\nYou passed %llu out of %llu tests.\nFailed tests: %llu\nSkipped tests: %llu\nTotal runtime: %.2f seconds",
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
             break;
         case PIZZA_AI_TONE_DOGE:
-            snprintf(message, 512, "Detailed Results:\nWow! You passed %zu out of %zu tests!\nFailed tests: %zu\nSkipped tests: %zu\nTotal runtime: %.2f seconds",
-                     stats.passed, stats.total, stats.failed, stats.skipped, stats.runtime_seconds);
+            snprintf(message, 512, "Detailed Results:\nWow! You passed %llu out of %llu tests!\nFailed tests: %llu\nSkipped tests: %llu\nTotal runtime: %.2f seconds",
+                     (unsigned long long)stats.passed, (unsigned long long)stats.total, (unsigned long long)stats.failed, (unsigned long long)stats.skipped, stats.runtime_seconds);
             break;
         default:
             snprintf(message, 512, "Unknown tone");
