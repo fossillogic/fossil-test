@@ -161,9 +161,9 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
 // --- Summary Report ---
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
-    pizza_io_printf("{blue}================================={reset}\n");
+    pizza_io_printf("{blue}========================================================================={reset}\n");
     pizza_io_printf("{blue}==={cyan} Fossil Pizza Test Summary {blue}==={reset}\n");
-    pizza_io_printf("{blue}================================={reset}\n");
+    pizza_io_printf("{blue}========================================================================={reset}\n");
     pizza_io_printf("{blue}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d\n{reset}", engine->count, engine->score_possible);
     pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
     pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
@@ -189,7 +189,7 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     pizza_io_printf("{blue}Elapsed Time:{white} %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n{reset}",
                     minutes, seconds, microseconds, nanoseconds);
 
-    pizza_io_printf("{blue}\n================================={reset}\n");
+    pizza_io_printf("{blue}\n========================================================================={reset}\n");
 }
 
 // --- End / Cleanup ---
