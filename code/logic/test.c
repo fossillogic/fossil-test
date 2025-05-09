@@ -41,7 +41,7 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
     engine->capacity = 0;
     engine->score_total = 0;
     engine->score_possible = 0;
-    engine->pallet = fossil_pizza_pallet_create();
+    engine->pallet = fossil_pizza_pallet_create(argc, argv);
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
 
     return FOSSIL_PIZZA_SUCCESS;
