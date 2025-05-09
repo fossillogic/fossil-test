@@ -19,6 +19,58 @@
 // command pallet
 // *****************************************************************************
 
+static void _show_help(void) {
+    printf("Usage: fossil_pizza [options] [command]\n");
+    printf("Options:\n");
+    printf("  --dry-run          Perform a dry run without executing commands\n");
+    printf("  --version          Show version information\n");
+    printf("  --help             Show this help message\n");
+    printf("  --host <host>      Specify the host name or address\n");
+    printf("  --this             Use the current context\n");
+    printf("Commands:\n");
+    printf("  run                Execute tests with optional parameters\n");
+    printf("  filter             Filter tests based on criteria\n");
+    printf("  sort               Sort tests by specified criteria\n");
+    printf("  shuffle            Shuffle tests with optional parameters\n");
+    printf("  color=<mode>       Set color mode (enable, disable, auto)\n");
+    printf("  threads=<count>    Specify the number of threads to use\n");
+    printf("  theme=<name>       Set the theme (fossil, catch, doctest, etc.)\n");
+    printf("  verbose=<level>    Set verbosity level (plain, ci, doge, human)\n");
+    printf("Use 'fossil_pizza <command> --help' for more information on a specific command.\n");
+}
+
+static _show_subhelp_run(void) {
+    printf("Run command options:\n");
+    printf("  --fail-fast        Stop on the first failure\n");
+    printf("  --skip             Skip tests\n");
+    printf("  --only <test>      Run only the specified test\n");
+    printf("  --repeat <count>   Repeat the test a specified number of times\n");
+    printf("  --help             Show help for run command\n");
+}
+
+static _show_subhelp_filter(void) {
+    printf("Filter command options:\n");
+    printf("  --test-name <name> Filter by test name\n");
+    printf("  --suite-name <name> Filter by suite name\n");
+    printf("  --tag <tag>        Filter by tag\n");
+    printf("  --help             Show help for filter command\n");
+}
+
+static _show_subhelp_sort(void) {
+    printf("Sort command options:\n");
+    printf("  --by <criteria>    Sort by specified criteria\n");
+    printf("  --order <asc|desc> Sort in ascending or descending order\n");
+    printf("  --help             Show help for sort command\n");
+}
+
+static _show_subhelp_shuffle(void) {
+    printf("Shuffle command options:\n");
+    printf("  --seed <seed>      Specify the seed for shuffling\n");
+    printf("  --count <count>    Number of items to shuffle\n");
+    printf("  --by <criteria>    Shuffle by specified criteria\n");
+    printf("  --help             Show help for shuffle command\n");
+}
+
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
 
@@ -37,104 +89,112 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
         } else if (strcmp(argv[i], "run") == 0) {
             pallet.run.fail_fast = 0;
             pallet.run.skip = 0;
-            pallet.run.only = NULL;
+            pallet.run.only = null;
             pallet.run.repeat = 1;
 
             for (int j = i + 1; j < argc; j++) {
             if (strcmp(argv[j], "--fail-fast") == 0) {
-                pallet.run.fail_fast = 1;
+            pallet.run.fail_fast = 1;
             } else if (strcmp(argv[j], "--skip") == 0) {
-                pallet.run.skip = 1;
+            pallet.run.skip = 1;
             } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
-                pallet.run.only = argv[++j];
+            pallet.run.only = argv[++j];
             } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
-                pallet.run.repeat = atoi(argv[++j]);
+            pallet.run.repeat = atoi(argv[++j]);
+            } else if (strcmp(argv[j], "--help") == 0) {
+            pallet.run.help = 1;
             } else {
-                break;
+            break;
             }
             }
         } else if (strcmp(argv[i], "filter") == 0) {
-            pallet.filter.test_name = NULL;
-            pallet.filter.suite_name = NULL;
-            pallet.filter.tag = NULL;
+            pallet.filter.test_name = null;
+            pallet.filter.suite_name = null;
+            pallet.filter.tag = null;
 
             for (int j = i + 1; j < argc; j++) {
             if (strcmp(argv[j], "--test-name") == 0 && j + 1 < argc) {
-                pallet.filter.test_name = argv[++j];
+            pallet.filter.test_name = argv[++j];
             } else if (strcmp(argv[j], "--suite-name") == 0 && j + 1 < argc) {
-                pallet.filter.suite_name = argv[++j];
+            pallet.filter.suite_name = argv[++j];
             } else if (strcmp(argv[j], "--tag") == 0 && j + 1 < argc) {
-                pallet.filter.tag = argv[++j];
+            pallet.filter.tag = argv[++j];
+            } else if (strcmp(argv[j], "--help") == 0) {
+            pallet.filter.help = 1;
             } else {
-                break;
+            break;
             }
             }
         } else if (strcmp(argv[i], "sort") == 0) {
-            pallet.sort.by = NULL;
-            pallet.sort.order = NULL;
+            pallet.sort.by = null;
+            pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
             if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
-                pallet.sort.by = argv[++j];
+            pallet.sort.by = argv[++j];
             } else if (strcmp(argv[j], "--order") == 0 && j + 1 < argc) {
-                pallet.sort.order = argv[++j];
+            pallet.sort.order = argv[++j];
+            } else if (strcmp(argv[j], "--help") == 0) {
+            pallet.sort.help = 1;
             } else {
-                break;
+            break;
             }
             }
         } else if (strcmp(argv[i], "shuffle") == 0) {
-            pallet.shuffle.seed = NULL;
+            pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
-            pallet.shuffle.by = NULL;
+            pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
             if (strcmp(argv[j], "--seed") == 0 && j + 1 < argc) {
-                pallet.shuffle.seed = argv[++j];
+            pallet.shuffle.seed = argv[++j];
             } else if (strcmp(argv[j], "--count") == 0 && j + 1 < argc) {
-                pallet.shuffle.count = atoi(argv[++j]);
+            pallet.shuffle.count = atoi(argv[++j]);
             } else if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
-                pallet.shuffle.by = argv[++j];
+            pallet.shuffle.by = argv[++j];
+            } else if (strcmp(argv[j], "--help") == 0) {
+            pallet.shuffle.help = 1;
             } else {
-                break;
+            break;
             }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (strcmp(argv[i] + 6, "enable") == 0) {
-                pallet.color = "enabled";
+            pallet.color = "enabled";
             } else if (strcmp(argv[i] + 6, "disable") == 0) {
-                pallet.color = "disabled";
+            pallet.color = "disabled";
             } else if (strcmp(argv[i] + 6, "auto") == 0) {
-                pallet.color = "auto"; // Auto mode, system default
+            pallet.color = "auto"; // Auto mode, system default
             }
         } else if (strncmp(argv[i], "threads=", 8) == 0) {
             pallet.threads = argv[i] + 8;
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
             if (strcmp(theme_str, "fossil") == 0) {
-                pallet.theme = PIZZA_THEME_FOSSIL;
+            pallet.theme = PIZZA_THEME_FOSSIL;
             } else if (strcmp(theme_str, "catch") == 0) {
-                pallet.theme = PIZZA_THEME_CATCH;
+            pallet.theme = PIZZA_THEME_CATCH;
             } else if (strcmp(theme_str, "doctest") == 0) {
-                pallet.theme = PIZZA_THEME_DOCTEST;
+            pallet.theme = PIZZA_THEME_DOCTEST;
             } else if (strcmp(theme_str, "cpputest") == 0) {
-                pallet.theme = PIZZA_THEME_CPPUTEST;
+            pallet.theme = PIZZA_THEME_CPPUTEST;
             } else if (strcmp(theme_str, "tap") == 0) {
-                pallet.theme = PIZZA_THEME_TAP;
+            pallet.theme = PIZZA_THEME_TAP;
             } else if (strcmp(theme_str, "googletest") == 0) {
-                pallet.theme = PIZZA_THEME_GOOGLETEST;
+            pallet.theme = PIZZA_THEME_GOOGLETEST;
             } else if (strcmp(theme_str, "unity") == 0) {
-                pallet.theme = PIZZA_THEME_UNITY;
+            pallet.theme = PIZZA_THEME_UNITY;
             }
         } else if (strncmp(argv[i], "verbose=", 8) == 0) {
             const char* verbose_str = argv[i] + 8;
             if (strcmp(verbose_str, "plain") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_PLAIN;
+            pallet.verbose = PIZZA_VERBOSE_PLAIN;
             } else if (strcmp(verbose_str, "ci") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_CI;
+            pallet.verbose = PIZZA_VERBOSE_CI;
             } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
-                pallet.verbose = PIZZA_VERBOSE_DOGE;
+            pallet.verbose = PIZZA_VERBOSE_DOGE;
             } else if (strcmp(verbose_str, "human") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_HUMAN;
+            pallet.verbose = PIZZA_VERBOSE_HUMAN;
             }
         }
     }
