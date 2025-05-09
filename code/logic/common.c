@@ -168,7 +168,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             } else if (strcmp(argv[i] + 6, "disable") == 0) {
                 PIZZA_IO_COLOR_ENABLE = 0;
             } else if (strcmp(argv[i] + 6, "auto") == 0) {
-                if (isatty(fileno(stdout))) {
+                if (isatty(STDOUT_FILENO)) {
                     PIZZA_IO_COLOR_ENABLE = 1;
                 } else {
                     PIZZA_IO_COLOR_ENABLE = 0;
@@ -886,56 +886,56 @@ int32_t FOSSIL_IO_ATTR_ENABLE = 1; // Flag to enable/disable attribute output
 // Function to apply color
 void pizza_io_apply_color(const char *color) {
     if (strcmp(color, "red") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_RED);
+        printf(FOSSIL_IO_COLOR_RED);
     } else if (strcmp(color, "green") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_GREEN);
+        printf(FOSSIL_IO_COLOR_GREEN);
     } else if (strcmp(color, "yellow") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_YELLOW);
+        printf(FOSSIL_IO_COLOR_YELLOW);
     } else if (strcmp(color, "blue") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BLUE);
+        printf(FOSSIL_IO_COLOR_BLUE);
     } else if (strcmp(color, "magenta") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_MAGENTA);
+        printf(FOSSIL_IO_COLOR_MAGENTA);
     } else if (strcmp(color, "cyan") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_CYAN);
+        printf(FOSSIL_IO_COLOR_CYAN);
     } else if (strcmp(color, "white") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_WHITE);
+        printf(FOSSIL_IO_COLOR_WHITE);
     }
     // Bright colors
     else if (strcmp(color, "bright_red") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_RED);
+        printf(FOSSIL_IO_COLOR_BRIGHT_RED);
     } else if (strcmp(color, "bright_green") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
+        printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
     } else if (strcmp(color, "bright_yellow") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
+        printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
     } else if (strcmp(color, "bright_blue") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
+        printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
     } else if (strcmp(color, "bright_magenta") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
+        printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
     } else if (strcmp(color, "bright_cyan") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
+        printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
     } else if (strcmp(color, "bright_white") == 0) {
-        pizza_io_printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
+        printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
     }
 }
 
 // Function to apply text attributes (e.g., bold, underline)
 void pizza_io_apply_attribute(const char *attribute) {
     if (strcmp(attribute, "bold") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_BOLD);
+        printf(FOSSIL_IO_ATTR_BOLD);
     } else if (strcmp(attribute, "underline") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_UNDERLINE);
+        printf(FOSSIL_IO_ATTR_UNDERLINE);
     } else if (strcmp(attribute, "reversed") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_REVERSED);
+        printf(FOSSIL_IO_ATTR_REVERSED);
     } else if (strcmp(attribute, "blink") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_BLINK);
+        printf(FOSSIL_IO_ATTR_BLINK);
     } else if (strcmp(attribute, "hidden") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_HIDDEN);
+        printf(FOSSIL_IO_ATTR_HIDDEN);
     } else if (strcmp(attribute, "normal") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_NORMAL);
+        printf(FOSSIL_IO_ATTR_NORMAL);
     } else if (strcmp(attribute, "italic") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_ITALIC);
+        printf(FOSSIL_IO_ATTR_ITALIC);
     } else if (strcmp(attribute, "strikethrough") == 0) {
-        pizza_io_printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
+        printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
     }
 }
 
@@ -943,16 +943,16 @@ void pizza_io_apply_attribute(const char *attribute) {
 void pizza_io_apply_position(const char *pos) {
     if (strcmp(pos, "top") == 0) {
         // Apply position logic for top
-        pizza_io_printf("\033[H"); // Move cursor to the top
+        printf("\033[H"); // Move cursor to the top
     } else if (strcmp(pos, "bottom") == 0) {
         // Apply position logic for bottom
-        pizza_io_printf("\033[1000H"); // Move cursor to the bottom (just as an example)
+        printf("\033[999;1H"); // Move cursor to the bottom (example within reasonable bounds)
     } else if (strcmp(pos, "left") == 0) {
         // Apply position logic for left
-        pizza_io_printf("\033[1000;0H"); // Move cursor to the left
+        printf("\033[1;1H"); // Move cursor to the top-left corner
     } else if (strcmp(pos, "right") == 0) {
         // Apply position logic for right
-        pizza_io_printf("\033[1000;1000H"); // Move cursor to the right
+        printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
     }
     // Add more positions if needed
 }
@@ -968,13 +968,13 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 
     // Variable to keep track of the current position in the buffer
     const char *current_pos = buffer;
-    const char *start = null;
-    const char *end = null;
+    const char *start = NULL;
+    const char *end = NULL;
 
     // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
-    while ((start = strchr(current_pos, '{')) != null) {
+    while ((start = strchr(current_pos, '{')) != NULL) {
         // Print text before '{'
-        pizza_io_printf("%.*s", (int)(start - current_pos), current_pos);
+        printf("%.*s", (int)(start - current_pos), current_pos);
         
         // Find the matching '}'
         end = strchr(start, '}');
@@ -986,9 +986,9 @@ void pizza_io_print_with_attributes(const char *format, ...) {
             attributes[length] = '\0';
 
             // Split by comma to separate color, attribute, or position
-            char *color = null;
-            char *attribute = null;
-            char *pos = null;
+            char *color = NULL;
+            char *attribute = NULL;
+            char *pos = NULL;
             char *comma_pos = strchr(attributes, ',');
             if (comma_pos) {
                 *comma_pos = '\0';  // null-terminate the first part
@@ -1018,14 +1018,14 @@ void pizza_io_print_with_attributes(const char *format, ...) {
     }
 
     // Print remaining text after last '}'
-    pizza_io_printf("%s", current_pos);
+    printf("%s", current_pos);
 
     va_end(args);
 }
 
 // Function to print a sanitized formatted string to a specific file stream with attributes
 void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
-    if (str != null && stream != null) {
+    if (str != NULL && stream != NULL) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
