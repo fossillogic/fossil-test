@@ -289,10 +289,29 @@ typedef struct {
     int help;                  // Flag for help information
     const char* host;          // Host name or address
     int use_current_context;   // Flag to use current context
-    int run;                  // Flag to run the test
-    int filter;               // Flag to filter tests
-    int sort;                 // Flag to sort tests
-    int shuffle;              // Flag to shuffle tests
+    struct {
+        int fail_fast;         // Flag for --fail-fast
+        int skip;              // Flag for --skip
+        const char* only;      // Value for --only
+        int repeat;            // Value for --repeat
+    } run;                     // Run command flags
+
+    struct {
+        const char* test_name; // Value for --test-name
+        const char* suite_name;// Value for --suite-name
+        const char* tag;       // Value for --tag
+    } filter;                  // Filter command flags
+
+    struct {
+        const char* by;        // Value for --by
+        const char* order;     // Value for --order
+    } sort;                    // Sort command flags
+
+    struct {
+        const char* seed;      // Value for --seed
+        int count;             // Value for --count
+        const char* by;        // Value for --by
+    } shuffle;                 // Shuffle command flags
     const char* color;         // Color option
     const char* threads;       // Number of threads option
     fossil_pizza_cli_theme_t theme;  // Theme option

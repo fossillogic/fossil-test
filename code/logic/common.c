@@ -35,13 +35,69 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
         } else if (strcmp(argv[i], "--this") == 0) {
             pallet.use_current_context = 1;
         } else if (strcmp(argv[i], "run") == 0) {
-            pallet.run = 1;
+            pallet.run.fail_fast = 0;
+            pallet.run.skip = 0;
+            pallet.run.only = NULL;
+            pallet.run.repeat = 1;
+
+            for (int j = i + 1; j < argc; j++) {
+            if (strcmp(argv[j], "--fail-fast") == 0) {
+                pallet.run.fail_fast = 1;
+            } else if (strcmp(argv[j], "--skip") == 0) {
+                pallet.run.skip = 1;
+            } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
+                pallet.run.only = argv[++j];
+            } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
+                pallet.run.repeat = atoi(argv[++j]);
+            } else {
+                break;
+            }
+            }
         } else if (strcmp(argv[i], "filter") == 0) {
-            pallet.filter = 1;
+            pallet.filter.test_name = NULL;
+            pallet.filter.suite_name = NULL;
+            pallet.filter.tag = NULL;
+
+            for (int j = i + 1; j < argc; j++) {
+            if (strcmp(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                pallet.filter.test_name = argv[++j];
+            } else if (strcmp(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                pallet.filter.suite_name = argv[++j];
+            } else if (strcmp(argv[j], "--tag") == 0 && j + 1 < argc) {
+                pallet.filter.tag = argv[++j];
+            } else {
+                break;
+            }
+            }
         } else if (strcmp(argv[i], "sort") == 0) {
-            pallet.sort = 1;
+            pallet.sort.by = NULL;
+            pallet.sort.order = NULL;
+
+            for (int j = i + 1; j < argc; j++) {
+            if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                pallet.sort.by = argv[++j];
+            } else if (strcmp(argv[j], "--order") == 0 && j + 1 < argc) {
+                pallet.sort.order = argv[++j];
+            } else {
+                break;
+            }
+            }
         } else if (strcmp(argv[i], "shuffle") == 0) {
-            pallet.shuffle = 1;
+            pallet.shuffle.seed = NULL;
+            pallet.shuffle.count = 0;
+            pallet.shuffle.by = NULL;
+
+            for (int j = i + 1; j < argc; j++) {
+            if (strcmp(argv[j], "--seed") == 0 && j + 1 < argc) {
+                pallet.shuffle.seed = argv[++j];
+            } else if (strcmp(argv[j], "--count") == 0 && j + 1 < argc) {
+                pallet.shuffle.count = atoi(argv[++j]);
+            } else if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                pallet.shuffle.by = argv[++j];
+            } else {
+                break;
+            }
+            }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (strcmp(argv[i] + 6, "enable") == 0) {
                 pallet.color = 1;
