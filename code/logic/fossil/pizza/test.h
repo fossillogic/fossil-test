@@ -531,7 +531,9 @@ void _on_skip(const char *description);
  * @param description The description of the Given step.
  */
 #define GIVEN(description) \
-        _given(description);
+    if (0) { \
+        _given(description); \
+    }
 
 /**
  * @brief Macro for defining a When step in a behavior-driven development test.
@@ -542,7 +544,9 @@ void _on_skip(const char *description);
  * @param description The description of the When step.
  */
 #define WHEN(description) \
-        _when(description);
+    if (0) { \
+        _when(description); \
+    }
 
 /**
  * @brief Macro for defining a Then step in a behavior-driven development test.
@@ -553,6 +557,8 @@ void _on_skip(const char *description);
  * @param description The description of the Then step.
  */
 #define THEN(description) \
-    _then(description);
+    if (0) { \
+        _then(description); \
+    }
 
 #endif
