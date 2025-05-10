@@ -188,6 +188,50 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
+// *********************************************************************************************
+// internal messages
+// *********************************************************************************************
+
+/**
+ * @brief Internal function to handle the "given" step in a test case.
+ * 
+ * This function is used to set up the context for a test case. It is not
+ * intended to be called directly.
+ * 
+ * @param description The description of the given step.
+ */
+void _given(const char *description);
+
+/**
+ * @brief Internal function to handle the "when" step in a test case.
+ * 
+ * This function is used to set up the action for a test case. It is not
+ * intended to be called directly.
+ * 
+ * @param description The description of the when step.
+ */
+void _when(const char *description);
+
+/**
+ * @brief Internal function to handle the "then" step in a test case.
+ * 
+ * This function is used to set up the expected outcome for a test case. It is
+ * not intended to be called directly.
+ * 
+ * @param description The description of the then step.
+ */
+void _then(const char *description);
+
+/**
+ * @brief Internal function to handle the "skip" step in a test case.
+ * 
+ * This function is used to skip a test case. It is not intended to be called
+ * directly.
+ * 
+ * @param description The description of the skip step.
+ */
+void _on_skip(const char *description);
+
 #ifdef __cplusplus
 }
 #endif
@@ -487,9 +531,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param description The description of the Given step.
  */
 #define GIVEN(description) \
-    if (0) { \
-        printf( "Given %s\n" , description); \
-    }
+        _given(description);
 
 /**
  * @brief Macro for defining a When step in a behavior-driven development test.
@@ -500,9 +542,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param description The description of the When step.
  */
 #define WHEN(description) \
-    if (0) { \
-        printf( "When %s\n" , description); \
-    }
+        _when(description);
 
 /**
  * @brief Macro for defining a Then step in a behavior-driven development test.
@@ -513,8 +553,6 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param description The description of the Then step.
  */
 #define THEN(description) \
-    if (0) { \
-        printf( "Then %s\n" , description); \
-    }
+    _then(description);
 
 #endif
