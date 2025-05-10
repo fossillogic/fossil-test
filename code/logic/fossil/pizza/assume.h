@@ -40,7 +40,7 @@ extern "C" {
 
 // **************************************************
 //
-// Boolean ASSUMEions
+// Boolean assumtions
 //
 // **************************************************
 
@@ -78,7 +78,7 @@ extern "C" {
 
 // **************************************************
 //
-// Floating point ASSUMEions
+// Floating point assumtions
 //
 // **************************************************
 
@@ -304,7 +304,7 @@ extern "C" {
 
 // **************************************************
 //
-// Numaric ASSUMEions
+// Numaric assumtions
 //
 // **************************************************
 
@@ -668,7 +668,7 @@ extern "C" {
 #define ASSUME_NOT_MORE_OR_EQUAL_O64(actual, expected) \
     FOSSIL_TEST_ASSUME((uint64_t)(actual) < (uint64_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
-// Hexadecimal ASSUMEions
+// Hexadecimal assumtions
 
 /**
  * @brief Assumes that the given 8-bit hexadecimal values are equal.
@@ -1752,25 +1752,89 @@ extern "C" {
 
 // **************************************************
 //
-// Null pointer ASSUMEions (_CNULL)
+// Null pointer assumtions (_CNULL)
 //
 // **************************************************
 
 /**
- * @brief Assumes that the given pointer is NULL.
+ * @brief Assumes that the given pointer is cnull.
  *
  * @param actual The pointer to be evaluated.
  */
 #define ASSUME_ITS_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) == NULL, "Expected " #actual " to be NULL")
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
 
 /**
- * @brief Assumes that the given pointer is not NULL.
+ * @brief Assumes that the given pointer is not cnull.
  *
  * @param actual The pointer to be evaluated.
  */
 #define ASSUME_NOT_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) != NULL, "Expected " #actual " to not be NULL")
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is cnull.
+ * 
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_ITS_CNULLABLE(actual) \
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
+
+/**
+ * @brief Assumes that the given pointer is not cnull.
+ * 
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_NOT_CNULLABLE(actual) \
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is cnull.
+ *
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_ITS_CNONNULL(actual) \
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is not cnull.
+ *
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_NOT_CNONNULL(actual) \
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
+
+/**
+ * @brief Assumes that the given condition is likely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_ITS_LIKELY(x) \
+    FOSSIL_TEST_ASSUME(likely(x), "Expected " #x " to be likely")
+
+/**
+ * @brief Assumes that the given condition is not likely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_NOT_LIKELY(x) \
+    FOSSIL_TEST_ASSUME(!likely(x), "Expected " #x " to not be likely")
+
+/**
+ * @brief Assumes that the given condition is unlikely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_ITS_UNLIKELY(x) \
+    FOSSIL_TEST_ASSUME(unlikely(x), "Expected " #x " to be unlikely")
+
+/**
+ * @brief Assumes that the given condition is not unlikely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_NOT_UNLIKELY(x) \
+    FOSSIL_TEST_ASSUME(!unlikely(x), "Expected " #x " to not be unlikely")
 
 /**
  * @brief Assumes that the given pointers are equal.
@@ -1846,7 +1910,7 @@ extern "C" {
 
 // **************************************************
 //
-// Range ASSUMEions
+// Range assumtions
 //
 // **************************************************
 
@@ -2072,7 +2136,7 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_F64(value, min, max) \
     FOSSIL_TEST_ASSUME((value) < (min) || (value) > (max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Byte char type ASSUMEions (uint8_t)
+// Byte char type assumtions (uint8_t)
 
 /**
  * @brief Assumes that the given byte char value is within the specified range.
@@ -2094,7 +2158,7 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_BCHAR(value, min, max) \
     FOSSIL_TEST_ASSUME((uint8_t)(value) < (uint8_t)(min) || (uint8_t)(value) > (uint8_t)(max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Char type ASSUMEions (char)
+// Char type assumtions (char)
 
 /**
  * @brief Assumes that the given char value is within the specified range.
@@ -2116,7 +2180,7 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_CCHAR(value, min, max) \
     FOSSIL_TEST_ASSUME((char)(value) < (char)(min) || (char)(value) > (char)(max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Wide char type ASSUMEions (wchar_t)
+// Wide char type assumtions (wchar_t)
 
 /**
  * @brief Assumes that the given wide char value is within the specified range.
@@ -2140,7 +2204,7 @@ extern "C" {
 
 // **************************************************
 //
-// String ASSUMEions
+// String assumtions
 //
 // **************************************************
 
