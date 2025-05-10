@@ -16,6 +16,14 @@
 #include <stdio.h>
 
 // *****************************************************************************
+// macro definitions
+// *****************************************************************************
+
+#define FOSSIL_PIZZA_VERSION "1.2.0"
+#define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
+#define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
+
+// *****************************************************************************
 // command pallet
 // *****************************************************************************
 
@@ -96,7 +104,7 @@ static void _show_subhelp_theme(void) {
     pizza_io_printf("{cyan}  doctest           Doctest theme (C++ Test Framework){reset}\n");
     pizza_io_printf("{cyan}  cpputest          CppUTest theme (C Test Framework){reset}\n");
     pizza_io_printf("{cyan}  tap               TAP theme (C Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  googletest        GoogleTest theme (C++ Test Framework){reset}\n");
+    pizza_io_printf("{cyan}  gtest             GoogleTest theme (C++ Test Framework){reset}\n");
     pizza_io_printf("{cyan}  unity             Unity theme (C Test Framework){reset}\n");
     exit(EXIT_SUCCESS);
 }
@@ -107,6 +115,11 @@ static void _show_subhelp_verbose(void) {
     pizza_io_printf("{cyan}  ci                Continuous Integration output{reset}\n");
     pizza_io_printf("{cyan}  doge              Doge output{reset}\n");
     pizza_io_printf("{cyan}  human Human-readable output{reset}\n");
+    exit(EXIT_SUCCESS);
+}
+
+static void _show_version(void) {
+    pizza_io_printf("{blue}Pizza Test Framework Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
     exit(EXIT_SUCCESS);
 }
 
@@ -231,7 +244,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 pallet.theme = PIZZA_THEME_CPPUTEST;
             } else if (strcmp(theme_str, "tap") == 0) {
                 pallet.theme = PIZZA_THEME_TAP;
-            } else if (strcmp(theme_str, "googletest") == 0) {
+            } else if (strcmp(theme_str, "gtest") == 0) {
                 pallet.theme = PIZZA_THEME_GOOGLETEST;
             } else if (strcmp(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
