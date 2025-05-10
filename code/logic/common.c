@@ -208,11 +208,17 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 } else {
                     PIZZA_IO_COLOR_ENABLE = 0;
                 }
-            } else if (strcmp(argv[i] + 6, "help") == 0) {
+            }
+        } else if (strcmp(argv[i], "color") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
                 _show_subhelp_color();
             }
         } else if (strncmp(argv[i], "threads=", 8) == 0) {
             pallet.threads = argv[i] + 8;
+        } else if (strcmp(argv[i], "threads") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
+                _show_subhelp_threads();
+            }
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
             if (strcmp(theme_str, "fossil") == 0) {
@@ -229,7 +235,9 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 pallet.theme = PIZZA_THEME_GOOGLETEST;
             } else if (strcmp(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
-            } else if (strcmp(theme_str, "help") == 0) {
+            }
+        } else if (strcmp(argv[i], "theme") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
                 _show_subhelp_theme();
             }
         } else if (strncmp(argv[i], "verbose=", 8) == 0) {
@@ -242,7 +250,9 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
             } else if (strcmp(verbose_str, "human") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_HUMAN;
-            } else if (strcmp(verbose_str, "help") == 0) {
+            }
+        } else if (strcmp(argv[i], "verbose") == 0) {
+            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
                 _show_subhelp_verbose();
             }
         }
