@@ -75,20 +75,8 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
     return FOSSIL_PIZZA_SUCCESS;
 }
 
-// --- Run One Test ---
-void fossil_pizza_run_test(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
-    if (test_case->setup) test_case->setup();
-
-    uint64_t start_time = fossil_pizza_now_ns();
-    if (test_case->run) {
-        test_case->run();
-        test_case->result = FOSSIL_PIZZA_CASE_PASS;
-    } else {
-        test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
-    }
-    test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
-
-    // Update scores based on result
+// --- Update Score ---
+void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     switch (test_case->result) {
         case FOSSIL_PIZZA_CASE_PASS:
             suite->score.passed++;
@@ -112,8 +100,29 @@ void fossil_pizza_run_test(fossil_pizza_case_t* test_case, fossil_pizza_suite_t*
             break;
     }
     suite->total_possible++;
+}
 
-    if (test_case->teardown) test_case->teardown();
+// --- Run One Test ---
+void fossil_pizza_run_test(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
+    if (!test_case || !suite) return;
+
+    for (int i = 0; i < G_PIZZA_REPEAT; ++i) {
+        if (test_case->setup) test_case->setup();
+
+        uint64_t start_time = fossil_pizza_now_ns();
+        if (test_case->run && _ASSERT_COUNT != 0) {
+            test_case->run();
+            test_case->result = FOSSIL_PIZZA_CASE_PASS;
+        } else {
+            test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+        }
+        test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
+
+        if (test_case->teardown) test_case->teardown();
+    }
+    
+    // Update scores based on result
+    fossil_pizza_update_score(test_case, suite);
 }
 
 // --- Run One Suite ---
