@@ -24,6 +24,19 @@
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
 // *****************************************************************************
+// exported flags
+// *****************************************************************************
+
+int G_PIZZA_DRY_RUN = 0;
+int G_PIZZA_FAIL_FAST = 0;
+int G_PIZZA_SKIP = 0;
+const char* G_PIZZA_ONLY = null;
+int G_PIZZA_REPEAT = 0;
+int G_PIZZA_THREADS = 1;
+fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
+fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
+
+// *****************************************************************************
 // command pallet
 // *****************************************************************************
 
@@ -123,19 +136,49 @@ static void _show_version(void) {
     exit(EXIT_SUCCESS);
 }
 
+static void _show_host(void) {
+    pizza_sys_hostinfo_system_t system_info;
+    pizza_sys_hostinfo_memory_t memory_info;
+    pizza_sys_hostinfo_endianness_t endianness_info;
+
+    if (pizza_sys_hostinfo_get_system(&system_info) == 0) {
+        pizza_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
+        pizza_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
+        pizza_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
+    } else {
+        pizza_io_printf("{red}Error retrieving system information.{reset}\n");
+    }
+
+    if (pizza_sys_hostinfo_get_memory(&memory_info) == 0) {
+        pizza_io_printf("{blue}Total Memory: {cyan}%lu bytes{reset}\n", memory_info.total_memory);
+        pizza_io_printf("{blue}Free Memory: {cyan}%lu bytes{reset}\n", memory_info.free_memory);
+    } else {
+        pizza_io_printf("{red}Error retrieving memory information.{reset}\n");
+    }
+
+    if (pizza_sys_hostinfo_get_endianness(&endianness_info) == 0) {
+        pizza_io_printf("{blue}Endianness: {cyan}%s{reset}\n", 
+                        endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+    } else {
+        pizza_io_printf("{red}Error retrieving endianness information.{reset}\n");
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--dry-run") == 0) {
-            pallet.dry_run = 1;
+            G_PIZZA_DRY_RUN = 1;
         } else if (strcmp(argv[i], "--version") == 0) {
-            pallet.version = 1;
+            _show_version();
         } else if (strcmp(argv[i], "--help") == 0) {
             _show_help();
         } else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) {
-            pallet.host = argv[++i];
+            _show_host();
         } else if (strcmp(argv[i], "--this") == 0) {
             pallet.use_current_context = 1;
         } else if (strcmp(argv[i], "run") == 0) {
@@ -147,12 +190,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             for (int j = i + 1; j < argc; j++) {
                 if (strcmp(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
+                    G_PIZZA_FAIL_FAST = 1;
                 } else if (strcmp(argv[j], "--skip") == 0) {
                     pallet.run.skip = 1;
+                    G_PIZZA_SKIP = 1;
                 } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
                     pallet.run.only = argv[++j];
+                    G_PIZZA_ONLY = pallet.run.only;
                 } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
                     pallet.run.repeat = atoi(argv[++j]);
+                    G_PIZZA_REPEAT = pallet.run.repeat;
                 } else if (strcmp(argv[j], "--help") == 0) {
                     _show_subhelp_run();
                 } else {

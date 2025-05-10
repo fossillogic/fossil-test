@@ -294,8 +294,6 @@ typedef enum {
 
 typedef struct {
     int dry_run;               // Flag for dry run mode
-    int version;               // Flag for version information
-    const char* host;          // Host name or address
     int use_current_context;   // Flag to use current context
     struct {
         int fail_fast;         // Flag for --fail-fast
@@ -324,6 +322,19 @@ typedef struct {
     fossil_pizza_cli_theme_t theme;  // Theme option
     fossil_pizza_cli_verbose_t verbose;  // Verbose option
 } fossil_pizza_pallet_t;
+
+// *****************************************************************************
+// exported flags
+// *****************************************************************************
+
+extern int G_PIZZA_DRY_RUN;
+extern int G_PIZZA_FAIL_FAST;
+extern int G_PIZZA_SKIP;
+extern const char* G_PIZZA_ONLY;
+extern int G_PIZZA_REPEAT;
+extern int G_PIZZA_THREADS;
+extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
+extern fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE;
 
 /**
  * @brief Parses command line arguments and populates the pallet structure.
