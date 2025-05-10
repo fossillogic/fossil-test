@@ -2262,6 +2262,102 @@ extern "C" {
 #define ASSUME_ITS_LENGTH_EQUAL_CSTR(actual, expected_len) \
     FOSSIL_TEST_ASSUME(strlen((actual)) == (expected_len), "Expected length of C string " #actual " to be equal to " #expected_len)
 
+// **************************************************
+//
+// Char assumtions
+//
+// **************************************************
+
+/**
+ * @brief Assumes that the given char values are equal.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) == (char)(expected), "Expected char " #actual " to be equal to " #expected)
+
+/**
+ * @brief Assumes that the given char values are not equal.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) != (char)(expected), "Expected char " #actual " to not be equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is less than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_LESS_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) < (char)(expected), "Expected char " #actual " to be less than " #expected)
+
+/**
+ * @brief Assumes that the given char value is more than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_MORE_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) > (char)(expected), "Expected char " #actual " to be more than " #expected)
+
+/**
+ * @brief Assumes that the given char value is less than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_LESS_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) <= (char)(expected), "Expected char " #actual " to be less than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is more than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_MORE_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) >= (char)(expected), "Expected char " #actual " to be more than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is not less than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_LESS_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) >= (char)(expected), "Expected char " #actual " to not be less than " #expected)
+
+/**
+ * @brief Assumes that the given char value is not more than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_MORE_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) <= (char)(expected), "Expected char " #actual " to not be more than " #expected)
+
+/**
+ * @brief Assumes that the given char value is not less than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_LESS_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) > (char)(expected), "Expected char " #actual " to not be less than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is not more than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_MORE_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) < (char)(expected), "Expected char " #actual " to not be more than or equal to " #expected)
+
 #ifdef __cplusplus
 }
 #endif
