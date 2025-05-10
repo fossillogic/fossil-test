@@ -173,7 +173,6 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
  */
 int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
 
-
 /**
  * @brief Internal function to handle assertions with anomaly detection.
  * 
@@ -451,6 +450,16 @@ void _on_skip(const char *description);
 #define FOSSIL_END() \
     fossil_pizza_end(&engine)
 
+
+/**
+ * @brief Macro to register a test suite with the engine.
+ * 
+ * This macro is used to register a test suite with the test engine. It will
+ * ensure that the suite is added to the engine and can be executed when the
+ * test runner is run.
+ * 
+ * @param suite The name of the suite to register.
+ */
 #define FOSSIL_TEST_REGISTER(suite) \
     fossil_pizza_add_suite(engine, suite_##suite)
 
@@ -559,6 +568,19 @@ void _on_skip(const char *description);
 #define THEN(description) \
     if (0) { \
         _then(description); \
+    }
+
+/**
+ * @brief Macro for skipping a test case.
+ * 
+ * This macro is used to skip a test case. It can be used to mark a test case as
+ * skipped without executing it.
+ * 
+ * @param description The description of the skip reason.
+ */
+#define SKIP(description) \
+    if (0) { \
+        _on_skip(description); \
     }
 
 #endif
