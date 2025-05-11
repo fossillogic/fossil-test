@@ -89,6 +89,8 @@ typedef struct {
 // --- Test Case ---
 typedef struct {
     char* name;
+    char* tags;
+    char* criteria;
     void (*setup)(void);
     void (*teardown)(void);
     void (*run)(void);
@@ -249,6 +251,8 @@ void _on_skip(const char *description);
     extern "C" void test_name##_run(void); \
     static fossil_pizza_case_t test_case_##test_name = { \
         (cstr)#test_name, \
+        (cstr)"fossil", \
+        (cstr)"std", \
         nullptr, \
         nullptr, \
         test_name##_run, \
@@ -261,6 +265,8 @@ void _on_skip(const char *description);
     void test_name##_run(void); \
     static fossil_pizza_case_t test_case_##test_name = { \
         .name = #test_name, \
+        .tags = "fossil", \
+        .criteria = "std", \
         .setup = NULL, \
         .teardown = NULL, \
         .run = test_name##_run, \
@@ -269,6 +275,31 @@ void _on_skip(const char *description);
     }; \
     void test_name##_run(void)
 #endif
+
+/** @brief Macro to set a test case's tags.
+ * 
+ * This macro is used to specify tags for a test case. Tags can be used to
+ * categorize or filter test cases based on specific criteria.
+ * 
+ * @param test_name The name of the test case.
+ * @param tags The tags to assign to the test case.
+ */
+#define FOSSIL_TEST_SET_TAGS(test_name, tags) \
+    test_case_##test_name.tags = tags
+
+/** @brief Macro to set a test case's skip message.
+ * 
+ * This macro is used to specify a skip message for a test case. The skip
+ * message indicates that the test case is intentionally skipped and provides
+ * a reason for the skip.
+ * 
+ * @param test_name The name of the test case.
+ * @param skip The skip message to assign to the test case.
+ */
+#define FOSSIL_TEST_SET_SKIP(test_name, skip) \
+    test_case_##test_name.result = FOSSIL_PIZZA_CASE_SKIPPED; \
+    test_case_##test_name.tags = skip \
+    test_case_##test_name.teardown = _on_skip(skip)
 
 /** @brief Macro to set a test case's setup function.
  * 

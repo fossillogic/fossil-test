@@ -244,6 +244,87 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
     fossil_pizza_update_score(test_case, suite);
 }
 
+// --- Algorithmic modifications ---
+
+// --- Sorting Test Cases ---
+static int compare_name_asc(const void* a, const void* b) {
+    return strcmp(((fossil_pizza_case_t*)a)->name, ((fossil_pizza_case_t*)b)->name);
+}
+
+static int compare_name_desc(const void* a, const void* b) {
+    return strcmp(((fossil_pizza_case_t*)b)->name, ((fossil_pizza_case_t*)a)->name);
+}
+
+static int compare_result_asc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)a)->result - ((fossil_pizza_case_t*)b)->result;
+}
+
+static int compare_result_desc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)b)->result - ((fossil_pizza_case_t*)a)->result;
+}
+
+void fossil_pizza_sort_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
+    if (!suite || !suite->cases || suite->count <= 1 || !engine) return;
+
+    int (*compare)(const void*, const void*) = NULL;
+
+    if (engine->pallet.sort.by && strcmp(engine->pallet.sort.by, "name") == 0) {
+        compare = (strcmp(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
+    } else if (engine->pallet.sort.by && strcmp(engine->pallet.sort.by, "result") == 0) {
+        compare = (strcmp(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
+    }
+
+    if (compare) {
+        qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare);
+    }
+}
+
+// --- Filtering Test Cases ---
+size_t fossil_pizza_filter_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine, fossil_pizza_case_t** filtered_cases) {
+    if (!suite || !suite->cases || !filtered_cases || !engine) return 0;
+
+    size_t count = 0;
+    for (size_t i = 0; i < suite->count; ++i) {
+        fossil_pizza_case_t* test_case = &suite->cases[i];
+
+        // Apply filters based on engine->pallet.filter
+        if (engine->pallet.filter.test_name && strcmp(test_case->name, engine->pallet.filter.test_name) != 0) {
+            continue;
+        }
+        if (engine->pallet.filter.suite_name && strcmp(suite->suite_name, engine->pallet.filter.suite_name) != 0) {
+            continue;
+        }
+        if (engine->pallet.filter.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.filter.tag))) {
+            continue;
+        }
+
+        filtered_cases[count++] = test_case;
+    }
+    return count;
+}
+
+// --- Shuffling Test Cases ---
+void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
+    if (!suite || !suite->cases || suite->count < 2) return;
+
+    unsigned int seed = (engine && engine->pallet.shuffle.seed) 
+                        ? (unsigned int)atoi(engine->pallet.shuffle.seed) 
+                        : (unsigned int)time(NULL);
+    srand(seed);
+
+    for (size_t i = suite->count - 1; i > 0; --i) {
+        size_t j = rand() % (i + 1);
+        fossil_pizza_case_t temp = suite->cases[i];
+        suite->cases[i] = suite->cases[j];
+        suite->cases[j] = temp;
+    }
+
+    if (engine && engine->pallet.shuffle.by && strcmp(engine->pallet.shuffle.by, "name") == 0) {
+        qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), 
+              (int (*)(const void*, const void*))strcmp);
+    }
+}
+
 // --- Run One Suite ---
 int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
@@ -255,9 +336,19 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
     pizza_sys_memory_set(&suite->score, 0, sizeof(suite->score));
 
     if (!suite->cases) return FOSSIL_PIZZA_FAILURE;
-    for (size_t i = 0; i < suite->count; ++i) {
-        fossil_pizza_case_t* test_case = &suite->cases[i];
-        fossil_pizza_run_test(engine, test_case, suite);
+
+    // Apply filtering, sorting, and shuffling
+    fossil_pizza_case_t* filtered_cases[suite->count];
+    size_t filtered_count = fossil_pizza_filter_cases(suite, engine, filtered_cases);
+
+    if (filtered_count > 0) {
+        fossil_pizza_sort_cases(suite, engine);
+        fossil_pizza_shuffle_cases(suite, engine);
+
+        for (size_t i = 0; i < filtered_count; ++i) {
+            fossil_pizza_case_t* test_case = filtered_cases[i];
+            fossil_pizza_run_test(engine, test_case, suite);
+        }
     }
 
     suite->time_elapsed_ns = fossil_pizza_now_ns() - suite->time_elapsed_ns;
