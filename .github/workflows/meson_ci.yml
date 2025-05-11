@@ -60,7 +60,7 @@ jobs:
         run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}
 
       - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v
+        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='verbose=ci'
 
   build_macosx:
     name: Building on macOS with Xcode ${{ matrix.xcode_version }}
@@ -93,7 +93,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
@@ -133,7 +133,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_mingw:
     name: Building on MinGW ${{ matrix.architecture }}
@@ -177,7 +177,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
@@ -213,14 +213,14 @@ jobs:
       - name: Run Meson Build in Docker Container
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
+            -v --test-args='verbose=ci' ${{ github.workspace }}:/workspace \
             -w /workspace \
             ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
             /bin/bash -c "
               sudo apt update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
-              meson test -C builddir -v"
+              meson test -C builddir -v --test-args='verbose=ci'"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
@@ -314,9 +314,9 @@ jobs:
 
       - name: Build the Project
         run: |
-          meson compile -C builddir -v
+          meson compile -C builddir -v --test-args='verbose=ci'
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v
+          meson test -C builddir -v --test-args='verbose=ci'
 
