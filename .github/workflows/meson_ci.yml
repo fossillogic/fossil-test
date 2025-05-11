@@ -60,7 +60,7 @@ jobs:
         run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}
 
       - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-arg='summary ci'
+        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v
 
       - name: Upload Test Log
         if: failure()
@@ -100,7 +100,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
+        run: meson test -C builddir -v
   
       - name: Upload Test Log
         if: failure()
@@ -147,7 +147,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
+        run: meson test -C builddir -v
 
       - name: Upload Test Log
         if: failure()
@@ -198,7 +198,7 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
+        run: meson test -C builddir -v
 
       - name: Upload Test Log
         if: failure()
@@ -213,7 +213,7 @@ jobs:
 
     strategy:
       matrix:
-        distro: [ubuntu, fedora, archlinux, debian]
+        distro: [ubuntu, fedora, archlinux, debian, opensuse, alpine, raspberrypi]
 
     steps:
       - name: Checkout code
@@ -248,7 +248,7 @@ jobs:
               sudo apt update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
               meson compile -C builddir
-              meson test -C builddir -v --test-arg='summary ci'"
+              meson test -C builddir -v"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
@@ -346,5 +346,5 @@ jobs:
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v --test-arg='summary ci'
+          meson test -C builddir -v
 
