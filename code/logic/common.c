@@ -308,8 +308,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 pallet.verbose = PIZZA_VERBOSE_CI;
             } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
-            } else if (strcmp(verbose_str, "human") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_HUMAN;
             }
         } else if (strcmp(argv[i], "verbose") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
