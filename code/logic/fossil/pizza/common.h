@@ -317,7 +317,6 @@ typedef struct {
         int count;             // Value for --count
         const char* by;        // Value for --by
     } shuffle;                 // Shuffle command flags
-    const char* threads;       // Number of threads option
     fossil_pizza_cli_theme_t theme;  // Theme option
     fossil_pizza_cli_verbose_t verbose;  // Verbose option
 } fossil_pizza_pallet_t;
@@ -331,7 +330,6 @@ extern int G_PIZZA_FAIL_FAST;
 extern int G_PIZZA_SKIP;
 extern const char* G_PIZZA_ONLY;
 extern int G_PIZZA_REPEAT;
-extern int G_PIZZA_THREADS;
 extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
 extern fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE;
 

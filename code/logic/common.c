@@ -104,12 +104,6 @@ static void _show_subhelp_color(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_threads(void) {
-    pizza_io_printf("{blue}Threads command options:{reset}\n");
-    pizza_io_printf("{cyan}  <count>           Specify the number of threads to use{reset}\n");
-    exit(EXIT_SUCCESS);
-}
-
 static void _show_subhelp_theme(void) {
     pizza_io_printf("{blue}Theme command options:{reset}\n");
     pizza_io_printf("{cyan}  fossil            Fossil theme (C, C++ Fossil Test Framework){reset}\n");
@@ -177,7 +171,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             _show_version();
         } else if (strcmp(argv[i], "--help") == 0) {
             _show_help();
-        } else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) {
+        } else if (strcmp(argv[i], "--host") == 0) {
             _show_host();
         } else if (strcmp(argv[i], "--this") == 0) {
             pallet.use_current_context = 1;
@@ -273,28 +267,30 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
                 _show_subhelp_color();
             }
-        } else if (strncmp(argv[i], "threads=", 8) == 0) {
-            pallet.threads = argv[i] + 8;
-        } else if (strcmp(argv[i], "threads") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
-                _show_subhelp_threads();
-            }
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
             if (strcmp(theme_str, "fossil") == 0) {
                 pallet.theme = PIZZA_THEME_FOSSIL;
+                G_PIZZA_THEME = PIZZA_THEME_FOSSIL;
             } else if (strcmp(theme_str, "catch") == 0) {
                 pallet.theme = PIZZA_THEME_CATCH;
+                G_PIZZA_THEME = PIZZA_THEME_CATCH;
             } else if (strcmp(theme_str, "doctest") == 0) {
                 pallet.theme = PIZZA_THEME_DOCTEST;
+                G_PIZZA_THEME = PIZZA_THEME_DOCTEST;
             } else if (strcmp(theme_str, "cpputest") == 0) {
                 pallet.theme = PIZZA_THEME_CPPUTEST;
+                G_PIZZA_THEME = PIZZA_THEME_CPPUTEST;
             } else if (strcmp(theme_str, "tap") == 0) {
                 pallet.theme = PIZZA_THEME_TAP;
+                G_PIZZA_THEME = PIZZA_THEME_TAP;
             } else if (strcmp(theme_str, "gtest") == 0) {
                 pallet.theme = PIZZA_THEME_GOOGLETEST;
+                G_PIZZA_THEME = PIZZA_THEME_GOOGLETEST;
             } else if (strcmp(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
+                G_PIZZA_THEME = PIZZA_THEME_UNITY;
+
             }
         } else if (strcmp(argv[i], "theme") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
@@ -304,10 +300,13 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             const char* verbose_str = argv[i] + 8;
             if (strcmp(verbose_str, "plain") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_PLAIN;
+                G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
             } else if (strcmp(verbose_str, "ci") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_CI;
+                G_PIZZA_VERBOSE = PIZZA_VERBOSE_CI;
             } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
+                G_PIZZA_VERBOSE = PIZZA_VERBOSE_DOGE;
             }
         } else if (strcmp(argv[i], "verbose") == 0) {
             if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {

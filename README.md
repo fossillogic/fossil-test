@@ -79,7 +79,6 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `sort`                           | Sort tests by specified criteria.                                                             | Allows sorting in ascending or descending order.                                              |
 | `shuffle`                        | Shuffle tests with optional parameters.                                                       | Includes options for specifying a seed or shuffle criteria.                                   |
 | `color=<mode>`                   | Set color mode (enable, disable, auto).                                                       | Enhances readability in supported terminals.                                                  |
-| `threads=<count>`                | Specify the number of threads to use.                                                         | Useful for parallel test execution.                                                           |
 | `theme=<name>`                   | Set the theme (fossil, catch, doctest, etc.).                                                 | Customizes the appearance of test output.                                                     |
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge, human).                                                 | Adjusts the level of detail in test output.                                                   |
 
