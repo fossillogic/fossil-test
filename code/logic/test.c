@@ -609,7 +609,7 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
             break;
 
         case PIZZA_THEME_GOOGLETEST:
-            pizza_io_printf("[==========] {red}F{yellow}o{green}s{blue}s{magenta}i{cyan}l {red}P{yellow}i{green}z{blue}z{magenta}a {cyan}S{red}u{yellow}m{green}m{blue}a{magenta}r{cyan}y{reset}\n");
+            pizza_io_printf("[==========] {red}F{yellow}o{yellow}s{green}s{blue}i{red}l {yellow}P{green}i{blue}z{red}z{yellow}a {green}S{blue}u{red}m{yellow}m{green}a{blue}r{red}y{reset}\n");
             pizza_io_printf("[----------] OS: %s, Endianess: %s\n",
                 system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
             break;
