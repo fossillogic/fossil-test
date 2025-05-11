@@ -63,7 +63,6 @@ static void _show_help(void) {
 static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
     pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
-    pizza_io_printf("{cyan}  --skip             Skip tests{reset}\n");
     pizza_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
     pizza_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
@@ -173,11 +172,8 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             _show_help();
         } else if (strcmp(argv[i], "--host") == 0) {
             _show_host();
-        } else if (strcmp(argv[i], "--this") == 0) {
-            pallet.use_current_context = 1;
         } else if (strcmp(argv[i], "run") == 0) {
             pallet.run.fail_fast = 0;
-            pallet.run.skip = 0;
             pallet.run.only = null;
             pallet.run.repeat = 1;
 
@@ -185,9 +181,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 if (strcmp(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
-                } else if (strcmp(argv[j], "--skip") == 0) {
-                    pallet.run.skip = 1;
-                    G_PIZZA_SKIP = 1;
                 } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
                     pallet.run.only = argv[++j];
                     G_PIZZA_ONLY = pallet.run.only;

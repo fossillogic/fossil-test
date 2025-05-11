@@ -209,7 +209,12 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
-    for (int i = 0; i < G_PIZZA_REPEAT; ++i) {
+    // Check if the test case name matches the --only filter
+    if (engine->pallet.run.only && strcmp(engine->pallet.run.only, test_case->name) != 0) {
+        return;
+    }
+
+    for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
         if (test_case->setup) test_case->setup();
 
         uint64_t start_time = fossil_pizza_now_ns();
@@ -219,6 +224,10 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
                 test_case->result = FOSSIL_PIZZA_CASE_PASS;
             } else {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
+                if (engine->pallet.run.fail_fast) {
+                    fossil_pizza_test_output(test_case);
+                    return; // Exit immediately if --fail-fast is enabled
+                }
             }
         } else {
             test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
@@ -555,83 +564,94 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 
 // -- Assume --
 
-void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
+void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count) {
+    // Output assertion failure based on theme
+    switch (G_PIZZA_THEME) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("{red,bold}Assertion failed:{reset} {yellow}%s{reset} {blue}(%s:%d in %s){reset}\n",
+                            message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("{yellow}Duplicate or similar assertion detected [Anomaly Count: %d]{reset}\n", anomaly_count);
+            }
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+            }
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("[ASSERTION FAILED] %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("[DUPLICATE ASSERTION] Anomaly Count: %d\n", anomaly_count);
+            }
+            break;
+
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("not ok - Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("# Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+            }
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("[  FAILED  ] Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("[  WARNING ] Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+            }
+            break;
+
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("Unity Assertion Failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("Unity Duplicate Assertion Detected [Anomaly Count: %d]\n", anomaly_count);
+            }
+            break;
+
+        default:
+            pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (anomaly_count > 0) {
+                pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+            }
+            break;
+    }
+}
+
+static int pizza_test_assert_internal_detect(const char *message, const char *file, int line, const char *func) {
     static const char *last_message = null; // Store the last assertion message
     static const char *last_file = null;    // Store the last file name
     static int last_line = 0;               // Store the last line number
     static const char *last_func = null;    // Store the last function name
     static int anomaly_count = 0;           // Counter for anomaly detection
 
+    // Check if the current assertion is the same or similar to the last one
+    if (last_message && strstr(message, last_message) != null &&
+        last_file && pizza_io_cstr_compare(last_file, file) == 0 &&
+        last_line == line &&
+        last_func && pizza_io_cstr_compare(last_func, func) == 0) {
+        anomaly_count++;
+    } else {
+        anomaly_count = 0; // Reset anomaly count for new assertion
+        last_message = message;
+        last_file = file;
+        last_line = line;
+        last_func = func;
+    }
+
+    return anomaly_count;
+}
+
+void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
     _ASSERT_COUNT++; // Increment the assertion count
 
     if (!condition) {
-        // Check if the current assertion is the same or similar to the last one
-        if (last_message && strstr(message, last_message) != null &&
-            last_file && pizza_io_cstr_compare(last_file, file) == 0 &&
-            last_line == line &&
-            last_func && pizza_io_cstr_compare(last_func, func) == 0) {
-            anomaly_count++;
-        } else {
-            anomaly_count = 0; // Reset anomaly count for new assertion
-            last_message = message;
-            last_file = file;
-            last_line = line;
-            last_func = func;
-        }
+        int anomaly_count = pizza_test_assert_internal_detect(message, file, line, func);
 
-        // Output assertion failure based on theme
-        switch (G_PIZZA_THEME) {
-            case PIZZA_THEME_FOSSIL:
-                pizza_io_printf("{red,bold}Assertion failed:{reset} {yellow}%s{reset} {blue}(%s:%d in %s){reset}\n",
-                                message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("{yellow}Duplicate or similar assertion detected [Anomaly Count: %d]{reset}\n", anomaly_count);
-                }
-                break;
-
-            case PIZZA_THEME_CATCH:
-            case PIZZA_THEME_DOCTEST:
-                pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
-                }
-                break;
-
-            case PIZZA_THEME_CPPUTEST:
-                pizza_io_printf("[ASSERTION FAILED] %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("[DUPLICATE ASSERTION] Anomaly Count: %d\n", anomaly_count);
-                }
-                break;
-
-            case PIZZA_THEME_TAP:
-                pizza_io_printf("not ok - Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("# Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
-                }
-                break;
-
-            case PIZZA_THEME_GOOGLETEST:
-                pizza_io_printf("[  FAILED  ] Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("[  WARNING ] Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
-                }
-                break;
-
-            case PIZZA_THEME_UNITY:
-                pizza_io_printf("Unity Assertion Failed: %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("Unity Duplicate Assertion Detected [Anomaly Count: %d]\n", anomaly_count);
-                }
-                break;
-
-            default:
-                pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-                if (anomaly_count > 0) {
-                    pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
-                }
-                break;
-        }
+        // Output assertion failure
+        pizza_test_assert_internal_output(message, file, line, func, anomaly_count);
 
         longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
     }
