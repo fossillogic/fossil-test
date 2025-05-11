@@ -62,13 +62,6 @@ jobs:
       - name: Run Tests
         run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v
 
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows_msvc_${{ matrix.msvc_version }}_meson_testlog
-          path: builddir_msvc_${{ matrix.msvc_version }}/meson-logs/testlog.txt
-
   build_macosx:
     name: Building on macOS with Xcode ${{ matrix.xcode_version }}
     runs-on: macos-latest
@@ -101,13 +94,6 @@ jobs:
   
       - name: Run Tests
         run: meson test -C builddir -v
-  
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos_xcode_${{ matrix.xcode_version }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
 
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
@@ -148,13 +134,6 @@ jobs:
 
       - name: Run Tests
         run: meson test -C builddir -v
-
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: msys_${{ matrix.architecture }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
 
   build_mingw:
     name: Building on MinGW ${{ matrix.architecture }}
@@ -199,13 +178,6 @@ jobs:
 
       - name: Run Tests
         run: meson test -C builddir -v
-
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mingw_${{ matrix.architecture }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
