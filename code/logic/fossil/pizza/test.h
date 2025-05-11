@@ -613,17 +613,4 @@ void _on_skip(const char *description);
         _then(description); \
     }
 
-/**
- * @brief Macro for skipping a test case.
- * 
- * This macro is used to skip a test case. It can be used to mark a test case as
- * skipped without executing it.
- * 
- * @param description The description of the skip reason.
- */
-#define SKIP(description) \
-    if (0) { \
-        _on_skip(description); \
-    }
-
 #endif
