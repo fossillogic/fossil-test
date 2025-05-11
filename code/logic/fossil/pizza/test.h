@@ -153,7 +153,7 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
  * @param suite Pointer to the suite instance.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_run_suite(fossil_pizza_suite_t* suite);
+int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite);
 
 /** Runs all test suites in the engine.
  * @param engine Pointer to the engine instance.
@@ -401,7 +401,7 @@ void _on_skip(const char *description);
  * @param suite The name of the suite to run.
  */
 #define FOSSIL_RUN_SUITE(suite) \
-    fossil_pizza_run_suite(&suite_##suite)
+    fossil_pizza_run_suite(&engine, &suite_##suite)
 
 /** @brief Macro to start the test engine.
  * 

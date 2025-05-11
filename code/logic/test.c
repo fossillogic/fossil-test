@@ -103,16 +103,123 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
 }
 
 // --- Run One Test ---
-void fossil_pizza_run_test(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
+void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_pizza_case_t* test_case) {
+    if (!test_case) return;
+
+    const char* result_str = 
+        (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "PASS" :
+        (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "FAIL" :
+        (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" : "UNKNOWN";
+
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("{blue}Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("{blue}========================================{reset}\n");
+            pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{blue}========================================{reset}\n");
+            }
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("========================================\n");
+            pizza_io_printf("Test Case: %s\n", test_case->name);
+            pizza_io_printf("Given Result: %s\n", result_str);
+            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("========================================\n");
+            }
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("[TEST CASE] %s | [RESULT] %s | [TIME] %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("[========================================]\n");
+            pizza_io_printf("[Test Case]: %s\n", test_case->name);
+            pizza_io_printf("[Given Result]: %s\n", result_str);
+            pizza_io_printf("[With Timestamp]: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("[========================================]\n");
+            }
+            break;
+
+        case PIZZA_THEME_TAP:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("ok - Test Case: %s | Result: %s | Time: %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("# ========================================\n");
+            pizza_io_printf("# Test Case: %s\n", test_case->name);
+            pizza_io_printf("# Given Result: %s\n", result_str);
+            pizza_io_printf("# With Timestamp: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("# ========================================\n");
+            }
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("[ RUN      ] %s\n", test_case->name);
+            pizza_io_printf("[       %s ] %s (%llu ns)\n", result_str, test_case->name, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("[========================================]\n");
+            pizza_io_printf("[Test Case]: %s\n", test_case->name);
+            pizza_io_printf("[Given Result]: %s\n", result_str);
+            pizza_io_printf("[With Timestamp]: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("[========================================]\n");
+            }
+            break;
+
+        case PIZZA_THEME_UNITY:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("Unity Test Case: %s | Result: %s | Time: %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("========================================\n");
+            pizza_io_printf("Test Case: %s\n", test_case->name);
+            pizza_io_printf("Given Result: %s\n", result_str);
+            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("========================================\n");
+            }
+            break;
+
+        default:
+            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
+                test_case->name, result_str, test_case->elapsed_ns);
+            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            pizza_io_printf("========================================\n");
+            pizza_io_printf("Test Case: %s\n", test_case->name);
+            pizza_io_printf("Given Result: %s\n", result_str);
+            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("========================================\n");
+            }
+            break;
+    }
+}
+
+void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
     for (int i = 0; i < G_PIZZA_REPEAT; ++i) {
         if (test_case->setup) test_case->setup();
 
         uint64_t start_time = fossil_pizza_now_ns();
-        if (test_case->run && _ASSERT_COUNT != 0) {
-            test_case->run();
-            test_case->result = FOSSIL_PIZZA_CASE_PASS;
+        if (test_case->run) {
+            if (setjmp(test_jump_buffer) == 0) {
+                test_case->run();
+                test_case->result = FOSSIL_PIZZA_CASE_PASS;
+            } else {
+                test_case->result = FOSSIL_PIZZA_CASE_FAIL;
+            }
         } else {
             test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
         }
@@ -120,13 +227,16 @@ void fossil_pizza_run_test(fossil_pizza_case_t* test_case, fossil_pizza_suite_t*
 
         if (test_case->teardown) test_case->teardown();
     }
-    
+
+    // Output test case result
+    fossil_pizza_test_output(engine, test_case);
+
     // Update scores based on result
     fossil_pizza_update_score(test_case, suite);
 }
 
 // --- Run One Suite ---
-int fossil_pizza_run_suite(fossil_pizza_suite_t* suite) {
+int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
     if (suite->setup) suite->setup();
 
@@ -138,7 +248,7 @@ int fossil_pizza_run_suite(fossil_pizza_suite_t* suite) {
     if (!suite->cases) return FOSSIL_PIZZA_FAILURE;
     for (size_t i = 0; i < suite->count; ++i) {
         fossil_pizza_case_t* test_case = &suite->cases[i];
-        fossil_pizza_run_test(test_case, suite);
+        fossil_pizza_run_test(engine, test_case, suite);
     }
 
     suite->time_elapsed_ns = fossil_pizza_now_ns() - suite->time_elapsed_ns;
@@ -155,7 +265,7 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     engine->score_possible = 0;
 
     for (size_t i = 0; i < engine->count; ++i) {
-        fossil_pizza_run_suite(&engine->suites[i]);
+        fossil_pizza_run_suite(engine, &engine->suites[i]);
 
         engine->score_total += engine->suites[i].total_score;
         engine->score_possible += engine->suites[i].total_possible;
@@ -189,49 +299,237 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     uint64_t microseconds = total_elapsed_us % 1000;
     uint64_t nanoseconds = total_elapsed_ns % 1000;
 
-    pizza_io_printf("{blue,bold}\n========================================================================={reset}\n");
-    pizza_io_printf("{blue,bold}Elapsed Time:{white} %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n{reset}",
-                    minutes, seconds, microseconds, nanoseconds);
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("{blue,bold}\n========================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}Elapsed Time:{white} %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n{reset}",
+                            minutes, seconds, microseconds, nanoseconds);
+            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("\n=========================================================================\n");
+            pizza_io_printf("Elapsed Time: %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n",
+                            minutes, seconds, microseconds, nanoseconds);
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("\n=========================================================================\n");
+            pizza_io_printf("[Elapsed Time]: %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n",
+                            minutes, seconds, microseconds, nanoseconds);
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("\n# Elapsed Time: %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n",
+                            minutes, seconds, microseconds, nanoseconds);
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("[==========] Elapsed Time: %llu minutes, %llu seconds, %llu microseconds, %llu nanoseconds\n",
+                            minutes, seconds, microseconds, nanoseconds);
+            break;
+
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("Unity Test Elapsed Time\n");
+            pizza_io_printf("Minutes: %llu, Seconds: %llu, Microseconds: %llu, Nanoseconds: %llu\n",
+                            minutes, seconds, microseconds, nanoseconds);
+            break;
+
+        default:
+            pizza_io_printf("Unknown theme. Unable to display elapsed time.\n");
+            break;
+    }
 
     // Calculate averages
     double avg_time_per_suite_ns = (engine->count > 0) ? (double)total_elapsed_ns / engine->count : 0;
     double avg_time_per_test_ns = (engine->score_possible > 0) ? (double)total_elapsed_ns / engine->score_possible : 0;
 
-    pizza_io_printf("{blue,bold}Average Time per Suite:{white} %.2f nanoseconds\n{reset}", avg_time_per_suite_ns);
-    pizza_io_printf("{blue,bold}Average Time per Test :{white} %.2f nanoseconds\n{reset}", avg_time_per_test_ns);
-    pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %.2f nanoseconds\n{reset}", avg_time_per_suite_ns);
+            pizza_io_printf("{blue,bold}Average Time per Test :{white} %.2f nanoseconds\n{reset}", avg_time_per_test_ns);
+            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("Average Time per Suite: %.2f nanoseconds\n", avg_time_per_suite_ns);
+            pizza_io_printf("Average Time per Test : %.2f nanoseconds\n", avg_time_per_test_ns);
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("[Average Time per Suite]: %.2f nanoseconds\n", avg_time_per_suite_ns);
+            pizza_io_printf("[Average Time per Test ]: %.2f nanoseconds\n", avg_time_per_test_ns);
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("# Average Time per Suite: %.2f nanoseconds\n", avg_time_per_suite_ns);
+            pizza_io_printf("# Average Time per Test : %.2f nanoseconds\n", avg_time_per_test_ns);
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("[----------] Average Time per Suite: %.2f nanoseconds\n", avg_time_per_suite_ns);
+            pizza_io_printf("[----------] Average Time per Test : %.2f nanoseconds\n", avg_time_per_test_ns);
+            break;
+
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("Average Time per Suite: %.2f nanoseconds\n", avg_time_per_suite_ns);
+            pizza_io_printf("Average Time per Test : %.2f nanoseconds\n", avg_time_per_test_ns);
+            break;
+
+        default:
+            pizza_io_printf("Unknown theme. Unable to display average times.\n");
+            break;
+    }
 }
 
 void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
-    pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
-        engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-    pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
-    pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
-    pizza_io_printf("{blue}Skipped   :{cyan} %4d\n{reset}", engine->score.skipped);
-    pizza_io_printf("{blue}Timeouts  :{cyan} %4d\n{reset}", engine->score.timeout);
-    pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
-    pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
+                engine->count, engine->score_possible, engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
+            pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
+            pizza_io_printf("{blue}Skipped   :{cyan} %4d\n{reset}", engine->score.skipped);
+            pizza_io_printf("{blue}Timeouts  :{cyan} %4d\n{reset}", engine->score.timeout);
+            pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
+            pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("Suites run: %zu, Test run: %d, Score: %d/%d\n",
+                engine->count, engine->score_possible, engine->score_total, engine->score_possible);
+            pizza_io_printf("Passed    : %d\n", engine->score.passed);
+            pizza_io_printf("Failed    : %d\n", engine->score.failed);
+            pizza_io_printf("Skipped   : %d\n", engine->score.skipped);
+            pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
+            pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
+            pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("TEST SUMMARY:\n");
+            pizza_io_printf("Suites run: %zu\n", engine->count);
+            pizza_io_printf("Tests run : %d\n", engine->score_possible);
+            pizza_io_printf("Score     : %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("Passed    : %d\n", engine->score.passed);
+            pizza_io_printf("Failed    : %d\n", engine->score.failed);
+            pizza_io_printf("Skipped   : %d\n", engine->score.skipped);
+            pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
+            pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
+            pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            break;
+
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("TAP version 13\n");
+            pizza_io_printf("# Suites run: %zu\n", engine->count);
+            pizza_io_printf("# Tests run : %d\n", engine->score_possible);
+            pizza_io_printf("# Score     : %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("# Passed    : %d\n", engine->score.passed);
+            pizza_io_printf("# Failed    : %d\n", engine->score.failed);
+            pizza_io_printf("# Skipped   : %d\n", engine->score.skipped);
+            pizza_io_printf("# Timeouts  : %d\n", engine->score.timeout);
+            pizza_io_printf("# Unexpected: %d\n", engine->score.unexpected);
+            pizza_io_printf("# Empty     : %d\n", engine->score.empty);
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("[==========] Suites run: %zu\n", engine->count);
+            pizza_io_printf("[----------] Tests run : %d\n", engine->score_possible);
+            pizza_io_printf("[==========] Score     : %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("[  PASSED  ] %d tests.\n", engine->score.passed);
+            pizza_io_printf("[  FAILED  ] %d tests.\n", engine->score.failed);
+            pizza_io_printf("[  SKIPPED ] %d tests.\n", engine->score.skipped);
+            pizza_io_printf("[ TIMEOUTS ] %d tests.\n", engine->score.timeout);
+            pizza_io_printf("[UNEXPECTED] %d tests.\n", engine->score.unexpected);
+            pizza_io_printf("[   EMPTY  ] %d tests.\n", engine->score.empty);
+            break;
+
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("Unity Test Summary\n");
+            pizza_io_printf("Suites run: %zu\n", engine->count);
+            pizza_io_printf("Tests run : %d\n", engine->score_possible);
+            pizza_io_printf("Score     : %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("Passed    : %d\n", engine->score.passed);
+            pizza_io_printf("Failed    : %d\n", engine->score.failed);
+            pizza_io_printf("Skipped   : %d\n", engine->score.skipped);
+            pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
+            pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
+            pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            break;
+
+        default:
+            pizza_io_printf("Unknown theme. Unable to display scoreboard.\n");
+            break;
+    }
 }
 
-void fossil_pizza_summary_heading(void) {
+void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
     pizza_sys_hostinfo_system_t system_info;
     pizza_sys_hostinfo_endianness_t endianness_info;
 
     pizza_sys_hostinfo_get_system(&system_info);
     pizza_sys_hostinfo_get_endianness(&endianness_info);
 
-    pizza_io_printf("{blue,bold}========================================================================={reset}\n");
-    pizza_io_printf("{blue}==={cyan} Fossil Pizza Test Summary {blue}===: os{magenta} %s {blue}endianess:{magenta} %s {reset}\n",
-        system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
-    pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            pizza_io_printf("{blue}==={cyan} Fossil Pizza Summary {blue}===: os{magenta} %s {blue}endianess:{magenta} %s {reset}\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            break;
+
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("=== Fossil Pizza Summary ===: os %s endianess: %s\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("[Fossil Pizza Summary]: os %s endianess: %s\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("=========================================================================\n");
+            break;
+
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("TAP version 13\n");
+            pizza_io_printf("# Fossil Pizza Summary: os %s endianess: %s\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            break;
+
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("[==========] {red}F{yellow}o{green}s{blue}s{magenta}i{cyan}l {red}P{yellow}i{green}z{blue}z{magenta}a {cyan}S{red}u{yellow}m{green}m{blue}a{magenta}r{cyan}y{reset}\n");
+            pizza_io_printf("[----------] OS: %s, Endianess: %s\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            break;
+
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("Unity Test Summary\n");
+            pizza_io_printf("OS: %s, Endianess: %s\n",
+                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            break;
+
+        default:
+            pizza_io_printf("Unknown theme. Unable to display heading.\n");
+            break;
+    }
 }
 
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
-    fossil_pizza_summary_heading();
+    fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);
 }
@@ -273,15 +571,66 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
             last_line == line &&
             last_func && pizza_io_cstr_compare(last_func, func) == 0) {
             anomaly_count++;
-            pizza_io_printf("{yellow}Duplicate or similar assertion detected: %s (%s:%d in %s) [Anomaly Count: %d]{reset}\n",
-                                 message, file, line, func, anomaly_count);
         } else {
             anomaly_count = 0; // Reset anomaly count for new assertion
             last_message = message;
             last_file = file;
             last_line = line;
             last_func = func;
-            pizza_io_printf("{red}Assertion failed: %s (%s:%d in %s){reset}\n", message, file, line, func);
+        }
+
+        // Output assertion failure based on theme
+        switch (G_PIZZA_THEME) {
+            case PIZZA_THEME_FOSSIL:
+                pizza_io_printf("{red,bold}Assertion failed:{reset} {yellow}%s{reset} {blue}(%s:%d in %s){reset}\n",
+                                message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("{yellow}Duplicate or similar assertion detected [Anomaly Count: %d]{reset}\n", anomaly_count);
+                }
+                break;
+
+            case PIZZA_THEME_CATCH:
+            case PIZZA_THEME_DOCTEST:
+                pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+                }
+                break;
+
+            case PIZZA_THEME_CPPUTEST:
+                pizza_io_printf("[ASSERTION FAILED] %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("[DUPLICATE ASSERTION] Anomaly Count: %d\n", anomaly_count);
+                }
+                break;
+
+            case PIZZA_THEME_TAP:
+                pizza_io_printf("not ok - Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("# Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+                }
+                break;
+
+            case PIZZA_THEME_GOOGLETEST:
+                pizza_io_printf("[  FAILED  ] Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("[  WARNING ] Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+                }
+                break;
+
+            case PIZZA_THEME_UNITY:
+                pizza_io_printf("Unity Assertion Failed: %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("Unity Duplicate Assertion Detected [Anomaly Count: %d]\n", anomaly_count);
+                }
+                break;
+
+            default:
+                pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+                if (anomaly_count > 0) {
+                    pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
+                }
+                break;
         }
 
         longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
@@ -294,24 +643,116 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
 
 void _given(const char *description) {
     if (description) {
-        pizza_io_printf("{blue}Given %s{reset}\n", description);
+        switch (G_PIZZA_THEME) {
+            case PIZZA_THEME_FOSSIL:
+                pizza_io_printf("{blue}Given %s{reset}\n", description);
+                break;
+            case PIZZA_THEME_CATCH:
+            case PIZZA_THEME_DOCTEST:
+                pizza_io_printf("Given: %s\n", description);
+                break;
+            case PIZZA_THEME_CPPUTEST:
+                pizza_io_printf("[GIVEN] %s\n", description);
+                break;
+            case PIZZA_THEME_TAP:
+                pizza_io_printf("# Given: %s\n", description);
+                break;
+            case PIZZA_THEME_GOOGLETEST:
+                pizza_io_printf("[----------] Given: %s\n", description);
+                break;
+            case PIZZA_THEME_UNITY:
+                pizza_io_printf("Unity Given: %s\n", description);
+                break;
+            default:
+                pizza_io_printf("Given: %s\n", description);
+                break;
+        }
     }
 }
 
 void _when(const char *description) {
     if (description) {
-        pizza_io_printf("{blue}When %s{reset}\n", description);
+        switch (G_PIZZA_THEME) {
+            case PIZZA_THEME_FOSSIL:
+                pizza_io_printf("{blue}When %s{reset}\n", description);
+                break;
+            case PIZZA_THEME_CATCH:
+            case PIZZA_THEME_DOCTEST:
+                pizza_io_printf("When: %s\n", description);
+                break;
+            case PIZZA_THEME_CPPUTEST:
+                pizza_io_printf("[WHEN] %s\n", description);
+                break;
+            case PIZZA_THEME_TAP:
+                pizza_io_printf("# When: %s\n", description);
+                break;
+            case PIZZA_THEME_GOOGLETEST:
+                pizza_io_printf("[----------] When: %s\n", description);
+                break;
+            case PIZZA_THEME_UNITY:
+                pizza_io_printf("Unity When: %s\n", description);
+                break;
+            default:
+                pizza_io_printf("When: %s\n", description);
+                break;
+        }
     }
 }
 
 void _then(const char *description) {
     if (description) {
-        pizza_io_printf("{blue}Then %s{reset}\n", description);
+        switch (G_PIZZA_THEME) {
+            case PIZZA_THEME_FOSSIL:
+                pizza_io_printf("{blue}Then %s{reset}\n", description);
+                break;
+            case PIZZA_THEME_CATCH:
+            case PIZZA_THEME_DOCTEST:
+                pizza_io_printf("Then: %s\n", description);
+                break;
+            case PIZZA_THEME_CPPUTEST:
+                pizza_io_printf("[THEN] %s\n", description);
+                break;
+            case PIZZA_THEME_TAP:
+                pizza_io_printf("# Then: %s\n", description);
+                break;
+            case PIZZA_THEME_GOOGLETEST:
+                pizza_io_printf("[----------] Then: %s\n", description);
+                break;
+            case PIZZA_THEME_UNITY:
+                pizza_io_printf("Unity Then: %s\n", description);
+                break;
+            default:
+                pizza_io_printf("Then: %s\n", description);
+                break;
+        }
     }
 }
 
 void _on_skip(const char *description) {
     if (description) {
-        pizza_io_printf("{yellow}On Skip %s{reset}\n", description);
+        switch (G_PIZZA_THEME) {
+            case PIZZA_THEME_FOSSIL:
+                pizza_io_printf("{yellow}On Skip %s{reset}\n", description);
+                break;
+            case PIZZA_THEME_CATCH:
+            case PIZZA_THEME_DOCTEST:
+                pizza_io_printf("On Skip: %s\n", description);
+                break;
+            case PIZZA_THEME_CPPUTEST:
+                pizza_io_printf("[SKIP] %s\n", description);
+                break;
+            case PIZZA_THEME_TAP:
+                pizza_io_printf("# On Skip: %s\n", description);
+                break;
+            case PIZZA_THEME_GOOGLETEST:
+                pizza_io_printf("[ SKIPPED ] %s\n", description);
+                break;
+            case PIZZA_THEME_UNITY:
+                pizza_io_printf("Unity On Skip: %s\n", description);
+                break;
+            default:
+                pizza_io_printf("On Skip: %s\n", description);
+                break;
+        }
     }
 }
