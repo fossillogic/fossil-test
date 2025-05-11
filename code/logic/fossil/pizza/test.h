@@ -301,6 +301,18 @@ void _on_skip(const char *description);
     test_case_##test_name.tags = skip \
     test_case_##test_name.teardown = _on_skip(skip)
 
+/** @brief Macro to set a test case's criteria.
+ * 
+ * This macro is used to specify criteria for a test case. The criteria can be
+ * used to filter or categorize test cases based on specific conditions or
+ * requirements.
+ * 
+ * @param test_name The name of the test case.
+ * @param criteria The criteria to assign to the test case.
+ */
+#define FOSSIL_TEST_SET_CRITERIA(test_name, criteria) \
+    test_case_##test_name.criteria = criteria
+
 /** @brief Macro to set a test case's setup function.
  * 
  * This macro is used to specify a setup function for a test case. The setup
