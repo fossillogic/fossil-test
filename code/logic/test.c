@@ -103,7 +103,7 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
 }
 
 // --- Run One Test ---
-void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_pizza_case_t* test_case) {
+void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
     if (!test_case) return;
 
     const char* result_str = 
@@ -111,12 +111,12 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
         (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "FAIL" :
         (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" : "UNKNOWN";
 
-    switch (engine->pallet.theme) {
+    switch (G_PIZZA_THEME) {
         case PIZZA_THEME_FOSSIL:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("{blue}Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{blue}========================================{reset}\n");
             pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
             pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
@@ -127,10 +127,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("========================================\n");
             pizza_io_printf("Test Case: %s\n", test_case->name);
             pizza_io_printf("Given Result: %s\n", result_str);
@@ -140,10 +140,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
             break;
 
         case PIZZA_THEME_CPPUTEST:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("[TEST CASE] %s | [RESULT] %s | [TIME] %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("[========================================]\n");
             pizza_io_printf("[Test Case]: %s\n", test_case->name);
             pizza_io_printf("[Given Result]: %s\n", result_str);
@@ -153,10 +153,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
             break;
 
         case PIZZA_THEME_TAP:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("ok - Test Case: %s | Result: %s | Time: %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("# ========================================\n");
             pizza_io_printf("# Test Case: %s\n", test_case->name);
             pizza_io_printf("# Given Result: %s\n", result_str);
@@ -166,10 +166,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
             break;
 
         case PIZZA_THEME_GOOGLETEST:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("[ RUN      ] %s\n", test_case->name);
             pizza_io_printf("[       %s ] %s (%llu ns)\n", result_str, test_case->name, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("[========================================]\n");
             pizza_io_printf("[Test Case]: %s\n", test_case->name);
             pizza_io_printf("[Given Result]: %s\n", result_str);
@@ -179,10 +179,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
             break;
 
         case PIZZA_THEME_UNITY:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("Unity Test Case: %s | Result: %s | Time: %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("========================================\n");
             pizza_io_printf("Test Case: %s\n", test_case->name);
             pizza_io_printf("Given Result: %s\n", result_str);
@@ -192,10 +192,10 @@ void fossil_pizza_test_output(const fossil_pizza_engine_t* engine, const fossil_
             break;
 
         default:
-            if (engine->pallet.verbose == PIZZA_VERBOSE_PLAIN) {
+            if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
             pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
                 test_case->name, result_str, test_case->elapsed_ns);
-            } else if (engine->pallet.verbose == PIZZA_VERBOSE_DOGE) {
+            } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("========================================\n");
             pizza_io_printf("Test Case: %s\n", test_case->name);
             pizza_io_printf("Given Result: %s\n", result_str);
@@ -229,7 +229,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
     }
 
     // Output test case result
-    fossil_pizza_test_output(engine, test_case);
+    fossil_pizza_test_output(test_case);
 
     // Update scores based on result
     fossil_pizza_update_score(test_case, suite);
