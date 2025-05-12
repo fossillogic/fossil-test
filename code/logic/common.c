@@ -40,6 +40,35 @@ fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
 // command pallet
 // *****************************************************************************
 
+// Lookup tables for valid tags and criteria
+static const char* VALID_TAGS[] = {
+    "unit",
+    "integration",
+    "performance",
+    "regression",
+    "smoke",
+    "sanity",
+    "acceptance",
+    "security",
+    "usability",
+    "compatibility",
+    null // Sentinel to mark the end
+};
+
+static const char* VALID_CRITERIA[] = {
+    "name",
+    "time",
+    "priority",
+    "status",
+    "category",
+    "owner",
+    "date",
+    "complexity",
+    "coverage",
+    "reliability",
+    null // Sentinel to mark the end
+};
+
 static void _show_help(void) {
     pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
     pizza_io_printf("{blue}Options:{reset}\n");
@@ -204,7 +233,20 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
                     pallet.filter.suite_name = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
-                    pallet.filter.tag = argv[++j];
+                    const char* tag = argv[++j];
+                    int is_valid_tag = 0;
+                    for (int k = 0; VALID_TAGS[k] != null; k++) {
+                        if (pizza_io_cstr_compare(tag, VALID_TAGS[k]) == 0) {
+                            is_valid_tag = 1;
+                            break;
+                        }
+                    }
+                    if (is_valid_tag) {
+                        pallet.filter.tag = tag;
+                    } else {
+                        pizza_io_printf("{red}Error: Invalid tag '%s'.{reset}\n", tag);
+                        exit(EXIT_FAILURE);
+                    }
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_filter();
                 } else {
@@ -217,7 +259,20 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
             for (int j = i + 1; j < argc; j++) {
                 if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
-                    pallet.sort.by = argv[++j];
+                    const char* criteria = argv[++j];
+                    int is_valid_criteria = 0;
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                        if (pizza_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0) {
+                            is_valid_criteria = 1;
+                            break;
+                        }
+                    }
+                    if (is_valid_criteria) {
+                        pallet.sort.by = criteria;
+                    } else {
+                        pizza_io_printf("{red}Error: Invalid criteria '%s'.{reset}\n", criteria);
+                        exit(EXIT_FAILURE);
+                    }
                 } else if (pizza_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc) {
                     pallet.sort.order = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
@@ -738,6 +793,17 @@ const char *pizza_io_soap_detect_tone(const char *text) {
     }
 
     return "casual";
+}
+
+int pizza_io_is_rot_brain(const char *text) {
+    if (!text) return 0;
+
+    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
+        if (custom_strcasestr(text, FOSSIL_SOAP_SUGGESTIONS[i].bad)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // *****************************************************************************

@@ -430,6 +430,14 @@ void pizza_io_soap_clear_custom_filters(void);
  */
 const char *pizza_io_soap_detect_tone(const char *text);
 
+/**
+ * @brief Checks if the given text contains "rot-brain" language.
+ *
+ * @param text The input text to check.
+ * @return 1 if the text contains "rot-brain" language, 0 otherwise.
+ */
+int pizza_io_is_rot_brain(const char *text);
+
 // *****************************************************************************
 // Memory management
 // *****************************************************************************
