@@ -10,7 +10,6 @@
 | **Benchmarking Tools** | Integrated benchmarking features to measure execution time, identify bottlenecks, and optimize code performance. |
 | **Sanity Kit for Command Tests** | A specialized suite for validating command-line tools and scripts, ensuring consistent behavior across environments. |
 | **Jellyfish AI Integration** | Intelligent assistant for analyzing test coverage, diagnostics, and improving test clarity (available from v1.1.8 onward). |
-| **Parallel Test Execution** | Support for multi-threaded test execution to reduce runtime and improve efficiency. |
 | **Customizable Output Themes** | Multiple output themes (e.g., fossil, catch, doctest) to tailor the appearance of test results. |
 | **Tag-Based Test Filtering** | Organize and execute tests based on custom tags for better test management. |
 | **Detailed Performance Insights** | Comprehensive reporting on test execution times and resource usage to aid in performance optimization. |
