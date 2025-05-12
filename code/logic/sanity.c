@@ -15,52 +15,47 @@
 #include "fossil/pizza/sanity.h"
 #ifdef _WIN32
 #include <windows.h>
-#include <process.h>
-#include <io.h>
-#define access _access
-#define F_OK 0
 #else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #endif
 
-int fossil_sanity_sys_execute(const char* command) {
-    if (!command) return -1;
-    int status = system(command);
+int fossil_sys_call_execute(const char *command) {
 #ifdef _WIN32
-    return status;
+    return system(command); // On Windows, use the system function to execute the command.
 #else
-    if (WIFEXITED(status)) return WEXITSTATUS(status);
-    return -1;
+    return system(command); // On Unix-like systems, use the system function to execute the command.
 #endif
 }
 
-int fossil_sanity_sys_getpid(void) {
+int fossil_sys_call_getpid(void) {
 #ifdef _WIN32
-    return _getpid();
+    return GetCurrentProcessId(); // On Windows, use the GetCurrentProcessId function to get the process ID.
 #else
-    return getpid();
+    return getpid(); // On Unix-like systems, use the getpid function to get the process ID.
 #endif
 }
 
-void fossil_sanity_sys_sleep(int milliseconds) {
+void fossil_sys_call_sleep(int milliseconds) {
 #ifdef _WIN32
-    Sleep((DWORD)milliseconds);
+    Sleep(milliseconds); // On Windows, use the Sleep function to sleep for the specified number of milliseconds.
 #else
-    usleep(milliseconds * 1000);
+    usleep(milliseconds * 1000); // On Unix-like systems, use the usleep function to sleep for the specified number of microseconds.
 #endif
 }
 
-int fossil_sanity_sys_create_file(const char* filename) {
-    if (!filename) return -1;
-    FILE* fp = fopen(filename, "w");
-    if (!fp) return -2;
-    fclose(fp);
-    return 0;
-}
-
-int fossil_sanity_sys_file_exists(const char* filename) {
-    if (!filename) return 0;
-    return access(filename, F_OK) == 0 ? 1 : 0;
+int fossil_sys_call_create_file(const char *filename) {
+#ifdef _WIN32
+    HANDLE hFile = CreateFileA(filename, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) return -1; // If the file handle is invalid, return an error code.
+    CloseHandle(hFile); // Close the file handle.
+    return 0; // Return success.
+#else
+    int fd = open(filename, O_CREAT | O_WRONLY, 0644); // On Unix-like systems, use the open function to create the file.
+    if (fd == -1) return -1; // If the file descriptor is invalid, return an error code.
+    close(fd); // Close the file descriptor.
+    return 0; // Return success.
+#endif
 }
