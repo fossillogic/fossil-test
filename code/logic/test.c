@@ -277,15 +277,38 @@ static int compare_result_desc(const void* a, const void* b) {
     return ((fossil_pizza_case_t*)b)->result - ((fossil_pizza_case_t*)a)->result;
 }
 
+static int compare_time_asc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)a)->elapsed_ns - ((fossil_pizza_case_t*)b)->elapsed_ns;
+}
+
+static int compare_time_desc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)b)->elapsed_ns - ((fossil_pizza_case_t*)a)->elapsed_ns;
+}
+
 void fossil_pizza_sort_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
     if (!suite || !suite->cases || suite->count <= 1 || !engine) return;
 
     int (*compare)(const void*, const void*) = null;
 
-    if (engine->pallet.sort.by && pizza_io_cstr_compare(engine->pallet.sort.by, "name") == 0) {
-        compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
-    } else if (engine->pallet.sort.by && pizza_io_cstr_compare(engine->pallet.sort.by, "result") == 0) {
-        compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
+    if (engine->pallet.sort.by) {
+        if (pizza_io_cstr_compare(engine->pallet.sort.by, "name") == 0) {
+            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
+        } else if (pizza_io_cstr_compare(engine->pallet.sort.by, "result") == 0) {
+            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
+        } else if (pizza_io_cstr_compare(engine->pallet.sort.by, "time") == 0) {
+            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_time_desc : compare_time_asc;
+        } else {
+            // Invalid sort criteria
+            return;
+        }
+    }
+
+    if (engine->pallet.sort.order) {
+        if (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) {
+            compare = (compare == compare_name_asc) ? compare_name_desc : compare;
+        } else if (pizza_io_cstr_compare(engine->pallet.sort.order, "asc") == 0) {
+            compare = (compare == compare_name_desc) ? compare_name_asc : compare;
+        }
     }
 
     if (compare) {
@@ -333,9 +356,15 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
         suite->cases[j] = temp;
     }
 
-    if (engine && engine->pallet.shuffle.by && pizza_io_cstr_compare(engine->pallet.shuffle.by, "name") == 0) {
-        qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), 
-              (int (*)(const void*, const void*))pizza_io_cstr_compare);
+    if (engine && engine->pallet.shuffle.by) {
+        if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "name") == 0) {
+            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), 
+                  (int (*)(const void*, const void*))pizza_io_cstr_compare);
+        } else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "result") == 0) {
+            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_result_asc);
+        } else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "time") == 0) {
+            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_time_asc);
+        }
     }
 }
 

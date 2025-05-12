@@ -42,30 +42,21 @@ fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
 
 // Lookup tables for valid tags and criteria
 static const char* VALID_TAGS[] = {
-    "unit",
-    "integration",
-    "performance",
-    "regression",
-    "smoke",
-    "sanity",
-    "acceptance",
-    "security",
-    "usability",
-    "compatibility",
+    "fossil",       // default tag
+    "jellyfish",    // Jellyfish AI tag
+    "network",      // Network-related tests
+    "database",     // Database-related tests
+    "ui",           // User Interface tests
+    "api",          // API-related tests
+    "critical",     // Critical tests
+    "non_critical", // Non-critical tests
     null // Sentinel to mark the end
 };
 
 static const char* VALID_CRITERIA[] = {
     "name",
     "time",
-    "priority",
-    "status",
-    "category",
-    "owner",
-    "date",
-    "complexity",
-    "coverage",
-    "reliability",
+    "result",
     null // Sentinel to mark the end
 };
 
