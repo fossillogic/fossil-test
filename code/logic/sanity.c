@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #endif
 
-int fossil_sys_call_execute(const char *command) {
+int pizza_sys_call_execute(const char *command) {
 #ifdef _WIN32
     return system(command); // On Windows, use the system function to execute the command.
 #else
@@ -30,7 +30,7 @@ int fossil_sys_call_execute(const char *command) {
 #endif
 }
 
-int fossil_sys_call_getpid(void) {
+int pizza_sys_call_getpid(void) {
 #ifdef _WIN32
     return GetCurrentProcessId(); // On Windows, use the GetCurrentProcessId function to get the process ID.
 #else
@@ -38,7 +38,7 @@ int fossil_sys_call_getpid(void) {
 #endif
 }
 
-void fossil_sys_call_sleep(int milliseconds) {
+void pizza_sys_call_sleep(int milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds); // On Windows, use the Sleep function to sleep for the specified number of milliseconds.
 #else
@@ -46,7 +46,7 @@ void fossil_sys_call_sleep(int milliseconds) {
 #endif
 }
 
-int fossil_sys_call_create_file(const char *filename) {
+int pizza_sys_call_create_file(const char *filename) {
 #ifdef _WIN32
     HANDLE hFile = CreateFileA(filename, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) return -1; // If the file handle is invalid, return an error code.
@@ -57,5 +57,31 @@ int fossil_sys_call_create_file(const char *filename) {
     if (fd == -1) return -1; // If the file descriptor is invalid, return an error code.
     close(fd); // Close the file descriptor.
     return 0; // Return success.
+#endif
+}
+
+int fossil_sanity_sys_execute(const char* command) {
+    return pizza_sys_call_execute(command);
+}
+
+int fossil_sanity_sys_getpid(void) {
+    return pizza_sys_call_getpid();
+}
+
+void fossil_sanity_sys_sleep(int milliseconds) {
+    pizza_sys_call_sleep(milliseconds);
+}
+
+int fossil_sanity_sys_create_file(const char* filename) {
+    return pizza_sys_call_create_file(filename);
+}
+
+int fossil_sanity_sys_file_exists(const char* filename) {
+#ifdef _WIN32
+    struct _stat buffer;
+    return (_stat(filename, &buffer) == 0); // On Windows, use the _stat function to check if the file exists.
+#else
+    struct stat buffer;
+    return (stat(filename, &buffer) == 0); // On Unix-like systems, use the stat function to check if the file exists.
 #endif
 }
