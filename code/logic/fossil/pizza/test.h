@@ -216,7 +216,7 @@ void _on_skip(const char *description);
      static fossil_pizza_case_t test_case_##test_name = { \
          (cstr)#test_name, \
          (cstr)"fossil", \
-         (cstr)"std", \
+         (cstr)"name", \
          nullptr, \
          nullptr, \
          test_name##_run, \
@@ -230,7 +230,7 @@ void _on_skip(const char *description);
      static fossil_pizza_case_t test_case_##test_name = { \
          .name = #test_name, \
          .tags = "fossil", \
-         .criteria = "std", \
+         .criteria = "name", \
          .setup = NULL, \
          .teardown = NULL, \
          .run = test_name##_run, \
