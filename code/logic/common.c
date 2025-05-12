@@ -60,25 +60,29 @@ static const char* VALID_CRITERIA[] = {
     null // Sentinel to mark the end
 };
 
+// TODO add --options flag to show all options for commands that take options such as color or theme
+
 static void _show_help(void) {
     pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
     pizza_io_printf("{blue}Options:{reset}\n");
-    pizza_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
     pizza_io_printf("{cyan}  --version          Show version information{reset}\n");
+    pizza_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
+    pizza_io_printf("{cyan}  --host             Show information about the current host{reset}\n");
     pizza_io_printf("{cyan}  --help             Show this help message{reset}\n");
-    pizza_io_printf("{cyan}  --host <host>      Specify the host name or address{reset}\n");
-    pizza_io_printf("{cyan}  --this             Use the current context{reset}\n");
     pizza_io_printf("{blue}Commands:{reset}\n");
     pizza_io_printf("{cyan}  run                Execute tests with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
     pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
-    pizza_io_printf("{cyan}  threads=<count>    Specify the number of threads to use{reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
     pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge, human){reset}\n");
     exit(EXIT_SUCCESS);
 }
+
+// TODO support wildcards for test cases under --only
+// TODO support regex for test cases under --only
+// TODO support listing multiple test cases under --only
 
 static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
@@ -88,6 +92,15 @@ static void _show_subhelp_run(void) {
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
+
+// TODO support wildcards for test cases under --test-name
+// TODO support regex for test cases under --test-name
+// TODO support listing multiple test cases under --test-name
+// TODO support wildcards for suite names under --suite-name
+// TODO support regex for suite names under --suite-name
+// TODO support listing multiple suite names under --suite-name
+// TODO support regex for tags under --tag
+// TODO support listing multiple tags under --tag
 
 static void _show_subhelp_filter(void) {
     pizza_io_printf("{blue}Filter command options:{reset}\n");
@@ -140,14 +153,15 @@ static void _show_subhelp_verbose(void) {
     pizza_io_printf("{cyan}  plain             Plain output{reset}\n");
     pizza_io_printf("{cyan}  ci                Continuous Integration output{reset}\n");
     pizza_io_printf("{cyan}  doge              Doge output{reset}\n");
-    pizza_io_printf("{cyan}  human Human-readable output{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_version(void) {
-    pizza_io_printf("{blue}Pizza Test Framework Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
+    pizza_io_printf("{blue}Pizza Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
     exit(EXIT_SUCCESS);
 }
+
+// TODO add architecture and CPU information
 
 static void _show_host(void) {
     pizza_sys_hostinfo_system_t system_info;
