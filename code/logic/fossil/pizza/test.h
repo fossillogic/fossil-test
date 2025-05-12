@@ -573,4 +573,53 @@ void _on_skip(const char *description);
         _then(description); \
     }
 
+// *********************************************************************************
+// Deprecated Macro Names (to be removed in 2.0.0) changing my mind is futile
+// *********************************************************************************
+
+/**
+ * @brief Deprecated macro to define a test case.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_TEST instead.
+ * 
+ * @param test_name The name of the test case to define.
+ */
+#define FOSSIL_TEST_CASE(test_name) \
+    FOSSIL_TEST(test_name)
+
+/**
+ * @brief Deprecated macro to run all test cases.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_RUN_ALL instead.
+ */
+#define FOSSIL_TEST_RUN() \
+    FOSSIL_RUN_ALL()
+
+/**
+ * @brief Deprecated macro to print a summary of test results.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_SUMMARY instead.
+ */
+#define FOSSIL_TEST_SUMMARY() \
+    FOSSIL_SUMMARY()
+
+/**
+ * @brief Deprecated macro to end the test engine.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_END instead.
+ */
+#define FOSSIL_TEST_END() \
+    FOSSIL_END()
+
+/**
+ * @brief Deprecated macro to skip a test case.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_TEST_SET_SKIP instead.
+ * 
+ * @param test_name The name of the test case to skip.
+ * @param skip The skip message to assign to the test case.
+ */
+#define FOSSIL_TEST_SKIP(test_name, skip) \
+    FOSSIL_TEST_SET_SKIP(test_name, skip)
+
 #endif
