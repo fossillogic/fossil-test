@@ -44,7 +44,7 @@ To get started with Fossil Test, ensure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.2.0
+   revision = v1.2.1
 
    [provide]
    fossil-test = fossil_test_dep
