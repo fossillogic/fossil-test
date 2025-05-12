@@ -76,7 +76,7 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
-    pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge, human){reset}\n");
+    pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -152,7 +152,7 @@ static void _show_subhelp_verbose(void) {
     pizza_io_printf("{blue}Verbose command options:{reset}\n");
     pizza_io_printf("{cyan}  plain             Plain output{reset}\n");
     pizza_io_printf("{cyan}  ci                Continuous Integration output{reset}\n");
-    pizza_io_printf("{cyan}  doge              Doge output{reset}\n");
+    pizza_io_printf("{cyan}  doge              High-transparency verbose output{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
