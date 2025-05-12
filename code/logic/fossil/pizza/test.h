@@ -36,46 +36,6 @@ typedef enum {
     FOSSIL_PIZZA_CASE_UNEXPECTED
 } fossil_pizza_case_result_t;
 
-// --- Pizza Data Types ---
-typedef enum {
-    FOSSIL_PIZZA_TYPE_I8,
-    FOSSIL_PIZZA_TYPE_I16,
-    FOSSIL_PIZZA_TYPE_I32,
-    FOSSIL_PIZZA_TYPE_I64,
-    FOSSIL_PIZZA_TYPE_U8,
-    FOSSIL_PIZZA_TYPE_U16,
-    FOSSIL_PIZZA_TYPE_U32,
-    FOSSIL_PIZZA_TYPE_U64,
-    FOSSIL_PIZZA_TYPE_HEX,
-    FOSSIL_PIZZA_TYPE_OCTAL,
-    FOSSIL_PIZZA_TYPE_FLOAT,
-    FOSSIL_PIZZA_TYPE_DOUBLE,
-    FOSSIL_PIZZA_TYPE_WSTR,
-    FOSSIL_PIZZA_TYPE_CSTR,
-    FOSSIL_PIZZA_TYPE_CCHAR,
-    FOSSIL_PIZZA_TYPE_WCHAR,
-    FOSSIL_PIZZA_TYPE_BOOL,
-    FOSSIL_PIZZA_TYPE_SIZE,
-    FOSSIL_PIZZA_TYPE_ANY
-} fossil_pizza_type_t;
-
-typedef struct {
-    char *data;
-    bool mutable_flag;
-} fossil_pizza_value_t;
-
-typedef struct {
-    char* name;
-    char* description;
-    char* id;
-} fossil_pizza_attribute_t;
-
-typedef struct {
-    fossil_pizza_type_t type;
-    fossil_pizza_value_t value;
-    fossil_pizza_attribute_t attribute;
-} fossil_pizza_t;
-
 // --- Score Struct ---
 typedef struct {
     int passed;
