@@ -42,7 +42,7 @@ void fossil_sys_call_sleep(int milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds); // On Windows, use the Sleep function to sleep for the specified number of milliseconds.
 #else
-    usleep(milliseconds * 1000); // On Unix-like systems, use the usleep function to sleep for the specified number of microseconds.
+    sleep(milliseconds * 1000); // On Unix-like systems, use the usleep function to sleep for the specified number of microseconds.
 #endif
 }
 
