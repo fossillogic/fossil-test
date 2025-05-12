@@ -210,7 +210,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
     if (!test_case || !suite) return;
 
     // Check if the test case name matches the --only filter
-    if (engine->pallet.run.only && strcmp(engine->pallet.run.only, test_case->name) != 0) {
+    if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
         return;
     }
 
@@ -248,11 +248,11 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
 // --- Sorting Test Cases ---
 static int compare_name_asc(const void* a, const void* b) {
-    return strcmp(((fossil_pizza_case_t*)a)->name, ((fossil_pizza_case_t*)b)->name);
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->name, ((fossil_pizza_case_t*)b)->name);
 }
 
 static int compare_name_desc(const void* a, const void* b) {
-    return strcmp(((fossil_pizza_case_t*)b)->name, ((fossil_pizza_case_t*)a)->name);
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->name, ((fossil_pizza_case_t*)a)->name);
 }
 
 static int compare_result_asc(const void* a, const void* b) {
@@ -266,12 +266,12 @@ static int compare_result_desc(const void* a, const void* b) {
 void fossil_pizza_sort_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
     if (!suite || !suite->cases || suite->count <= 1 || !engine) return;
 
-    int (*compare)(const void*, const void*) = NULL;
+    int (*compare)(const void*, const void*) = null;
 
-    if (engine->pallet.sort.by && strcmp(engine->pallet.sort.by, "name") == 0) {
-        compare = (strcmp(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
-    } else if (engine->pallet.sort.by && strcmp(engine->pallet.sort.by, "result") == 0) {
-        compare = (strcmp(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
+    if (engine->pallet.sort.by && pizza_io_cstr_compare(engine->pallet.sort.by, "name") == 0) {
+        compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
+    } else if (engine->pallet.sort.by && pizza_io_cstr_compare(engine->pallet.sort.by, "result") == 0) {
+        compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
     }
 
     if (compare) {
@@ -288,10 +288,10 @@ size_t fossil_pizza_filter_cases(fossil_pizza_suite_t* suite, const fossil_pizza
         fossil_pizza_case_t* test_case = &suite->cases[i];
 
         // Apply filters based on engine->pallet.filter
-        if (engine->pallet.filter.test_name && strcmp(test_case->name, engine->pallet.filter.test_name) != 0) {
+        if (engine->pallet.filter.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.filter.test_name) != 0) {
             continue;
         }
-        if (engine->pallet.filter.suite_name && strcmp(suite->suite_name, engine->pallet.filter.suite_name) != 0) {
+        if (engine->pallet.filter.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.filter.suite_name) != 0) {
             continue;
         }
         if (engine->pallet.filter.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.filter.tag))) {
@@ -309,7 +309,7 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
 
     unsigned int seed = (engine && engine->pallet.shuffle.seed) 
                         ? (unsigned int)atoi(engine->pallet.shuffle.seed) 
-                        : (unsigned int)time(NULL);
+                        : (unsigned int)time(null);
     srand(seed);
 
     for (size_t i = suite->count - 1; i > 0; --i) {
@@ -319,9 +319,9 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
         suite->cases[j] = temp;
     }
 
-    if (engine && engine->pallet.shuffle.by && strcmp(engine->pallet.shuffle.by, "name") == 0) {
+    if (engine && engine->pallet.shuffle.by && pizza_io_cstr_compare(engine->pallet.shuffle.by, "name") == 0) {
         qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), 
-              (int (*)(const void*, const void*))strcmp);
+              (int (*)(const void*, const void*))pizza_io_cstr_compare);
     }
 }
 
@@ -491,6 +491,10 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
 void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
+    double success_rate = (engine->score_possible > 0) 
+                          ? ((double)engine->score_total / engine->score_possible) * 100 
+                          : 0;
+
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
@@ -501,6 +505,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("{blue}Timeouts  :{cyan} %4d\n{reset}", engine->score.timeout);
             pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
             pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
+            pizza_io_printf("{blue}Success Rate:{cyan} %.2f%%\n{reset}", success_rate);
             break;
 
         case PIZZA_THEME_CATCH:
@@ -513,6 +518,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
             pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
             pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            pizza_io_printf("Success Rate: %.2f%%\n", success_rate);
             break;
 
         case PIZZA_THEME_CPPUTEST:
@@ -526,6 +532,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
             pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
             pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            pizza_io_printf("Success Rate: %.2f%%\n", success_rate);
             break;
 
         case PIZZA_THEME_TAP:
@@ -539,6 +546,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("# Timeouts  : %d\n", engine->score.timeout);
             pizza_io_printf("# Unexpected: %d\n", engine->score.unexpected);
             pizza_io_printf("# Empty     : %d\n", engine->score.empty);
+            pizza_io_printf("# Success Rate: %.2f%%\n", success_rate);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
@@ -551,6 +559,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("[ TIMEOUTS ] %d tests.\n", engine->score.timeout);
             pizza_io_printf("[UNEXPECTED] %d tests.\n", engine->score.unexpected);
             pizza_io_printf("[   EMPTY  ] %d tests.\n", engine->score.empty);
+            pizza_io_printf("[ SUCCESS  ] %.2f%%\n", success_rate);
             break;
 
         case PIZZA_THEME_UNITY:
@@ -564,6 +573,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("Timeouts  : %d\n", engine->score.timeout);
             pizza_io_printf("Unexpected: %d\n", engine->score.unexpected);
             pizza_io_printf("Empty     : %d\n", engine->score.empty);
+            pizza_io_printf("Success Rate: %.2f%%\n", success_rate);
             break;
 
         default:
