@@ -29,11 +29,13 @@
 
 #ifdef _WIN32
     #include <windows.h>
+    #include <sys/stat.h>
 #elif defined(__APPLE__)
     #include <sys/utsname.h>
     #include <sys/types.h>
     #include <unistd.h>
     #include <sys/sysctl.h>
+    #include <sys/stat.h>
     #include <mach/mach_time.h>
 #else
     #include <sys/utsname.h>
