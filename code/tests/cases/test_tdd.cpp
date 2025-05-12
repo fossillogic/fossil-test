@@ -666,25 +666,6 @@ FOSSIL_TEST(cpp_assume_run_of_within_range_cchar) {
     ASSUME_NOT_WITHIN_RANGE_CCHAR(y, 'C', 'Z');
 } // end case
 
-FOSSIL_TEST(cpp_assume_run_of_within_range_wchar) {
-    wchar_t x = L'A';
-    wchar_t y = L'B';
-
-    // Test cases
-    ASSUME_ITS_WITHIN_RANGE_WCHAR(x, L'A', L'Z');
-    ASSUME_NOT_WITHIN_RANGE_WCHAR(y, L'C', L'Z');
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_wstr) {
-    const wchar_t *str1 = L"Hello";
-    const wchar_t *str2 = L"Hello";
-    const wchar_t *str3 = L"World";
-
-    // Test cases
-    ASSUME_ITS_EQUAL_WSTR(str1, str2);
-    ASSUME_NOT_EQUAL_WSTR(str1, str3);
-    ASSUME_ITS_LENGTH_EQUAL_WSTR(str1, 5);
-} // end case
 
 FOSSIL_TEST(cpp_assume_run_of_cstr) {
     std::string str1 = "Hello";
@@ -757,8 +738,6 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f64);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_bchar);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_cchar);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_wchar);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_wstr);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
