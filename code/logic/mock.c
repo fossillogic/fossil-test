@@ -53,7 +53,7 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
 }
 
 void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args) {
-    if (!list || !function_name || !arguments) {
+    if (!list || !function_name || (!arguments && num_args > 0)) {
         return;
     }
 
@@ -68,34 +68,38 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         return;
     }
 
-    call->arguments = (fossil_mock_pizza_t *)pizza_sys_memory_alloc(num_args * sizeof(fossil_mock_pizza_t));
-    if (!call->arguments) {
-        pizza_sys_memory_free(call->function_name);
-        pizza_sys_memory_free(call);
-        return;
-    }
-
-    for (int i = 0; i < num_args; ++i) {
-        call->arguments[i].type = arguments[i].type;
-        call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i].value.data);
-        call->arguments[i].value.mutable_flag = arguments[i].value.mutable_flag;
-        call->arguments[i].attribute.name = pizza_io_cstr_dup(arguments[i].attribute.name);
-        call->arguments[i].attribute.description = pizza_io_cstr_dup(arguments[i].attribute.description);
-        call->arguments[i].attribute.id = pizza_io_cstr_dup(arguments[i].attribute.id);
-
-        if (!call->arguments[i].value.data || !call->arguments[i].attribute.name ||
-            !call->arguments[i].attribute.description || !call->arguments[i].attribute.id) {
-            for (int j = 0; j <= i; ++j) {
-                pizza_sys_memory_free(call->arguments[j].value.data);
-                pizza_sys_memory_free(call->arguments[j].attribute.name);
-                pizza_sys_memory_free(call->arguments[j].attribute.description);
-                pizza_sys_memory_free(call->arguments[j].attribute.id);
-            }
-            pizza_sys_memory_free(call->arguments);
+    if (num_args > 0) {
+        call->arguments = (fossil_mock_pizza_t *)pizza_sys_memory_alloc(num_args * sizeof(fossil_mock_pizza_t));
+        if (!call->arguments) {
             pizza_sys_memory_free(call->function_name);
             pizza_sys_memory_free(call);
             return;
         }
+
+        for (int i = 0; i < num_args; ++i) {
+            call->arguments[i].type = arguments[i].type;
+            call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i].value.data);
+            call->arguments[i].value.mutable_flag = arguments[i].value.mutable_flag;
+            call->arguments[i].attribute.name = pizza_io_cstr_dup(arguments[i].attribute.name);
+            call->arguments[i].attribute.description = pizza_io_cstr_dup(arguments[i].attribute.description);
+            call->arguments[i].attribute.id = pizza_io_cstr_dup(arguments[i].attribute.id);
+
+            if (!call->arguments[i].value.data || !call->arguments[i].attribute.name ||
+                !call->arguments[i].attribute.description || !call->arguments[i].attribute.id) {
+                for (int j = 0; j <= i; ++j) {
+                    pizza_sys_memory_free(call->arguments[j].value.data);
+                    pizza_sys_memory_free(call->arguments[j].attribute.name);
+                    pizza_sys_memory_free(call->arguments[j].attribute.description);
+                    pizza_sys_memory_free(call->arguments[j].attribute.id);
+                }
+                pizza_sys_memory_free(call->arguments);
+                pizza_sys_memory_free(call->function_name);
+                pizza_sys_memory_free(call);
+                return;
+            }
+        }
+    } else {
+        call->arguments = NULL;
     }
 
     call->num_args = num_args;
