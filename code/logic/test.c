@@ -209,39 +209,53 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
-    // Check if the test case name matches the --only filter
-    if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
-        return;
-    }
-
-    for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
-        if (test_case->setup) test_case->setup();
-
-        uint64_t start_time = fossil_pizza_now_ns();
-        if (test_case->run) {
-            if (setjmp(test_jump_buffer) == 0) {
-                test_case->run();
-                test_case->result = FOSSIL_PIZZA_CASE_PASS;
-            } else {
-                test_case->result = FOSSIL_PIZZA_CASE_FAIL;
-                if (engine->pallet.run.fail_fast) {
-                    fossil_pizza_test_output(test_case);
-                    return; // Exit immediately if --fail-fast is enabled
-                }
-            }
-        } else {
-            test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+    if (!test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) {
+        // Check if the test case name matches the --only filter
+        if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
+            return;
         }
-        test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
 
-        if (test_case->teardown) test_case->teardown();
+        for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
+            if (test_case->setup) test_case->setup();
+
+            uint64_t start_time = fossil_pizza_now_ns();
+
+            if (test_case->run) {
+                if (setjmp(test_jump_buffer) == 0) {
+                    test_case->run();
+                    uint64_t elapsed_time = fossil_pizza_now_ns() - start_time;
+
+                    if (1000000ULL > 0 && elapsed_time > 1000000ULL) {
+                        test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
+                    } else {
+                        test_case->result = FOSSIL_PIZZA_CASE_PASS;
+                    }
+                } else {
+                    test_case->result = FOSSIL_PIZZA_CASE_FAIL;
+                    if (engine->pallet.run.fail_fast) {
+                        fossil_pizza_test_output(test_case);
+                        return; // Exit immediately if --fail-fast is enabled
+                    }
+                }
+            } else {
+                test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+            }
+            test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
+
+            if (test_case->teardown) test_case->teardown();
+        }
+
+        // Output test case result
+        fossil_pizza_test_output(test_case);
+    } else {
+        // Handle unexpected cases
+        test_case->result = FOSSIL_PIZZA_CASE_UNEXPECTED;
+        fossil_pizza_test_output(test_case);
     }
-
-    // Output test case result
-    fossil_pizza_test_output(test_case);
 
     // Update scores based on result
     fossil_pizza_update_score(test_case, suite);
+    _ASSERT_COUNT = 0; // Reset the assertion count for the next test case
 }
 
 // --- Algorithmic modifications ---
