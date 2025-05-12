@@ -588,6 +588,16 @@ void _on_skip(const char *description);
     FOSSIL_TEST(test_name)
 
 /**
+ * @brief Deprecated macro to define a test suite.
+ * 
+ * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_SUITE instead.
+ * 
+ * @param suite The name of the suite to define.
+ */
+#define FOSSIL_TEST_SUITE(suite) \
+    FOSSIL_SUITE(suite)
+
+/**
  * @brief Deprecated macro to run all test cases.
  * 
  * This macro is deprecated and will be removed in version 2.0.0. Use FOSSIL_RUN_ALL instead.
