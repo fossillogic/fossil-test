@@ -108,7 +108,7 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list);
  * @param arguments The arguments passed to the function.
  * @param num_args The number of arguments.
  */
-void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, char **arguments, int num_args);
+void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args);
 
 /**
  * Prints the contents of a fossil_mock_calllist_t.

@@ -23,8 +23,8 @@ void fossil_mock_init(fossil_mock_calllist_t *list) {
     if (!list) {
         return;
     }
-    list->head = null;
-    list->tail = null;
+    list->head = NULL;
+    list->tail = NULL;
     list->size = 0;
 }
 
@@ -47,12 +47,12 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
         pizza_sys_memory_free(current);
         current = next;
     }
-    list->head = null;
-    list->tail = null;
+    list->head = NULL;
+    list->tail = NULL;
     list->size = 0;
 }
 
-void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, char **arguments, int num_args) {
+void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args) {
     if (!list || !function_name || !arguments) {
         return;
     }
@@ -68,7 +68,7 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         return;
     }
 
-    call->arguments = (fossil_mock_pizza_t *)malloc(num_args * sizeof(fossil_mock_pizza_t));
+    call->arguments = (fossil_mock_pizza_t *)pizza_sys_memory_alloc(num_args * sizeof(fossil_mock_pizza_t));
     if (!call->arguments) {
         pizza_sys_memory_free(call->function_name);
         pizza_sys_memory_free(call);
@@ -76,10 +76,20 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     for (int i = 0; i < num_args; ++i) {
-        call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i]);
-        if (!call->arguments[i].value.data) {
-            for (int j = 0; j < i; ++j) {
+        call->arguments[i].type = arguments[i].type;
+        call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i].value.data);
+        call->arguments[i].value.mutable_flag = arguments[i].value.mutable_flag;
+        call->arguments[i].attribute.name = pizza_io_cstr_dup(arguments[i].attribute.name);
+        call->arguments[i].attribute.description = pizza_io_cstr_dup(arguments[i].attribute.description);
+        call->arguments[i].attribute.id = pizza_io_cstr_dup(arguments[i].attribute.id);
+
+        if (!call->arguments[i].value.data || !call->arguments[i].attribute.name ||
+            !call->arguments[i].attribute.description || !call->arguments[i].attribute.id) {
+            for (int j = 0; j <= i; ++j) {
                 pizza_sys_memory_free(call->arguments[j].value.data);
+                pizza_sys_memory_free(call->arguments[j].attribute.name);
+                pizza_sys_memory_free(call->arguments[j].attribute.description);
+                pizza_sys_memory_free(call->arguments[j].attribute.id);
             }
             pizza_sys_memory_free(call->arguments);
             pizza_sys_memory_free(call->function_name);
@@ -89,7 +99,7 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     call->num_args = num_args;
-    call->next = null;
+    call->next = NULL;
 
     if (list->tail) {
         list->tail->next = call;
@@ -108,14 +118,15 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     fossil_mock_call_t *current = list->head;
     while (current) {
         pizza_io_printf("Function: %s\n", current->function_name);
-        pizza_io_printf("Arguments: ");
+        pizza_io_printf("Arguments:\n");
         for (int i = 0; i < current->num_args; ++i) {
-            pizza_io_printf("%s", current->arguments[i]);
-            if (i < current->num_args - 1) {
-                pizza_io_printf(", ");
-            }
+            pizza_io_printf("  Type: %d\n", current->arguments[i].type);
+            pizza_io_printf("  Value: %s\n", current->arguments[i].value.data);
+            pizza_io_printf("  Mutable: %s\n", current->arguments[i].value.mutable_flag ? "true" : "false");
+            pizza_io_printf("  Attribute Name: %s\n", current->arguments[i].attribute.name);
+            pizza_io_printf("  Attribute Description: %s\n", current->arguments[i].attribute.description);
+            pizza_io_printf("  Attribute ID: %s\n", current->arguments[i].attribute.id);
         }
-        pizza_io_printf("\n");
         current = current->next;
     }
 }
