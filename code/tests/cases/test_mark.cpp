@@ -7,13 +7,13 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 
-#include "fossil/test/framework.h"
+#include "fossil/pizza/framework.h"
 #include <string>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -24,7 +24,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(cpp_mark_suite);
+FOSSIL_SUITE(cpp_mark_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(cpp_mark_suite) {
@@ -45,7 +45,7 @@ FOSSIL_TEARDOWN(cpp_mark_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // A test case to check if the benchmark stop works correctly
-FOSSIL_TEST_CASE(cpp_mark_start_and_stop) {
+FOSSIL_TEST(cpp_mark_start_and_stop) {
     std::string benchmark_stop_test_name = "stop_test";
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);

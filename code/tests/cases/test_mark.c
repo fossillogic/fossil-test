@@ -7,13 +7,13 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 
-#include "fossil/test/framework.h"
+#include "fossil/pizza/framework.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -23,7 +23,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_mark_suite);
+FOSSIL_SUITE(c_mark_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(c_mark_suite) {
@@ -44,7 +44,7 @@ FOSSIL_TEARDOWN(c_mark_suite) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // A test case to check if the benchmark stop works correctly
-FOSSIL_TEST_CASE(c_mark_start_and_stop) {
+FOSSIL_TEST(c_mark_start_and_stop) {
     MARK_BENCHMARK(stop_test);
     MARK_START(stop_test);
     MARK_STOP(stop_test);

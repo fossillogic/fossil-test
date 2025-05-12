@@ -7,12 +7,12 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/test/framework.h>
+#include <fossil/pizza/framework.h>
 #include <string.h>
 
 // Define the necessary types and functions for the test cases
@@ -120,7 +120,7 @@ void service_process(Service *service, Entity *entity) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Define the test suite and add test cases
-FOSSIL_TEST_SUITE(c_ddd_suite);
+FOSSIL_SUITE(c_ddd_suite);
 
 // Setup function for the test suite
 FOSSIL_SETUP(c_ddd_suite) {
@@ -139,7 +139,7 @@ FOSSIL_TEARDOWN(c_ddd_suite) {
 // Domain-Driven Design (DDD) usage in the Fossil Logic project.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(c_ddd_entity_creation) {
+FOSSIL_TEST(c_ddd_entity_creation) {
     // Example of creating an entity
     Entity entity = create_entity(42, "Sample Entity");
 
@@ -148,7 +148,7 @@ FOSSIL_TEST_CASE(c_ddd_entity_creation) {
     FOSSIL_TEST_ASSUME(strcmp(entity.name, "Sample Entity") == 0, "Entity name should be 'Sample Entity'");
 } // end case
 
-FOSSIL_TEST_CASE(c_ddd_value_object_equality) {
+FOSSIL_TEST(c_ddd_value_object_equality) {
     // Example of value object equality
     ValueObject vo1 = create_value_object(10, 20);
     ValueObject vo2 = create_value_object(10, 20);
@@ -157,7 +157,7 @@ FOSSIL_TEST_CASE(c_ddd_value_object_equality) {
     FOSSIL_TEST_ASSUME(value_object_equals(vo1, vo2), "Value objects should be equal");
 } // end case
 
-FOSSIL_TEST_CASE(c_ddd_aggregate_root_behavior) {
+FOSSIL_TEST(c_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
     AggregateRoot ar = create_aggregate_root(1);
     add_child_entity(&ar, create_entity(2, "Child Entity"));
@@ -167,7 +167,7 @@ FOSSIL_TEST_CASE(c_ddd_aggregate_root_behavior) {
     FOSSIL_TEST_ASSUME(ar.children[0].id == 2, "Child entity ID should be 2");
 } // end case
 
-FOSSIL_TEST_CASE(c_ddd_repository_usage) {
+FOSSIL_TEST(c_ddd_repository_usage) {
     // Example of repository usage
     Repository repo = create_repository();
     Entity entity = create_entity(1, "Repo Entity");
@@ -178,7 +178,7 @@ FOSSIL_TEST_CASE(c_ddd_repository_usage) {
     FOSSIL_TEST_ASSUME(repository_get(&repo, 1).id == 1, "Retrieved entity ID should be 1");
 } // end case
 
-FOSSIL_TEST_CASE(c_ddd_service_layer) {
+FOSSIL_TEST(c_ddd_service_layer) {
     // Example of service layer usage
     Service service = create_service();
     Entity entity = create_entity(1, "Service Entity");

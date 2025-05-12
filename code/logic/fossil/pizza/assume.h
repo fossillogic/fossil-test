@@ -7,9 +7,9 @@
  * herein is subject to the terms and conditions defined in the project license.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 07/01/2024
+ * Date: 04/05/2014
  *
- * Copyright (C) 2024 Fossil Logic. All rights reserved.
+ * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #ifndef FOSSIL_TEST_ASSUME_TYPE_H
@@ -22,16 +22,10 @@
 #include <stddef.h>
 #include <string.h>
 #include <float.h>
-#include <wchar.h>
 #include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-// becuase Microsoft had to be diffrent
-#ifdef _WIN32
-#define wcsncasecmp _wcsnicmp
 #endif
 
 // Used in floating-point asserts
@@ -40,7 +34,7 @@ extern "C" {
 
 // **************************************************
 //
-// Boolean ASSUMEions
+// Boolean assumtions
 //
 // **************************************************
 
@@ -78,7 +72,7 @@ extern "C" {
 
 // **************************************************
 //
-// Floating point ASSUMEions
+// Floating point assumtions
 //
 // **************************************************
 
@@ -304,7 +298,7 @@ extern "C" {
 
 // **************************************************
 //
-// Numaric ASSUMEions
+// Numaric assumtions
 //
 // **************************************************
 
@@ -668,7 +662,7 @@ extern "C" {
 #define ASSUME_NOT_MORE_OR_EQUAL_O64(actual, expected) \
     FOSSIL_TEST_ASSUME((uint64_t)(actual) < (uint64_t)(expected), "Expected " #actual " to not be more than or equal to " #expected)
 
-// Hexadecimal ASSUMEions
+// Hexadecimal assumtions
 
 /**
  * @brief Assumes that the given 8-bit hexadecimal values are equal.
@@ -1752,25 +1746,229 @@ extern "C" {
 
 // **************************************************
 //
-// Null pointer ASSUMEions (_CNULL)
+// Memory allocation assumptions
 //
 // **************************************************
 
 /**
- * @brief Assumes that the given pointer is NULL.
+ * @brief Assumes that the given memory is zeroed.
+ *
+ * @param ptr A pointer to the memory to check.
+ * @param size The size of the memory to check.
+ */
+#define ASSUME_ITS_ZERO_MEMORY(ptr, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_zero((ptr), (size)), "Expected memory at " #ptr " to be zeroed")
+
+/**
+ * @brief Assumes that the given memory is not zeroed.
+ *
+ * @param ptr A pointer to the memory to check.
+ * @param size The size of the memory to check.
+ */
+#define ASSUME_NOT_ZERO_MEMORY(ptr, size) \
+    FOSSIL_TEST_ASSUME(!pizza_sys_memory_zero((ptr), (size)), "Expected memory at " #ptr " to not be zero")
+
+/**
+ * @brief Assumes that the given memory regions are equal.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) == 0, "Expected memory regions " #ptr1 " and " #ptr2 " to be equal")
+
+/**
+ * @brief Assumes that the given memory regions are not equal.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_NOT_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) != 0, "Expected memory regions " #ptr1 " and " #ptr2 " to not be equal")
+
+/**
+ * @brief Assumes that the given memory region is more than the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_MORE_THAN_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) > 0, "Expected memory region " #ptr1 " to be more than " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is less than the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_LESS_THAN_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) < 0, "Expected memory region " #ptr1 " to be less than " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is more than or equal to the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_MORE_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, "Expected memory region " #ptr1 " to be more than or equal to " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is less than or equal to the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_ITS_LESS_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, "Expected memory region " #ptr1 " to be less than or equal to " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is not more than the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_NOT_MORE_THAN_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, "Expected memory region " #ptr1 " to not be more than " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is not less than the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_NOT_LESS_THAN_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, "Expected memory region " #ptr1 " to not be less than " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is not more than or equal to the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_NOT_MORE_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) < 0, "Expected memory region " #ptr1 " to not be more than or equal to " #ptr2)
+
+/**
+ * @brief Assumes that the given memory region is not less than or equal to the expected memory region.
+ *
+ * @param ptr1 A pointer to the first memory region.
+ * @param ptr2 A pointer to the second memory region.
+ * @param size The size of the memory regions to compare.
+ */
+#define ASSUME_NOT_LESS_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) > 0, "Expected memory region " #ptr1 " to not be less than or equal to " #ptr2)
+
+/**
+ * @brief Assumes that the given memory pointer is valid.
+ *
+ * @param ptr A pointer to the memory to check.
+ */
+#define ASSUME_ITS_VALID_MEMORY(ptr) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_is_valid((ptr)), "Expected memory pointer " #ptr " to be valid")
+
+/**
+ * @brief Assumes that the given memory pointer is not valid.
+ *
+ * @param ptr A pointer to the memory to check.
+ */
+#define ASSUME_NOT_VALID_MEMORY(ptr) \
+    FOSSIL_TEST_ASSUME(!pizza_sys_memory_is_valid((ptr)), "Expected memory pointer " #ptr " to not be valid")
+
+// **************************************************
+//
+// Null pointer assumtions (_CNULL)
+//
+// **************************************************
+
+/**
+ * @brief Assumes that the given pointer is cnull.
  *
  * @param actual The pointer to be evaluated.
  */
 #define ASSUME_ITS_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) == NULL, "Expected " #actual " to be NULL")
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
 
 /**
- * @brief Assumes that the given pointer is not NULL.
+ * @brief Assumes that the given pointer is not cnull.
  *
  * @param actual The pointer to be evaluated.
  */
 #define ASSUME_NOT_CNULL(actual) \
-    FOSSIL_TEST_ASSUME((actual) != NULL, "Expected " #actual " to not be NULL")
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is cnull.
+ * 
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_ITS_CNULLABLE(actual) \
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
+
+/**
+ * @brief Assumes that the given pointer is not cnull.
+ * 
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_NOT_CNULLABLE(actual) \
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is cnull.
+ *
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_ITS_CNONNULL(actual) \
+    FOSSIL_TEST_ASSUME((actual) != null, "Expected " #actual " to not be cnull")
+
+/**
+ * @brief Assumes that the given pointer is not cnull.
+ *
+ * @param actual The pointer to be evaluated.
+ */
+#define ASSUME_NOT_CNONNULL(actual) \
+    FOSSIL_TEST_ASSUME((actual) == null, "Expected " #actual " to be cnull")
+
+/**
+ * @brief Assumes that the given condition is likely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_ITS_LIKELY(x) \
+    FOSSIL_TEST_ASSUME(likely(x), "Expected " #x " to be likely")
+
+/**
+ * @brief Assumes that the given condition is not likely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_NOT_LIKELY(x) \
+    FOSSIL_TEST_ASSUME(!likely(x), "Expected " #x " to not be likely")
+
+/**
+ * @brief Assumes that the given condition is unlikely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_ITS_UNLIKELY(x) \
+    FOSSIL_TEST_ASSUME(unlikely(x), "Expected " #x " to be unlikely")
+
+/**
+ * @brief Assumes that the given condition is not unlikely.
+ *
+ * @param x The condition to be evaluated.
+ */
+#define ASSUME_NOT_UNLIKELY(x) \
+    FOSSIL_TEST_ASSUME(!unlikely(x), "Expected " #x " to not be unlikely")
 
 /**
  * @brief Assumes that the given pointers are equal.
@@ -1846,7 +2044,7 @@ extern "C" {
 
 // **************************************************
 //
-// Range ASSUMEions
+// Range assumtions
 //
 // **************************************************
 
@@ -2072,7 +2270,7 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_F64(value, min, max) \
     FOSSIL_TEST_ASSUME((value) < (min) || (value) > (max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Byte char type ASSUMEions (uint8_t)
+// Byte char type assumtions (uint8_t)
 
 /**
  * @brief Assumes that the given byte char value is within the specified range.
@@ -2094,7 +2292,7 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_BCHAR(value, min, max) \
     FOSSIL_TEST_ASSUME((uint8_t)(value) < (uint8_t)(min) || (uint8_t)(value) > (uint8_t)(max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Char type ASSUMEions (char)
+// Char type assumtions (char)
 
 /**
  * @brief Assumes that the given char value is within the specified range.
@@ -2116,60 +2314,11 @@ extern "C" {
 #define ASSUME_NOT_WITHIN_RANGE_CCHAR(value, min, max) \
     FOSSIL_TEST_ASSUME((char)(value) < (char)(min) || (char)(value) > (char)(max), "Value " #value " is within range [" #min ", " #max "]")
 
-// Wide char type ASSUMEions (wchar_t)
-
-/**
- * @brief Assumes that the given wide char value is within the specified range.
- *
- * @param value The wide char value to be evaluated.
- * @param min The minimum value of the range.
- * @param max The maximum value of the range.
- */
-#define ASSUME_ITS_WITHIN_RANGE_WCHAR(value, min, max) \
-    FOSSIL_TEST_ASSUME((wchar_t)(value) >= (wchar_t)(min) && (wchar_t)(value) <= (wchar_t)(max), "Value " #value " is not within range [" #min ", " #max "]")
-
-/**
- * @brief Assumes that the given wide char value is not within the specified range.
- *
- * @param value The wide char value to be evaluated.
- * @param min The minimum value of the range.
- * @param max The maximum value of the range.
- */
-#define ASSUME_NOT_WITHIN_RANGE_WCHAR(value, min, max) \
-    FOSSIL_TEST_ASSUME((wchar_t)(value) < (wchar_t)(min) || (wchar_t)(value) > (wchar_t)(max), "Value " #value " is within range [" #min ", " #max "]")
-
 // **************************************************
 //
-// String ASSUMEions
+// String assumtions
 //
 // **************************************************
-
-/**
- * @brief Assumes that the given wide char strings are equal.
- *
- * @param actual The actual wide char string.
- * @param expected The expected wide char string.
- */
-#define ASSUME_ITS_EQUAL_WSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(wcscmp((actual), (expected)) == 0, "Expected wide string " #actual " to be equal to " #expected)
-
-/**
- * @brief Assumes that the given wide char strings are not equal.
- *
- * @param actual The actual wide char string.
- * @param expected The expected wide char string.
- */
-#define ASSUME_NOT_EQUAL_WSTR(actual, expected) \
-    FOSSIL_TEST_ASSUME(wcscmp((actual), (expected)) != 0, "Expected wide string " #actual " to not be equal to " #expected)
-
-/**
- * @brief Assumes that the length of the given wide char string is equal to the expected length.
- *
- * @param actual The actual wide char string.
- * @param expected_len The expected length of the wide char string.
- */
-#define ASSUME_ITS_LENGTH_EQUAL_WSTR(actual, expected_len) \
-    FOSSIL_TEST_ASSUME(wcslen((actual)) == (expected_len), "Expected length of wide string " #actual " to be equal to " #expected_len)
 
 /**
  * @brief Assumes that the given C strings are equal.
@@ -2197,6 +2346,223 @@ extern "C" {
  */
 #define ASSUME_ITS_LENGTH_EQUAL_CSTR(actual, expected_len) \
     FOSSIL_TEST_ASSUME(strlen((actual)) == (expected_len), "Expected length of C string " #actual " to be equal to " #expected_len)
+
+/**
+ * @brief Assumes that the length of the given C string is not equal to the expected length.
+ *
+ * @param actual The actual C string.
+ * @param expected_len The expected length of the C string.
+ */
+#define ASSUME_NOT_LENGTH_EQUAL_CSTR(actual, expected_len) \
+    FOSSIL_TEST_ASSUME(strlen((actual)) != (expected_len), "Expected length of C string " #actual " to not be equal to " #expected_len)
+
+/**
+ * @brief Assumes that the given cstr starts with the specified prefix.
+ *
+ * @param str The cstr to be checked.
+ * @param prefix The prefix to check for.
+ */
+#define ASSUME_ITS_CSTR_STARTS_WITH(str, prefix) \
+    FOSSIL_TEST_ASSUME(pizza_io_cstr_starts_with((str), (prefix)), "Expected cstr " #str " to start with prefix " #prefix)
+
+/**
+ * @brief Assumes that the given cstr does not start with the specified prefix.
+ *
+ * @param str The cstr to be checked.
+ * @param prefix The prefix to check for.
+ */
+#define ASSUME_NOT_CSTR_STARTS_WITH(str, prefix) \
+    FOSSIL_TEST_ASSUME(!pizza_io_cstr_starts_with((str), (prefix)), "Expected cstr " #str " to not start with prefix " #prefix)
+
+/**
+ * @brief Assumes that the given cstr ends with the specified suffix.
+ *
+ * @param str The cstr to be checked.
+ * @param suffix The suffix to check for.
+ */
+#define ASSUME_ITS_CSTR_ENDS_WITH(str, suffix) \
+    FOSSIL_TEST_ASSUME(pizza_io_cstr_ends_with((str), (suffix)), "Expected cstr " #str " to end with suffix " #suffix)
+
+/**
+ * @brief Assumes that the given cstr does not end with the specified suffix.
+ *
+ * @param str The cstr to be checked.
+ * @param suffix The suffix to check for.
+ */
+#define ASSUME_NOT_CSTR_ENDS_WITH(str, suffix) \
+    FOSSIL_TEST_ASSUME(!pizza_io_cstr_ends_with((str), (suffix)), "Expected cstr " #str " to not end with suffix " #suffix)
+
+/**
+ * @brief Assumes that the given cstr contains the specified substring.
+ *
+ * @param str The cstr to be checked.
+ * @param substr The substring to check for.
+ */
+#define ASSUME_ITS_CSTR_CONTAINS(str, substr) \
+    FOSSIL_TEST_ASSUME(pizza_io_cstr_contains((str), (substr)), "Expected cstr " #str " to contain substring " #substr)
+
+/**
+ * @brief Assumes that the given cstr does not contain the specified substring.
+ *
+ * @param str The cstr to be checked.
+ * @param substr The substring to check for.
+ */
+#define ASSUME_NOT_CSTR_CONTAINS(str, substr) \
+    FOSSIL_TEST_ASSUME(!pizza_io_cstr_contains((str), (substr)), "Expected cstr " #str " to not contain substring " #substr)
+
+/**
+ * @brief Assumes that the given cstr contains the specified number of occurrences of a substring.
+ *
+ * @param str The cstr to be searched.
+ * @param substr The substring to search for.
+ * @param count The expected number of occurrences.
+ */
+#define ASSUME_ITS_CSTR_COUNT(str, substr, count) \
+    FOSSIL_TEST_ASSUME(pizza_io_cstr_count((str), (substr)) == (count), "Expected cstr " #str " to contain " #count " occurrences of substring " #substr)
+
+/**
+ * @brief Assumes that the given cstr does not contain the specified number of occurrences of a substring.
+ *
+ * @param str The cstr to be searched.
+ * @param substr The substring to search for.
+ * @param count The expected number of occurrences.
+ */
+#define ASSUME_NOT_CSTR_COUNT(str, substr, count) \
+    FOSSIL_TEST_ASSUME(pizza_io_cstr_count((str), (substr)) != (count), "Expected cstr " #str " to not contain " #count " occurrences of substring " #substr)
+
+// **************************************************
+//
+// Char assumtions
+//
+// **************************************************
+
+/**
+ * @brief Assumes that the given char values are equal.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) == (char)(expected), "Expected char " #actual " to be equal to " #expected)
+
+/**
+ * @brief Assumes that the given char values are not equal.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) != (char)(expected), "Expected char " #actual " to not be equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is less than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_LESS_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) < (char)(expected), "Expected char " #actual " to be less than " #expected)
+
+/**
+ * @brief Assumes that the given char value is more than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_MORE_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) > (char)(expected), "Expected char " #actual " to be more than " #expected)
+
+/**
+ * @brief Assumes that the given char value is less than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_LESS_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) <= (char)(expected), "Expected char " #actual " to be less than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is more than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_ITS_MORE_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) >= (char)(expected), "Expected char " #actual " to be more than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is not less than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_LESS_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) >= (char)(expected), "Expected char " #actual " to not be less than " #expected)
+
+/**
+ * @brief Assumes that the given char value is not more than the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_MORE_THAN_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) <= (char)(expected), "Expected char " #actual " to not be more than " #expected)
+
+/**
+ * @brief Assumes that the given char value is not less than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_LESS_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) > (char)(expected), "Expected char " #actual " to not be less than or equal to " #expected)
+
+/**
+ * @brief Assumes that the given char value is not more than or equal to the expected value.
+ *
+ * @param actual The actual char value.
+ * @param expected The expected char value.
+ */
+#define ASSUME_NOT_MORE_OR_EQUAL_CHAR(actual, expected) \
+    FOSSIL_TEST_ASSUME((char)(actual) < (char)(expected), "Expected char " #actual " to not be more than or equal to " #expected)
+
+// **************************************************
+// SOAP assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given text does not contain "rot-brain" language.
+ *
+ * @param text The input text to check.
+ */
+#define ASSUME_NOT_SOAP_ROT_BRAIN(text) \
+    FOSSIL_TEST_ASSUME(!pizza_io_is_rot_brain((text)), "Expected text " #text " to not contain 'rot-brain' language")
+
+/**
+ * @brief Assumes that the given text contains "rot-brain" language.
+ *
+ * @param text The input text to check.
+ */
+#define ASSUME_ITS_SOAP_ROT_BRAIN(text) \
+    FOSSIL_TEST_ASSUME(pizza_io_is_rot_brain((text)), "Expected text " #text " to contain 'rot-brain' language")
+
+/**
+ * @brief Assumes that the tone of the given sentence is detected correctly.
+ *
+ * @param text The input text.
+ * @param expected_tone The expected tone ("formal", "casual", "sarcastic", etc.).
+ */
+#define ASSUME_ITS_SOAP_TONE_DETECTED(text, expected_tone) \
+    FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) == 0, "Expected tone of text " #text " to be " #expected_tone)
+
+/**
+ * @brief Assumes that the tone of the given sentence is not detected correctly.
+ *
+ * @param text The input text.
+ * @param expected_tone The expected tone ("formal", "casual", "sarcastic", etc.).
+ */
+#define ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone) \
+    FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) != 0, "Expected tone of text " #text " to not be " #expected_tone)
 
 #ifdef __cplusplus
 }

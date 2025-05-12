@@ -56,18 +56,8 @@ jobs:
       - name: Configure
         run: meson setup builddir_msvc_${{ matrix.msvc_version }} --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
-      - name: Compile
-        run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}
-
       - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-arg='summary ci'
-
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows_msvc_${{ matrix.msvc_version }}_meson_testlog
-          path: builddir_msvc_${{ matrix.msvc_version }}/meson-logs/testlog.txt
+        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='verbose=ci'
 
   build_macosx:
     name: Building on macOS with Xcode ${{ matrix.xcode_version }}
@@ -96,18 +86,8 @@ jobs:
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
   
-      - name: Compile
-        run: meson compile -C builddir
-  
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
-  
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos_xcode_${{ matrix.xcode_version }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
@@ -143,18 +123,8 @@ jobs:
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
-      - name: Compile
-        run: meson compile -C builddir
-
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
-
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: msys_${{ matrix.architecture }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_mingw:
     name: Building on MinGW ${{ matrix.architecture }}
@@ -194,18 +164,8 @@ jobs:
       - name: Configure
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
-      - name: Compile
-        run: meson compile -C builddir
-
       - name: Run Tests
-        run: meson test -C builddir -v --test-arg='summary ci'
-
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mingw_${{ matrix.architecture }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
+        run: meson test -C builddir -v --test-args='verbose=ci'
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
@@ -247,8 +207,7 @@ jobs:
             /bin/bash -c "
               sudo apt update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
-              meson compile -C builddir
-              meson test -C builddir -v --test-arg='summary ci'"
+              meson test -C builddir -v --test-args='verbose=ci'"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
@@ -342,9 +301,9 @@ jobs:
 
       - name: Build the Project
         run: |
-          meson compile -C builddir -v
+          meson compile -C builddir
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v --test-arg='summary ci'
+          meson test -C builddir -v --test-args='verbose=ci'
 
