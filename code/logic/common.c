@@ -164,145 +164,145 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--dry-run") == 0) {
+        if (pizza_io_cstr_compare(argv[i], "--dry-run") == 0) {
             G_PIZZA_DRY_RUN = 1;
-        } else if (strcmp(argv[i], "--version") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "--version") == 0) {
             _show_version();
-        } else if (strcmp(argv[i], "--help") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "--help") == 0) {
             _show_help();
-        } else if (strcmp(argv[i], "--host") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "--host") == 0) {
             _show_host();
-        } else if (strcmp(argv[i], "run") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "run") == 0) {
             pallet.run.fail_fast = 0;
             pallet.run.only = null;
             pallet.run.repeat = 1;
 
             for (int j = i + 1; j < argc; j++) {
-                if (strcmp(argv[j], "--fail-fast") == 0) {
+                if (pizza_io_cstr_compare(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
-                } else if (strcmp(argv[j], "--only") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
                     pallet.run.only = argv[++j];
                     G_PIZZA_ONLY = pallet.run.only;
-                } else if (strcmp(argv[j], "--repeat") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc) {
                     pallet.run.repeat = atoi(argv[++j]);
                     G_PIZZA_REPEAT = pallet.run.repeat;
-                } else if (strcmp(argv[j], "--help") == 0) {
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_run();
                 } else {
                     break;
                 }
             }
-        } else if (strcmp(argv[i], "filter") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "filter") == 0) {
             pallet.filter.test_name = null;
             pallet.filter.suite_name = null;
             pallet.filter.tag = null;
 
             for (int j = i + 1; j < argc; j++) {
-                if (strcmp(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
                     pallet.filter.test_name = argv[++j];
-                } else if (strcmp(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
                     pallet.filter.suite_name = argv[++j];
-                } else if (strcmp(argv[j], "--tag") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
                     pallet.filter.tag = argv[++j];
-                } else if (strcmp(argv[j], "--help") == 0) {
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_filter();
                 } else {
                     break;
                 }
             }
-        } else if (strcmp(argv[i], "sort") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "sort") == 0) {
             pallet.sort.by = null;
             pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
-                if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     pallet.sort.by = argv[++j];
-                } else if (strcmp(argv[j], "--order") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc) {
                     pallet.sort.order = argv[++j];
-                } else if (strcmp(argv[j], "--help") == 0) {
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_sort();
                 } else {
                     break;
                 }
             }
-        } else if (strcmp(argv[i], "shuffle") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "shuffle") == 0) {
             pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
             pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
-                if (strcmp(argv[j], "--seed") == 0 && j + 1 < argc) {
+                if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
                     pallet.shuffle.seed = argv[++j];
-                } else if (strcmp(argv[j], "--count") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
                     pallet.shuffle.count = atoi(argv[++j]);
-                } else if (strcmp(argv[j], "--by") == 0 && j + 1 < argc) {
+                } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     pallet.shuffle.by = argv[++j];
-                } else if (strcmp(argv[j], "--help") == 0) {
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_shuffle();
                 } else {
                     break;
                 }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
-            if (strcmp(argv[i] + 6, "enable") == 0) {
+            if (pizza_io_cstr_compare(argv[i] + 6, "enable") == 0) {
                 PIZZA_IO_COLOR_ENABLE = 1;
-            } else if (strcmp(argv[i] + 6, "disable") == 0) {
+            } else if (pizza_io_cstr_compare(argv[i] + 6, "disable") == 0) {
                 PIZZA_IO_COLOR_ENABLE = 0;
-            } else if (strcmp(argv[i] + 6, "auto") == 0) {
+            } else if (pizza_io_cstr_compare(argv[i] + 6, "auto") == 0) {
                 if (isatty(STDOUT_FILENO)) {
                     PIZZA_IO_COLOR_ENABLE = 1;
                 } else {
                     PIZZA_IO_COLOR_ENABLE = 0;
                 }
             }
-        } else if (strcmp(argv[i], "color") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "color") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_color();
             }
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
-            if (strcmp(theme_str, "fossil") == 0) {
+            if (pizza_io_cstr_compare(theme_str, "fossil") == 0) {
                 pallet.theme = PIZZA_THEME_FOSSIL;
                 G_PIZZA_THEME = PIZZA_THEME_FOSSIL;
-            } else if (strcmp(theme_str, "catch") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "catch") == 0) {
                 pallet.theme = PIZZA_THEME_CATCH;
                 G_PIZZA_THEME = PIZZA_THEME_CATCH;
-            } else if (strcmp(theme_str, "doctest") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "doctest") == 0) {
                 pallet.theme = PIZZA_THEME_DOCTEST;
                 G_PIZZA_THEME = PIZZA_THEME_DOCTEST;
-            } else if (strcmp(theme_str, "cpputest") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "cpputest") == 0) {
                 pallet.theme = PIZZA_THEME_CPPUTEST;
                 G_PIZZA_THEME = PIZZA_THEME_CPPUTEST;
-            } else if (strcmp(theme_str, "tap") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "tap") == 0) {
                 pallet.theme = PIZZA_THEME_TAP;
                 G_PIZZA_THEME = PIZZA_THEME_TAP;
-            } else if (strcmp(theme_str, "gtest") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "gtest") == 0) {
                 pallet.theme = PIZZA_THEME_GOOGLETEST;
                 G_PIZZA_THEME = PIZZA_THEME_GOOGLETEST;
-            } else if (strcmp(theme_str, "unity") == 0) {
+            } else if (pizza_io_cstr_compare(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
                 G_PIZZA_THEME = PIZZA_THEME_UNITY;
 
             }
-        } else if (strcmp(argv[i], "theme") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_theme();
             }
         } else if (strncmp(argv[i], "verbose=", 8) == 0) {
             const char* verbose_str = argv[i] + 8;
-            if (strcmp(verbose_str, "plain") == 0) {
+            if (pizza_io_cstr_compare(verbose_str, "plain") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_PLAIN;
                 G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
-            } else if (strcmp(verbose_str, "ci") == 0) {
+            } else if (pizza_io_cstr_compare(verbose_str, "ci") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_CI;
                 G_PIZZA_VERBOSE = PIZZA_VERBOSE_CI;
-            } else if (strcmp(verbose_str, "doge") == 0) { // means verbose for Pizza Test
+            } else if (pizza_io_cstr_compare(verbose_str, "doge") == 0) { // means verbose for Pizza Test
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
                 G_PIZZA_VERBOSE = PIZZA_VERBOSE_DOGE;
             }
-        } else if (strcmp(argv[i], "verbose") == 0) {
-            if (i + 1 < argc && strcmp(argv[i + 1], "--help") == 0) {
+        } else if (pizza_io_cstr_compare(argv[i], "verbose") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_verbose();
             }
         }
@@ -351,7 +351,7 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
 #elif defined(__APPLE__)
     int64_t memsize;
     size_t len = sizeof(memsize);
-    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
+    if (sysctlbyname("hw.memsize", &memsize, &len, null, 0) != 0) return -1;
     info->total_memory = memsize;
     info->free_memory = 0; // macOS does not provide free memory info in the same way
 #else
@@ -527,7 +527,7 @@ static int fuzzy_match(const char *str1, const char *str2) {
  */
 static int should_skip_word(const char *word) {
     for (size_t i = 0; SKIP_WORDS[i] != null; i++) {
-        if (strcmp(word, SKIP_WORDS[i]) == 0) {
+        if (pizza_io_cstr_compare(word, SKIP_WORDS[i]) == 0) {
             return 1;
         }
     }
@@ -950,35 +950,35 @@ int32_t FOSSIL_IO_ATTR_ENABLE = 1; // Flag to enable/disable attribute output
 
 // Function to apply color
 void pizza_io_apply_color(const char *color) {
-    if (strcmp(color, "red") == 0) {
+    if (pizza_io_cstr_compare(color, "red") == 0) {
         printf(FOSSIL_IO_COLOR_RED);
-    } else if (strcmp(color, "green") == 0) {
+    } else if (pizza_io_cstr_compare(color, "green") == 0) {
         printf(FOSSIL_IO_COLOR_GREEN);
-    } else if (strcmp(color, "yellow") == 0) {
+    } else if (pizza_io_cstr_compare(color, "yellow") == 0) {
         printf(FOSSIL_IO_COLOR_YELLOW);
-    } else if (strcmp(color, "blue") == 0) {
+    } else if (pizza_io_cstr_compare(color, "blue") == 0) {
         printf(FOSSIL_IO_COLOR_BLUE);
-    } else if (strcmp(color, "magenta") == 0) {
+    } else if (pizza_io_cstr_compare(color, "magenta") == 0) {
         printf(FOSSIL_IO_COLOR_MAGENTA);
-    } else if (strcmp(color, "cyan") == 0) {
+    } else if (pizza_io_cstr_compare(color, "cyan") == 0) {
         printf(FOSSIL_IO_COLOR_CYAN);
-    } else if (strcmp(color, "white") == 0) {
+    } else if (pizza_io_cstr_compare(color, "white") == 0) {
         printf(FOSSIL_IO_COLOR_WHITE);
     }
     // Bright colors
-    else if (strcmp(color, "bright_red") == 0) {
+    else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_RED);
-    } else if (strcmp(color, "bright_green") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_green") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
-    } else if (strcmp(color, "bright_yellow") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_yellow") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
-    } else if (strcmp(color, "bright_blue") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_blue") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
-    } else if (strcmp(color, "bright_magenta") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_magenta") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
-    } else if (strcmp(color, "bright_cyan") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_cyan") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
-    } else if (strcmp(color, "bright_white") == 0) {
+    } else if (pizza_io_cstr_compare(color, "bright_white") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
     } else {
         printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
@@ -987,21 +987,21 @@ void pizza_io_apply_color(const char *color) {
 
 // Function to apply text attributes (e.g., bold, underline)
 void pizza_io_apply_attribute(const char *attribute) {
-    if (strcmp(attribute, "bold") == 0) {
+    if (pizza_io_cstr_compare(attribute, "bold") == 0) {
         printf(FOSSIL_IO_ATTR_BOLD);
-    } else if (strcmp(attribute, "underline") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "underline") == 0) {
         printf(FOSSIL_IO_ATTR_UNDERLINE);
-    } else if (strcmp(attribute, "reversed") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "reversed") == 0) {
         printf(FOSSIL_IO_ATTR_REVERSED);
-    } else if (strcmp(attribute, "blink") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "blink") == 0) {
         printf(FOSSIL_IO_ATTR_BLINK);
-    } else if (strcmp(attribute, "hidden") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "hidden") == 0) {
         printf(FOSSIL_IO_ATTR_HIDDEN);
-    } else if (strcmp(attribute, "normal") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "normal") == 0) {
         printf(FOSSIL_IO_ATTR_NORMAL);
-    } else if (strcmp(attribute, "italic") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "italic") == 0) {
         printf(FOSSIL_IO_ATTR_ITALIC);
-    } else if (strcmp(attribute, "strikethrough") == 0) {
+    } else if (pizza_io_cstr_compare(attribute, "strikethrough") == 0) {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
     } else {
         printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
@@ -1010,16 +1010,16 @@ void pizza_io_apply_attribute(const char *attribute) {
 
 // Function to handle named positions (like top, bottom, left, right)
 void pizza_io_apply_position(const char *pos) {
-    if (strcmp(pos, "top") == 0) {
+    if (pizza_io_cstr_compare(pos, "top") == 0) {
         // Apply position logic for top
         printf("\033[H"); // Move cursor to the top
-    } else if (strcmp(pos, "bottom") == 0) {
+    } else if (pizza_io_cstr_compare(pos, "bottom") == 0) {
         // Apply position logic for bottom
         printf("\033[999;1H"); // Move cursor to the bottom (example within reasonable bounds)
-    } else if (strcmp(pos, "left") == 0) {
+    } else if (pizza_io_cstr_compare(pos, "left") == 0) {
         // Apply position logic for left
         printf("\033[1;1H"); // Move cursor to the top-left corner
-    } else if (strcmp(pos, "right") == 0) {
+    } else if (pizza_io_cstr_compare(pos, "right") == 0) {
         // Apply position logic for right
         printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
     }
