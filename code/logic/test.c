@@ -128,79 +128,79 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
-                test_case->name, result_str, test_case->elapsed_ns);
+            pizza_io_printf("{cyan}Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
+            test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("========================================\n");
-            pizza_io_printf("Test Case: %s\n", test_case->name);
-            pizza_io_printf("Given Result: %s\n", result_str);
-            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("========================================\n");
+            pizza_io_printf("{cyan}========================================{reset}\n");
+            pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{cyan}========================================{reset}\n");
             }
             break;
 
         case PIZZA_THEME_CPPUTEST:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("[TEST CASE] %s | [RESULT] %s | [TIME] %llu ns\n",
-                test_case->name, result_str, test_case->elapsed_ns);
+            pizza_io_printf("{blue}[TEST CASE]{reset} %s | {green}[RESULT]{reset} %s | {yellow}[TIME]{reset} %llu ns\n",
+            test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("[========================================]\n");
-            pizza_io_printf("[Test Case]: %s\n", test_case->name);
-            pizza_io_printf("[Given Result]: %s\n", result_str);
-            pizza_io_printf("[With Timestamp]: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("[========================================]\n");
+            pizza_io_printf("{blue}[========================================]{reset}\n");
+            pizza_io_printf("{blue}[Test Case]:{reset} %s\n", test_case->name);
+            pizza_io_printf("{blue}[Given Result]:{reset} %s\n", result_str);
+            pizza_io_printf("{blue}[With Timestamp]:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{blue}[========================================]{reset}\n");
             }
             break;
 
         case PIZZA_THEME_TAP:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("ok - Test Case: %s | Result: %s | Time: %llu ns\n",
-                test_case->name, result_str, test_case->elapsed_ns);
+            pizza_io_printf("{green}ok - Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
+            test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("# ========================================\n");
-            pizza_io_printf("# Test Case: %s\n", test_case->name);
-            pizza_io_printf("# Given Result: %s\n", result_str);
-            pizza_io_printf("# With Timestamp: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("# ========================================\n");
+            pizza_io_printf("{green}# ========================================{reset}\n");
+            pizza_io_printf("{green}# Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{green}# Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{green}# With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{green}# ========================================{reset}\n");
             }
             break;
 
         case PIZZA_THEME_GOOGLETEST:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("[ RUN      ] %s\n", test_case->name);
-            pizza_io_printf("[       %s ] %s (%llu ns)\n", result_str, test_case->name, test_case->elapsed_ns);
+            pizza_io_printf("{blue}[ RUN      ]{reset} %s\n", test_case->name);
+            pizza_io_printf("{green}[       %s ]{reset} %s ({yellow}%llu ns{reset})\n", result_str, test_case->name, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("[========================================]\n");
-            pizza_io_printf("[Test Case]: %s\n", test_case->name);
-            pizza_io_printf("[Given Result]: %s\n", result_str);
-            pizza_io_printf("[With Timestamp]: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("[========================================]\n");
+            pizza_io_printf("{blue}[========================================]{reset}\n");
+            pizza_io_printf("{blue}[Test Case]:{reset} %s\n", test_case->name);
+            pizza_io_printf("{blue}[Given Result]:{reset} %s\n", result_str);
+            pizza_io_printf("{blue}[With Timestamp]:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{blue}[========================================]{reset}\n");
             }
             break;
 
         case PIZZA_THEME_UNITY:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("Unity Test Case: %s | Result: %s | Time: %llu ns\n",
-                test_case->name, result_str, test_case->elapsed_ns);
+            pizza_io_printf("{magenta}Unity Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
+            test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("========================================\n");
-            pizza_io_printf("Test Case: %s\n", test_case->name);
-            pizza_io_printf("Given Result: %s\n", result_str);
-            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("========================================\n");
+            pizza_io_printf("{magenta}========================================{reset}\n");
+            pizza_io_printf("{magenta}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{magenta}Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{magenta}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{magenta}========================================{reset}\n");
             }
             break;
 
         default:
             if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_PLAIN) {
-            pizza_io_printf("Test Case: %s | Result: %s | Time: %llu ns\n",
-                test_case->name, result_str, test_case->elapsed_ns);
+            pizza_io_printf("{cyan}Test Case:{reset} %s | {green}Result:{reset} %s | {yellow}Time:{reset} %llu ns\n",
+            test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
-            pizza_io_printf("========================================\n");
-            pizza_io_printf("Test Case: %s\n", test_case->name);
-            pizza_io_printf("Given Result: %s\n", result_str);
-            pizza_io_printf("With Timestamp: %llu ns\n", test_case->elapsed_ns);
-            pizza_io_printf("========================================\n");
+            pizza_io_printf("{cyan}========================================{reset}\n");
+            pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
+            pizza_io_printf("{cyan}========================================{reset}\n");
             }
             break;
     }
