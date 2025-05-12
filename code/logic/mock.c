@@ -38,7 +38,10 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
         fossil_mock_call_t *next = current->next;
         pizza_sys_memory_free(current->function_name);
         for (int i = 0; i < current->num_args; ++i) {
-            pizza_sys_memory_free(current->arguments[i]);
+            pizza_sys_memory_free(current->arguments[i].value.data);
+            pizza_sys_memory_free(current->arguments[i].attribute.name);
+            pizza_sys_memory_free(current->arguments[i].attribute.description);
+            pizza_sys_memory_free(current->arguments[i].attribute.id);
         }
         pizza_sys_memory_free(current->arguments);
         pizza_sys_memory_free(current);
@@ -65,7 +68,7 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         return;
     }
 
-    call->arguments = (char **)malloc(num_args * sizeof(char *));
+    call->arguments = (fossil_mock_pizza_t *)malloc(num_args * sizeof(fossil_mock_pizza_t));
     if (!call->arguments) {
         pizza_sys_memory_free(call->function_name);
         pizza_sys_memory_free(call);
@@ -73,10 +76,10 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     for (int i = 0; i < num_args; ++i) {
-        call->arguments[i] = pizza_io_cstr_dup(arguments[i]);
-        if (!call->arguments[i]) {
+        call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i]);
+        if (!call->arguments[i].value.data) {
             for (int j = 0; j < i; ++j) {
-                pizza_sys_memory_free(call->arguments[j]);
+                pizza_sys_memory_free(call->arguments[j].value.data);
             }
             pizza_sys_memory_free(call->arguments);
             pizza_sys_memory_free(call->function_name);
