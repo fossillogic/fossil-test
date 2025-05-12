@@ -78,6 +78,7 @@ int fossil_sanity_sys_create_file(const char* filename) {
 
 int fossil_sanity_sys_file_exists(const char* filename) {
 #ifdef _WIN32
+    #include <sys/stat.h> // Ensure the correct header is included for _stat
     struct _stat buffer;
     return (_stat(filename, &buffer) == 0); // On Windows, use the _stat function to check if the file exists.
 #else
