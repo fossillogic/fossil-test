@@ -79,8 +79,8 @@ FOSSIL_TEST(cpp_mock_call_list_addition) {
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     //FOSSIL_TEST_ASSUME(list.head->function_name == "test_function", "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
-    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[0], "arg1") == 0, "First argument should be 'arg1'");
-    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[1], "arg2") == 0, "Second argument should be 'arg2'");
+    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[0].value.data, "arg1") == 0, "First argument should be 'arg1'");
+    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[1].value.data, "arg2") == 0, "Second argument should be 'arg2'");
 } // end case
 
 FOSSIL_TEST(cpp_mock_call_list_destruction) {
@@ -118,8 +118,8 @@ FOSSIL_TEST(cpp_mock_call_list_addition_macro) {
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     //FOSSIL_TEST_ASSUME(list.head->function_name == "test_function", "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
-    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[0], "arg1") == 0, "First argument should be 'arg1'");
-    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[1], "arg2") == 0, "Second argument should be 'arg2'");
+    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[0].value.data, "arg1") == 0, "First argument should be 'arg1'");
+    FOSSIL_TEST_ASSUME(std::strcmp(list.head->arguments[1].value.data, "arg2") == 0, "Second argument should be 'arg2'");
 } // end case
 
 FOSSIL_TEST(cpp_mock_call_list_destruction_macro) {
