@@ -209,7 +209,7 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
-    if (!test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) {
+    if (test_case->result != FOSSIL_PIZZA_CASE_SKIPPED) {
         // Check if the test case name matches the --only filter
         if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
             return;
