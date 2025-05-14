@@ -1874,7 +1874,7 @@ extern "C" {
  * @param ptr A pointer to the memory to check.
  */
 #define ASSUME_ITS_VALID_MEMORY(ptr) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to be valid"))
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to be valid", null))
 
 /**
  * @brief Assumes that the given memory pointer is not valid.
@@ -1882,7 +1882,7 @@ extern "C" {
  * @param ptr A pointer to the memory to check.
  */
 #define ASSUME_NOT_VALID_MEMORY(ptr) \
-    FOSSIL_TEST_ASSUME(!pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to not be valid"))
+    FOSSIL_TEST_ASSUME(!pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to not be valid", null))
 
 // **************************************************
 //
