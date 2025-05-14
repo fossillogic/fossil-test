@@ -557,7 +557,7 @@ void _on_skip(const char *description);
     pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
 #else
 #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message), ##__VA_ARGS__)
+    pizza_test_assert_messagef((message) , __VA_ARGS__)
 #endif
 #endif
 
