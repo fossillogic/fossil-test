@@ -736,7 +736,7 @@ FOSSIL_TEST(c_assume_run_of_memory_equality) {
 
     // Test cases
     ASSUME_ITS_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
-    ASSUME_ITS_NOT_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
+    ASSUME_NOT_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_memory_comparison) {
@@ -766,9 +766,13 @@ FOSSIL_TEST(c_assume_run_of_memory_range) {
     char buffer2[10] = {1, 2, 4};
 
     // Test cases
+    ASSUME_ITS_MORE_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
     ASSUME_NOT_MORE_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_ITS_LESS_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
     ASSUME_NOT_LESS_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
+    ASSUME_ITS_MORE_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
     ASSUME_NOT_MORE_OR_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_ITS_LESS_OR_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
     ASSUME_NOT_LESS_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
 } // end case
 

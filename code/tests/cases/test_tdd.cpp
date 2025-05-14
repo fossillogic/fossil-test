@@ -736,7 +736,7 @@ FOSSIL_TEST(cpp_assume_run_of_memory_equality) {
 
     // Test cases
     ASSUME_ITS_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
-    ASSUME_ITS_NOT_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
+    ASSUME_NOT_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_memory_comparison) {
