@@ -546,46 +546,46 @@ void _on_skip(const char *description);
     * message and may abort the execution of the test case or test suite.
     */ 
 #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-         pizza_test_assert_messagef((message) __VA_OPT__(, ) __VA_ARGS__)
+    pizza_test_assert_messagef((message), ##__VA_ARGS__)
 
- /**
-    * @brief Macro for defining a Given step in a behavior-driven development test.
-    * 
-    * This macro is used to define a Given step in a behavior-driven development test.
-    * The Given step is used to specify the initial context of a test case.
-    * 
-    * @param description The description of the Given step.
-    */
- #define _GIVEN(description) \
-         if (0) { \
-                 _given(description); \
-         }
- 
- /**
-    * @brief Macro for defining a When step in a behavior-driven development test.
-    * 
-    * This macro is used to define a When step in a behavior-driven development test.
-    * The When step is used to specify the action that is being tested.
-    * 
-    * @param description The description of the When step.
-    */
- #define _WHEN(description) \
-         if (0) { \
-                 _when(description); \
-         }
- 
- /**
-    * @brief Macro for defining a Then step in a behavior-driven development test.
-    * 
-    * This macro is used to define a Then step in a behavior-driven development test.
-    * The Then step is used to specify the expected outcome of a test case.
-    * 
-    * @param description The description of the Then step.
-    */
- #define _THEN(description) \
-         if (0) { \
-                 _then(description); \
-         }
+/**
+ * @brief Macro for defining a Given step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Given step in a behavior-driven development test.
+ * The Given step is used to specify the initial context of a test case.
+ * 
+ * @param description The description of the Given step.
+ */
+#define _GIVEN(description) \
+    if (0) { \
+        _given(description); \
+    }
+
+/**
+ * @brief Macro for defining a When step in a behavior-driven development test.
+ * 
+ * This macro is used to define a When step in a behavior-driven development test.
+ * The When step is used to specify the action that is being tested.
+ * 
+ * @param description The description of the When step.
+ */
+#define _WHEN(description) \
+    if (0) { \
+        _when(description); \
+    }
+
+/**
+ * @brief Macro for defining a Then step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Then step in a behavior-driven development test.
+ * The Then step is used to specify the expected outcome of a test case.
+ * 
+ * @param description The description of the Then step.
+ */
+#define _THEN(description) \
+    if (0) { \
+        _then(description); \
+    }
 
 // *****************************************************************************
 // Public API Macros
