@@ -545,8 +545,13 @@ void _on_skip(const char *description);
     * runner. If the condition is false, the test runner will output the specified
     * message and may abort the execution of the test case or test suite.
     */ 
+#ifdef _WIN32
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+    pizza_test_assert_messagef((message), __VA_ARGS__)
+#else
 #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
     pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
+#endif
 
 /**
  * @brief Macro for defining a Given step in a behavior-driven development test.
