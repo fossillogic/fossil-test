@@ -85,7 +85,7 @@
      MARK_BENCHMARK(elapsed_test);
      MARK_START(elapsed_test);
      // Simulate some work
-     for (volatile int i = 0; i < 1000000; ++i);
+     for (int i = 0; i < 1000000; ++i);
      MARK_STOP(elapsed_test);
      ASSUME_ITS_TRUE(benchmark_elapsed_test.total_duration > 0.0);
  }
