@@ -690,6 +690,30 @@ void pizza_io_puts(const char *str);
 void pizza_io_printf(const char *format, ...);
 
 /**
+ * Prints a formatted string to a buffer using a va_list.
+ *
+ * This function is similar to `vsnprintf`, but it allows for custom formatting
+ * markers enclosed in curly braces `{}`, such as `{red}` for color or `{bold}` for
+ * text attributes. The formatted string is written to the provided buffer.
+ *
+ * Example usage:
+ * ```c
+ * char buffer[100];
+ * va_list args;
+ * va_start(args, format);
+ * pizza_io_vsnprintf(buffer, sizeof(buffer), format, args);
+ * va_end(args);
+ * ```
+ *
+ * @param buffer The buffer where the formatted string will be written.
+ * @param size The size of the buffer.
+ * @param format The format string, which contains the text to be formatted, along with format specifiers.
+ * @param args The variable argument list containing the values to be formatted.
+ * @return The number of characters written (excluding the null terminator), or a negative value if an error occurs.
+ */
+int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
+
+/**
  * Prints a character to the output.
  * 
  * This function is a basic utility to print a single character to the output. It is especially useful when you

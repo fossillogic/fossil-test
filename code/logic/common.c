@@ -1223,6 +1223,28 @@ void pizza_io_printf(const char *format, ...) {
     va_end(args);
 }
 
+int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
+    if (buffer == null || size == 0 || format == null) {
+        return -1; // Invalid input
+    }
+
+    // Create a temporary buffer to hold the formatted string
+    char temp_buffer[FOSSIL_IO_BUFFER_SIZE];
+    int formatted_length = vsnprintf(temp_buffer, sizeof(temp_buffer), format, args);
+
+    if (formatted_length < 0 || (size_t)formatted_length >= size) {
+        // Truncate the string if it exceeds the provided buffer size
+        strncpy(buffer, temp_buffer, size - 1);
+        buffer[size - 1] = '\0'; // Ensure null termination
+        return (formatted_length < 0) ? -1 : (int)(size - 1);
+    }
+
+    // Copy the formatted string to the provided buffer
+    strncpy(buffer, temp_buffer, size);
+    buffer[formatted_length] = '\0'; // Ensure null termination
+    return formatted_length;
+}
+
 // Function to print a sanitized string to a specific file stream
 void pizza_io_fputs(pizza_fstream_t *stream, const char *str) {
     if (str != null && stream != null) {
