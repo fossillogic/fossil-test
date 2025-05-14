@@ -708,6 +708,19 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 
 // -- Assume --
 
+char *pizza_test_assert_messagef(const char *message, ...) {
+    va_list args;
+    va_start(args, message);
+    size_t buffer_size = 1024; // Define a reasonable buffer size
+    char *formatted_message = (char *)pizza_sys_memory_alloc(buffer_size);
+    if (formatted_message) {
+        pizza_io_vsnprintf(formatted_message, buffer_size, message, args);
+        formatted_message[buffer_size - 1] = '\0'; // Ensure null-termination
+    }
+    va_end(args);
+    return formatted_message;
+}
+
 void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count) {
     // Output assertion failure based on theme
     switch (G_PIZZA_THEME) {

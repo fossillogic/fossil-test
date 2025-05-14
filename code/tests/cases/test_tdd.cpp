@@ -13,7 +13,6 @@
  * -----------------------------------------------------------------------------
  */
 #include <fossil/pizza/framework.h>
-#include <string>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -368,51 +367,51 @@ FOSSIL_TEST(cpp_assume_run_of_hex64_shortcut) {
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_octal8_shortcut) {
-    int8_t x = 042; // Octal for 42
-    int8_t y = 020; // Octal for 20
+    int8_t x = 052; // Octal for 42
+    int8_t y = 024; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O8((int8_t)x, 042);
-    ASSUME_ITS_EQUAL_O8((int8_t)y, 020);
-    ASSUME_NOT_EQUAL_O8((int8_t)x, (int8_t)y);
-    ASSUME_ITS_LESS_THAN_O8((int8_t)y, (int8_t)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O8((int8_t)y, (int8_t)x);
+    ASSUME_ITS_EQUAL_O8(x, 052);
+    ASSUME_ITS_EQUAL_O8(y, 024);
+    ASSUME_NOT_EQUAL_O8(x, y);
+    ASSUME_ITS_LESS_THAN_O8(y, x);
+    ASSUME_ITS_LESS_OR_EQUAL_O8(y, x);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_octal16_shortcut) {
-    int16_t x = 042; // Octal for 42
-    int16_t y = 020; // Octal for 20
+    int16_t x = 052; // Octal for 42
+    int16_t y = 024; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O16((int16_t)x, 042);
-    ASSUME_ITS_EQUAL_O16((int16_t)y, 020);
-    ASSUME_NOT_EQUAL_O16((int16_t)x, (int16_t)y);
-    ASSUME_ITS_LESS_THAN_O16((int16_t)y, (int16_t)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O16((int16_t)y, (int16_t)x);
+    ASSUME_ITS_EQUAL_O16(x, 052);
+    ASSUME_ITS_EQUAL_O16(y, 024);
+    ASSUME_NOT_EQUAL_O16(x, y);
+    ASSUME_ITS_LESS_THAN_O16(y, x);
+    ASSUME_ITS_LESS_OR_EQUAL_O16(y, x);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_octal32_shortcut) {
-    int32_t x = 042; // Octal for 42
-    int32_t y = 020; // Octal for 20
+    int32_t x = 052; // Octal for 42
+    int32_t y = 024; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O32((int32_t)x, 042);
-    ASSUME_ITS_EQUAL_O32((int32_t)y, 020);
-    ASSUME_NOT_EQUAL_O32((int32_t)x, (int32_t)y);
-    ASSUME_ITS_LESS_THAN_O32((int32_t)y, (int32_t)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O32((int32_t)y, (int32_t)x);
+    ASSUME_ITS_EQUAL_O32(x, 052);
+    ASSUME_ITS_EQUAL_O32(y, 024);
+    ASSUME_NOT_EQUAL_O32(x, y);
+    ASSUME_ITS_LESS_THAN_O32(y, x);
+    ASSUME_ITS_LESS_OR_EQUAL_O32(y, x);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_octal64_shortcut) {
-    int64_t x = 042; // Octal for 42
-    int64_t y = 020; // Octal for 20
+    int64_t x = 052; // Octal for 42
+    int64_t y = 024; // Octal for 20
 
     // Test cases
-    ASSUME_ITS_EQUAL_O64((int64_t)x, 042);
-    ASSUME_ITS_EQUAL_O64((int64_t)y, 020);
-    ASSUME_NOT_EQUAL_O64((int64_t)x, (int64_t)y);
-    ASSUME_ITS_LESS_THAN_O64((int64_t)y, (int64_t)x);
-    ASSUME_ITS_LESS_OR_EQUAL_O64((int64_t)y, (int64_t)x);
+    ASSUME_ITS_EQUAL_O64(x, 052);
+    ASSUME_ITS_EQUAL_O64(y, 024);
+    ASSUME_NOT_EQUAL_O64(x, y);
+    ASSUME_ITS_LESS_THAN_O64(y, x);
+    ASSUME_ITS_LESS_OR_EQUAL_O64(y, x);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_float32) {
@@ -508,18 +507,18 @@ FOSSIL_TEST(cpp_assume_run_of_boolean_complex_expression_negation) {
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_null_pointer) {
-    void *ptr = nullptr;
+    void *ptr = NULL;
 
     // Test cases
     ASSUME_ITS_CNULL(ptr);
-    ASSUME_NOT_CNULL((void *)0x1); // Assuming a non-nullptr pointer
+    ASSUME_NOT_CNULL((void *)0x1); // Assuming a non-null pointer
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_pointer_equality) {
     int a = 42;
     int *ptr1 = &a;
     int *ptr2 = &a;
-    int *ptr3 = nullptr;
+    int *ptr3 = NULL;
 
     // Test cases
     ASSUME_ITS_EQUAL_PTR(ptr1, ptr2);
@@ -666,17 +665,285 @@ FOSSIL_TEST(cpp_assume_run_of_within_range_cchar) {
     ASSUME_NOT_WITHIN_RANGE_CCHAR(y, 'C', 'Z');
 } // end case
 
-
-FOSSIL_TEST(cpp_assume_run_of_cstr) {
-    std::string str1 = "Hello";
-    std::string str2 = "Hello";
-    std::string str3 = "World";
+FOSSIL_TEST(cpp_assume_run_of_cstr_equality) {
+    const char *str1 = "Hello";
+    const char *str2 = "Hello";
+    const char *str3 = "World";
 
     // Test cases
-    ASSUME_ITS_EQUAL_CSTR(str1.c_str(), str2.c_str());
-    ASSUME_NOT_EQUAL_CSTR(str1.c_str(), str3.c_str());
-    ASSUME_ITS_LENGTH_EQUAL_CSTR(str1.c_str(), 5);
+    ASSUME_ITS_EQUAL_CSTR(str1, str2);
+    ASSUME_NOT_EQUAL_CSTR(str1, str3);
 } // end case
+
+FOSSIL_TEST(cpp_assume_run_of_cstr_length) {
+    const char *str1 = "Hello";
+
+    // Test cases
+    ASSUME_ITS_LENGTH_EQUAL_CSTR(str1, 5);
+    ASSUME_NOT_LENGTH_EQUAL_CSTR(str1, 10);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_cstr_prefix) {
+    const char *str4 = "Hello, World!";
+    const char *prefix = "Hello";
+    const char *str3 = "World";
+
+    // Test cases
+    ASSUME_ITS_CSTR_STARTS_WITH(str4, prefix);
+    ASSUME_NOT_CSTR_STARTS_WITH(str3, prefix);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_cstr_suffix) {
+    const char *str4 = "Hello, World!";
+    const char *suffix = "World!";
+    const char *str1 = "Hello";
+
+    // Test cases
+    ASSUME_ITS_CSTR_ENDS_WITH(str4, suffix);
+    ASSUME_NOT_CSTR_ENDS_WITH(str1, suffix);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_cstr_contains) {
+    const char *str4 = "Hello, World!";
+    const char *substr = "lo";
+    const char *str3 = "World";
+
+    // Test cases
+    ASSUME_ITS_CSTR_CONTAINS(str4, substr);
+    ASSUME_NOT_CSTR_CONTAINS(str3, substr);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_cstr_count) {
+    const char *str4 = "Hello, World!";
+
+    // Test cases
+    ASSUME_ITS_CSTR_COUNT(str4, "o", 2);
+    ASSUME_NOT_CSTR_COUNT(str4, "o", 3);
+} // end case
+
+
+FOSSIL_TEST(cpp_assume_run_of_zero_memory) {
+    char buffer[10] = {0};
+
+    // Test cases
+    ASSUME_ITS_ZERO_MEMORY(buffer, sizeof(buffer));
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_memory_equality) {
+    char buffer1[10] = {0};
+    char buffer2[10] = {0};
+    char buffer3[10] = {1};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_NOT_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_memory_comparison) {
+    char buffer1[10] = {1, 2, 3};
+    char buffer2[10] = {1, 2, 4};
+    char buffer3[10] = {1, 2, 3};
+
+    // Test cases
+    ASSUME_ITS_LESS_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_ITS_MORE_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
+    ASSUME_ITS_MORE_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
+    ASSUME_ITS_LESS_OR_EQUAL_MEMORY(buffer1, buffer3, sizeof(buffer1));
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_memory_validity) {
+    char buffer[10];
+    char *valid_ptr = buffer;
+    char *invalid_ptr = NULL;
+
+    // Test cases
+    ASSUME_ITS_VALID_MEMORY(valid_ptr);
+    ASSUME_NOT_VALID_MEMORY(invalid_ptr);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_memory_range) {
+    char buffer1[10] = {1, 2, 3};
+    char buffer2[10] = {1, 2, 4};
+
+    // Test cases
+    ASSUME_NOT_MORE_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_NOT_LESS_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
+    ASSUME_NOT_MORE_OR_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
+    ASSUME_NOT_LESS_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_pointer_nullability) {
+    void *ptr1 = NULL;
+    void *ptr2 = (void *)0x1;
+
+    // Test cases
+    ASSUME_ITS_CNULLABLE(ptr1);
+    ASSUME_NOT_CNULLABLE(ptr2);
+    ASSUME_ITS_CNONNULL(ptr2);
+    ASSUME_NOT_CNONNULL(ptr1);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_likely_conditions) {
+    int a = 5;
+    int b = 10;
+
+    // Test cases
+    ASSUME_ITS_LIKELY(a < b);
+    ASSUME_NOT_LIKELY(a > b);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_unlikely_conditions) {
+    int a = 5;
+    int b = 10;
+
+    // Test cases
+    ASSUME_ITS_UNLIKELY(a < b);
+    ASSUME_NOT_UNLIKELY(a > b);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_pointer_nullability_complex) {
+    int a = 42;
+    int *ptr1 = &a;
+    int *ptr2 = NULL;
+
+    // Test cases
+    ASSUME_ITS_CNONNULL(ptr1);
+    ASSUME_NOT_CNULLABLE(ptr1);
+    ASSUME_ITS_CNULLABLE(ptr2);
+    ASSUME_NOT_CNONNULL(ptr2);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_likely_unlikely_combination) {
+    int a = 5;
+    int b = 10;
+
+    // Test cases
+    ASSUME_ITS_LIKELY(a < b);
+    ASSUME_ITS_UNLIKELY(a < b);
+    ASSUME_NOT_LIKELY(a > b);
+    ASSUME_NOT_UNLIKELY(a > b);
+} // end case
+
+
+FOSSIL_TEST(cpp_assume_run_of_char_equality) {
+    char x = 'A';
+    char z = 'A';
+
+    // Test cases
+    ASSUME_ITS_EQUAL_CHAR(x, z);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_inequality) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_EQUAL_CHAR(x, y);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_less_than) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_ITS_LESS_THAN_CHAR(x, y);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_more_than) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_ITS_MORE_THAN_CHAR(y, x);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_less_or_equal) {
+    char x = 'A';
+    char z = 'A';
+
+    // Test cases
+    ASSUME_ITS_LESS_OR_EQUAL_CHAR(x, z);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_more_or_equal) {
+    char x = 'A';
+    char z = 'A';
+
+    // Test cases
+    ASSUME_ITS_MORE_OR_EQUAL_CHAR(x, z);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_not_less_than) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_LESS_THAN_CHAR(y, x);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_not_more_than) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_MORE_THAN_CHAR(x, y);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_not_less_or_equal) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_LESS_OR_EQUAL_CHAR(y, x);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_not_more_or_equal) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_MORE_OR_EQUAL_CHAR(x, y);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_char_not_equal) {
+    char x = 'A';
+    char y = 'B';
+
+    // Test cases
+    ASSUME_NOT_EQUAL_CHAR(x, y);
+} // end case
+
+
+FOSSIL_TEST(cpp_assume_run_of_not_soap_rot_brain) {
+    const char *text = "This is a normal sentence.";
+
+    // Test case
+    ASSUME_NOT_SOAP_ROT_BRAIN(text);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_its_soap_rot_brain) {
+    const char *text = "This is a rot-brain sentence.";
+
+    // Test case
+    ASSUME_ITS_SOAP_ROT_BRAIN(text);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_its_soap_tone_detected) {
+    const char *text = "Respectfully testing the pizza.";
+    const char *expected_tone = "formal";
+
+    // Test case
+    ASSUME_ITS_SOAP_TONE_DETECTED(text, expected_tone);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_not_soap_tone_detected) {
+    const char *text = "This is a sarcastic sentence.";
+    const char *expected_tone = "formal";
+
+    // Test case
+    ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
+} // end case
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -738,7 +1005,37 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_f64);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_bchar);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_within_range_cchar);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_length);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_prefix);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_suffix);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_contains);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_cstr_count);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_zero_memory);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_memory_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_memory_comparison);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_memory_validity);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_memory_range);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_pointer_nullability);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_likely_conditions);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_unlikely_conditions);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_pointer_nullability_complex);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_likely_unlikely_combination);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_inequality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_less_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_more_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_less_or_equal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_more_or_equal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_less_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_more_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_less_or_equal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_more_or_equal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_equal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_rot_brain);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group

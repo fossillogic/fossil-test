@@ -149,6 +149,8 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
+char *pizza_test_assert_messagef(const char *message, ...);
+
 // *********************************************************************************************
 // internal messages
 // *********************************************************************************************
@@ -537,45 +539,66 @@ void _on_skip(const char *description);
  #define _FOSSIL_TEST_ASSERT(condition, message) \
          pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
  
- 
- /**
-    * @brief Macro for defining a Given step in a behavior-driven development test.
-    * 
-    * This macro is used to define a Given step in a behavior-driven development test.
-    * The Given step is used to specify the initial context of a test case.
-    * 
-    * @param description The description of the Given step.
-    */
- #define _GIVEN(description) \
-         if (0) { \
-                 _given(description); \
-         }
- 
- /**
-    * @brief Macro for defining a When step in a behavior-driven development test.
-    * 
-    * This macro is used to define a When step in a behavior-driven development test.
-    * The When step is used to specify the action that is being tested.
-    * 
-    * @param description The description of the When step.
-    */
- #define _WHEN(description) \
-         if (0) { \
-                 _when(description); \
-         }
- 
- /**
-    * @brief Macro for defining a Then step in a behavior-driven development test.
-    * 
-    * This macro is used to define a Then step in a behavior-driven development test.
-    * The Then step is used to specify the expected outcome of a test case.
-    * 
-    * @param description The description of the Then step.
-    */
- #define _THEN(description) \
-         if (0) { \
-                 _then(description); \
-         }
+/**
+    * @brief Macro to assume a condition in a test runner.
+    * This macro is used to assert that a specific condition is true within a test
+    * runner. If the condition is false, the test runner will output the specified
+    * message and may abort the execution of the test case or test suite.
+    */ 
+#ifdef _WIN32
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+    pizza_test_assert_messagef((message), __VA_ARGS__)
+#elif defined(__APPLE__)
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+    pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
+#else
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+    pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
+#else
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+    pizza_test_assert_messagef((message) , __VA_ARGS__)
+#endif
+#endif
+
+/**
+ * @brief Macro for defining a Given step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Given step in a behavior-driven development test.
+ * The Given step is used to specify the initial context of a test case.
+ * 
+ * @param description The description of the Given step.
+ */
+#define _GIVEN(description) \
+    if (0) { \
+        _given(description); \
+    }
+
+/**
+ * @brief Macro for defining a When step in a behavior-driven development test.
+ * 
+ * This macro is used to define a When step in a behavior-driven development test.
+ * The When step is used to specify the action that is being tested.
+ * 
+ * @param description The description of the When step.
+ */
+#define _WHEN(description) \
+    if (0) { \
+        _when(description); \
+    }
+
+/**
+ * @brief Macro for defining a Then step in a behavior-driven development test.
+ * 
+ * This macro is used to define a Then step in a behavior-driven development test.
+ * The Then step is used to specify the expected outcome of a test case.
+ * 
+ * @param description The description of the Then step.
+ */
+#define _THEN(description) \
+    if (0) { \
+        _then(description); \
+    }
 
 // *****************************************************************************
 // Public API Macros

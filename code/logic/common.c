@@ -916,13 +916,18 @@ pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t siz
     return memcpy(dest, src, size);
 }
 
-void pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size) {
-    if (!ptr || size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_zero() - Invalid pointer or zero size.\n");
-        return;
+pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size) {
+    if (!ptr) {
+        fprintf(stderr, "Error: pizza_sys_memory_zero() - Pointer is null.\n");
+        return null;
     }
-    
-    memset(ptr, 0, size);
+
+    if (size == 0) {
+        fprintf(stderr, "Error: pizza_sys_memory_zero() - Cannot zero out zero bytes.\n");
+        return null;
+    }
+
+    return memset(ptr, 0, size);
 }
 
 int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size) {
@@ -1216,6 +1221,28 @@ void pizza_io_printf(const char *format, ...) {
     pizza_io_print_with_attributes(buffer);
 
     va_end(args);
+}
+
+int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
+    if (buffer == null || size == 0 || format == null) {
+        return -1; // Invalid input
+    }
+
+    // Create a temporary buffer to hold the formatted string
+    char temp_buffer[FOSSIL_IO_BUFFER_SIZE];
+    int formatted_length = vsnprintf(temp_buffer, sizeof(temp_buffer), format, args);
+
+    if (formatted_length < 0 || (size_t)formatted_length >= size) {
+        // Truncate the string if it exceeds the provided buffer size
+        strncpy(buffer, temp_buffer, size - 1);
+        buffer[size - 1] = '\0'; // Ensure null termination
+        return (formatted_length < 0) ? -1 : (int)(size - 1);
+    }
+
+    // Copy the formatted string to the provided buffer
+    strncpy(buffer, temp_buffer, size);
+    buffer[formatted_length] = '\0'; // Ensure null termination
+    return formatted_length;
 }
 
 // Function to print a sanitized string to a specific file stream
