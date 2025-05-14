@@ -149,6 +149,8 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
+char *pizza_test_assert_messagef(const char *message, ...);
+
 // *********************************************************************************************
 // internal messages
 // *********************************************************************************************
@@ -537,7 +539,15 @@ void _on_skip(const char *description);
  #define _FOSSIL_TEST_ASSERT(condition, message) \
          pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
  
- 
+/**
+    * @brief Macro to assume a condition in a test runner.
+    * This macro is used to assert that a specific condition is true within a test
+    * runner. If the condition is false, the test runner will output the specified
+    * message and may abort the execution of the test case or test suite.
+    */ 
+#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+         pizza_test_assert_messagef((message), ##__VA_ARGS__)
+
  /**
     * @brief Macro for defining a Given step in a behavior-driven development test.
     * 
