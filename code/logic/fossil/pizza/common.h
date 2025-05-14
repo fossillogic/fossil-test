@@ -533,7 +533,7 @@ pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t siz
  * @param size The size of the memory to zero.
  * @throws Error message and exits if the pointer is NULL.
  */
-void pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
+pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
 
 /**
  * Compare memory.
