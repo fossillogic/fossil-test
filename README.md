@@ -1,6 +1,6 @@
-# ***Fossil Test by Fossil Logic***
+# ***Pizza Test by Pizza Logic***
 
-**Fossil Test** is a comprehensive suite for unit testing, mocking, and benchmarking, designed by Fossil Logic to enhance the reliability, clarity, and performance of **C**, **C++**, and **Python** projects. Supporting methodologies like Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), it caters to diverse workflows with features such as a robust Command-Line Interface (CLI), advanced mocking tools, integrated benchmarking, and parallel test execution. With additional capabilities like customizable output themes, tag-based test filtering, and detailed performance insights, **Fossil Test**, alongside **Fossil Mock**, **Fossil Mark**, and **Fossil Sanity Kit** for testing command-line operations, forms a powerful toolkit for building, testing, and optimizing high-quality, maintainable software.
+**Pizza Test** is a comprehensive suite for unit testing, mocking, and benchmarking, designed by Pizza Logic to enhance the reliability, clarity, and performance of **C** and **C++** projects. Supporting methodologies like Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), it caters to diverse workflows with features such as a robust Command-Line Interface (CLI), advanced mocking tools, integrated benchmarking, and parallel test execution. With additional capabilities like customizable output themes, tag-based test filtering, and detailed performance insights, **Pizza Test**, alongside **Pizza Mock**, **Pizza Mark**, and **Pizza Sanity Kit** for testing command-line operations, forms a powerful toolkit for building, testing, and optimizing high-quality, maintainable software.
 
 | Feature                     | Description                                                                                                                             |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -9,7 +9,7 @@
 | **Mocking Capabilities** | Advanced mocking tools to simulate complex dependencies, ensuring isolated and precise unit testing. |
 | **Benchmarking Tools** | Integrated benchmarking features to measure execution time, identify bottlenecks, and optimize code performance. |
 | **Sanity Kit for Command Tests** | A specialized suite for validating command-line tools and scripts, ensuring consistent behavior across environments. |
-| **Customizable Output Themes** | Multiple output themes (e.g., fossil, catch, doctest) to tailor the appearance of test results. |
+| **Customizable Output Themes** | Multiple output themes (e.g., pizza, catch, doctest) to tailor the appearance of test results. |
 | **Tag-Based Test Filtering** | Organize and execute tests based on custom tags for better test management. |
 | **Detailed Performance Insights** | Comprehensive reporting on test execution times and resource usage to aid in performance optimization. |
 
@@ -17,15 +17,15 @@
 
 ## ***Prerequisites***
 
-To get started with Fossil Test, ensure you have the following installed:
+To get started with Pizza Test, ensure you have the following installed:
 
 - **Meson Build System**: If you don’t have Meson installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
 
 ---
 
-### Adding Fossil Test Dependency
+### Adding Pizza Test Dependency
 
-#### Adding Fossil Test Dependency With Meson
+#### Adding Pizza Test Dependency With Meson
 
 1. **Install Meson Build System**:
    Install Meson version `1.3` or newer:
@@ -35,14 +35,14 @@ To get started with Fossil Test, ensure you have the following installed:
    ```
 
 2. **Create a `.wrap` File**:
-   Add the `fossil-test.wrap` file in your `subprojects` directory and include the following content:
+   Add a `fossil-test.wrap` file in your `subprojects` directory with the following content:
 
    ```ini
    # ======================
    # Git Wrap package definition
    # ======================
    [wrap-git]
-   url = https://github.com/fossillogic/fossil-test.git
+   url = https://github.com/pizzalogic/fossil-test.git
    revision = v1.2.1
 
    [provide]
@@ -51,23 +51,23 @@ To get started with Fossil Test, ensure you have the following installed:
 
 3. **Integrate the Dependency**:
    In your `meson.build` file, integrate Fossil Test by adding the following line:
-   ```ini
+   ```meson
    dep = dependency('fossil-test')
    ```
 
 ---
 
-**Note**: For the best experience, always use the latest release of Fossil Test. Visit the [Fossil Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
+**Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/pizzalogic/pizza-test/releases) page for the latest versions.
 
-## Fossil Test CLI Usage
+## Pizza Test CLI Usage
 
-The Fossil Test CLI provides an efficient way to run and manage tests directly from the terminal. Here are the available commands and options:
+The Pizza Test CLI provides an efficient way to run and manage tests directly from the terminal. Here are the available commands and options:
 
 ### Commands and Options
 
 | Command                          | Description                                                                                   | Notes                                                                                         |
 |----------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`                      | Displays the current version of Fossil Test.                                                  | Useful for verifying the version of the tool in use.                                          |
+| `--version`                      | Displays the current version of Pizza Test.                                                  | Useful for verifying the version of the tool in use.                                          |
 | `--help`                         | Shows help message with usage instructions.                                                   | Provides a quick reference for all available commands.                                        |
 | `--dry-run`                      | Perform a dry run without executing commands.                                                 | Ideal for verifying test selection criteria before actual execution.                          |
 | `--host`                         | Shows info about the current host system.                                                     | Useful for looking up system you are running test on.                                          |
@@ -76,7 +76,7 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `sort`                           | Sort tests by specified criteria.                                                             | Allows sorting in ascending or descending order.                                              |
 | `shuffle`                        | Shuffle tests with optional parameters.                                                       | Includes options for specifying a seed or shuffle criteria.                                   |
 | `color=<mode>`                   | Set color mode (enable, disable, auto).                                                       | Enhances readability in supported terminals.                                                  |
-| `theme=<name>`                   | Set the theme (fossil, catch, doctest, etc.).                                                 | Customizes the appearance of test output.                                                     |
+| `theme=<name>`                   | Set the theme (pizza, catch, doctest, etc.).                                                 | Customizes the appearance of test output.                                                     |
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge).                                                        | Adjusts the level of detail in test output.                                                   |
 
 ### Run Command Options
@@ -122,10 +122,10 @@ meson setup builddir -Dwith_test=enabled
 
 ## ***Contributing and Support***
 
-If you would like to contribute, have questions, or need help, feel free to open an issue on the [Fossil Test GitHub repository](https://github.com/fossillogic/fossil-test) or consult the [Fossil Logic Docs](https://fossillogic.com/docs).
+If you would like to contribute, have questions, or need help, feel free
 
 ---
 
 ## ***Conclusion***
 
-Fossil Test is a powerful and flexible framework for C and C++ developers, designed to support a wide range of testing methodologies such as BDD, DDD, and TDD. With features like mocking, detailed reporting, and performance tracking, Fossil Test empowers developers to create high-quality software and maintainable test suites. Combined with Fossil Mark and Fossil Mock, it provides a complete suite for testing, optimization, and dependency management. Whether you're building small projects or large-scale applications, Fossil Test is an essential tool to ensure the reliability and performance of your code.
+Pizza Test is a powerful and flexible framework for C and C++ developers, designed to support a wide range of testing methodologies such as BDD, DDD, and TDD. With features like mocking, detailed reporting, and performance tracking, Pizza Test empowers developers to create high-quality software and maintainable test suites. Combined with Pizza Mark and Pizza Mock, it provides a complete suite for testing, optimization, and dependency management. Whether you're building small projects or large-scale applications, Pizza Test is an essential tool to ensure the reliability and performance of your code.
