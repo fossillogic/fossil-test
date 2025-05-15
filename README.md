@@ -42,7 +42,7 @@ To get started with Pizza Test, ensure you have the following installed:
    # Git Wrap package definition
    # ======================
    [wrap-git]
-   url = https://github.com/pizzalogic/fossil-test.git
+   url = https://github.com/fossillogic/fossil-test.git
    revision = v1.2.1
 
    [provide]
