@@ -107,9 +107,12 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
     if (!test_case) return;
 
     const char* result_str = 
+        (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" :
         (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "PASS" :
         (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "FAIL" :
-        (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" : "UNKNOWN";
+        (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? "TIMEOUT" :
+        (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) ? "SKIPPED" :
+        (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "UNEXPECTED" : "UNKNOWN";
 
     switch (G_PIZZA_THEME) {
         case PIZZA_THEME_FOSSIL:
@@ -118,8 +121,10 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
                 test_case->name, result_str, test_case->elapsed_ns);
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{blue}========================================{reset}\n");
-            pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
-            pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
+            pizza_io_printf("{cyan}Test Case     :{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Tags    :{reset} %s\n", test_case->tags);
+            pizza_io_printf("{cyan}Given Criteria:{reset} %s\n", test_case->criteria);
+            pizza_io_printf("{cyan}Given Result  :{reset} %s\n", result_str);
             pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{blue}========================================{reset}\n");
             }
@@ -133,6 +138,8 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{cyan}========================================{reset}\n");
             pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Tags:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{cyan}Given Criteria:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
             pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{cyan}========================================{reset}\n");
@@ -146,6 +153,8 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{blue}[========================================]{reset}\n");
             pizza_io_printf("{blue}[Test Case]:{reset} %s\n", test_case->name);
+            pizza_io_printf("{blue}[Given Tags]:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{blue}[Given Criteria]:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{blue}[Given Result]:{reset} %s\n", result_str);
             pizza_io_printf("{blue}[With Timestamp]:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{blue}[========================================]{reset}\n");
@@ -159,6 +168,8 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{green}# ========================================{reset}\n");
             pizza_io_printf("{green}# Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{green}# Given Tags:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{green}# Given Criteria:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{green}# Given Result:{reset} %s\n", result_str);
             pizza_io_printf("{green}# With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{green}# ========================================{reset}\n");
@@ -172,6 +183,8 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{blue}[========================================]{reset}\n");
             pizza_io_printf("{blue}[Test Case]:{reset} %s\n", test_case->name);
+            pizza_io_printf("{blue}[Given Tags]:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{blue}[Given Criteria]:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{blue}[Given Result]:{reset} %s\n", result_str);
             pizza_io_printf("{blue}[With Timestamp]:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{blue}[========================================]{reset}\n");
@@ -185,6 +198,8 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{magenta}========================================{reset}\n");
             pizza_io_printf("{magenta}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{magenta}Given Tags:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{magenta}Given Criteria:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{magenta}Given Result:{reset} %s\n", result_str);
             pizza_io_printf("{magenta}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{magenta}========================================{reset}\n");
@@ -198,12 +213,18 @@ void fossil_pizza_test_output(const fossil_pizza_case_t* test_case) {
             } else if (G_PIZZA_VERBOSE == PIZZA_VERBOSE_DOGE) {
             pizza_io_printf("{cyan}========================================{reset}\n");
             pizza_io_printf("{cyan}Test Case:{reset} %s\n", test_case->name);
+            pizza_io_printf("{cyan}Given Tags:{reset} %s\n", test_case->tags);
+            pizza_io_printf("{cyan}Given Criteria:{reset} %s\n", test_case->criteria);
             pizza_io_printf("{cyan}Given Result:{reset} %s\n", result_str);
             pizza_io_printf("{cyan}With Timestamp:{reset} %llu ns\n", test_case->elapsed_ns);
             pizza_io_printf("{cyan}========================================{reset}\n");
             }
             break;
     }
+}
+// Utility function to convert seconds to nanoseconds
+static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
+    return seconds * 1000000000ULL;
 }
 
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
@@ -225,7 +246,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
                     test_case->run();
                     uint64_t elapsed_time = fossil_pizza_now_ns() - start_time;
 
-                    if (1000000ULL > 0 && elapsed_time > 1000000ULL) {
+                    if (elapsed_time > seconds_to_nanoseconds(G_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
                         test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
                     } else {
                         test_case->result = FOSSIL_PIZZA_CASE_PASS;
@@ -246,6 +267,10 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
         }
 
         // Output test case result
+        fossil_pizza_test_output(test_case);
+    } else if (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) {
+        // Output skipped test case result
+        test_case->elapsed_ns = 0; // No time elapsed for skipped tests
         fossil_pizza_test_output(test_case);
     } else {
         // Handle unexpected cases
