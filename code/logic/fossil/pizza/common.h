@@ -325,6 +325,7 @@ typedef struct {
 // exported flags
 // *****************************************************************************
 
+extern uint64_t G_PIZZA_TIMEOUT;
 extern int G_PIZZA_DRY_RUN;
 extern int G_PIZZA_FAIL_FAST;
 extern int G_PIZZA_SKIP;

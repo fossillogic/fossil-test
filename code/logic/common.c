@@ -27,6 +27,7 @@
 // exported flags
 // *****************************************************************************
 
+uint64_t G_PIZZA_TIMEOUT = 60; // Default timeout in seconds
 int G_PIZZA_DRY_RUN = 0;
 int G_PIZZA_FAIL_FAST = 0;
 int G_PIZZA_SKIP = 0;
@@ -77,6 +78,7 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
     pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge){reset}\n");
+    pizza_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
