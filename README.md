@@ -86,10 +86,10 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `--only <test>`      | Run only the specified test.                                                                  | Focuses execution on a single test for debugging or validation purposes.                      |
 | `--repeat <count>`   | Repeat the test a specified number of times.                                                  | Useful for stress testing or verifying consistency across multiple runs.                      |
 | `--help`             | Show help for the run command.                                                                | Provides detailed usage instructions for the `run` command.                                   |
-
 ### Filter Command Options
 | Option               | Description                                                                                   | Notes                                                                                         |
 |----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `--options`          | Show all available filter options.                                                            | Provides a comprehensive list of filter-related flags and their usage.                        |
 | `--test-name <name>` | Filter by test name.                                                                          | Enables precise targeting of individual tests.                                                |
 | `--suite-name <name>`| Filter by suite name.                                                                         | Useful for running all tests within a specific suite.                                         |
 | `--tag <tag>`        | Filter by tag.                                                                                | Allows grouping and execution of tests based on custom tags.                                  |
@@ -98,6 +98,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 ### Sort Command Options
 | Option               | Description                                                                                   | Notes                                                                                         |
 |----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `--options`          | Show all available sort options.                                                              | Provides a comprehensive list of sort-related flags and their usage.                          |
 | `--by <criteria>`    | Sort by specified criteria.                                                                   | Common criteria include execution time, name, or priority.                                    |
 | `--order <asc/desc>` | Sort in ascending or descending order.                                                        | Helps organize test execution based on preferred order.                                       |
 | `--help`             | Show help for the sort command.                                                               | Provides detailed usage instructions for the `sort` command.                                  |
@@ -105,6 +106,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 ### Shuffle Command Options
 | Option               | Description                                                                                   |
 |----------------------|-----------------------------------------------------------------------------------------------|
+| `--options`          | Show all available shuffle options.                                                           |
 | `--seed <seed>`      | Specify the seed for shuffling.                                                               |
 | `--count <count>`    | Number of items to shuffle.                                                                   |
 | `--by <criteria>`    | Shuffle by specified criteria.                                                                |
