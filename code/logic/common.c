@@ -367,6 +367,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_verbose();
             }
+        } else if (strncmp(argv[i], "timeout=", 8) == 0) {
+            G_PIZZA_TIMEOUT = atoi(argv[i] + 8);
+        } else if (pizza_io_cstr_compare(argv[i], "timeout") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+                _show_help();
+                exit(EXIT_SUCCESS);
+            }
+        } else {
+            pizza_io_printf("{red}Error: Unknown command or option '%s'.{reset}\n", argv[i]);
+            exit(EXIT_FAILURE);
         }
     }
 
