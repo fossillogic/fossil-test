@@ -76,6 +76,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `sort`                           | Sort tests by specified criteria.                                                             | Allows sorting in ascending or descending order.                                              |
 | `shuffle`                        | Shuffle tests with optional parameters.                                                       | Includes options for specifying a seed or shuffle criteria.                                   |
 | `color=<mode>`                   | Set color mode (enable, disable, auto).                                                       | Enhances readability in supported terminals.                                                  |
+| `config=<file>`                  | Specify a configuration file (must be pizza_test.ini).                                        | Allows loading custom settings for test execution.                                            |
 | `theme=<name>`                   | Set the theme (pizza, catch, doctest, etc.).                                                 | Customizes the appearance of test output.                                                     |
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge).                                                        | Adjusts the level of detail in test output.                                                   |
 
