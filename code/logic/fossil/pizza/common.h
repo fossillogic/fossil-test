@@ -295,6 +295,7 @@ typedef enum {
 
 typedef struct {
     int dry_run;               // Flag for dry run mode
+    const char* config_file;        // Path to the configuration file
     struct {
         int fail_fast;         // Flag for --fail-fast
         const char* only;      // Value for --only
@@ -344,6 +345,25 @@ extern fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE;
  * @param argv The command line arguments.
  */
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
+
+// *****************************************************************************
+// INI Parser
+// *****************************************************************************
+
+// INI Parser Implementation
+
+/**
+ * @brief Parses an INI file and populates the provided pallet structure.
+ *
+ * This function reads an INI file and extracts key-value pairs to populate
+ * the fossil_pizza_pallet_t structure. It assumes a simple INI format with
+ * sections and key-value pairs.
+ *
+ * @param filename The path to the INI file.
+ * @param pallet Pointer to the pallet structure to populate.
+ * @return 0 on success, or a negative error code on failure.
+ */
+int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet);
 
 // *****************************************************************************
 // Host information

@@ -75,6 +75,7 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
+    pizza_io_printf("{cyan}  config=<file>      Specify a configuration file (must be pizza_test.ini){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
     pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge){reset}\n");
     exit(EXIT_SUCCESS);
@@ -320,6 +321,19 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_color();
             }
+        } else if (strncmp(argv[i], "config=", 7) == 0) {
+            const char* config_file = argv[i] + 7;
+            if (pizza_io_cstr_compare(config_file, "pizza_test.ini") == 0) {
+                pallet.config_file = config_file;
+            } else {
+                pizza_io_printf("{red}Error: Invalid configuration file name. Must be 'pizza_test.ini'.{reset}\n");
+                exit(EXIT_FAILURE);
+            }
+        } else if (pizza_io_cstr_compare(argv[i], "config") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+                _show_help();
+            }
+
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
             if (pizza_io_cstr_compare(theme_str, "fossil") == 0) {
@@ -369,6 +383,161 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     }
 
     return pallet;
+}
+
+// *****************************************************************************
+// INI Parser
+// *****************************************************************************
+
+int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) {
+    if (pizza_io_cstr_compare(filename, "pizza_test.ini") != 0) {
+        fprintf(stderr, "Error: INI file must be named 'pizza_test.ini'.\n");
+        return -1;
+    }
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        fprintf(stderr, "Error: Unable to open INI file: %s\n", filename);
+        return -1;
+    }
+
+    char line[256];
+    char section[64] = "";
+    while (fgets(line, sizeof(line), file)) {
+        // Trim whitespace
+        char *start = line;
+        while (isspace((unsigned char)*start)) start++;
+        char *end = start + strlen(start) - 1;
+        while (end > start && isspace((unsigned char)*end)) *end-- = '\0';
+
+        // Skip comments and empty lines
+        if (*start == ';' || *start == '#' || *start == '\0') continue;
+
+        // Handle section headers
+        if (*start == '[') {
+            char *close = strchr(start, ']');
+            if (close) {
+                *close = '\0';
+                strncpy(section, start + 1, sizeof(section) - 1);
+                section[sizeof(section) - 1] = '\0';
+            }
+            continue;
+        }
+
+        // Handle key-value pairs
+        char *equals = strchr(start, '=');
+        if (equals) {
+            *equals = '\0';
+            char *key = start;
+            char *value = equals + 1;
+
+            // Trim whitespace around key and value
+            while (isspace((unsigned char)*key)) key++;
+            end = key + strlen(key) - 1;
+            while (end > key && isspace((unsigned char)*end)) *end-- = '\0';
+
+            while (isspace((unsigned char)*value)) value++;
+            end = value + strlen(value) - 1;
+            while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
+
+            // Handle inline comments
+            char *comment = strchr(value, ';');
+            if (!comment) comment = strchr(value, '#');
+            if (comment) *comment = '\0';
+
+            // Trim whitespace again after removing comments
+            end = value + strlen(value) - 1;
+            while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
+
+            // Populate the pallet structure based on the section and key
+            if (pizza_io_cstr_compare(section, "general") == 0) {
+                if (pizza_io_cstr_compare(key, "theme") == 0) {
+                    if (pizza_io_cstr_compare(value, "fossil") == 0) {
+                        pallet->theme = PIZZA_THEME_FOSSIL;
+                    } else if (pizza_io_cstr_compare(value, "catch") == 0) {
+                        pallet->theme = PIZZA_THEME_CATCH;
+                    } else if (pizza_io_cstr_compare(value, "doctest") == 0) {
+                        pallet->theme = PIZZA_THEME_DOCTEST;
+                    } else if (pizza_io_cstr_compare(value, "cpputest") == 0) {
+                        pallet->theme = PIZZA_THEME_CPPUTEST;
+                    } else if (pizza_io_cstr_compare(value, "tap") == 0) {
+                        pallet->theme = PIZZA_THEME_TAP;
+                    } else if (pizza_io_cstr_compare(value, "gtest") == 0) {
+                        pallet->theme = PIZZA_THEME_GOOGLETEST;
+                    } else if (pizza_io_cstr_compare(value, "unity") == 0) {
+                        pallet->theme = PIZZA_THEME_UNITY;
+                    }
+                } else if (pizza_io_cstr_compare(key, "verbose") == 0) {
+                    if (pizza_io_cstr_compare(value, "plain") == 0) {
+                        pallet->verbose = PIZZA_VERBOSE_PLAIN;
+                    } else if (pizza_io_cstr_compare(value, "ci") == 0) {
+                        pallet->verbose = PIZZA_VERBOSE_CI;
+                    } else if (pizza_io_cstr_compare(value, "doge") == 0) {
+                        pallet->verbose = PIZZA_VERBOSE_DOGE;
+                    }
+                }
+            } else if (pizza_io_cstr_compare(section, "test") == 0) {
+                if (pizza_io_cstr_compare(key, "run.fail_fast") == 0) {
+                    pallet->run.fail_fast = atoi(value);
+                } else if (pizza_io_cstr_compare(key, "run.only") == 0) {
+                    pallet->run.only = pizza_io_cstr_dup(value);
+                } else if (pizza_io_cstr_compare(key, "run.repeat") == 0) {
+                    pallet->run.repeat = atoi(value);
+                } else if (pizza_io_cstr_compare(key, "filter.test_name") == 0) {
+                    pallet->filter.test_name = pizza_io_cstr_dup(value);
+                } else if (pizza_io_cstr_compare(key, "filter.suite_name") == 0) {
+                    pallet->filter.suite_name = pizza_io_cstr_dup(value);
+                } else if (pizza_io_cstr_compare(key, "filter.tag") == 0) {
+                    int is_valid_tag = 0;
+                    for (int i = 0; VALID_TAGS[i] != null; i++) {
+                        if (pizza_io_cstr_compare(value, VALID_TAGS[i]) == 0) {
+                            is_valid_tag = 1;
+                            break;
+                        }
+                    }
+                    if (is_valid_tag) {
+                        pallet->filter.tag = pizza_io_cstr_dup(value);
+                    } else {
+                        fprintf(stderr, "Error: Invalid tag '%s'.\n", value);
+                        fclose(file);
+                        return -1;
+                    }
+                } else if (pizza_io_cstr_compare(key, "sort.by") == 0) {
+                    int is_valid_criteria = 0;
+                    for (int i = 0; VALID_CRITERIA[i] != null; i++) {
+                        if (pizza_io_cstr_compare(value, VALID_CRITERIA[i]) == 0) {
+                            is_valid_criteria = 1;
+                            break;
+                        }
+                    }
+                    if (is_valid_criteria) {
+                        pallet->sort.by = pizza_io_cstr_dup(value);
+                    } else {
+                        fprintf(stderr, "Error: Invalid sort criteria '%s'.\n", value);
+                        fclose(file);
+                        return -1;
+                    }
+                } else if (pizza_io_cstr_compare(key, "sort.order") == 0) {
+                    pallet->sort.order = pizza_io_cstr_dup(value);
+                } else if (pizza_io_cstr_compare(key, "shuffle.seed") == 0) {
+                    pallet->shuffle.seed = pizza_io_cstr_dup(value);
+                } else if (pizza_io_cstr_compare(key, "shuffle.count") == 0) {
+                    pallet->shuffle.count = atoi(value);
+                } else if (pizza_io_cstr_compare(key, "shuffle.by") == 0) {
+                    pallet->shuffle.by = pizza_io_cstr_dup(value);
+                }
+            } else if (pizza_io_cstr_compare(section, "mock") == 0) {
+                // Add mock-related parsing logic here
+            } else if (pizza_io_cstr_compare(section, "mark") == 0) {
+                // Add mark-related parsing logic here
+            } else if (pizza_io_cstr_compare(section, "sanity") == 0) {
+                // Add sanity-related parsing logic here
+            }
+        }
+    }
+
+    fclose(file);
+    return 0;
 }
 
 // *****************************************************************************
