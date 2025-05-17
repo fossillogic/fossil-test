@@ -78,6 +78,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `color=<mode>`                   | Set color mode (enable, disable, auto).                                                       | Enhances readability in supported terminals.                                                  |
 | `theme=<name>`                   | Set the theme (pizza, catch, doctest, etc.).                                                 | Customizes the appearance of test output.                                                     |
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge).                                                        | Adjusts the level of detail in test output.                                                   |
+| `timeout=<seconds>`              | Set a timeout for test execution.                                                             | Ensures tests do not exceed the specified duration, helping to identify long-running tests.   |
 
 ### Run Command Options
 | Option               | Description                                                                                   | Notes                                                                                         |

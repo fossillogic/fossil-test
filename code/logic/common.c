@@ -27,6 +27,7 @@
 // exported flags
 // *****************************************************************************
 
+uint64_t G_PIZZA_TIMEOUT = 60; // Default timeout in seconds
 int G_PIZZA_DRY_RUN = 0;
 int G_PIZZA_FAIL_FAST = 0;
 int G_PIZZA_SKIP = 0;
@@ -77,6 +78,7 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
     pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge){reset}\n");
+    pizza_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -365,6 +367,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_verbose();
             }
+        } else if (strncmp(argv[i], "timeout=", 8) == 0) {
+            G_PIZZA_TIMEOUT = atoi(argv[i] + 8);
+        } else if (pizza_io_cstr_compare(argv[i], "timeout") == 0) {
+            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+                _show_help();
+                exit(EXIT_SUCCESS);
+            }
+        } else {
+            pizza_io_printf("{red}Error: Unknown command or option '%s'.{reset}\n", argv[i]);
+            exit(EXIT_FAILURE);
         }
     }
 
