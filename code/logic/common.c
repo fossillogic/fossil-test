@@ -397,6 +397,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 // *****************************************************************************
 
 int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) {
+    pizza_io_printf("{yellow}Warning: INI parser is experimental and in development.{reset}\n");
     const char *basename = strrchr(filename, '/');
     if (!basename) {
         basename = filename; // No '/' found, use the entire filename
