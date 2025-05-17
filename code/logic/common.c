@@ -323,7 +323,14 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             }
         } else if (strncmp(argv[i], "config=", 7) == 0) {
             const char* config_file = argv[i] + 7;
-            if (pizza_io_cstr_compare(config_file, "pizza_test.ini") == 0) {
+            const char* basename = strrchr(config_file, '/');
+            if (!basename) {
+                basename = config_file; // No '/' found, use the entire filename
+            } else {
+                basename++; // Skip the '/'
+            }
+
+            if (pizza_io_cstr_compare(basename, "pizza_test.ini") == 0) {
                 pallet.config_file = config_file;
             } else {
                 pizza_io_printf("{red}Error: Invalid configuration file name. Must be 'pizza_test.ini'.{reset}\n");
@@ -390,14 +397,21 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 // *****************************************************************************
 
 int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) {
-    if (pizza_io_cstr_compare(filename, "pizza_test.ini") != 0) {
+    const char *basename = strrchr(filename, '/');
+    if (!basename) {
+        basename = filename; // No '/' found, use the entire filename
+    } else {
+        basename++; // Skip the '/'
+    }
+
+    if (pizza_io_cstr_compare(basename, "pizza_test.ini") != 0) {
         fprintf(stderr, "Error: INI file must be named 'pizza_test.ini'.\n");
         return -1;
     }
 
     FILE *file = fopen(filename, "r");
     if (!file) {
-        fprintf(stderr, "Error: Unable to open INI file: %s\n", filename);
+        fprintf(stderr, "Error: Unable to open INI file: %s\n", basename);
         return -1;
     }
 
