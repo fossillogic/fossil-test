@@ -110,6 +110,7 @@ static void _show_subhelp_filter(void) {
     pizza_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
     pizza_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for filter command{reset}\n");
+    pizza_io_printf("{cyan}  --options          Show all valid tags{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -118,6 +119,7 @@ static void _show_subhelp_sort(void) {
     pizza_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for sort command{reset}\n");
+    pizza_io_printf("{cyan}  --options          Show all valid criteria{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -127,6 +129,7 @@ static void _show_subhelp_shuffle(void) {
     pizza_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
     pizza_io_printf("{cyan}  --by <criteria>    Shuffle by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for shuffle command{reset}\n");
+    pizza_io_printf("{cyan}  --options          Show all valid criteria for shuffling{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -256,6 +259,12 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_filter();
+                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
+                    pizza_io_printf("{blue}Valid tags:{reset}\n");
+                    for (int k = 0; VALID_TAGS[k] != null; k++) {
+                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
+                    }
+                    exit(EXIT_SUCCESS);
                 } else {
                     break;
                 }
@@ -284,6 +293,12 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     pallet.sort.order = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_sort();
+                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
+                    pizza_io_printf("{blue}Valid criteria:{reset}\n");
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
+                    }
+                    exit(EXIT_SUCCESS);
                 } else {
                     break;
                 }
@@ -294,17 +309,23 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
-                if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
-                    pallet.shuffle.seed = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
-                    pallet.shuffle.count = atoi(argv[++j]);
-                } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
-                    pallet.shuffle.by = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
-                    _show_subhelp_shuffle();
-                } else {
-                    break;
+            if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
+                pallet.shuffle.seed = argv[++j];
+            } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
+                pallet.shuffle.count = atoi(argv[++j]);
+            } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
+                pallet.shuffle.by = argv[++j];
+            } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                _show_subhelp_shuffle();
+            } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
+                pizza_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
+                for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
                 }
+                exit(EXIT_SUCCESS);
+            } else {
+                break;
+            }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (pizza_io_cstr_compare(argv[i] + 6, "enable") == 0) {
