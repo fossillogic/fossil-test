@@ -44,6 +44,13 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
     engine->pallet = fossil_pizza_pallet_create(argc, argv);
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
 
+    // Parse configuration file if specified
+    const char* config_file = engine->pallet.config_file;
+    if (config_file && fossil_pizza_ini_parse(config_file, &engine->pallet) != FOSSIL_PIZZA_SUCCESS) {
+        pizza_io_printf("Error: Failed to parse configuration file: %s\n", config_file);
+        return FOSSIL_PIZZA_FAILURE;
+    }
+
     return FOSSIL_PIZZA_SUCCESS;
 }
 
