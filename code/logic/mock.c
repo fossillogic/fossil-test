@@ -134,3 +134,62 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
         current = current->next;
     }
 }
+
+/**
+ * Captures the output of a function to a buffer for testing purposes.
+ *
+ * @param buffer The buffer to store the captured output.
+ * @param size The size of the buffer.
+ * @param function The function whose output is to be captured.
+ * @param ... The arguments to pass to the function.
+ * @return The number of characters captured.
+ */
+int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void), ...) {
+    if (!buffer || size == 0 || !function) {
+        return -1;
+    }
+
+    // Create a temporary file to capture stdout
+    FILE *temp_file = tmpfile();
+    if (!temp_file) {
+        return -1;
+    }
+
+    // Redirect stdout to the temporary file
+    FILE *original_stdout = stdout;
+    stdout = temp_file;
+
+    // Call the function with variable arguments
+    va_list args;
+    va_start(args, function);
+    function();
+    va_end(args);
+
+    // Restore stdout
+    fflush(temp_file);
+    stdout = original_stdout;
+
+    // Rewind the temporary file and read its contents into the buffer
+    rewind(temp_file);
+    size_t read_size = fread(buffer, 1, size - 1, temp_file);
+    buffer[read_size] = '\0'; // Null-terminate the buffer
+
+    // Close the temporary file
+    fclose(temp_file);
+
+    return (int)read_size;
+}
+
+/**
+ * Compares the captured output with the expected output.
+ *
+ * @param captured The captured output.
+ * @param expected The expected output.
+ * @return True if the captured output matches the expected output, false otherwise.
+ */
+bool fossil_mock_compare_output(const char *captured, const char *expected) {
+    if (!captured || !expected) {
+        return false;
+    }
+    return strcmp(captured, expected) == 0;
+}
