@@ -49,11 +49,11 @@ FOSSIL_MOCK_FUNC(int, cpp_mock_function, int a, int b) {
     return a + b;
 }
 
-FOSSIL_MOCK_FUNC(void, cpp_mock_function_with_output) {
+FOSSIL_MOCK_FUNC(void, cpp_mock_function_with_output, void) {
     pizza_io_printf("Hello, Fossil Logic!");
 }
 
-FOSSIL_MOCK_FUNC(void, mock_function_redirection) {
+FOSSIL_MOCK_FUNC(void, mock_function_redirection, void) {
     pizza_io_printf("Testing macro redirection!");
 }
 
