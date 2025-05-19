@@ -196,17 +196,9 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
 #ifdef _WIN32
 #define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
     __declspec(dllexport) return_type fossil_mockup_##name(__VA_ARGS__)
-#elif defined(__APPLE__)
-#define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
-    return_type fossil_mockup_##name(__VA_OPT(, __VA_ARGS__))
-#else
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
-#define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
-    return_type fossil_mockup_##name(__VA_OPT(, __VA_ARGS__))
 #else
 #define _FOSSIL_MOCK_FUNC(return_type, name, ...) \
     return_type fossil_mockup_##name(__VA_ARGS__)
-#endif
 #endif
 
 /**
@@ -336,21 +328,8 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
  * @param ...           The parameters of the mock function in the format: (type1 param1, type2 param2, ...).
  * @return The return type specified for the mock function.
  */
-#ifdef _WIN32
 #define FOSSIL_MOCK_FUNC(return_type, name, ...) \
     _FOSSIL_MOCK_FUNC(return_type, name, __VA_ARGS__)
-#elif defined(__APPLE__)
-#define FOSSIL_MOCK_FUNC(return_type, name, ...) \
-    _FOSSIL_MOCK_FUNC(return_type, name, __VA_OPT(, __VA_ARGS__))
-#else
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
-#define FOSSIL_MOCK_FUNC(return_type, name, ...) \
-    _FOSSIL_MOCK_FUNC(return_type, name, __VA_OPT(, __VA_ARGS__))
-#else
-#define FOSSIL_MOCK_FUNC(return_type, name, ...) \
-    _FOSSIL_MOCK_FUNC(return_type, name, __VA_ARGS__)
-#endif
-#endif
 
 /**
  * @def FOSSIL_MOCK_ALIAS
