@@ -60,11 +60,11 @@ jobs:
         run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='verbose=ci'
 
   build_macosx:
-    name: Building on macOS with Clang ${{ matrix.clang_version }}
+    name: Building on macOS with Xcode ${{ matrix.xcode_version }}
     runs-on: macos-latest
     strategy:
       matrix:
-        clang_version: ["16.0", "16.1", "16.2"]
+        xcode_version: ["15.2", "15.3"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,12 +76,8 @@ jobs:
         with:
           python-version: '3.12'
   
-      - name: Set Clang Version
-        run: |
-          export CC=/usr/bin/clang-${{ matrix.clang_version }}
-          export CXX=/usr/bin/clang++-${{ matrix.clang_version }}
-          echo "CC=/usr/bin/clang-${{ matrix.clang_version }}" >> $GITHUB_ENV
-          echo "CXX=/usr/bin/clang++-${{ matrix.clang_version }}" >> $GITHUB_ENV
+      - name: Install Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app
   
       - name: Install Meson and Ninja
         run: |
