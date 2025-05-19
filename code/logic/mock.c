@@ -12,8 +12,8 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+#define _POSIX_C_SOURCE 200809L
 #include "fossil/pizza/mock.h"
-#include "fossil/pizza/common.h"
 
 // *****************************************************************************
 // Function declarations
@@ -156,8 +156,17 @@ int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)
     }
 
     // Redirect stdout to the temporary file
-    FILE *original_stdout = stdout;
-    stdout = temp_file;
+    int original_stdout_fd = dup(STDOUT_FILENO);
+    if (original_stdout_fd == -1) {
+        fclose(temp_file);
+        return -1;
+    }
+    fflush(stdout);
+    if (dup2(fileno(temp_file), STDOUT_FILENO) == -1) {
+        fclose(temp_file);
+        close(original_stdout_fd);
+        return -1;
+    }
 
     // Call the function with variable arguments
     va_list args;
@@ -166,8 +175,9 @@ int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)
     va_end(args);
 
     // Restore stdout
-    fflush(temp_file);
-    stdout = original_stdout;
+    fflush(stdout);
+    dup2(original_stdout_fd, STDOUT_FILENO);
+    close(original_stdout_fd);
 
     // Rewind the temporary file and read its contents into the buffer
     rewind(temp_file);
