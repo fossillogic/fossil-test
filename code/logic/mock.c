@@ -12,8 +12,6 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#define _POSIX_C_SOURCE 200809L
-#include <sys/types.h>
 #include "fossil/pizza/mock.h"
 
 // *****************************************************************************
