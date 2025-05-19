@@ -47,7 +47,6 @@
 #endif
 
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
 #define _POSIX_C_SOURCE 199309L
 #endif
 
