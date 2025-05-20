@@ -237,53 +237,49 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
-    if (test_case->result != FOSSIL_PIZZA_CASE_SKIPPED) {
-        // Check if the test case name matches the --only filter
-        if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
-            return;
-        }
+    // Check if the test case name matches the --only filter
+    if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
+        return; // Skip this test case if it doesn't match the --only filter
+    }
 
-        for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
-            if (test_case->setup) test_case->setup();
+    // Check if the test case name matches the --skip filter
+    if (engine->pallet.run.skip && pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
+        test_case->result = FOSSIL_PIZZA_CASE_SKIPPED;
+        return; // Skip this test case if it matches the --skip filter
+    }
 
-            uint64_t start_time = fossil_pizza_now_ns();
+    for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
+        if (test_case->setup) test_case->setup();
 
-            if (test_case->run) {
-                if (setjmp(test_jump_buffer) == 0) {
-                    test_case->run();
-                    uint64_t elapsed_time = fossil_pizza_now_ns() - start_time;
+        uint64_t start_time = fossil_pizza_now_ns();
 
-                    if (elapsed_time > seconds_to_nanoseconds(G_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
-                        test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
-                    } else {
-                        test_case->result = FOSSIL_PIZZA_CASE_PASS;
-                    }
+        if (test_case->run) {
+            if (setjmp(test_jump_buffer) == 0) {
+                test_case->run();
+                uint64_t elapsed_time = fossil_pizza_now_ns() - start_time;
+
+                if (elapsed_time > seconds_to_nanoseconds(G_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
+                    test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
                 } else {
-                    test_case->result = FOSSIL_PIZZA_CASE_FAIL;
-                    if (engine->pallet.run.fail_fast) {
-                        fossil_pizza_test_output(test_case);
-                        return; // Exit immediately if --fail-fast is enabled
-                    }
+                    test_case->result = FOSSIL_PIZZA_CASE_PASS;
                 }
             } else {
-                test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+                test_case->result = FOSSIL_PIZZA_CASE_FAIL;
+                if (engine->pallet.run.fail_fast) {
+                    fossil_pizza_test_output(test_case);
+                    return; // Exit immediately if --fail-fast is enabled
+                }
             }
-            test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
-
-            if (test_case->teardown) test_case->teardown();
+        } else {
+            test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
         }
+        test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
 
-        // Output test case result
-        fossil_pizza_test_output(test_case);
-    } else if (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) {
-        // Output skipped test case result
-        test_case->elapsed_ns = 0; // No time elapsed for skipped tests
-        fossil_pizza_test_output(test_case);
-    } else {
-        // Handle unexpected cases
-        test_case->result = FOSSIL_PIZZA_CASE_UNEXPECTED;
-        fossil_pizza_test_output(test_case);
+        if (test_case->teardown) test_case->teardown();
     }
+
+    // Output test case result
+    fossil_pizza_test_output(test_case);
 
     // Update scores based on result
     fossil_pizza_update_score(test_case, suite);
