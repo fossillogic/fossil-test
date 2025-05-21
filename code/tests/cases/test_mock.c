@@ -360,7 +360,7 @@ FOSSIL_TEST(c_mock_io_redirect_stdout_macro) {
     char buffer[256];
 
     // Use the macro to redirect stdout and capture output
-    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), fossil_mockup_mock_function_redirection, NULL);
+    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), fossil_mockup_mock_function_redirection);
 
     // Test cases
     FOSSIL_TEST_ASSUME(strcmp(buffer, "Testing macro redirection!") == 0, "Captured output should match expected output");
