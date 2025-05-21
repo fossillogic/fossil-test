@@ -19,13 +19,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
 #include <float.h>
 #include <ctype.h>
 #include <math.h>
+#include <unistd.h> // Only include once
 
 #ifdef _WIN32
     #include <windows.h>
@@ -33,8 +33,7 @@
 #elif defined(__APPLE__)
     #define _DARWIN_C_SOURCE
     #include <sys/utsname.h>
-    #include <sys/types.h> // Ensure this is included before sysctl.h
-    #include <unistd.h>
+    #include <sys/types.h>   // Before sysctl.h
     #include <sys/sysctl.h>
     #include <sys/stat.h>
     #include <mach/mach_time.h>
@@ -44,7 +43,6 @@
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <sys/time.h>
-    #include <unistd.h>
 #endif
 
 #ifndef _POSIX_C_SOURCE
