@@ -123,10 +123,9 @@ void fossil_mock_print(fossil_mock_calllist_t *list);
  * @param buffer The buffer to store the captured output.
  * @param size The size of the buffer.
  * @param function The function whose output is to be captured.
- * @param ... The arguments to pass to the function.
  * @return The number of characters captured.
  */
-int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void), ...);
+int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
 
 /**
  * Compares the captured output with the expected output.
@@ -240,20 +239,8 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
  * @param buffer The buffer to capture the output.
  * @param size   The size of the buffer.
  */
-#ifdef _WIN32
-#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, ...) \
-    fossil_mock_capture_output(buffer, size, function, __VA_ARGS__)
-#elif defined(__APPLE__)
-#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, ...) \
-    fossil_mock_capture_output(buffer, size, function, __VA_OPT(, __VA_ARGS__))
-#else
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
-#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, ...) \
-    fossil_mock_capture_output(buffer, size, function, __VA_OPT(, __VA_ARGS__))
-#else
-#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, ...) \
-    fossil_mock_capture_output(buffer, size, function, __VA_ARGS__)
-#endif
+#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function) \
+    fossil_mock_capture_output(buffer, size, function)
 #endif
 
 /**
@@ -365,21 +352,8 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
  * @param buffer The buffer to capture the output.
  * @param size   The size of the buffer.
  */
-#ifdef _WIN32
-#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function, ...) \
-    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, __VA_ARGS__)
-#elif defined(__APPLE__)
-#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function, ...) \
-    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, __VA_OPT(, __VA_ARGS__))
-#else
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
-#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function, ...) \
-    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, __VA_OPT(, __VA_ARGS__))
-#else
-#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function, ...) \
-    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function, __VA_ARGS__)
-#endif
-#endif
+#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function) \
+    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function)
 
 /**
  * @def FOSSIL_MOCK_COMPARE_OUTPUT
