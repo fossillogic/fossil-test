@@ -31,6 +31,7 @@
     #include <windows.h>
     #include <sys/stat.h>
 #elif defined(__APPLE__)
+    #define _DARWIN_C_SOURCE
     #include <sys/utsname.h>
     #include <sys/types.h> // Ensure this is included before sysctl.h
     #include <unistd.h>
