@@ -135,27 +135,16 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     }
 }
 
-/**
- * Captures the output of a function to a buffer for testing purposes.
- *
- * @param buffer The buffer to store the captured output.
- * @param size The size of the buffer.
- * @param function The function whose output is to be captured.
- * @param ... The arguments to pass to the function.
- * @return The number of characters captured.
- */
-int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void), ...) {
+int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)) {
     if (!buffer || size == 0 || !function) {
         return -1;
     }
 
-    // Create a temporary file to capture stdout
     FILE *temp_file = tmpfile();
     if (!temp_file) {
         return -1;
     }
 
-    // Redirect stdout to the temporary file
     int original_stdout_fd = dup(STDOUT_FILENO);
     if (original_stdout_fd == -1) {
         fclose(temp_file);
@@ -168,35 +157,20 @@ int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)
         return -1;
     }
 
-    // Call the function with variable arguments
-    va_list args;
-    va_start(args, function);
-    function();
-    va_end(args);
+    function(); // no arguments passed
 
-    // Restore stdout
     fflush(stdout);
     dup2(original_stdout_fd, STDOUT_FILENO);
     close(original_stdout_fd);
 
-    // Rewind the temporary file and read its contents into the buffer
     rewind(temp_file);
     size_t read_size = fread(buffer, 1, size - 1, temp_file);
-    buffer[read_size] = '\0'; // Null-terminate the buffer
+    buffer[read_size] = '\0';
 
-    // Close the temporary file
     fclose(temp_file);
-
     return (int)read_size;
 }
 
-/**
- * Compares the captured output with the expected output.
- *
- * @param captured The captured output.
- * @param expected The expected output.
- * @return True if the captured output matches the expected output, false otherwise.
- */
 bool fossil_mock_compare_output(const char *captured, const char *expected) {
     if (!captured || !expected) {
         return false;
