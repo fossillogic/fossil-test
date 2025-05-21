@@ -241,7 +241,6 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
  */
 #define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function) \
     fossil_mock_capture_output(buffer, size, function)
-#endif
 
 /**
  * @def _FOSSIL_MOCK_REDIRECT_STDOUT
