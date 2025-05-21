@@ -91,6 +91,7 @@ static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
     pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
     pizza_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
+    pizza_io_printf("{cyan}  --skip <test>      Skip the specified test{reset}\n");
     pizza_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
@@ -201,7 +202,8 @@ static void _show_host(void) {
 
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
-    
+    int is_command = 0; // Variable to track if a command is being processed
+
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
         if (pizza_io_cstr_compare(argv[i], "--dry-run") == 0) {
@@ -213,12 +215,14 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
         } else if (pizza_io_cstr_compare(argv[i], "--host") == 0) {
             _show_host();
         } else if (pizza_io_cstr_compare(argv[i], "run") == 0) {
+            is_command = 1;
             pallet.run.fail_fast = 0;
             pallet.run.only = null;
             pallet.run.skip = null;
             pallet.run.repeat = 1;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
@@ -235,15 +239,17 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_run();
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "filter") == 0) {
+            is_command = 1;
             pallet.filter.test_name = null;
             pallet.filter.suite_name = null;
             pallet.filter.tag = null;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
                     pallet.filter.test_name = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
@@ -272,14 +278,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                     exit(EXIT_SUCCESS);
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "sort") == 0) {
+            is_command = 1;
             pallet.sort.by = null;
             pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     const char* criteria = argv[++j];
                     int is_valid_criteria = 0;
@@ -306,15 +314,17 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                     exit(EXIT_SUCCESS);
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "shuffle") == 0) {
+            is_command = 1;
             pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
             pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
                     pallet.shuffle.seed = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
@@ -330,7 +340,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                     exit(EXIT_SUCCESS);
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
