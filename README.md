@@ -86,6 +86,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 |----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | `--fail-fast`        | Stop on the first failure.                                                                    | Useful for quickly identifying and addressing critical issues.                               |
 | `--only <test>`      | Run only the specified test.                                                                  | Focuses execution on a single test for debugging or validation purposes.                      |
+| `--skip <test>`      | Skip the specified test.                                                                      | Allows excluding specific tests from execution.                                               |
 | `--repeat <count>`   | Repeat the test a specified number of times.                                                  | Useful for stress testing or verifying consistency across multiple runs.                      |
 | `--help`             | Show help for the run command.                                                                | Provides detailed usage instructions for the `run` command.                                   |
 ### Filter Command Options

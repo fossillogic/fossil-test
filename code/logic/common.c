@@ -91,6 +91,7 @@ static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
     pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
     pizza_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
+    pizza_io_printf("{cyan}  --skip <test>      Skip the specified test{reset}\n");
     pizza_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
@@ -201,6 +202,7 @@ static void _show_host(void) {
 
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
+    int is_command = 0; // Variable to track if a command is being processed
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
@@ -213,32 +215,41 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
         } else if (pizza_io_cstr_compare(argv[i], "--host") == 0) {
             _show_host();
         } else if (pizza_io_cstr_compare(argv[i], "run") == 0) {
+            is_command = 1;
             pallet.run.fail_fast = 0;
             pallet.run.only = null;
+            pallet.run.skip = null;
             pallet.run.repeat = 1;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
                 } else if (pizza_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
                     pallet.run.only = argv[++j];
-                    G_PIZZA_ONLY = pallet.run.only;
+                } else if (pizza_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
+                    pallet.run.skip = argv[++j];
+                    G_PIZZA_SKIP = 1;
                 } else if (pizza_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc) {
                     pallet.run.repeat = atoi(argv[++j]);
                     G_PIZZA_REPEAT = pallet.run.repeat;
+                } else if (pizza_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc) {
+                    G_PIZZA_THREADS = atoi(argv[++j]);
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_run();
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "filter") == 0) {
+            is_command = 1;
             pallet.filter.test_name = null;
             pallet.filter.suite_name = null;
             pallet.filter.tag = null;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
                     pallet.filter.test_name = argv[++j];
                 } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
@@ -267,14 +278,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                     exit(EXIT_SUCCESS);
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "sort") == 0) {
+            is_command = 1;
             pallet.sort.by = null;
             pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     const char* criteria = argv[++j];
                     int is_valid_criteria = 0;
@@ -301,32 +314,34 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     }
                     exit(EXIT_SUCCESS);
                 } else {
-                    break;
+                    is_command = 0;
                 }
             }
         } else if (pizza_io_cstr_compare(argv[i], "shuffle") == 0) {
+            is_command = 1;
             pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
             pallet.shuffle.by = null;
 
             for (int j = i + 1; j < argc; j++) {
-            if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
-                pallet.shuffle.seed = argv[++j];
-            } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
-                pallet.shuffle.count = atoi(argv[++j]);
-            } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
-                pallet.shuffle.by = argv[++j];
-            } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
-                _show_subhelp_shuffle();
-            } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
-                pizza_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
-                for (int k = 0; VALID_CRITERIA[k] != null; k++) {
-                pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
+                if (!is_command) break;
+                if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
+                    pallet.shuffle.seed = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
+                    pallet.shuffle.count = atoi(argv[++j]);
+                } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
+                    pallet.shuffle.by = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                    _show_subhelp_shuffle();
+                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
+                    pizza_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
+                    }
+                    exit(EXIT_SUCCESS);
+                } else {
+                    is_command = 0;
                 }
-                exit(EXIT_SUCCESS);
-            } else {
-                break;
-            }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
             if (pizza_io_cstr_compare(argv[i] + 6, "enable") == 0) {
@@ -363,7 +378,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_help();
             }
-
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
             if (pizza_io_cstr_compare(theme_str, "fossil") == 0) {
@@ -387,7 +401,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             } else if (pizza_io_cstr_compare(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
                 G_PIZZA_THEME = PIZZA_THEME_UNITY;
-
             }
         } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
@@ -401,7 +414,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             } else if (pizza_io_cstr_compare(verbose_str, "ci") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_CI;
                 G_PIZZA_VERBOSE = PIZZA_VERBOSE_CI;
-            } else if (pizza_io_cstr_compare(verbose_str, "doge") == 0) { // means verbose for Pizza Test
+            } else if (pizza_io_cstr_compare(verbose_str, "doge") == 0) {
                 pallet.verbose = PIZZA_VERBOSE_DOGE;
                 G_PIZZA_VERBOSE = PIZZA_VERBOSE_DOGE;
             }
@@ -416,9 +429,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 _show_help();
                 exit(EXIT_SUCCESS);
             }
-        } else {
-            pizza_io_printf("{red}Error: Unknown command or option '%s'.{reset}\n", argv[i]);
-            exit(EXIT_FAILURE);
         }
     }
 

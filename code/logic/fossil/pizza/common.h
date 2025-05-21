@@ -298,6 +298,7 @@ typedef struct {
     struct {
         int fail_fast;         // Flag for --fail-fast
         const char* only;      // Value for --only
+        const char* skip;      // Value for --skip
         int repeat;            // Value for --repeat
     } run;                     // Run command flags
 
