@@ -117,6 +117,25 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
  */
 void fossil_mock_print(fossil_mock_calllist_t *list);
 
+/**
+ * Captures the output of a function to a buffer for testing purposes.
+ *
+ * @param buffer The buffer to store the captured output.
+ * @param size The size of the buffer.
+ * @param function The function whose output is to be captured.
+ * @return The number of characters captured.
+ */
+int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
+
+/**
+ * Compares the captured output with the expected output.
+ *
+ * @param captured The captured output.
+ * @param expected The expected output.
+ * @return True if the captured output matches the expected output, false otherwise.
+ */
+bool fossil_mock_compare_output(const char *captured, const char *expected);
+
 #ifdef __cplusplus
 }
 #endif
@@ -211,6 +230,30 @@ void fossil_mock_print(fossil_mock_calllist_t *list);
     typedef struct name
 #endif
 
+/**
+ * @def _FOSSIL_MOCK_REDIRECT_STDOUT
+ * @brief Macro for redirecting stdout to a buffer.
+ *
+ * This macro redirects stdout to a buffer for capturing output.
+ *
+ * @param buffer The buffer to capture the output.
+ * @param size   The size of the buffer.
+ */
+#define _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function) \
+    fossil_mock_capture_output(buffer, size, function)
+
+/**
+ * @def _FOSSIL_MOCK_REDIRECT_STDOUT
+ * @brief Macro for redirecting stdout to a buffer.
+ *
+ * This macro redirects stdout to a buffer for capturing output.
+ *
+ * @param buffer The buffer to capture the output.
+ * @param size   The size of the buffer.
+ */
+#define _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
+    fossil_mock_compare_output(captured, expected)
+
 // *****************************************************************************
 // Public API Macros
 // *****************************************************************************
@@ -299,4 +342,30 @@ void fossil_mock_print(fossil_mock_calllist_t *list);
 #define FOSSIL_MOCK_STRUCT(name) \
     _FOSSIL_MOCK_STRUCT(name)
 
+/**
+ * @def FOSSIL_MOCK_REDIRECT_STDOUT
+ * @brief Macro for redirecting stdout to a buffer.
+ *
+ * This macro redirects stdout to a buffer for capturing output.
+ *
+ * @param buffer The buffer to capture the output.
+ * @param size   The size of the buffer.
+ */
+#define FOSSIL_MOCK_REDIRECT_STDOUT(buffer, size, function) \
+    _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, size, function)
+
+/**
+ * @def FOSSIL_MOCK_COMPARE_OUTPUT
+ * @brief Macro for comparing captured output with expected output.
+ *
+ * This macro compares the captured output with the expected output.
+ *
+ * @param captured The captured output.
+ * @param expected The expected output.
+ * @return True if the captured output matches the expected output, false otherwise.
+ */
+#define FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
+    _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected)
+
 #endif // FOSSIL_MOCK_FRAMEWORK_H
+

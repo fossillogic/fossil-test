@@ -1205,6 +1205,10 @@ bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr) {
 // output management
 // *****************************************************************************
 
+pizza_fstream_t *PIZZA_STDIN;
+pizza_fstream_t *PIZZA_STDOUT;
+pizza_fstream_t *PIZZA_STDERR;
+
 int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 int32_t FOSSIL_IO_ATTR_ENABLE = 1; // Flag to enable/disable attribute output
 
