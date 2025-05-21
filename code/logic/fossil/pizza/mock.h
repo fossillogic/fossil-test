@@ -395,3 +395,4 @@ bool fossil_mock_compare_output(const char *captured, const char *expected);
     _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected)
 
 #endif // FOSSIL_MOCK_FRAMEWORK_H
+
