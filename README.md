@@ -43,7 +43,7 @@ To get started with Pizza Test, ensure you have the following installed:
    # ======================
    [wrap-git]
    url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.2.1
+   revision = v1.2.2
 
    [provide]
    fossil-test = fossil_test_dep
