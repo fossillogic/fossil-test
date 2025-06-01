@@ -178,6 +178,16 @@ static void _show_host(void) {
     if (pizza_sys_hostinfo_get_system(&system_info) == 0) {
         pizza_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
         pizza_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
+        pizza_io_printf("{blue}Architecture: {cyan}%s{reset}\n", system_info.os_arch);
+        pizza_io_printf("{blue}Build: {cyan}%s{reset}\n", system_info.os_build);
+        pizza_io_printf("{blue}Release: {cyan}%s{reset}\n", system_info.os_release);
+        pizza_io_printf("{blue}Codename: {cyan}%s{reset}\n", system_info.os_codename);
+        pizza_io_printf("{blue}Description: {cyan}%s{reset}\n", system_info.os_description);
+        pizza_io_printf("{blue}Vendor: {cyan}%s{reset}\n", system_info.os_vendor);
+        pizza_io_printf("{blue}Family: {cyan}%s{reset}\n", system_info.os_family);
+        pizza_io_printf("{blue}Type: {cyan}%s{reset}\n", system_info.os_type);
+        pizza_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.os_platform);
+        pizza_io_printf("{blue}Machine: {cyan}%s{reset}\n", system_info.os_machine);
         pizza_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
     } else {
         pizza_io_printf("{red}Error retrieving system information.{reset}\n");
@@ -606,23 +616,108 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     if (!info) return -1;
 #ifdef _WIN32
     OSVERSIONINFO osvi;
+    SYSTEM_INFO sysinfo;
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     if (!GetVersionEx(&osvi)) return -1;
+    GetSystemInfo(&sysinfo);
+
     snprintf(info->os_name, sizeof(info->os_name), "Windows");
     snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
+    snprintf(info->os_arch, sizeof(info->os_arch), "%u", sysinfo.wProcessorArchitecture);
+    snprintf(info->os_build, sizeof(info->os_build), "%lu", osvi.dwBuildNumber);
+    snprintf(info->os_release, sizeof(info->os_release), "%lu", osvi.dwBuildNumber);
+    snprintf(info->os_codename, sizeof(info->os_codename), "N/A");
+    snprintf(info->os_description, sizeof(info->os_description), "Microsoft Windows");
+    snprintf(info->os_vendor, sizeof(info->os_vendor), "Microsoft");
+    snprintf(info->os_family, sizeof(info->os_family), "Windows NT");
+    snprintf(info->os_type, sizeof(info->os_type), "Desktop");
+    snprintf(info->os_platform, sizeof(info->os_platform), "win32");
+    snprintf(info->os_machine, sizeof(info->os_machine), "%lu", sysinfo.dwProcessorType);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
 #elif defined(__APPLE__)
     struct utsname sysinfo;
     if (uname(&sysinfo) != 0) return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
+    info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
+    info->os_version[sizeof(info->os_version) - 1] = '\0';
+    strncpy(info->os_arch, sysinfo.machine, sizeof(info->os_arch) - 1);
+    info->os_arch[sizeof(info->os_arch) - 1] = '\0';
+    strncpy(info->os_build, sysinfo.release, sizeof(info->os_build) - 1);
+    info->os_build[sizeof(info->os_build) - 1] = '\0';
+    strncpy(info->os_release, sysinfo.release, sizeof(info->os_release) - 1);
+    info->os_release[sizeof(info->os_release) - 1] = '\0';
+    snprintf(info->os_codename, sizeof(info->os_codename), "Darwin");
+    snprintf(info->os_description, sizeof(info->os_description), "Apple macOS");
+    snprintf(info->os_vendor, sizeof(info->os_vendor), "Apple");
+    snprintf(info->os_family, sizeof(info->os_family), "Unix");
+    snprintf(info->os_type, sizeof(info->os_type), "Desktop");
+    snprintf(info->os_platform, sizeof(info->os_platform), "darwin");
+    strncpy(info->os_machine, sysinfo.machine, sizeof(info->os_machine) - 1);
+    info->os_machine[sizeof(info->os_machine) - 1] = '\0';
     strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
+    info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
 #else
     struct utsname sysinfo;
     if (uname(&sysinfo) != 0) return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
+    info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
+    info->os_version[sizeof(info->os_version) - 1] = '\0';
+    strncpy(info->os_arch, sysinfo.machine, sizeof(info->os_arch) - 1);
+    info->os_arch[sizeof(info->os_arch) - 1] = '\0';
+    strncpy(info->os_build, sysinfo.release, sizeof(info->os_build) - 1);
+    info->os_build[sizeof(info->os_build) - 1] = '\0';
+    strncpy(info->os_release, sysinfo.release, sizeof(info->os_release) - 1);
+    info->os_release[sizeof(info->os_release) - 1] = '\0';
+    snprintf(info->os_codename, sizeof(info->os_codename), "Linux");
+    snprintf(info->os_description, sizeof(info->os_description), "GNU/Linux");
+    // Try to detect Linux vendor from /etc/os-release or /etc/lsb-release
+    FILE *fp = fopen("/etc/os-release", "r");
+    char vendor[128] = "Unknown";
+    if (fp) {
+        char line[256];
+        while (fgets(line, sizeof(line), fp)) {
+            if (strncmp(line, "ID=", 3) == 0) {
+                char *val = line + 3;
+                // Remove newline and quotes
+                char *nline = strchr(val, '\n');
+                if (nline) *nline = '\0';
+                if (*val == '"' || *val == '\'') val++;
+                size_t len = strlen(val);
+                if (len > 0 && (val[len - 1] == '"' || val[len - 1] == '\'')) val[len - 1] = '\0';
+                strncpy(vendor, val, sizeof(vendor) - 1);
+                vendor[sizeof(vendor) - 1] = '\0';
+                break;
+            }
+        }
+        fclose(fp);
+    } else {
+        // Fallback: try /etc/lsb-release
+        fp = fopen("/etc/lsb-release", "r");
+        if (fp) {
+            char line[256];
+            while (fgets(line, sizeof(line), fp)) {
+                if (strncmp(line, "DISTRIB_ID=", 11) == 0) {
+                    char *val = line + 11;
+                    char *nline = strchr(val, '\n');
+                    if (nline) *nline = '\0';
+                    strncpy(vendor, val, sizeof(vendor) - 1);
+                    vendor[sizeof(vendor) - 1] = '\0';
+                    break;
+                }
+            }
+            fclose(fp);
+        }
+    }
+    snprintf(info->os_vendor, sizeof(info->os_vendor), "%s", vendor);
+    snprintf(info->os_family, sizeof(info->os_family), "Unix");
+    snprintf(info->os_type, sizeof(info->os_type), "Desktop/Server");
+    snprintf(info->os_platform, sizeof(info->os_platform), "linux");
+    strncpy(info->os_machine, sysinfo.machine, sizeof(info->os_machine) - 1);
+    info->os_machine[sizeof(info->os_machine) - 1] = '\0';
     strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
+    info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
 #endif
     return 0;
 }
