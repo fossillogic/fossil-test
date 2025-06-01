@@ -632,7 +632,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     snprintf(info->os_family, sizeof(info->os_family), "Windows NT");
     snprintf(info->os_type, sizeof(info->os_type), "Desktop");
     snprintf(info->os_platform, sizeof(info->os_platform), "win32");
-    snprintf(info->os_machine, sizeof(info->os_machine), "%u", sysinfo.dwProcessorType);
+    snprintf(info->os_machine, sizeof(info->os_machine), "%lu", sysinfo.dwProcessorType);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
 #elif defined(__APPLE__)
     struct utsname sysinfo;
