@@ -385,6 +385,16 @@ typedef struct {
 typedef struct {
     char os_name[128];
     char os_version[128];
+    char os_arch[64];
+    char os_build[64];
+    char os_release[64];
+    char os_codename[64];
+    char os_description[256];
+    char os_vendor[128];
+    char os_family[64];
+    char os_type[64];
+    char os_platform[64];
+    char os_machine[64];
     char kernel_version[128];
 } pizza_sys_hostinfo_system_t;
 
