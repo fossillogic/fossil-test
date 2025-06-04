@@ -106,20 +106,6 @@ extern "C" {
 #define notnull(ptr) ((ptr) != null)
 
 /**
- * @brief Option-like behavior to return a pointer or a default value.
- *
- * Mimics Rust's `Option::unwrap_or()` safely.
- */
-#define unwrap_or(ptr, default_val) ((ptr) ? (ptr) : (default_val))
-
-/**
- * @brief Unwraps a pointer safely or terminates if it's null.
- *
- * Mimics Rust's `Option::unwrap()`.
- */
-#define unwrap(ptr) ((notnull(ptr)) ? (ptr) : (fprintf(stderr, "Fatal error: called unwrap() on a null pointer at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), null))
-
-/**
  * @brief Safely casts one pointer type to another with null-checking.
  *
  * Mimics Rust's `as` with additional null safety. If the input is `null`,
@@ -191,86 +177,6 @@ extern "C" {
  * @brief Empty string constants for C and wide strings.
  */
 #define cempty ""
-
-/**
- * @brief Ensure safe cleanup by nullifying pointers after use.
- *
- * Mimics Rust's memory safety using explicit pointer management.
- */
-#define drop(ptr) do { nullify(ptr); } while (0)
-
-/**
- * @brief Panic behavior for immediate program termination with error message.
- * 
- * This macro causes the program to immediately terminate with an error message,
- * similar to Rust's `panic!()` functionality.
- *
- * @param msg The message to display when panicking.
- */
-#define panic(msg) (pizza_io_fprintf(PIZZA_STDERR, "Panic: %s\n", msg), exit(EXIT_FAILURE))
-
-/**
- * @brief Mimics Rust's Option type.
- * 
- * The `coptional` macro represents a nullable pointer that can be either `null` or a valid pointer.
- * It can be used to model optional values that may or may not be present.
- */
-#define coptional(ptr) ((ptr) ? (ptr) : null)
-
-/**
- * @brief `Option` structure to mimic Rust's `Option<T>`.
- * 
- * This structure allows representation of an optional value where it can either contain a value
- * (`Some`) or be `None` (`null`).
- */
-typedef struct {
-    void* value;  // The value held by the Option (could be a pointer to any type)
-    int is_some;  // Flag indicating whether the Option is `Some` (1) or `None` (0)
-} Option;
-
-/**
- * @brief Creates an `Option` with a value (Some).
- *
- * @param val The value to wrap in the Option.
- * @return The created `Option` containing the value.
- */
-#ifdef __cplusplus
-    #define some(val) (Option{val, 1})
-#else
-    #define some(val) ((Option){(void*)(val), 1})
-#endif
-
-/**
- * @brief Creates an empty `Option` (None).
- *
- * @return An `Option` representing `None`.
- */
-#ifdef __cplusplus
-    #define none() (Option{null, 0})
-#else
-    #define none() ((Option){null, 0})
-#endif
-
-/**
- * @brief Unwraps the `Option`. If it's `Some`, return the value; if it's `None`, panic.
- *
- * Mimics Rust's `Option::unwrap()`.
- *
- * @param opt The `Option` to unwrap.
- * @return The value inside the `Option`.
- */
-#define unwrap_option(opt) ((opt).is_some ? (opt).value : (fprintf(stderr, "Panic: Unwrapped a None value at %s:%d\n", __FILE__, __LINE__), exit(EXIT_FAILURE), null))
-
-/**
- * @brief Returns the value inside the `Option` or a default value if it's `None`.
- *
- * Mimics Rust's `Option::unwrap_or()`.
- *
- * @param opt The `Option` to unwrap.
- * @param default_val The default value to return if the `Option` is `None`.
- * @return The value inside the `Option`, or the default value if `None`.
- */
-#define unwrap_or_option(opt, default_val) ((opt).is_some ? (opt).value : (default_val))
 
 // *****************************************************************************
 // Command Pallet
