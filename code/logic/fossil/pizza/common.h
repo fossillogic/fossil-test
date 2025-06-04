@@ -197,25 +197,25 @@ extern "C" {
  *
  * Mimics Rust's memory safety using explicit pointer management.
  */
-#define drop(ptr) do { nullify(ptr); } while (0)
+#define pizza_drop(ptr) do { nullify(ptr); } while (0)
 
 /**
  * @brief Panic behavior for immediate program termination with error message.
  * 
  * This macro causes the program to immediately terminate with an error message,
- * similar to Rust's `panic!()` functionality.
+ * similar to Rust's `pizza_panic!()` functionality.
  *
- * @param msg The message to display when panicking.
+ * @param msg The message to display when pizza_panicking.
  */
-#define panic(msg) (pizza_io_fprintf(PIZZA_STDERR, "Panic: %s\n", msg), exit(EXIT_FAILURE))
+#define pizza_panic(msg) (pizza_io_fprintf(PIZZA_STDERR, "Panic: %s\n", msg), exit(EXIT_FAILURE))
 
 /**
  * @brief Mimics Rust's Option type.
  * 
- * The `coptional` macro represents a nullable pointer that can be either `null` or a valid pointer.
+ * The `pizza_optional` macro represents a nullable pointer that can be either `null` or a valid pointer.
  * It can be used to model optional values that may or may not be present.
  */
-#define coptional(ptr) ((ptr) ? (ptr) : null)
+#define pizza_optional(ptr) ((ptr) ? (ptr) : null)
 
 /**
  * @brief `Option` structure to mimic Rust's `Option<T>`.
@@ -235,9 +235,9 @@ typedef struct {
  * @return The created `Option` containing the value.
  */
 #ifdef __cplusplus
-    #define some(val) (Option{val, 1})
+    #define pizza_some(val) (Option{val, 1})
 #else
-    #define some(val) ((Option){(void*)(val), 1})
+    #define pizza_some(val) ((Option){(void*)(val), 1})
 #endif
 
 /**
@@ -246,13 +246,13 @@ typedef struct {
  * @return An `Option` representing `None`.
  */
 #ifdef __cplusplus
-    #define none() (Option{null, 0})
+    #define pizza_none() (Option{null, 0})
 #else
-    #define none() ((Option){null, 0})
+    #define pizza_none() ((Option){null, 0})
 #endif
 
 /**
- * @brief Unwraps the `Option`. If it's `Some`, return the value; if it's `None`, panic.
+ * @brief Unwraps the `Option`. If it's `Some`, return the value; if it's `None`, pizza_panic.
  *
  * Mimics Rust's `Option::unwrap()`.
  *
