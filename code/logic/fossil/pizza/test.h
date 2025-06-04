@@ -550,9 +550,9 @@ void _on_skip(const char *description);
     #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
         pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
 #else
-    // C11 and earlier: use GCC/Clang extension for ##__VA_ARGS__
-    #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-        pizza_test_assert_messagef((message), ##__VA_ARGS__)
+    // Portable workaround: always require at least one argument after 'message'
+    #define _FOSSIL_TEST_ASSUME_MESSAGE(...) \
+        pizza_test_assert_messagef(__VA_ARGS__)
 #endif
 
 /**
