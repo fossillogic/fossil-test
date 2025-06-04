@@ -545,20 +545,14 @@ void _on_skip(const char *description);
     * runner. If the condition is false, the test runner will output the specified
     * message and may abort the execution of the test case or test suite.
     */ 
-#ifdef _WIN32
-#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message), __VA_ARGS__)
-#elif defined(__APPLE__)
-#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
+    // C23: __VA_OPT__ is available
+    #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+        pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
 #else
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
-#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message) __VA_OPT__(, __VA_ARGS__))
-#else
-#define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message) , __VA_ARGS__)
-#endif
+    // C11 and earlier: use GCC/Clang extension for ##__VA_ARGS__
+    #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
+        pizza_test_assert_messagef((message), ##__VA_ARGS__)
 #endif
 
 /**
