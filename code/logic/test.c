@@ -118,7 +118,7 @@ char *fossil_pizza_format_ns(uint64_t ns) {
     uint64_t nsec = ns % 1000ULL;
     char *buffer = (char *)pizza_sys_memory_alloc(64);
     if (buffer) {
-        snprintf(buffer, 64, "%lu sec %lu ms %lu ns", sec, usec, nsec);
+        snprintf(buffer, 64, "%llu s %llu us %llu ns", (uint64_t)sec, (uint64_t)usec, (uint64_t)nsec);
         buffer[63] = '\0';
     }
 
