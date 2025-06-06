@@ -396,9 +396,62 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
     }
 }
 
+// --- Show Test Cases ---
+
+void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
+    if (!suite || !suite->cases) return;
+
+    // Determine mode (list, tree, graph), default to list
+    const char* mode = (engine && engine->pallet.show.mode) ? engine->pallet.show.mode : "list";
+    int show_all = (engine && engine->pallet.show.all);
+
+    pizza_io_printf("Test Cases in Suite '%s':\n", suite->suite_name);
+
+    for (size_t i = 0; i < suite->count; ++i) {
+        const fossil_pizza_case_t* test_case = &suite->cases[i];
+
+        // Filtering logic
+        if (!show_all) {
+            if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
+                continue;
+            if (engine && engine->pallet.show.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
+                continue;
+            if (engine && engine->pallet.show.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag)))
+                continue;
+            if (engine && engine->pallet.show.result) {
+                // Compare result as string
+                const char* result_str =
+                    (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "PASS" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "FAIL" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? "TIMEOUT" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) ? "SKIPPED" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "UNEXPECTED" : "UNKNOWN";
+                if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
+                    continue;
+            }
+        }
+
+        // Output according to mode
+        if (pizza_io_cstr_compare(mode, "tree") == 0) {
+            pizza_io_printf("  {blue}├─{reset} {cyan}%s{reset}\n", test_case->name);
+            pizza_io_printf("  {blue}│   ├─{reset} {yellow}Name   {reset}: {white}%s{reset}\n", test_case->name);
+            pizza_io_printf("  {blue}│   ├─{reset} {yellow}Tags   {reset}: {white}%s{reset}\n", test_case->tags);
+            pizza_io_printf("  {blue}│   └─{reset} {yellow}Result {reset}: {green}%d{reset}\n", test_case->result);
+        } else if (pizza_io_cstr_compare(mode, "graph") == 0) {
+            pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}%s,{yellow}name:{reset}%s,{yellow}result:{reset}%d]\n",
+            test_case->name, test_case->tags, test_case->name, test_case->result);
+        } else { // list (default)
+            pizza_io_printf(" {blue}-{reset} {cyan}%s{reset} ({yellow}Tags:{reset} %s, {yellow}Name:{reset} %s, {yellow}Result:{reset} {green}%d{reset})\n",
+            test_case->name, test_case->tags, test_case->name, test_case->result);
+        }
+    }
+}
+
 // --- Run One Suite ---
 int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
+
     if (suite->setup) suite->setup();
 
     suite->time_elapsed_ns = fossil_pizza_now_ns();
@@ -412,7 +465,10 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
     fossil_pizza_case_t* filtered_cases[suite->count];
     size_t filtered_count = fossil_pizza_filter_cases(suite, engine, filtered_cases);
 
-    if (filtered_count > 0) {
+    // If show mode is enabled, just show the cases instead of running them
+    if (engine && engine->pallet.show.enabled) {
+        fossil_pizza_show_cases(suite, engine);
+    } else if (filtered_count > 0) {
         fossil_pizza_sort_cases(suite, engine);
         fossil_pizza_shuffle_cases(suite, engine);
 
@@ -710,6 +766,9 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
+    if (engine->pallet.show.enabled) {
+        return;
+    }
     fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);

@@ -61,8 +61,6 @@ static const char* VALID_CRITERIA[] = {
     null // Sentinel to mark the end
 };
 
-// TODO add --options flag to show all options for commands that take options such as color or theme
-
 static void _show_help(void) {
     pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
     pizza_io_printf("{blue}Options:{reset}\n");
@@ -75,6 +73,7 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
     pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
+    pizza_io_printf("{cyan}  show               Show test cases with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
     pizza_io_printf("{cyan}  config=<file>      Specify a configuration file (must be pizza_test.ini){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
@@ -163,12 +162,22 @@ static void _show_subhelp_verbose(void) {
     exit(EXIT_SUCCESS);
 }
 
+static void _show_subhelp_show(void) {
+    pizza_io_printf("{blue}Show command options:{reset}\n");
+    pizza_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
+    pizza_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
+    pizza_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
+    pizza_io_printf("{cyan}  --result <result>  Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
+    pizza_io_printf("{cyan}  --mode <mode>      Show mode (list, tree, graph){reset}\n");
+    pizza_io_printf("{cyan}  --all              Show all test cases (default: only filtered ones){reset}\n");
+    pizza_io_printf("{cyan}  --help             Show help for show command{reset}\n");
+    exit(EXIT_SUCCESS);
+}
+
 static void _show_version(void) {
     pizza_io_printf("{blue}Pizza Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
     exit(EXIT_SUCCESS);
 }
-
-// TODO add architecture and CPU information
 
 static void _show_host(void) {
     pizza_sys_hostinfo_system_t system_info;
@@ -213,6 +222,8 @@ static void _show_host(void) {
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
     int is_command = 0; // Variable to track if a command is being processed
+
+    pallet.show.enabled = 0; // Initialize show command enabled flag
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
@@ -438,6 +449,43 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_help();
                 exit(EXIT_SUCCESS);
+            }
+        } else if (pizza_io_cstr_compare(argv[i], "show") == 0) {
+            is_command = 1;
+            pallet.show.test_name = null;
+            pallet.show.suite_name = null;
+            pallet.show.tag = null;
+            pallet.show.result = null;
+            pallet.show.mode = "list";
+            pallet.show.all = 0;
+            pallet.show.enabled = 1; // Default to enabled
+
+            for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
+                if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                    pallet.show.test_name = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                    pallet.show.suite_name = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                    pallet.show.tag = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc) {
+                    pallet.show.result = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc) {
+                    pallet.show.mode = argv[++j];
+                    // Validate mode (should be one of: list, tree, graph)
+                    if (pizza_io_cstr_compare(pallet.show.mode, "list") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.mode, "graph") != 0) {
+                        pizza_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
+                        exit(EXIT_FAILURE);
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--all") == 0) {
+                    pallet.show.all = 1;
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                    _show_subhelp_show();
+                } else {
+                    is_command = 0;
+                }
             }
         }
     }
