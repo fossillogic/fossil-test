@@ -81,7 +81,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `theme=<name>`                   | Set the theme (`fossil`, `catch`, `doctest`, etc.).                                         | Customizes the appearance of test output.                                                     |
 | `timeout=<seconds>`              | Set the timeout for commands (default: 60 seconds).                                          | Ensures commands do not exceed the specified duration, helping to identify long-running tests.|
 
-> **Note:** In addition to the `--help` option, Pizza Test CLI supports `help` and subcommand-specific help commands. You can use `help <command>` (e.g., `help run`) or `<command> help` (e.g., `run help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
+> **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
 ## Configure Build Options
 
