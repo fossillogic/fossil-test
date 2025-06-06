@@ -57,7 +57,7 @@ jobs:
         run: meson setup builddir_msvc_${{ matrix.msvc_version }} --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='show --mode tree --verbose ci'
+        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='show --mode tree --verbose ci --result fail'
 
   build_macosx:
     name: Building on macOS with Xcode ${{ matrix.xcode_version }}
@@ -87,7 +87,7 @@ jobs:
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
   
       - name: Run Tests
-        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci'
+        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
 
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
@@ -124,7 +124,7 @@ jobs:
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Run Tests
-        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci'
+        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
 
   build_mingw:
     name: Building on MinGW ${{ matrix.architecture }}
@@ -165,7 +165,7 @@ jobs:
         run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
 
       - name: Run Tests
-        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci'
+        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
@@ -207,7 +207,7 @@ jobs:
             /bin/bash -c "
               sudo apt update
               meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
-              meson test -C builddir -v --test-args='show --mode tree --verbose ci'"
+              meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'"
 
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
@@ -305,5 +305,5 @@ jobs:
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v --test-args='show --mode tree --verbose ci'
+          meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
 
