@@ -81,49 +81,6 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge).                                                        | Adjusts the level of detail in test output.                                                   |
 | `timeout=<seconds>`              | Set a timeout for test execution.                                                             | Ensures tests do not exceed the specified duration, helping to identify long-running tests.   |
 
-### Show Command Options
-| Option                   | Description                                                                                   | Notes                                                                                         |
-|--------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--test-name <name>`     | Filter by test name.                                                                          | Enables precise targeting of individual tests to show.                                         |
-| `--suite-name <name>`    | Filter by suite name.                                                                         | Useful for displaying all tests within a specific suite.                                       |
-| `--tag <tag>`            | Filter by tag.                                                                                | Allows grouping and showing tests based on custom tags.                                        |
-| `--result <result>`      | Filter by result (`empty`, `pass`, `fail`, `timeout`, `skipped`, `unexpected`).                        | Show tests based on their execution result.                                                    |
-| `--verbose <level>`      | Set verbosity level (`plain`, `ci`, `doge`).                                                  | Adjusts the level of detail in the output.                                                     |
-| `--mode <mode>`          | Show mode (`list`, `tree`, `graph`).                                                          | Controls the format in which test cases are displayed.                                         |
-
-| Option               | Description                                                                                   | Notes                                                                                         |
-|----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--fail-fast`        | Stop on the first failure.                                                                    | Useful for quickly identifying and addressing critical issues.                               |
-| `--only <test>`      | Run only the specified test.                                                                  | Focuses execution on a single test for debugging or validation purposes.                      |
-| `--skip <test>`      | Skip the specified test.                                                                      | Allows excluding specific tests from execution.                                               |
-| `--repeat <count>`   | Repeat the test a specified number of times.                                                  | Useful for stress testing or verifying consistency across multiple runs.                      |
-| `--help`             | Show help for the run command.                                                                | Provides detailed usage instructions for the `run` command.                                   |
-### Filter Command Options
-| Option               | Description                                                                                   | Notes                                                                                         |
-|----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--options`          | Show all available filter options.                                                            | Provides a comprehensive list of filter-related flags and their usage.                        |
-| `--test-name <name>` | Filter by test name.                                                                          | Enables precise targeting of individual tests.                                                |
-| `--suite-name <name>`| Filter by suite name.                                                                         | Useful for running all tests within a specific suite.                                         |
-| `--tag <tag>`        | Filter by tag.                                                                                | Allows grouping and execution of tests based on custom tags.                                  |
-| `--help`             | Show help for the filter command.                                                             | Provides detailed usage instructions for the `filter` command.                                |
-
-### Sort Command Options
-| Option               | Description                                                                                   | Notes                                                                                         |
-|----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--options`          | Show all available sort options.                                                              | Provides a comprehensive list of sort-related flags and their usage.                          |
-| `--by <criteria>`    | Sort by specified criteria.                                                                   | Common criteria include execution time, name, or priority.                                    |
-| `--order <asc/desc>` | Sort in ascending or descending order.                                                        | Helps organize test execution based on preferred order.                                       |
-| `--help`             | Show help for the sort command.                                                               | Provides detailed usage instructions for the `sort` command.                                  |
-
-### Shuffle Command Options
-| Option               | Description                                                                                   |
-|----------------------|-----------------------------------------------------------------------------------------------|
-| `--options`          | Show all available shuffle options.                                                           |
-| `--seed <seed>`      | Specify the seed for shuffling.                                                               |
-| `--count <count>`    | Number of items to shuffle.                                                                   |
-| `--by <criteria>`    | Shuffle by specified criteria.                                                                |
-| `--help`             | Show help for the shuffle command.                                                            |
-
 ## Configure Build Options
 
 To configure the build system with testing enabled, use the following command:
