@@ -81,7 +81,16 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `verbose=<level>`                | Set verbosity level (plain, ci, doge).                                                        | Adjusts the level of detail in test output.                                                   |
 | `timeout=<seconds>`              | Set a timeout for test execution.                                                             | Ensures tests do not exceed the specified duration, helping to identify long-running tests.   |
 
-### Run Command Options
+### Show Command Options
+| Option                   | Description                                                                                   | Notes                                                                                         |
+|--------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `--test-name <name>`     | Filter by test name.                                                                          | Enables precise targeting of individual tests to show.                                         |
+| `--suite-name <name>`    | Filter by suite name.                                                                         | Useful for displaying all tests within a specific suite.                                       |
+| `--tag <tag>`            | Filter by tag.                                                                                | Allows grouping and showing tests based on custom tags.                                        |
+| `--result <result>`      | Filter by result (`empty`, `pass`, `fail`, `timeout`, `skipped`, `unexpected`).                        | Show tests based on their execution result.                                                    |
+| `--verbose <level>`      | Set verbosity level (`plain`, `ci`, `doge`).                                                  | Adjusts the level of detail in the output.                                                     |
+| `--mode <mode>`          | Show mode (`list`, `tree`, `graph`).                                                          | Controls the format in which test cases are displayed.                                         |
+
 | Option               | Description                                                                                   | Notes                                                                                         |
 |----------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | `--fail-fast`        | Stop on the first failure.                                                                    | Useful for quickly identifying and addressing critical issues.                               |
