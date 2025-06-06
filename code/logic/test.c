@@ -130,30 +130,28 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
 
     // Determine mode (list, tree, graph), default to list
     const char* mode = (engine && engine->pallet.show.mode) ? engine->pallet.show.mode : "list";
-    int show_all = (engine && engine->pallet.show.all);
 
     for (size_t i = 0; i < suite->count; ++i) {
+
         const fossil_pizza_case_t* test_case = &suite->cases[i];
         const char* result_str =
-                    (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "EMPTY" :
-                    (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "PASS" :
-                    (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "FAIL" :
-                    (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? "TIMEOUT" :
-                    (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) ? "SKIPPED" :
-                    (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "UNEXPECTED" : "UNKNOWN";
+                    (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "empty" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "pass" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "fail" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? "timeout" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) ? "skipped" :
+                    (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "unexpected" : "unknown";
 
         // Filtering logic
-        if (!show_all) {
-            if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
+        if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
+            continue;
+        if (engine && engine->pallet.show.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
+            continue;
+        if (engine && engine->pallet.show.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag)))
+            continue;
+        if (engine && engine->pallet.show.result) {
+            if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
                 continue;
-            if (engine && engine->pallet.show.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
-                continue;
-            if (engine && engine->pallet.show.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag)))
-                continue;
-            if (engine && engine->pallet.show.result) {
-                if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
-                    continue;
-            }
         }
 
         // Output according to mode and theme

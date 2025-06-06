@@ -159,9 +159,7 @@ static void _show_subhelp_show(void) {
     pizza_io_printf("{cyan}  --tag <tag>          Filter by tag{reset}\n");
     pizza_io_printf("{cyan}  --result <result>    Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
     pizza_io_printf("{cyan}  --verbose <level>    Set verbosity level (plain, ci, doge){reset}\n");
-    pizza_io_printf("{cyan}  --until <count>      Show only the first <count> test cases{reset}\n");
     pizza_io_printf("{cyan}  --mode <mode>        Show mode (list, tree, graph){reset}\n");
-    pizza_io_printf("{cyan}  --all                Show all test cases (default: only filtered ones){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -430,11 +428,9 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             pallet.show.test_name = null;
             pallet.show.suite_name = null;
             pallet.show.tag = null;
-            pallet.show.result = null;
+            pallet.show.result = "fail";
             pallet.show.mode = "list";
-            pallet.show.verbose = null;
-            pallet.show.until = 0;
-            pallet.show.all = 0;
+            pallet.show.verbose = "plain";
             pallet.show.enabled = 1; // Default to enabled
 
             for (int j = i + 1; j < argc; j++) {
@@ -465,10 +461,6 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                         pizza_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--until") == 0 && j + 1 < argc) {
-                    pallet.show.until = atoi(argv[++j]);
-                } else if (pizza_io_cstr_compare(argv[j], "--all") == 0) {
-                    pallet.show.all = 1;
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_show();
                 } else {

@@ -232,8 +232,6 @@ typedef struct {
         const char* result;      // Result to filter which test cases to show
         const char* mode;        // Mode to filter which test cases to show (e.g., tree, list, graph)
         const char* verbose;     // Verbosity level (plain, ci, doge)
-        int until;               // Number of test cases to show
-        int all;                 // Flag to show all test cases (1 = show all, 0 = filter)
         int enabled;             // Flag to enable showing test cases
     } show;                  // Show command flags
 
