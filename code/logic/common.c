@@ -35,7 +35,6 @@ const char* G_PIZZA_ONLY = null;
 int G_PIZZA_REPEAT = 0;
 int G_PIZZA_THREADS = 1;
 fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
-fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
 
 // *****************************************************************************
 // command pallet
@@ -61,8 +60,6 @@ static const char* VALID_CRITERIA[] = {
     null // Sentinel to mark the end
 };
 
-// TODO add --options flag to show all options for commands that take options such as color or theme
-
 static void _show_help(void) {
     pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
     pizza_io_printf("{blue}Options:{reset}\n");
@@ -75,10 +72,10 @@ static void _show_help(void) {
     pizza_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
     pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
     pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
+    pizza_io_printf("{cyan}  show               Show test cases with optional parameters{reset}\n");
     pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
     pizza_io_printf("{cyan}  config=<file>      Specify a configuration file (must be pizza_test.ini){reset}\n");
     pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
-    pizza_io_printf("{cyan}  verbose=<level>    Set verbosity level (plain, ci, doge){reset}\n");
     pizza_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
@@ -155,11 +152,14 @@ static void _show_subhelp_theme(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_verbose(void) {
-    pizza_io_printf("{blue}Verbose command options:{reset}\n");
-    pizza_io_printf("{cyan}  plain             Plain output{reset}\n");
-    pizza_io_printf("{cyan}  ci                Continuous Integration output{reset}\n");
-    pizza_io_printf("{cyan}  doge              High-transparency verbose output{reset}\n");
+static void _show_subhelp_show(void) {
+    pizza_io_printf("{blue}Show command options:{reset}\n");
+    pizza_io_printf("{cyan}  --test-name <name>   Filter by test name{reset}\n");
+    pizza_io_printf("{cyan}  --suite-name <name>  Filter by suite name{reset}\n");
+    pizza_io_printf("{cyan}  --tag <tag>          Filter by tag{reset}\n");
+    pizza_io_printf("{cyan}  --result <result>    Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
+    pizza_io_printf("{cyan}  --verbose <level>    Set verbosity level (plain, ci, doge){reset}\n");
+    pizza_io_printf("{cyan}  --mode <mode>        Show mode (list, tree, graph){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -167,8 +167,6 @@ static void _show_version(void) {
     pizza_io_printf("{blue}Pizza Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
     exit(EXIT_SUCCESS);
 }
-
-// TODO add architecture and CPU information
 
 static void _show_host(void) {
     pizza_sys_hostinfo_system_t system_info;
@@ -213,6 +211,8 @@ static void _show_host(void) {
 fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
     fossil_pizza_pallet_t pallet = {0};
     int is_command = 0; // Variable to track if a command is being processed
+
+    pallet.show.enabled = 0; // Initialize show command enabled flag
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
@@ -416,28 +416,56 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_theme();
             }
-        } else if (strncmp(argv[i], "verbose=", 8) == 0) {
-            const char* verbose_str = argv[i] + 8;
-            if (pizza_io_cstr_compare(verbose_str, "plain") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_PLAIN;
-                G_PIZZA_VERBOSE = PIZZA_VERBOSE_PLAIN;
-            } else if (pizza_io_cstr_compare(verbose_str, "ci") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_CI;
-                G_PIZZA_VERBOSE = PIZZA_VERBOSE_CI;
-            } else if (pizza_io_cstr_compare(verbose_str, "doge") == 0) {
-                pallet.verbose = PIZZA_VERBOSE_DOGE;
-                G_PIZZA_VERBOSE = PIZZA_VERBOSE_DOGE;
-            }
-        } else if (pizza_io_cstr_compare(argv[i], "verbose") == 0) {
-            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
-                _show_subhelp_verbose();
-            }
         } else if (strncmp(argv[i], "timeout=", 8) == 0) {
             G_PIZZA_TIMEOUT = atoi(argv[i] + 8);
         } else if (pizza_io_cstr_compare(argv[i], "timeout") == 0) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_help();
                 exit(EXIT_SUCCESS);
+            }
+        } else if (pizza_io_cstr_compare(argv[i], "show") == 0) {
+            is_command = 1;
+            pallet.show.test_name = null;
+            pallet.show.suite_name = null;
+            pallet.show.tag = null;
+            pallet.show.result = "fail";
+            pallet.show.mode = "list";
+            pallet.show.verbose = "plain";
+            pallet.show.enabled = 1; // Default to enabled
+
+            for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
+                if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                    pallet.show.test_name = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                    pallet.show.suite_name = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                    pallet.show.tag = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc) {
+                    pallet.show.result = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc) {
+                    pallet.show.mode = argv[++j];
+                    // Validate mode (should be one of: list, tree, graph)
+                    if (pizza_io_cstr_compare(pallet.show.mode, "list") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.mode, "graph") != 0) {
+                        pizza_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
+                        exit(EXIT_FAILURE);
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc) {
+                    pallet.show.verbose = argv[++j];
+                    // Validate verbose (should be one of: plain, ci, doge)
+                    if (pizza_io_cstr_compare(pallet.show.verbose, "plain") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.verbose, "ci") != 0 &&
+                        pizza_io_cstr_compare(pallet.show.verbose, "doge") != 0) {
+                        pizza_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
+                        exit(EXIT_FAILURE);
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                    _show_subhelp_show();
+                } else {
+                    is_command = 0;
+                }
             }
         }
     }
@@ -534,14 +562,6 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
                         pallet->theme = PIZZA_THEME_GOOGLETEST;
                     } else if (pizza_io_cstr_compare(value, "unity") == 0) {
                         pallet->theme = PIZZA_THEME_UNITY;
-                    }
-                } else if (pizza_io_cstr_compare(key, "verbose") == 0) {
-                    if (pizza_io_cstr_compare(value, "plain") == 0) {
-                        pallet->verbose = PIZZA_VERBOSE_PLAIN;
-                    } else if (pizza_io_cstr_compare(value, "ci") == 0) {
-                        pallet->verbose = PIZZA_VERBOSE_CI;
-                    } else if (pizza_io_cstr_compare(value, "doge") == 0) {
-                        pallet->verbose = PIZZA_VERBOSE_DOGE;
                     }
                 }
             } else if (pizza_io_cstr_compare(section, "test") == 0) {

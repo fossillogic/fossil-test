@@ -224,8 +224,18 @@ typedef struct {
         int count;             // Value for --count
         const char* by;        // Value for --by
     } shuffle;                 // Shuffle command flags
+
+    struct {
+        const char* test_name;   // Name of the test case to show
+        const char* suite_name;  // Name of the suite to show
+        const char* tag;         // Tag to filter which test cases to show
+        const char* result;      // Result to filter which test cases to show
+        const char* mode;        // Mode to filter which test cases to show (e.g., tree, list, graph)
+        const char* verbose;     // Verbosity level (plain, ci, doge)
+        int enabled;             // Flag to enable showing test cases
+    } show;                  // Show command flags
+
     fossil_pizza_cli_theme_t theme;  // Theme option
-    fossil_pizza_cli_verbose_t verbose;  // Verbose option
 } fossil_pizza_pallet_t;
 
 // *****************************************************************************
@@ -239,7 +249,6 @@ extern int G_PIZZA_SKIP;
 extern const char* G_PIZZA_ONLY;
 extern int G_PIZZA_REPEAT;
 extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
-extern fossil_pizza_cli_verbose_t G_PIZZA_VERBOSE;
 
 /**
  * @brief Parses command line arguments and populates the pallet structure.
