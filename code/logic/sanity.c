@@ -85,3 +85,21 @@ int fossil_sanity_sys_file_exists(const char* filename) {
     return (stat(filename, &buffer) == 0); // On Unix-like systems, use the stat function to check if the file exists.
 #endif
 }
+
+int fossil_sanity_sys_create_dir(const char* dirname) {
+#ifdef _WIN32
+    return CreateDirectoryA(dirname, NULL) ? 0 : -1; // On Windows, use the CreateDirectoryA function to create the directory.
+#else
+    return mkdir(dirname, 0755); // On Unix-like systems, use the mkdir function to create the directory.
+#endif
+}
+
+int fossil_sanity_sys_dir_exists(const char* dirname) {
+#ifdef _WIN32
+    struct _stat buffer;
+    return (_stat(dirname, &buffer) == 0 && (buffer.st_mode & _S_IFDIR)); // On Windows, use the _stat function to check if the directory exists.
+#else
+    struct stat buffer;
+    return (stat(dirname, &buffer) == 0 && S_ISDIR(buffer.st_mode)); // On Unix-like systems, use the stat function to check if the directory exists.
+#endif
+}
