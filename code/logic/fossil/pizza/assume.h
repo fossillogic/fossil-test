@@ -82,7 +82,7 @@ extern "C" {
  * @param actual The bitwise expression to be evaluated.
  */
 #define ASSUME_ITS_BITWISE_TRUE(actual) \
-    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be true", (actual) ? "true" : "false"))
+    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %d to be true", (actual) ? 1 : 0))
 
 /**
  * @brief Assumes that the given bitwise expression is false.
@@ -90,7 +90,7 @@ extern "C" {
  * @param actual The bitwise expression to be evaluated.
  */
 #define ASSUME_ITS_BITWISE_FALSE(actual) \
-    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be false", (actual) ? "true" : "false"))
+    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %d to be false", (actual) ? 1 : 0))
 
 /**
  * @brief Assumes that the given bitwise expression is not true.
@@ -98,7 +98,7 @@ extern "C" {
  * @param actual The bitwise expression to be evaluated.
  */
 #define ASSUME_NOT_BITWISE_TRUE(actual) \
-    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be true", (actual) ? "true" : "false"))
+    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %d to not be true", (actual) ? 1 : 0))
 
 /**
  * @brief Assumes that the given bitwise expression is not false.
@@ -106,7 +106,7 @@ extern "C" {
  * @param actual The bitwise expression to be evaluated.
  */
 #define ASSUME_NOT_BITWISE_FALSE(actual) \
-    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be false", (actual) ? "true" : "false"))
+    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %d to not be false", (actual) ? 1 : 0))
 
 /**
  * @brief Assumes that the given value is less than the expected value (bitwise).
