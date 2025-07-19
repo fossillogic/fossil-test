@@ -948,7 +948,6 @@ FOSSIL_TEST(c_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *

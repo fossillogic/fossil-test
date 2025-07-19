@@ -87,7 +87,34 @@ FOSSIL_TEST(cpp_sanity_sys_file_exists) {
     remove(filename);
 } // end case
 
+FOSSIL_TEST(cpp_sanity_sys_create_dir) {
+    const char *dirname = "test_dir";
+    int result = FOSSIL_SANITY_SYS_CREATE_DIR(dirname);
 
+    // Test cases
+    ASSUME_ITS_EQUAL_I32(result, 0); // Directory creation should succeed
+    ASSUME_ITS_EQUAL_I32(FOSSIL_SANITY_SYS_DIR_EXISTS(dirname), 1); // Directory should exist
+
+    // Cleanup
+    rmdir(dirname);
+} // end case
+
+FOSSIL_TEST(cpp_sanity_sys_dir_exists) {
+    const char *dirname = "test_dir_exists";
+
+    // Ensure directory does not exist initially
+    ASSUME_ITS_EQUAL_I32(FOSSIL_SANITY_SYS_DIR_EXISTS(dirname), 0);
+
+    // Create the directory
+    int result = FOSSIL_SANITY_SYS_CREATE_DIR(dirname);
+    ASSUME_ITS_EQUAL_I32(result, 0);
+
+    // Test cases
+    ASSUME_ITS_EQUAL_I32(FOSSIL_SANITY_SYS_DIR_EXISTS(dirname), 1);
+
+    // Cleanup
+    rmdir(dirname);
+} // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -97,6 +124,8 @@ FOSSIL_TEST_GROUP(cpp_sanity_test_cases) {
     FOSSIL_TEST_ADD(cpp_sanity_suite, cpp_sanity_sys_getpid);
     FOSSIL_TEST_ADD(cpp_sanity_suite, cpp_sanity_sys_create_file);
     FOSSIL_TEST_ADD(cpp_sanity_suite, cpp_sanity_sys_file_exists);
+    FOSSIL_TEST_ADD(cpp_sanity_suite, cpp_sanity_sys_create_dir);
+    FOSSIL_TEST_ADD(cpp_sanity_suite, cpp_sanity_sys_dir_exists);
 
     FOSSIL_TEST_REGISTER(cpp_sanity_suite);
 } // end of group

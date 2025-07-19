@@ -1,5 +1,5 @@
-# Use a specific Debian base image
-FROM debian:buster
+# Use a specific Debian Bookworm base image
+FROM debian:bookworm
 
 # Set environment variables to avoid interaction
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -7,28 +7,30 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # Install system dependencies and clean up
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     build-essential \
     clang \
     gcc \
     g++ \
     gdb \
     llvm \
-    libstdc++-8-dev \
+    libstdc++-12-dev \
     wget \
     python3 \
+    python3-full \
     python3-pip \
-    git && \
+    git \
+    ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Meson and Ninja
-RUN python3 -m pip install --no-cache-dir meson ninja==1.10.2
+# Install Meson and Ninja using pip
+RUN python3 -m pip install --no-cache-dir meson==1.3.0 ninja==1.10.2 --break-system-packages
 
 # Set environment variables
-ENV CC=/usr/bin/clang
-ENV CXX=/usr/bin/clang++
-ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV CC=clang \
+    CXX=clang++ \
+    LD_LIBRARY_PATH=/usr/local/lib
 
 # Set working directory
 WORKDIR /workspace
