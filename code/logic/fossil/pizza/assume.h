@@ -72,6 +72,89 @@ extern "C" {
 
 // **************************************************
 //
+// Bitwise assumptions
+//
+// **************************************************
+
+/**
+ * @brief Assumes that the given bitwise expression is true.
+ *
+ * @param actual The bitwise expression to be evaluated.
+ */
+#define ASSUME_ITS_BITWISE_TRUE(actual) \
+    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be true", (actual) ? "true" : "false"))
+
+/**
+ * @brief Assumes that the given bitwise expression is false.
+ *
+ * @param actual The bitwise expression to be evaluated.
+ */
+#define ASSUME_ITS_BITWISE_FALSE(actual) \
+    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be false", (actual) ? "true" : "false"))
+
+/**
+ * @brief Assumes that the given bitwise expression is not true.
+ *
+ * @param actual The bitwise expression to be evaluated.
+ */
+#define ASSUME_NOT_BITWISE_TRUE(actual) \
+    FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be true", (actual) ? "true" : "false"))
+
+/**
+ * @brief Assumes that the given bitwise expression is not false.
+ *
+ * @param actual The bitwise expression to be evaluated.
+ */
+#define ASSUME_NOT_BITWISE_FALSE(actual) \
+    FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be false", (actual) ? "true" : "false"))
+
+/**
+ * @brief Assumes that the given value is less than the expected value (bitwise).
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_LESS_THAN_BITWISE(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) < (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %u to be less than " #expected " of value %u (bitwise)", (actual), (expected)))
+
+/**
+ * @brief Assumes that the given value is more than the expected value (bitwise).
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_MORE_THAN_BITWISE(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) > (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %u to be more than " #expected " of value %u (bitwise)", (actual), (expected)))
+
+/**
+ * @brief Assumes that the given value is equal to the expected value (bitwise).
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_EQUAL_BITWISE(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %u to be equal to " #expected " of value %u (bitwise)", (actual), (expected)))
+
+/**
+ * @brief Assumes that the given value is more than or equal to the expected value (bitwise).
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_MORE_OR_EQUAL_BITWISE(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) >= (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %u to be more than or equal to " #expected " of value %u (bitwise)", (actual), (expected)))
+
+/**
+ * @brief Assumes that the given value is less than or equal to the expected value (bitwise).
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_LESS_OR_EQUAL_BITWISE(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) <= (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %u to be less than or equal to " #expected " of value %u (bitwise)", (actual), (expected)))
+
+// **************************************************
+//
 // Floating point assumtions
 //
 // **************************************************
