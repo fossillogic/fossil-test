@@ -87,6 +87,36 @@ int fossil_sanity_sys_create_file(const char* filename);
  */
 int fossil_sanity_sys_file_exists(const char* filename);
 
+/**
+ * @brief Creates an empty directory at the specified location.
+ * 
+ * This function attempts to create an empty directory with the given name. If the directory
+ * already exists, the function may return an error or success depending on the system's
+ * behavior. The function returns a status code indicating success or failure.
+ * 
+ * @param dirname A null-terminated string representing the path to the directory to be created.
+ *                The path can be relative or absolute.
+ * @return int Returns 0 on successful creation of the directory. Returns a negative value if
+ *             the directory could not be created due to errors such as insufficient permissions
+ *             or invalid paths.
+ */
+int fossil_sanity_sys_create_dir(const char* dirname);
+
+/**
+ * @brief Checks whether a directory exists at the specified location.
+ * 
+ * This function determines if a directory exists at the given path. It can be used to verify
+ * the presence of a directory before performing operations such as reading or writing. The
+ * function does not differentiate between regular directories and other file types.
+ * 
+ * @param dirname A null-terminated string representing the path to the directory to check.
+ *                The path can be relative or absolute.
+ * @return int Returns 1 if the directory exists, and 0 if it does not exist. Note that this
+ *             function does not check for directory accessibility or permissions.
+ */
+int fossil_sanity_sys_dir_exists(const char* dirname);
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -166,6 +196,35 @@ int fossil_sanity_sys_file_exists(const char* filename);
 #define _FOSSIL_SANITY_SYS_FILE_EXISTS(filename) \
     fossil_sanity_sys_file_exists(filename)
 
+/**
+ * @brief Creates an empty directory at the specified location.
+ * This function attempts to create an empty directory with the given name. If the directory
+ * already exists, the function may return an error or success depending on the system's
+ * behavior.
+ * 
+ * @param dirname A null-terminated string representing the path to the directory to be created.
+ *                The path can be relative or absolute.
+ * @return int Returns 0 on successful creation of the directory. Returns a negative value if
+ *             the directory could not be created due to errors such as insufficient permissions
+ *             or invalid paths.
+ */
+#define _FOSSIL_SANITY_SYS_CREATE_DIR(dirname) \
+    fossil_sanity_sys_create_dir(dirname)
+
+/**
+ * @brief Checks whether a directory exists at the specified location.
+ * This function determines if a directory exists at the given path. It can be used to verify
+ * the presence of a directory before performing operations such as reading or writing. The
+ * function does not differentiate between regular files, directories, or other file types.
+ * 
+ * @param dirname A null-terminated string representing the path to the directory to check.
+ *                The path can be relative or absolute.
+ * @return int Returns 1 if the directory exists, and 0 if it does not exist. Note that this
+ *             function does not check for directory accessibility or permissions.
+ */
+#define _FOSSIL_SANITY_SYS_DIR_EXISTS(dirname) \
+    fossil_sanity_sys_dir_exists(dirname)
+
 // *****************************************************************************
 // Public API Macros
 // *****************************************************************************
@@ -236,5 +295,32 @@ int fossil_sanity_sys_file_exists(const char* filename);
  */
 #define FOSSIL_SANITY_SYS_FILE_EXISTS(filename) \
     _FOSSIL_SANITY_SYS_FILE_EXISTS(filename)
+
+/**
+ * @brief Creates an empty directory at the specified location.
+ * This macro is a wrapper around the _FOSSIL_SANITY_SYS_CREATE_DIR function.
+ * It is used to create an empty directory with the given name.
+ *
+ * @param dirname A null-terminated string representing the path to the directory to be created.
+ *                The path can be relative or absolute.
+ * @return int Returns 0 on successful creation of the directory. Returns a negative value if
+ *             the directory could not be created due to errors such as insufficient permissions
+ *             or invalid paths.
+ */
+#define FOSSIL_SANITY_SYS_CREATE_DIR(dirname) \
+    _FOSSIL_SANITY_SYS_CREATE_DIR(dirname)
+
+/** 
+ * @brief Checks whether a directory exists at the specified location.
+ * This macro is a wrapper around the _FOSSIL_SANITY_SYS_DIR_EXISTS function.
+ * It is used to check if a directory exists at the given path.
+ *
+ * @param dirname A null-terminated string representing the path to the directory to check.
+ *                The path can be relative or absolute.
+ * @return int Returns 1 if the directory exists, and 0 if it does not exist. Note that this
+ *             function does not check for directory accessibility or permissions.
+ */
+#define FOSSIL_SANITY_SYS_DIR_EXISTS(dirname) \
+    _FOSSIL_SANITY_SYS_DIR_EXISTS(dirname)
 
 #endif // FOSSIL_SANITY_H
