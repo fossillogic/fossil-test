@@ -948,6 +948,87 @@ FOSSIL_TEST(c_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
+FOSSIL_TEST(c_assume_run_of_bitwise_true) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b01010101;
+    uint8_t c = a | b; // 0b11111111
+    uint8_t d = a & b; // 0b00000000
+
+    ASSUME_ITS_BITWISE_TRUE(a & 0b10000000);
+    ASSUME_ITS_BITWISE_TRUE(b & 0b00000001);
+    ASSUME_ITS_BITWISE_TRUE(c == 0xFF);
+    ASSUME_ITS_BITWISE_TRUE(~d == 0xFF);
+}
+
+FOSSIL_TEST(c_assume_run_of_bitwise_false) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b01010101;
+    uint8_t d = a & b; // 0b00000000
+
+    ASSUME_ITS_BITWISE_FALSE(d & 0b00000001);
+    ASSUME_ITS_BITWISE_FALSE(a & 0b00000001);
+    ASSUME_ITS_BITWISE_FALSE(b & 0b10000000);
+    ASSUME_ITS_BITWISE_FALSE(a == b);
+}
+
+FOSSIL_TEST(c_assume_run_of_not_bitwise_true) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b01010101;
+
+    ASSUME_NOT_BITWISE_TRUE(a == b);
+    ASSUME_NOT_BITWISE_TRUE(a & 0b00000001);
+    ASSUME_NOT_BITWISE_TRUE(b & 0b10000000);
+}
+
+FOSSIL_TEST(c_assume_run_of_not_bitwise_false) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b01010101;
+    uint8_t c = a | b; // 0b11111111
+
+    ASSUME_NOT_BITWISE_FALSE(c == 0xFF);
+    ASSUME_NOT_BITWISE_FALSE(a & 0b10000000);
+    ASSUME_NOT_BITWISE_FALSE(b & 0b00000001);
+}
+
+FOSSIL_TEST(c_assume_run_of_less_than_bitwise) {
+    uint8_t a = 0b00001111; // 15
+    uint8_t b = 0b11110000; // 240
+
+    ASSUME_ITS_LESS_THAN_BITWISE(a, b);
+    ASSUME_ITS_LESS_THAN_BITWISE(a & b, a | b);
+}
+
+FOSSIL_TEST(c_assume_run_of_more_than_bitwise) {
+    uint8_t a = 0b11110000; // 240
+    uint8_t b = 0b00001111; // 15
+
+    ASSUME_ITS_MORE_THAN_BITWISE(a, b);
+    ASSUME_ITS_MORE_THAN_BITWISE(a | b, a & b);
+}
+
+FOSSIL_TEST(c_assume_run_of_equal_bitwise) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b10101010;
+
+    ASSUME_ITS_EQUAL_BITWISE(a, b);
+    ASSUME_ITS_EQUAL_BITWISE(a ^ b, 0);
+}
+
+FOSSIL_TEST(c_assume_run_of_more_or_equal_bitwise) {
+    uint8_t a = 0b10101010;
+    uint8_t b = 0b01010101;
+
+    ASSUME_ITS_MORE_OR_EQUAL_BITWISE(a, b);
+    ASSUME_ITS_MORE_OR_EQUAL_BITWISE(a, a);
+}
+
+FOSSIL_TEST(c_assume_run_of_less_or_equal_bitwise) {
+    uint8_t a = 0b01010101;
+    uint8_t b = 0b10101010;
+
+    ASSUME_ITS_LESS_OR_EQUAL_BITWISE(a, b);
+    ASSUME_ITS_LESS_OR_EQUAL_BITWISE(b, b);
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
@@ -1040,6 +1121,15 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_true);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_false);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_not_bitwise_true);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_not_bitwise_false);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_less_than_bitwise);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_more_than_bitwise);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_equal_bitwise);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_more_or_equal_bitwise);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_less_or_equal_bitwise);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
 } // end of group
