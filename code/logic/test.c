@@ -503,7 +503,6 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
             } else {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
                 if (engine->pallet.run.fail_fast) {
-                    fossil_pizza_show_cases(suite, engine);
                     return; // Exit immediately if --fail-fast is enabled
                 }
             }
