@@ -957,7 +957,7 @@ FOSSIL_TEST(c_assume_run_of_bitwise_true) {
     ASSUME_ITS_BITWISE_TRUE(a & 0x80);
     ASSUME_ITS_BITWISE_TRUE(b & 0x01);
     ASSUME_ITS_BITWISE_TRUE(c == 0xFF);
-    ASSUME_ITS_BITWISE_TRUE(~d == 0xFF);
+    ASSUME_ITS_BITWISE_TRUE((uint8_t)(~d) == 0xFF);
 }
 
 FOSSIL_TEST(c_assume_run_of_bitwise_false) {
