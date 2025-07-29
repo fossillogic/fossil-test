@@ -486,7 +486,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
         return; // Skip this test case if it matches the --skip filter
     }
 
-    for (int i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
+    for (size_t i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
         if (test_case->setup) test_case->setup();
 
         uint64_t start_time = fossil_pizza_now_ns();
@@ -494,9 +494,14 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
         if (test_case->run) {
             if (setjmp(test_jump_buffer) == 0) {
                 test_case->run();
-                uint64_t elapsed_time = fossil_pizza_now_ns() - start_time;
+                uint64_t end_time = fossil_pizza_now_ns();
+                uint64_t elapsed_time = end_time - start_time;
 
-                if (elapsed_time > seconds_to_nanoseconds(G_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
+                // Use a defined timeout value, e.g., 60 seconds
+                #ifndef FOSSIL_PIZZA_TIMEOUT
+                #define FOSSIL_PIZZA_TIMEOUT 60
+                #endif
+                if (elapsed_time > seconds_to_nanoseconds(FOSSIL_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
                     test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
                 } else {
                     test_case->result = FOSSIL_PIZZA_CASE_PASS;
@@ -510,16 +515,17 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
         } else {
             test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
         }
-        test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
+        test_case->elapsed_ns = (test_case->run) ? (fossil_pizza_now_ns() - start_time) : 0;
 
         if (test_case->teardown) test_case->teardown();
     }
 
+    // Update scores based on result
+    fossil_pizza_update_score(test_case, suite);
+
     // Output test case result
     fossil_pizza_show_cases(suite, engine);
 
-    // Update scores based on result
-    fossil_pizza_update_score(test_case, suite);
     _ASSERT_COUNT = 0; // Reset the assertion count for the next test case
 }
 
