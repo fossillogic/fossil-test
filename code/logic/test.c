@@ -84,41 +84,42 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
 
     // --- TI Metadata Initialization ---
     suite.meta.timestamp = time(NULL);
-
-    if (!suite.meta.origin_device_id)
-        suite.meta.origin_device_id = "unknown";
-
-    if (!suite.meta.author)
-        suite.meta.author = "anonymous";
+    if (!suite.meta.origin_device_id) suite.meta.origin_device_id = "unknown";
+    if (!suite.meta.author)           suite.meta.author = "anonymous";
 
     suite.meta.trust_score = 0.0;
-    suite.meta.confidence = 0.0;
-    suite.meta.immutable = false;
+    suite.meta.confidence  = 0.0;
+    suite.meta.immutable   = false;
 
     // Previous hash from engine
-    suite.meta.prev_hash = engine->meta.hash ? engine->meta.hash : NULL;
+    char* prev_hash = engine->meta.hash ? engine->meta.hash : "";
+    suite.meta.prev_hash = prev_hash;
 
     // Prepare input string
     char input_buf[1000] = {0};
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name) != 0 ||
-        pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author) != 0 ||
-        pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id) != 0) {
-        return FOSSIL_PIZZA_FAILURE; // Overflow
+    if (!pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name) ||
+        !pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author) ||
+        !pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id)) {
+        return FOSSIL_PIZZA_FAILURE;
     }
 
     // Compute hash
     uint8_t hash_raw[32];
-    char* prev_hash = (char*)suite.meta.prev_hash;
-    fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
+    fossil_pizza_hash(input_buf, prev_hash, hash_raw);
 
-    // Convert hash to hex string
+    // Convert to hex
     char* hash_hex = pizza_sys_memory_alloc(65);
     if (!hash_hex) return FOSSIL_PIZZA_FAILURE;
-    for (int i = 0; i < 32; ++i)
-        snprintf(&hash_hex[i * 2], 3, "%02x", hash_raw[i]);
+
+    static const char hex[] = "0123456789abcdef";
+    for (int i = 0; i < 32; ++i) {
+        hash_hex[i * 2]     = hex[(hash_raw[i] >> 4) & 0xF];
+        hash_hex[i * 2 + 1] = hex[hash_raw[i] & 0xF];
+    }
+    hash_hex[64] = '\0';
     suite.meta.hash = hash_hex;
 
-    // Add suite to engine
+    // Add to engine
     engine->suites[engine->count++] = suite;
     return FOSSIL_PIZZA_SUCCESS;
 }
