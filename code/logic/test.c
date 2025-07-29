@@ -936,6 +936,35 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
 }
 
 // --- Summary Report ---
+const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
+    if (!score) return "No results available.";
+
+    static char message[256];
+    int total = score->passed + score->failed + score->skipped +
+                score->timeout + score->unexpected + score->empty;
+
+    if (total == 0) return "No tests were run.";
+
+    double pass_rate = (double)score->passed / total * 100.0;
+    double fail_ratio = (double)(score->failed + score->unexpected) / total;
+
+    if (pass_rate == 100.0) {
+        snprintf(message, sizeof(message), "Perfect run! All tests passed. Great job.");
+    } else if (fail_ratio > 0.5) {
+        snprintf(message, sizeof(message), "High failure rate detected. Investigate the failing and unexpected tests.");
+    } else if (score->timeout > 0) {
+        snprintf(message, sizeof(message), "Some tests timed out. Check for infinite loops or delays.");
+    } else if (score->skipped > 0) {
+        snprintf(message, sizeof(message), "Some tests were skipped. Make sure all dependencies are in place.");
+    } else if (score->empty > 0 && score->passed == 0) {
+        snprintf(message, sizeof(message), "All tests are empty or unimplemented.");
+    } else {
+        snprintf(message, sizeof(message), "Test run completed. Review failures and improve reliability.");
+    }
+
+    return message;
+}
+
 void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
@@ -1208,6 +1237,8 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);
+    const char* msg = fossil_test_summary_feedback(&engine->score);
+    pizza_io_printf("\n{bold}{blue}Feedback:{reset} %s\n", msg);
 }
 
 // --- End / Cleanup ---
