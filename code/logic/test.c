@@ -719,7 +719,7 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     // Format: HH:MM:SS.UUU,NNN
     char time_buffer[64];
     snprintf(time_buffer, sizeof(time_buffer),
-            "%02llu:%02llu:%02llu.%03llu,%03llu",
+            "%02lu:%02lu:%02lu.%03lu,%03lu",
             hours, minutes, seconds, microseconds, nanoseconds);
 
     // Display based on theme
