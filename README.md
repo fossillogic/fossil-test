@@ -1,8 +1,6 @@
 # ***Pizza Test by Fossil Logic***
 
-**Pizza Test** is a comprehensive suite for unit testing, mocking, and benchmarking, developed by **Fossil Logic** to boost the reliability, transparency, and performance of **C** and **C++** software. It is now enhanced with **Truthful Intelligence (TI)** metadata and blockchain-inspired audit trails through **Jellyfish AI**, allowing test cases to be cryptographically hashed, signed, traced, and verified over time.
-
-Supporting methodologies like Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), it caters to a range of workflows with features such as a robust Command-Line Interface (CLI), intelligent mocking tools, integrated benchmarking, and parallel test execution. With additional capabilities like customizable output themes, tag-based filtering, detailed performance insights, and metadata auditing, **Pizza Test**, alongside **Pizza Mock**, **Pizza Mark**, and **Pizza Sanity Kit**, forms a powerful and verifiable toolkit for building high-integrity software.
+Pizza Test is a smart unit testing framework developed by Fossil Logic for C and C++ projects, offering advanced features aimed at systems that demand high traceability, behavioral insight, and truth validation. It is especially well-suited for testing components within the Truthful Intelligence (TI) and Jellyfish AI ecosystems, where deterministic logic, memory integrity, and reasoning transparency are critical.
 
 ---
 
