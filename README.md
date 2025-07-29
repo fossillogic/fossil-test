@@ -1,17 +1,28 @@
 # ***Pizza Test by Fossil Logic***
 
-**Pizza Test** is a comprehensive suite for unit testing, mocking, and benchmarking, designed by Fossil Logic to enhance the reliability, clarity, and performance of **C** and **C++** projects. Supporting methodologies like Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), it caters to diverse workflows with features such as a robust Command-Line Interface (CLI), advanced mocking tools, integrated benchmarking, and parallel test execution. With additional capabilities like customizable output themes, tag-based test filtering, and detailed performance insights, **Pizza Test**, alongside **Pizza Mock**, **Pizza Mark**, and **Pizza Sanity Kit** for testing command-line operations, forms a powerful toolkit for building, testing, and optimizing high-quality, maintainable software.
+**Pizza Test** is a comprehensive suite for unit testing, mocking, and benchmarking, developed by **Fossil Logic** to boost the reliability, transparency, and performance of **C** and **C++** software. It is now enhanced with **Truthful Intelligence (TI)** metadata and blockchain-inspired audit trails through **Jellyfish AI**, allowing test cases to be cryptographically hashed, signed, traced, and verified over time.
 
-| Feature                     | Description                                                                                                                             |
-|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **Command-Line Interface (CLI)** | A robust CLI for executing tests, managing test suites, and generating reports, enabling seamless automation and integration workflows. |
-| **Support for Multiple Testing Styles** | Fully compatible with Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD) methodologies. |
-| **Mocking Capabilities** | Advanced mocking tools to simulate complex dependencies, ensuring isolated and precise unit testing. |
-| **Benchmarking Tools** | Integrated benchmarking features to measure execution time, identify bottlenecks, and optimize code performance. |
-| **Sanity Kit for Command Tests** | A specialized suite for validating command-line tools and scripts, ensuring consistent behavior across environments. |
-| **Customizable Output Themes** | Multiple output themes (e.g., pizza, catch, doctest) to tailor the appearance of test results. |
-| **Tag-Based Test Filtering** | Organize and execute tests based on custom tags for better test management. |
-| **Detailed Performance Insights** | Comprehensive reporting on test execution times and resource usage to aid in performance optimization. |
+Supporting methodologies like Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD), it caters to a range of workflows with features such as a robust Command-Line Interface (CLI), intelligent mocking tools, integrated benchmarking, and parallel test execution. With additional capabilities like customizable output themes, tag-based filtering, detailed performance insights, and metadata auditing, **Pizza Test**, alongside **Pizza Mock**, **Pizza Mark**, and **Pizza Sanity Kit**, forms a powerful and verifiable toolkit for building high-integrity software.
+
+---
+
+## 🔑 Key Features
+
+| Feature                            | Description                                                                                                                             |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| **Command-Line Interface (CLI)**   | A robust CLI for executing tests, managing test suites, and generating reports, enabling seamless automation and CI/CD workflows.      |
+| **Truthful Intelligence Auditing** | Each test case carries timestamped, hashed metadata for traceability and reproducibility via Jellyfish AI's cryptographic core.         |
+| **Support for Multiple Testing Styles** | Compatible with Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD) methodologies.   |
+| **Mocking Capabilities**           | Advanced mocking tools to simulate complex dependencies and edge conditions, enabling isolated and deterministic testing.              |
+| **Benchmarking Tools**             | Integrated benchmarking features to measure runtime performance, identify slow paths, and guide optimization.                         |
+| **Sanity Kit for Command Tests**   | A specialized module for validating command-line tools, ensuring consistent behavior across platforms and shell environments.         |
+| **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., pizza, catch, doctest) to match your preferred style of feedback.                    |
+| **Tag-Based Test Filtering**       | Execute subsets of tests based on custom tags for better test suite organization and faster iteration.                                |
+| **Detailed Performance Insights**  | In-depth statistics on execution time, memory usage, and test stability to help improve code performance and reliability.              |
+
+---
+
+Pizza Test is a first-class citizen of the **Truthful Intelligence** ecosystem, using **Jellyfish AI** as its foundation for test integrity, learning from outcomes over time, and enabling tamper-proof validation across distributed development environments.
 
 ---
 
