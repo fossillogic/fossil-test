@@ -2126,3 +2126,18 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     }
     return result;
 }
+
+bool pizza_io_cstr_append(cstr dest, size_t max_len, ccstr src) {
+    if (!dest || !src || max_len == 0) return false;
+
+    size_t dest_len = strnlen(dest, max_len);
+    size_t src_len = strlen(src);
+
+    // Ensure room for new string and null terminator
+    if (dest_len + src_len >= max_len) return false;
+
+    memcpy(dest + dest_len, src, src_len);
+    dest[dest_len + src_len] = '\0';
+
+    return true;
+}
