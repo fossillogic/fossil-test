@@ -125,6 +125,8 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
 }
 
 // --- Add Case ---
+#define FOSSIL_PIZZA_HASH_HEX_LEN 65
+
 int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
 
@@ -139,13 +141,8 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
 
     // --- TI Metadata Initialization ---
     test_case.meta.timestamp = time(NULL);
-
-    if (!test_case.meta.origin_device_id)
-        test_case.meta.origin_device_id = "unknown";
-
-    if (!test_case.meta.author)
-        test_case.meta.author = "anonymous";
-
+    test_case.meta.origin_device_id = test_case.meta.origin_device_id ? test_case.meta.origin_device_id : "unknown";
+    test_case.meta.author = test_case.meta.author ? test_case.meta.author : "anonymous";
     test_case.meta.trust_score = 0.0;
     test_case.meta.confidence = 0.0;
     test_case.meta.immutable = false;
@@ -155,22 +152,24 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
 
     // Prepare input string
     char input_buf[1000] = {0};
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name) != 0 ||
-        pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria) != 0 ||
-        pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author) != 0) {
+    if (!pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name) ||
+        !pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria) ||
+        !pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author)) {
         return FOSSIL_PIZZA_FAILURE; // Overflow occurred
     }
 
     // Compute hash
     uint8_t hash_raw[32];
-    char* prev_hash = (char*)test_case.meta.prev_hash;
-    fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
+    char* prev_hash = test_case.meta.prev_hash ? test_case.meta.prev_hash : "";
+    fossil_pizza_hash(input_buf, prev_hash, hash_raw);
 
-    // Convert to hex string
-    char* hash_hex = pizza_sys_memory_alloc(65);
+    // Convert hash to hex string
+    char* hash_hex = pizza_sys_memory_alloc(FOSSIL_PIZZA_HASH_HEX_LEN);
     if (!hash_hex) return FOSSIL_PIZZA_FAILURE;
+
     for (int i = 0; i < 32; ++i)
-        snprintf(&hash_hex[i * 2], 3, "%02x", hash_raw[i]);
+        sprintf(&hash_hex[i * 2], "%02x", hash_raw[i]);
+
     test_case.meta.hash = hash_hex;
 
     // Add test case to suite
