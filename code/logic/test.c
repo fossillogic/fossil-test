@@ -486,7 +486,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
         return; // Skip this test case if it matches the --skip filter
     }
 
-    for (size_t i = 0; i < (engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
+    for (size_t i = 0; i < (size_t)(engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
         if (test_case->setup) test_case->setup();
 
         uint64_t start_time = fossil_pizza_now_ns();
