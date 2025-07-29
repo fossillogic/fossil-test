@@ -982,6 +982,7 @@ typedef struct {
     uint64_t timestamp;
 } pizza_assert_ti_result;
 
+extern uint64_t get_pizza_time_microseconds(void); // from common utilities
 
 char *pizza_test_assert_messagef(const char *message, ...) {
     va_list args;

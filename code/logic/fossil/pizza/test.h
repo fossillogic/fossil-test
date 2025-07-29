@@ -149,6 +149,15 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
+/**
+ * @brief Internal function to handle assertions with message formatting.
+ * 
+ * This function is used internally by the test framework to handle assertions
+ * and format messages. It is not intended to be called directly.
+ * 
+ * @param message The message to format.
+ * @return A formatted message string.
+ */
 char *pizza_test_assert_messagef(const char *message, ...);
 
 // *********************************************************************************************
