@@ -2127,7 +2127,7 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-bool pizza_io_cstr_append(catr dest, size_t max_len, cstr src) {
+bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
     if (!dest || !src || max_len == 0) return false;
 
     // Find current length of dest up to max_len
