@@ -2127,13 +2127,21 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
+bool pizza_io_cstr_append(catr dest, size_t max_len, cstr src) {
     if (!dest || !src || max_len == 0) return false;
 
-    size_t dest_len = strnlen(dest, max_len);
+    // Find current length of dest up to max_len
+    size_t dest_len = 0;
+    while (dest_len < max_len && dest[dest_len] != '\0') {
+        ++dest_len;
+    }
+
+    // If no null-terminator found in range, dest is not safe
+    if (dest_len == max_len) return false;
+
     size_t src_len = strlen(src);
 
-    // Ensure room for new string and null terminator
+    // Make sure there's enough space (including null terminator)
     if (dest_len + src_len >= max_len) return false;
 
     memcpy(dest + dest_len, src, src_len);
