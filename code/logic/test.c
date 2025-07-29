@@ -99,7 +99,7 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
     suite.meta.prev_hash = engine->meta.hash ? engine->meta.hash : NULL;
 
     // Prepare input string
-    char input_buf[512] = {0};
+    char input_buf[1000] = {0};
     if (pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name) != 0 ||
         pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author) != 0 ||
         pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id) != 0) {
@@ -153,7 +153,7 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
     test_case.meta.prev_hash = suite->meta.hash ? suite->meta.hash : NULL;
 
     // Prepare input string
-    char input_buf[512] = {0};
+    char input_buf[1000] = {0};
     if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name) != 0 ||
         pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria) != 0 ||
         pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author) != 0) {
