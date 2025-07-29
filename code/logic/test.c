@@ -159,29 +159,75 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
 
 // --- Update Score ---
 void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
+    if (!test_case || !suite) return;
+
+    // --- TI: Set result timestamp ---
+    test_case->meta.timestamp = time(NULL);
+
+    // --- TI: Compute score value ---
     switch (test_case->result) {
         case FOSSIL_PIZZA_CASE_PASS:
             suite->score.passed++;
             suite->total_score++;
+            test_case->meta.score = 1.0f;
+            test_case->meta.validity = 1.0f;
             break;
         case FOSSIL_PIZZA_CASE_FAIL:
             suite->score.failed++;
+            test_case->meta.score = 0.0f;
+            test_case->meta.validity = 0.0f;
             break;
         case FOSSIL_PIZZA_CASE_TIMEOUT:
             suite->score.timeout++;
+            test_case->meta.score = 0.0f;
+            test_case->meta.validity = 0.25f;
             break;
         case FOSSIL_PIZZA_CASE_SKIPPED:
             suite->score.skipped++;
+            test_case->meta.score = 0.0f;
+            test_case->meta.validity = 0.1f;
             break;
         case FOSSIL_PIZZA_CASE_UNEXPECTED:
             suite->score.unexpected++;
+            test_case->meta.score = 0.0f;
+            test_case->meta.validity = 0.0f;
             break;
         case FOSSIL_PIZZA_CASE_EMPTY:
         default:
             suite->score.empty++;
+            test_case->meta.score = 0.0f;
+            test_case->meta.validity = 0.0f;
             break;
     }
+
     suite->total_possible++;
+
+    // --- TI: Build hash input string ---
+    char input_buf[512] = {0};
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->name ? test_case->name : "unnamed");
+
+    char temp[64];
+    snprintf(temp, sizeof(temp), "%d", test_case->result);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%.2f", test_case->meta.score);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%.2f", test_case->meta.validity);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%lld", (long long)test_case->meta.timestamp);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    // --- TI: Chain from previous case if available ---
+    const char* prev_hash = suite->count > 0 && test_case != &suite->cases[0]
+                            ? suite->cases[suite->count - 1].meta.hash
+                            : NULL;
+
+    static char hash_buf[128];
+    fossil_pizza_hash(input_buf, hash_buf, prev_hash);
+    test_case->meta.hash = hash_buf;
+    test_case->meta.prev_hash = prev_hash;
 }
 
 // --- Show Test Cases ---
@@ -716,16 +762,20 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
 // --- Run One Suite ---
 int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
+    if (!suite->cases) return FOSSIL_PIZZA_FAILURE;
+
     if (suite->setup) suite->setup();
 
+    // --- TI meta timestamp ---
+    suite->meta.timestamp = time(NULL);
+
+    // --- Reset stats ---
     suite->time_elapsed_ns = fossil_pizza_now_ns();
     suite->total_score = 0;
     suite->total_possible = 0;
     pizza_sys_memory_set(&suite->score, 0, sizeof(suite->score));
 
-    if (!suite->cases) return FOSSIL_PIZZA_FAILURE;
-
-    // Apply filtering, sorting, and shuffling
+    // --- Filtering ---
     fossil_pizza_case_t* filtered_cases[suite->count];
     size_t filtered_count = fossil_pizza_filter_cases(suite, engine, filtered_cases);
 
@@ -742,23 +792,52 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
     suite->time_elapsed_ns = fossil_pizza_now_ns() - suite->time_elapsed_ns;
 
     if (suite->teardown) suite->teardown();
+
+    // --- TI: Update suite hash based on run results ---
+    char input_buf[512] = {0};
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->suite_name);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->meta.author ? suite->meta.author : "anonymous");
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->meta.origin_device_id ? suite->meta.origin_device_id : "unknown");
+
+    // Optionally add execution time and result stats to input
+    char temp[64];
+    snprintf(temp, sizeof(temp), "%" PRIu64, suite->time_elapsed_ns);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%d", suite->score.passed);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%d", suite->score.failed);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    // Use previous hash chaining (from engine meta if available)
+    const char* prev_hash = (engine && engine->meta.hash) ? engine->meta.hash : NULL;
+
+    static char hash_buf[128]; // Or dynamically allocate if needed
+    fossil_pizza_hash(input_buf, hash_buf, prev_hash);
+    suite->meta.hash = hash_buf;
+    suite->meta.prev_hash = prev_hash;
+
     return FOSSIL_PIZZA_SUCCESS;
 }
 
 // --- Run All Suites ---
 int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     if (!engine) return FOSSIL_PIZZA_FAILURE;
+
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
     engine->score_total = 0;
     engine->score_possible = 0;
 
+    // --- TI: Start time for engine execution ---
+    engine->meta.timestamp = time(NULL);
+
     for (size_t i = 0; i < engine->count; ++i) {
         fossil_pizza_run_suite(engine, &engine->suites[i]);
 
-        engine->score_total += engine->suites[i].total_score;
+        engine->score_total    += engine->suites[i].total_score;
         engine->score_possible += engine->suites[i].total_possible;
 
-        // aggregate suite scores
         fossil_pizza_score_t* src = &engine->suites[i].score;
         engine->score.passed     += src->passed;
         engine->score.failed     += src->failed;
@@ -767,6 +846,36 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
         engine->score.unexpected += src->unexpected;
         engine->score.empty      += src->empty;
     }
+
+    // --- TI: Finalize hash for entire engine run ---
+    char input_buf[512] = {0};
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), engine->meta.author ? engine->meta.author : "anonymous");
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), engine->meta.origin_device_id ? engine->meta.origin_device_id : "unknown");
+
+    char temp[64];
+    snprintf(temp, sizeof(temp), "%d", engine->score_total);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%d", engine->score_possible);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%d", engine->score.passed);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    snprintf(temp, sizeof(temp), "%d", engine->score.failed);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+
+    // Chain hash from the last suite (if any)
+    const char* prev_hash = NULL;
+    if (engine->count > 0 && engine->suites[engine->count - 1].meta.hash) {
+        prev_hash = engine->suites[engine->count - 1].meta.hash;
+    }
+
+    static char hash_buf[128];  // Consider malloc for persistence
+    fossil_pizza_hash(input_buf, hash_buf, prev_hash);
+    engine->meta.hash = hash_buf;
+    engine->meta.prev_hash = prev_hash;
+
     return FOSSIL_PIZZA_SUCCESS;
 }
 
