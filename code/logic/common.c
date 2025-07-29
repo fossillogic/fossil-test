@@ -37,6 +37,114 @@ int G_PIZZA_THREADS = 1;
 fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
 
 // *****************************************************************************
+// Hashing algorithm
+// *****************************************************************************
+
+// HASH Algorithm magic
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+uint64_t get_pizza_time_microseconds(void) {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t t = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+    return t / 10; // 100-nanosecond intervals to microseconds
+}
+#else
+#include <sys/time.h>
+uint64_t get_pizza_time_microseconds(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)tv.tv_sec * 1000000ULL + tv.tv_usec;
+}
+#endif
+
+static uint64_t get_pizza_device_salt(void) {
+    // FNV-1a 64-bit base offset
+    uint64_t hash = 0xcbf29ce484222325ULL;
+
+    // Cross-platform user and home detection
+#if defined(_WIN32) || defined(_WIN64)
+    const char *vars[] = {
+        getenv("USERNAME"),
+        getenv("USERPROFILE"),
+        getenv("COMPUTERNAME")
+    };
+#else
+    const char *vars[] = {
+        getenv("USER"),
+        getenv("HOME"),
+        getenv("SHELL"),
+        getenv("HOSTNAME")
+    };
+#endif
+
+    // Mix in each variable if it exists
+    for (size_t v = 0; v < sizeof(vars) / sizeof(vars[0]); ++v) {
+        const char *val = vars[v];
+        if (val) {
+            for (size_t i = 0; val[i]; ++i) {
+                hash ^= (uint8_t)val[i];
+                hash *= 0x100000001b3ULL;
+            }
+        }
+    }
+
+    return hash;
+}
+
+void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out) {
+    const uint64_t PRIME = 0x100000001b3ULL;
+    static uint64_t SALT = 0;
+    if (SALT == 0) SALT = get_pizza_device_salt();  // Initialize salt once
+
+    uint64_t state1 = 0xcbf29ce484222325ULL ^ SALT;
+    uint64_t state2 = 0x84222325cbf29ce4ULL ^ ~SALT;
+
+    size_t in_len = strlen(input);
+    size_t out_len = strlen(output);
+
+    uint64_t nonce = get_pizza_time_microseconds();  // Microsecond resolution
+
+    for (size_t i = 0; i < in_len; ++i) {
+        state1 ^= (uint8_t)input[i];
+        state1 *= PRIME;
+        state1 ^= (state1 >> 27);
+        state1 ^= (state1 << 33);
+    }
+
+    for (size_t i = 0; i < out_len; ++i) {
+        state2 ^= (uint8_t)output[i];
+        state2 *= PRIME;
+        state2 ^= (state2 >> 29);
+        state2 ^= (state2 << 31);
+    }
+
+    // Nonce and length entropy
+    state1 ^= nonce ^ ((uint64_t)in_len << 32);
+    state2 ^= ~nonce ^ ((uint64_t)out_len << 16);
+
+    // Mixing rounds
+    for (int i = 0; i < 6; ++i) {
+        state1 += (state2 ^ (state1 >> 17));
+        state2 += (state1 ^ (state2 >> 13));
+        state1 ^= (state1 << 41);
+        state2 ^= (state2 << 37);
+        state1 *= PRIME;
+        state2 *= PRIME;
+    }
+
+    for (size_t i = 0; i < FOSSIL_PIZZA_HASH_SIZE; ++i) {
+        uint64_t mixed = (i % 2 == 0) ? state1 : state2;
+        mixed ^= (mixed >> ((i % 7) + 13));
+        mixed *= PRIME;
+        mixed ^= SALT;
+        hash_out[i] = (uint8_t)((mixed >> (8 * (i % 8))) & 0xFF);
+    }
+}
+
+
+// *****************************************************************************
 // command pallet
 // *****************************************************************************
 

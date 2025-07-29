@@ -15,17 +15,20 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
+#include <unistd.h>
+#include <float.h>
 #include <stdio.h>
 #include <float.h>
 #include <ctype.h>
+#include <time.h>
 #include <math.h>
-#include <unistd.h> // Only include once
 
 #ifdef _WIN32
     #include <windows.h>
@@ -56,6 +59,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define FOSSIL_PIZZA_HASH_SIZE 16
 
 // *****************************************************************************
 // Safe operations
@@ -177,6 +182,22 @@ extern "C" {
  * @brief Empty string constants for C and wide strings.
  */
 #define cempty ""
+
+// *****************************************************************************
+// Hashing algorithm
+// *****************************************************************************
+
+/**
+ * @brief Computes a hash for the given input string.
+ *
+ * This function implements a simple hashing algorithm that combines the input
+ * string with an output string to produce a fixed-size hash.
+ *
+ * @param input The input string to hash.
+ * @param output The output string to combine with the input.
+ * @param hash_out Pointer to an array where the resulting hash will be stored.
+ */
+void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
 
 // *****************************************************************************
 // Command Pallet
