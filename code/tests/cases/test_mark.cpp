@@ -85,7 +85,7 @@
      MARK_BENCHMARK(elapsed_test);
      MARK_START(elapsed_test);
      // Simulate some work
-     volatile int dummy = 0;
+     int dummy = 0;
      for (int i = 0; i < 1000000; ++i) {
          dummy += i;
      }
