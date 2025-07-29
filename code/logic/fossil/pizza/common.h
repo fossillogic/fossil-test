@@ -225,14 +225,28 @@ typedef struct {
     struct {
         int fail_fast;         // Flag for --fail-fast
         const char* only;      // Value for --only
+        cstr *only_cases;      // Array of test case names (split by ',')
+        size_t only_count;     // Number of test cases in only_cases
+        int only_has_wildcard; // 1 if any test case contains '*', 0 otherwise
         const char* skip;      // Value for --skip
         int repeat;            // Value for --repeat
     } run;                     // Run command flags
 
     struct {
         const char* test_name; // Value for --test-name
+        cstr *test_name_list;  // Array of test names (split by ',')
+        size_t test_name_count;// Number of test names
+        int test_name_has_wildcard; // 1 if any test name contains '*', 0 otherwise
+
         const char* suite_name;// Value for --suite-name
+        cstr *suite_name_list; // Array of suite names (split by ',')
+        size_t suite_name_count;// Number of suite names
+        int suite_name_has_wildcard; // 1 if any suite name contains '*', 0 otherwise
+
         const char* tag;       // Value for --tag
+        cstr *tag_list;        // Array of tags (split by ',')
+        size_t tag_count;      // Number of tags
+        int tag_has_wildcard;  // 1 if any tag contains '*', 0 otherwise
     } filter;                  // Filter command flags
 
     struct {

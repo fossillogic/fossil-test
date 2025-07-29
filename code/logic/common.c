@@ -188,10 +188,6 @@ static void _show_help(void) {
     exit(EXIT_SUCCESS);
 }
 
-// TODO support wildcards for test cases under --only
-// TODO support regex for test cases under --only
-// TODO support listing multiple test cases under --only
-
 static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
     pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
@@ -201,15 +197,6 @@ static void _show_subhelp_run(void) {
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
-
-// TODO support wildcards for test cases under --test-name
-// TODO support regex for test cases under --test-name
-// TODO support listing multiple test cases under --test-name
-// TODO support wildcards for suite names under --suite-name
-// TODO support regex for suite names under --suite-name
-// TODO support listing multiple suite names under --suite-name
-// TODO support regex for tags under --tag
-// TODO support listing multiple tags under --tag
 
 static void _show_subhelp_filter(void) {
     pizza_io_printf("{blue}Filter command options:{reset}\n");
@@ -345,7 +332,21 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
                 } else if (pizza_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
-                    pallet.run.only = argv[++j];
+                    // Support multiple test cases separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *test_cases = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.run.only = argv[j]; // Store raw string for now
+                    pallet.run.only_cases = test_cases;
+                    pallet.run.only_count = count;
+                    // Wildcard support: mark if any test case contains '*'
+                    pallet.run.only_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(test_cases[k], '*')) {
+                            pallet.run.only_has_wildcard = 1;
+                            break;
+                        }
+                    }
                 } else if (pizza_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
                     pallet.run.skip = argv[++j];
                     G_PIZZA_SKIP = 1;
@@ -369,22 +370,69 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
-                    pallet.filter.test_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
-                    pallet.filter.suite_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
-                    const char* tag = argv[++j];
-                    int is_valid_tag = 0;
-                    for (int k = 0; VALID_TAGS[k] != null; k++) {
-                        if (pizza_io_cstr_compare(tag, VALID_TAGS[k]) == 0) {
-                            is_valid_tag = 1;
+                    // Support multiple test names separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *test_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.filter.test_name = argv[j]; // Store raw string for now
+                    pallet.filter.test_name_list = test_names;
+                    pallet.filter.test_name_count = count;
+                    // Wildcard support: mark if any test name contains '*'
+                    pallet.filter.test_name_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(test_names[k], '*')) {
+                            pallet.filter.test_name_has_wildcard = 1;
                             break;
                         }
                     }
-                    if (is_valid_tag) {
-                        pallet.filter.tag = tag;
+                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                    // Support multiple suite names separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *suite_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.filter.suite_name = argv[j]; // Store raw string for now
+                    pallet.filter.suite_name_list = suite_names;
+                    pallet.filter.suite_name_count = count;
+                    // Wildcard support: mark if any suite name contains '*'
+                    pallet.filter.suite_name_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(suite_names[k], '*')) {
+                            pallet.filter.suite_name_has_wildcard = 1;
+                            break;
+                        }
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                    // Support multiple tags separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *tags = pizza_io_cstr_split(argv[j], ',', &count);
+                    int valid_count = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        int is_valid_tag = 0;
+                        for (int t = 0; VALID_TAGS[t] != null; t++) {
+                            if (pizza_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0) {
+                                is_valid_tag = 1;
+                                break;
+                            }
+                        }
+                        if (is_valid_tag || strchr(tags[k], '*')) {
+                            valid_count++;
+                        }
+                    }
+                    if (valid_count == count) {
+                        pallet.filter.tag = argv[j]; // Store raw string for now
+                        pallet.filter.tag_list = tags;
+                        pallet.filter.tag_count = count;
+                        // Wildcard support: mark if any tag contains '*'
+                        pallet.filter.tag_has_wildcard = 0;
+                        for (size_t k = 0; k < count; k++) {
+                            if (strchr(tags[k], '*')) {
+                                pallet.filter.tag_has_wildcard = 1;
+                                break;
+                            }
+                        }
                     } else {
-                        pizza_io_printf("{red}Error: Invalid tag '%s'.{reset}\n", tag);
+                        pizza_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
                         exit(EXIT_FAILURE);
                     }
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
