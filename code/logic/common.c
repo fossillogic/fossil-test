@@ -419,7 +419,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                             valid_count++;
                         }
                     }
-                    if (valid_count == count) {
+                    if (valid_count == (int)count) {
                         pallet.filter.tag = argv[j]; // Store raw string for now
                         pallet.filter.tag_list = tags;
                         pallet.filter.tag_count = count;
