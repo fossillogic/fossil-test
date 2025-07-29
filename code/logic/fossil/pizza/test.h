@@ -36,14 +36,6 @@ typedef enum {
     FOSSIL_PIZZA_CASE_UNEXPECTED
 } fossil_pizza_case_result_t;
 
-typedef enum {
-    FOSSIL_PIZZA_TONE_DEFAULT,
-    FOSSIL_PIZZA_TONE_POSITIVE,
-    FOSSIL_PIZZA_TONE_NEGATIVE,
-    FOSSIL_PIZZA_TONE_HUMOROUS,
-    FOSSIL_PIZZA_TONE_SARCASTIC
-} fossil_pizza_tone_t;
-
 // --- Score Struct ---
 typedef struct {
     int passed;
