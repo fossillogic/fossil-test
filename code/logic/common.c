@@ -1366,7 +1366,6 @@ pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, in
 
 void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_free() - Pointer is null.\n");
         return;
     }
     free(ptr); // No need for null check, free() already handles null.
