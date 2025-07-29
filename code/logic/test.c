@@ -37,13 +37,27 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
     if (!engine || !argv) return FOSSIL_PIZZA_FAILURE;
 
     pizza_sys_memory_set(engine, 0, sizeof(*engine));
-    engine->suites = null;
+
+    engine->suites = NULL;
     engine->count = 0;
     engine->capacity = 0;
     engine->score_total = 0;
     engine->score_possible = 0;
-    engine->pallet = fossil_pizza_pallet_create(argc, argv);
+
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
+
+    engine->pallet = fossil_pizza_pallet_create(argc, argv);
+
+    // --- TI Meta Initialization ---
+    engine->meta.hash = NULL;
+    engine->meta.prev_hash = NULL;
+    engine->meta.timestamp = time(NULL);
+    engine->meta.origin_device_id = "unknown";
+    engine->meta.author = "anonymous";
+    engine->meta.trust_score = 0.0;
+    engine->meta.confidence = 0.0;
+    engine->meta.immutable = false;
+    engine->meta.signature = NULL;
 
     // Parse configuration file if specified
     const char* config_file = engine->pallet.config_file;
@@ -58,6 +72,7 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
 // --- Add Suite ---
 int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t suite) {
     if (!engine) return FOSSIL_PIZZA_FAILURE;
+
     if (engine->count >= engine->capacity) {
         size_t new_cap = engine->capacity ? engine->capacity * 2 : 4;
         fossil_pizza_suite_t* resized = pizza_sys_memory_realloc(engine->suites, new_cap * sizeof(*engine->suites));
@@ -65,6 +80,35 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
         engine->suites = resized;
         engine->capacity = new_cap;
     }
+
+    // --- TI Metadata Initialization ---
+    suite.meta.timestamp = time(NULL);
+
+    if (!suite.meta.origin_device_id)
+        suite.meta.origin_device_id = "unknown";
+
+    if (!suite.meta.author)
+        suite.meta.author = "anonymous";
+
+    suite.meta.trust_score = 0.0;
+    suite.meta.confidence = 0.0;
+    suite.meta.immutable = false;
+
+    // Chain previous hash from engine meta, if any
+    suite.meta.prev_hash = engine->meta.hash ? engine->meta.hash : NULL;
+
+    // --- Prepare input buffer ---
+    char input_buf[512] = {0};
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id);
+
+    // Allocate output hash
+    static char hash_buf[128]; // Can be made dynamic if needed
+    fossil_pizza_hash(input_buf, hash_buf, suite.meta.prev_hash);
+    suite.meta.hash = hash_buf;
+
+    // Add to engine
     engine->suites[engine->count++] = suite;
     return FOSSIL_PIZZA_SUCCESS;
 }
@@ -72,6 +116,7 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
 // --- Add Case ---
 int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
+
     if (suite->count >= suite->capacity) {
         size_t new_cap = suite->capacity ? suite->capacity * 2 : 4;
         fossil_pizza_case_t* resized = pizza_sys_memory_realloc(suite->cases, new_cap * sizeof(*suite->cases));
@@ -79,6 +124,35 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
         suite->cases = resized;
         suite->capacity = new_cap;
     }
+
+    // --- TI Metadata Initialization ---
+    test_case.meta.timestamp = time(NULL);
+
+    if (!test_case.meta.origin_device_id)
+        test_case.meta.origin_device_id = "unknown";
+
+    if (!test_case.meta.author)
+        test_case.meta.author = "anonymous";
+
+    test_case.meta.trust_score = 0.0;
+    test_case.meta.confidence = 0.0;
+    test_case.meta.immutable = false;
+
+    // Link to suite’s hash as the previous hash
+    test_case.meta.prev_hash = suite->meta.hash ? suite->meta.hash : NULL;
+
+    // Prepare input buffer
+    char input_buf[512] = {0};
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria);
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author);
+
+    // Compute hash
+    static char hash_buf[128]; // Can be dynamically allocated if needed
+    fossil_pizza_hash(input_buf, hash_buf, test_case.meta.prev_hash);
+    test_case.meta.hash = hash_buf;
+
+    // Add to suite
     suite->cases[suite->count++] = test_case;
     return FOSSIL_PIZZA_SUCCESS;
 }
