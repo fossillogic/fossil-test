@@ -62,6 +62,10 @@ extern "C" {
 
 #define FOSSIL_PIZZA_HASH_SIZE 16
 
+/* Type definitions */
+typedef char* cstr;
+typedef const char* ccstr;
+
 // *****************************************************************************
 // Safe operations
 // *****************************************************************************
@@ -806,10 +810,6 @@ void pizza_io_flush(void);
 // *****************************************************************************
 // string management
 // *****************************************************************************
-
-/* Type definitions */
-typedef char* cstr;
-typedef const char* ccstr;
 
 /**
  * @brief Creates a new cstr with the given initial value.
