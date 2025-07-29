@@ -1005,7 +1005,7 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
 
 // Append a string to a buffer safely with NUL-termination.
 // Returns true on success, false if buffer would overflow.
-bool pizza_io_cstr_append(cstr dest, size_t max_len, ccstr src);
+bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
 
 #ifdef __cplusplus
 }
