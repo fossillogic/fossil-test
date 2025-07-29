@@ -236,7 +236,7 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
     if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
 
     // --- TI: Determine previous hash ---
-    const char* prev_hash = NULL;
+    char* prev_hash = NULL;
     if (suite->count > 0) {
         fossil_pizza_case_t* last_case = &suite->cases[suite->count - 1];
         if (last_case != test_case && last_case->meta.hash) {
@@ -855,7 +855,7 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
     // Previous hash (for chaining)
-    const char* prev_hash = (engine && engine->meta.hash) ? engine->meta.hash : NULL;
+    char* prev_hash = (engine && engine->meta.hash) ? engine->meta.hash : NULL;
 
     static uint8_t hash_raw[32];
     fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
@@ -917,7 +917,7 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
     // Chain from last suite hash (if any)
-    const char* prev_hash = NULL;
+    char* prev_hash = NULL;
     if (engine->count > 0 && engine->suites[engine->count - 1].meta.hash) {
         prev_hash = engine->suites[engine->count - 1].meta.hash;
     }
