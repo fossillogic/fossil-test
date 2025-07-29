@@ -73,6 +73,7 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv) {
 int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t suite) {
     if (!engine) return FOSSIL_PIZZA_FAILURE;
 
+    // Resize if needed
     if (engine->count >= engine->capacity) {
         size_t new_cap = engine->capacity ? engine->capacity * 2 : 4;
         fossil_pizza_suite_t* resized = pizza_sys_memory_realloc(engine->suites, new_cap * sizeof(*engine->suites));
@@ -94,21 +95,30 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
     suite.meta.confidence = 0.0;
     suite.meta.immutable = false;
 
-    // Chain previous hash from engine meta, if any
+    // Previous hash from engine
     suite.meta.prev_hash = engine->meta.hash ? engine->meta.hash : NULL;
 
-    // --- Prepare input buffer ---
+    // Prepare input string
     char input_buf[512] = {0};
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.suite_name) != 0 ||
+        pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.author) != 0 ||
+        pizza_io_cstr_append(input_buf, sizeof(input_buf), suite.meta.origin_device_id) != 0) {
+        return FOSSIL_PIZZA_FAILURE; // Overflow
+    }
 
-    // Allocate output hash
-    static char hash_buf[128]; // Can be made dynamic if needed
-    fossil_pizza_hash(input_buf, hash_buf, suite.meta.prev_hash);
-    suite.meta.hash = hash_buf;
+    // Compute hash
+    uint8_t hash_raw[32];
+    char* prev_hash = (char*)suite.meta.prev_hash;
+    fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
 
-    // Add to engine
+    // Convert hash to hex string
+    char* hash_hex = pizza_sys_memory_alloc(65);
+    if (!hash_hex) return FOSSIL_PIZZA_FAILURE;
+    for (int i = 0; i < 32; ++i)
+        snprintf(&hash_hex[i * 2], 3, "%02x", hash_raw[i]);
+    suite.meta.hash = hash_hex;
+
+    // Add suite to engine
     engine->suites[engine->count++] = suite;
     return FOSSIL_PIZZA_SUCCESS;
 }
@@ -117,6 +127,7 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t s
 int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case) {
     if (!suite) return FOSSIL_PIZZA_FAILURE;
 
+    // Resize case array if needed
     if (suite->count >= suite->capacity) {
         size_t new_cap = suite->capacity ? suite->capacity * 2 : 4;
         fossil_pizza_case_t* resized = pizza_sys_memory_realloc(suite->cases, new_cap * sizeof(*suite->cases));
@@ -138,21 +149,30 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
     test_case.meta.confidence = 0.0;
     test_case.meta.immutable = false;
 
-    // Link to suite’s hash as the previous hash
+    // Link to suite’s hash as previous
     test_case.meta.prev_hash = suite->meta.hash ? suite->meta.hash : NULL;
 
-    // Prepare input buffer
+    // Prepare input string
     char input_buf[512] = {0};
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.name) != 0 ||
+        pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.criteria) != 0 ||
+        pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case.meta.author) != 0) {
+        return FOSSIL_PIZZA_FAILURE; // Overflow occurred
+    }
 
     // Compute hash
-    static char hash_buf[128]; // Can be dynamically allocated if needed
-    fossil_pizza_hash(input_buf, hash_buf, test_case.meta.prev_hash);
-    test_case.meta.hash = hash_buf;
+    uint8_t hash_raw[32];
+    char* prev_hash = (char*)test_case.meta.prev_hash;
+    fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
 
-    // Add to suite
+    // Convert to hex string
+    char* hash_hex = pizza_sys_memory_alloc(65);
+    if (!hash_hex) return FOSSIL_PIZZA_FAILURE;
+    for (int i = 0; i < 32; ++i)
+        snprintf(&hash_hex[i * 2], 3, "%02x", hash_raw[i]);
+    test_case.meta.hash = hash_hex;
+
+    // Add test case to suite
     suite->cases[suite->count++] = test_case;
     return FOSSIL_PIZZA_SUCCESS;
 }
@@ -164,7 +184,7 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
     // --- TI: Set result timestamp ---
     test_case->meta.timestamp = time(NULL);
 
-    // --- TI: Compute score value ---
+    // --- TI: Compute score and validity ---
     switch (test_case->result) {
         case FOSSIL_PIZZA_CASE_PASS:
             suite->score.passed++;
@@ -202,32 +222,56 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
 
     suite->total_possible++;
 
-    // --- TI: Build hash input string ---
+    // --- TI: Build hash input ---
     char input_buf[512] = {0};
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->name ? test_case->name : "unnamed");
-
     char temp[64];
+
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->name ? test_case->name : "unnamed") != 0)
+        return;
+
     snprintf(temp, sizeof(temp), "%d", test_case->result);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
 
     snprintf(temp, sizeof(temp), "%.2f", test_case->meta.score);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
 
     snprintf(temp, sizeof(temp), "%.2f", test_case->meta.validity);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
 
     snprintf(temp, sizeof(temp), "%lld", (long long)test_case->meta.timestamp);
-    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
+    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
 
-    // --- TI: Chain from previous case if available ---
-    const char* prev_hash = suite->count > 0 && test_case != &suite->cases[0]
-                            ? suite->cases[suite->count - 1].meta.hash
-                            : NULL;
-
-    static char hash_buf[128];
-    fossil_pizza_hash(input_buf, hash_buf, prev_hash);
-    test_case->meta.hash = hash_buf;
+    // --- TI: Determine previous hash ---
+    const char* prev_hash = NULL;
+    if (suite->count > 0) {
+        fossil_pizza_case_t* last_case = &suite->cases[suite->count - 1];
+        if (last_case != test_case && last_case->meta.hash) {
+            prev_hash = last_case->meta.hash;
+        }
+    }
     test_case->meta.prev_hash = prev_hash;
+
+    // --- TI: Hash it ---
+    uint8_t hash_raw[32];
+    fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
+
+    char* hash_hex = pizza_sys_memory_alloc(65);
+    if (!hash_hex) return;
+
+    for (int i = 0; i < 32; ++i)
+        snprintf(&hash_hex[i * 2], 3, "%02x", hash_raw[i]);
+
+    test_case->meta.hash = hash_hex;
+}
+
+void fossil_pizza_cleanup_suite(fossil_pizza_suite_t* suite) {
+    if (!suite) return;
+    for (size_t i = 0; i < suite->count; ++i) {
+        if (suite->cases[i].meta.hash) {
+            pizza_sys_memory_free(suite->cases[i].meta.hash);
+            suite->cases[i].meta.hash = NULL;
+        }
+    }
 }
 
 // --- Show Test Cases ---
@@ -593,60 +637,65 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
 }
 
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
-    if (!test_case || !suite) return;
+    if (!test_case || !suite || !engine) return;
 
-    // Check if the test case name matches the --only filter
+    // --- Filter: --only ---
     if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
-        return; // Skip this test case if it doesn't match the --only filter
+        return;
     }
 
-    // Check if the test case name matches the --skip filter
+    // --- Filter: --skip ---
     if (engine->pallet.run.skip && pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
         test_case->result = FOSSIL_PIZZA_CASE_SKIPPED;
-        return; // Skip this test case if it matches the --skip filter
+        fossil_pizza_update_score(test_case, suite);
+        return;
     }
 
-    for (size_t i = 0; i < (size_t)(engine->pallet.run.repeat ? engine->pallet.run.repeat : 1); ++i) {
+    size_t repeat_count = (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
+
+    for (size_t i = 0; i < repeat_count; ++i) {
         if (test_case->setup) test_case->setup();
 
+        test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
         uint64_t start_time = fossil_pizza_now_ns();
 
         if (test_case->run) {
             if (setjmp(test_jump_buffer) == 0) {
                 test_case->run();
                 uint64_t end_time = fossil_pizza_now_ns();
-                uint64_t elapsed_time = end_time - start_time;
+                uint64_t elapsed = end_time - start_time;
+                test_case->elapsed_ns = elapsed;
 
-                // Use a defined timeout value, e.g., 60 seconds
                 #ifndef FOSSIL_PIZZA_TIMEOUT
                 #define FOSSIL_PIZZA_TIMEOUT 60
                 #endif
-                if (elapsed_time > seconds_to_nanoseconds(FOSSIL_PIZZA_TIMEOUT)) { // 1 minute in nanoseconds
+
+                if (elapsed > seconds_to_nanoseconds(FOSSIL_PIZZA_TIMEOUT)) {
                     test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
                 } else {
                     test_case->result = FOSSIL_PIZZA_CASE_PASS;
                 }
             } else {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
+                test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
+
                 if (engine->pallet.run.fail_fast) {
-                    return; // Exit immediately if --fail-fast is enabled
+                    fossil_pizza_update_score(test_case, suite);
+                    fossil_pizza_show_cases(suite, engine);
+                    return;
                 }
             }
         } else {
             test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+            test_case->elapsed_ns = 0;
         }
-        test_case->elapsed_ns = (test_case->run) ? (fossil_pizza_now_ns() - start_time) : 0;
 
         if (test_case->teardown) test_case->teardown();
     }
 
-    // Update scores based on result
     fossil_pizza_update_score(test_case, suite);
-
-    // Output test case result
     fossil_pizza_show_cases(suite, engine);
-
-    _ASSERT_COUNT = 0; // Reset the assertion count for the next test case
+    _ASSERT_COUNT = 0;
 }
 
 // --- Algorithmic modifications ---
@@ -761,15 +810,14 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
 
 // --- Run One Suite ---
 int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite) {
-    if (!suite) return FOSSIL_PIZZA_FAILURE;
-    if (!suite->cases) return FOSSIL_PIZZA_FAILURE;
+    if (!suite || !suite->cases) return FOSSIL_PIZZA_FAILURE;
 
     if (suite->setup) suite->setup();
 
     // --- TI meta timestamp ---
     suite->meta.timestamp = time(NULL);
 
-    // --- Reset stats ---
+    // --- Reset suite stats ---
     suite->time_elapsed_ns = fossil_pizza_now_ns();
     suite->total_score = 0;
     suite->total_possible = 0;
@@ -793,28 +841,31 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
 
     if (suite->teardown) suite->teardown();
 
-    // --- TI: Update suite hash based on run results ---
+    // --- TI: Generate suite hash ---
     char input_buf[512] = {0};
+
+    // Identity components
     pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->suite_name);
     pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->meta.author ? suite->meta.author : "anonymous");
     pizza_io_cstr_append(input_buf, sizeof(input_buf), suite->meta.origin_device_id ? suite->meta.origin_device_id : "unknown");
 
-    // Optionally add execution time and result stats to input
+    // Execution time
     char temp[64];
     snprintf(temp, sizeof(temp), "%" PRIu64, suite->time_elapsed_ns);
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
+    // Pass/fail stats
     snprintf(temp, sizeof(temp), "%d", suite->score.passed);
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
-
     snprintf(temp, sizeof(temp), "%d", suite->score.failed);
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
-    // Use previous hash chaining (from engine meta if available)
+    // Previous hash (for chaining)
     const char* prev_hash = (engine && engine->meta.hash) ? engine->meta.hash : NULL;
 
-    static char hash_buf[128]; // Or dynamically allocate if needed
+    static char hash_buf[128]; // Can be moved to heap if dynamic storage is preferred
     fossil_pizza_hash(input_buf, hash_buf, prev_hash);
+
     suite->meta.hash = hash_buf;
     suite->meta.prev_hash = prev_hash;
 
@@ -825,20 +876,22 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
 int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     if (!engine) return FOSSIL_PIZZA_FAILURE;
 
+    // --- Reset global engine score ---
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
     engine->score_total = 0;
     engine->score_possible = 0;
 
-    // --- TI: Start time for engine execution ---
+    // --- TI: Record engine-level timestamp ---
     engine->meta.timestamp = time(NULL);
 
+    // --- Run all test suites ---
     for (size_t i = 0; i < engine->count; ++i) {
         fossil_pizza_run_suite(engine, &engine->suites[i]);
 
         engine->score_total    += engine->suites[i].total_score;
         engine->score_possible += engine->suites[i].total_possible;
 
-        fossil_pizza_score_t* src = &engine->suites[i].score;
+        const fossil_pizza_score_t* src = &engine->suites[i].score;
         engine->score.passed     += src->passed;
         engine->score.failed     += src->failed;
         engine->score.skipped    += src->skipped;
@@ -847,7 +900,7 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
         engine->score.empty      += src->empty;
     }
 
-    // --- TI: Finalize hash for entire engine run ---
+    // --- TI: Generate engine hash ---
     char input_buf[512] = {0};
     pizza_io_cstr_append(input_buf, sizeof(input_buf), engine->meta.author ? engine->meta.author : "anonymous");
     pizza_io_cstr_append(input_buf, sizeof(input_buf), engine->meta.origin_device_id ? engine->meta.origin_device_id : "unknown");
@@ -865,14 +918,15 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     snprintf(temp, sizeof(temp), "%d", engine->score.failed);
     pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
-    // Chain hash from the last suite (if any)
+    // Chain from last suite hash (if any)
     const char* prev_hash = NULL;
     if (engine->count > 0 && engine->suites[engine->count - 1].meta.hash) {
         prev_hash = engine->suites[engine->count - 1].meta.hash;
     }
 
-    static char hash_buf[128];  // Consider malloc for persistence
+    static char hash_buf[128];  // Replace with dynamic allocation if needed
     fossil_pizza_hash(input_buf, hash_buf, prev_hash);
+
     engine->meta.hash = hash_buf;
     engine->meta.prev_hash = prev_hash;
 
