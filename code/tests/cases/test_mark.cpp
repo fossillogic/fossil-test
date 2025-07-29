@@ -89,6 +89,7 @@
      for (int i = 0; i < 1000000; ++i) {
          dummy += i;
      }
+     unused(dummy); // Prevent unused variable warning
      MARK_STOP(elapsed_test);
      ASSUME_ITS_TRUE(benchmark_elapsed_test.total_duration > 0.0);
  }
