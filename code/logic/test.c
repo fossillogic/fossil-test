@@ -976,15 +976,34 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 
 // -- Assume --
 
+typedef struct {
+    char *message;
+    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
+    uint64_t timestamp;
+} pizza_assert_ti_result;
+
+
 char *pizza_test_assert_messagef(const char *message, ...) {
     va_list args;
     va_start(args, message);
-    size_t buffer_size = 1024; // Define a reasonable buffer size
+
+    size_t buffer_size = 1024;
     char *formatted_message = (char *)pizza_sys_memory_alloc(buffer_size);
+
+    pizza_assert_ti_result result = {0};
+
     if (formatted_message) {
         pizza_io_vsnprintf(formatted_message, buffer_size, message, args);
         formatted_message[buffer_size - 1] = '\0'; // Ensure null-termination
+
+        // TI upgrade: compute hash and timestamp
+        result.message = formatted_message;
+        result.timestamp = get_pizza_time_microseconds();
+
+        // Hash both format string and final message to detect templating vs content errors
+        fossil_pizza_hash(message, formatted_message, result.hash);
     }
+
     va_end(args);
     return formatted_message;
 }
@@ -1045,42 +1064,42 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     }
 }
 
-static int pizza_test_assert_internal_detect(const char *message, const char *file, int line, const char *func) {
-    static const char *last_message = null; // Store the last assertion message
-    static const char *last_file = null;    // Store the last file name
-    static int last_line = 0;               // Store the last line number
-    static const char *last_func = null;    // Store the last function name
-    static int anomaly_count = 0;           // Counter for anomaly detection
+static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func) {
+    static uint8_t last_hash[FOSSIL_PIZZA_HASH_SIZE] = {0};
+    static int anomaly_count = 0;
 
-    // Check if the current assertion is the same or similar to the last one
-    if (last_message && strstr(message, last_message) != null &&
-        last_file && pizza_io_cstr_compare(last_file, file) == 0 &&
-        last_line == line &&
-        last_func && pizza_io_cstr_compare(last_func, func) == 0) {
+    char input_buf[512], output_buf[64];
+    snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
+    snprintf(output_buf, sizeof(output_buf), "%s", message);
+
+    uint8_t current_hash[FOSSIL_PIZZA_HASH_SIZE];
+    fossil_pizza_hash(input_buf, output_buf, current_hash);
+
+    bool same_hash = memcmp(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE) == 0;
+
+    if (same_hash) {
         anomaly_count++;
     } else {
-        anomaly_count = 0; // Reset anomaly count for new assertion
-        last_message = message;
-        last_file = file;
-        last_line = line;
-        last_func = func;
+        anomaly_count = 0;
+        memcpy(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE);
     }
 
     return anomaly_count;
 }
 
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func) {
-    _ASSERT_COUNT++; // Increment the assertion count
+    _ASSERT_COUNT++;
 
     if (!condition) {
-        int anomaly_count = pizza_test_assert_internal_detect(message, file, line, func);
+        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func);
 
-        // Output assertion failure
+        // Enhanced output can include anomaly count and possibly hashed context
         pizza_test_assert_internal_output(message, file, line, func, anomaly_count);
 
-        longjmp(test_jump_buffer, 1); // Jump back to test case failure handler
+        longjmp(test_jump_buffer, 1);
     }
 }
+
 
 // *********************************************************************************************
 // internal messages
