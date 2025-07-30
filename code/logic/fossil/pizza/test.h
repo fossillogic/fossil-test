@@ -46,16 +46,34 @@ typedef struct {
     int empty;
 } fossil_pizza_score_t;
 
+// --- Test Meta ---
+typedef struct {
+    char* hash;                // Hash of input/output/test logic
+    char* prev_hash;           // Link to previous block (optional)
+    time_t timestamp;          // When the test was run
+    char* origin_device_id;    // Where it was run
+    char* author;              // Who defined the test
+    double trust_score;        // TI trust score (0.0 - 1.0)
+    double confidence;         // Result confidence
+    bool immutable;            // If true, cannot be changed
+    char* signature;           // Digital signature of test result
+} fossil_pizza_meta_t;
+
 // --- Test Case ---
 typedef struct {
-    char* name;
-    char* tags;
-    char* criteria;
-    void (*setup)(void);
-    void (*teardown)(void);
-    void (*run)(void);
-    uint64_t elapsed_ns;
-    fossil_pizza_case_result_t result;
+    char* name;                         // Test name
+    char* tags;                         // Comma-separated tags
+    char* criteria;                     // Description or expectations
+
+    void (*setup)(void);               // Optional setup
+    void (*teardown)(void);            // Optional teardown
+    void (*run)(void);                 // Test execution function
+
+    uint64_t elapsed_ns;               // Timing in nanoseconds
+    fossil_pizza_case_result_t result; // Outcome
+
+    // TI Extensions:
+    fossil_pizza_meta_t meta;          // Metadata for TI auditing
 } fossil_pizza_case_t;
 
 // In fossil_pizza_suite_t
@@ -64,12 +82,18 @@ typedef struct {
     fossil_pizza_case_t* cases;
     size_t count;
     size_t capacity;
+
     void (*setup)(void);
     void (*teardown)(void);
+
     uint64_t time_elapsed_ns;
     int total_score;
     int total_possible;
+
     fossil_pizza_score_t score;
+
+    // TI Extensions:
+    fossil_pizza_meta_t meta;          // Metadata for suite-level auditing
 } fossil_pizza_suite_t;
 
 // In fossil_pizza_engine_t
@@ -77,10 +101,16 @@ typedef struct {
     fossil_pizza_suite_t* suites;
     size_t count;
     size_t capacity;
+
     int score_total;
     int score_possible;
+
     fossil_pizza_score_t score;
-    fossil_pizza_pallet_t pallet;
+
+    fossil_pizza_pallet_t pallet;      // CLI + config
+
+    // TI Extensions:
+    fossil_pizza_meta_t meta;          // Global engine metadata (hash of all runs)
 } fossil_pizza_engine_t;
 
 // --- Initialization ---
@@ -149,6 +179,15 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  */
 void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
+/**
+ * @brief Internal function to handle assertions with message formatting.
+ * 
+ * This function is used internally by the test framework to handle assertions
+ * and format messages. It is not intended to be called directly.
+ * 
+ * @param message The message to format.
+ * @return A formatted message string.
+ */
 char *pizza_test_assert_messagef(const char *message, ...);
 
 // *********************************************************************************************
@@ -213,34 +252,56 @@ void _on_skip(const char *description);
  */
 
  #ifdef __cplusplus
- #define _FOSSIL_TEST(test_name) \
-     extern "C" void test_name##_run(void); \
-     static fossil_pizza_case_t test_case_##test_name = { \
-         (cstr)#test_name, \
-         (cstr)"fossil", \
-         (cstr)"name", \
-         nullptr, \
-         nullptr, \
-         test_name##_run, \
-         0, \
-         FOSSIL_PIZZA_CASE_EMPTY \
-     }; \
-     extern "C" void test_name##_run(void)
- #else
- #define _FOSSIL_TEST(test_name) \
-     void test_name##_run(void); \
-     static fossil_pizza_case_t test_case_##test_name = { \
-         .name = #test_name, \
-         .tags = "fossil", \
-         .criteria = "name", \
-         .setup = NULL, \
-         .teardown = NULL, \
-         .run = test_name##_run, \
-         .elapsed_ns = 0, \
-         .result = FOSSIL_PIZZA_CASE_EMPTY \
-     }; \
-     void test_name##_run(void)
- #endif
+#define _FOSSIL_TEST(test_name) \
+    extern "C" void test_name##_run(void); \
+    static fossil_pizza_case_t test_case_##test_name = { \
+        (char*)#test_name, \
+        (char*)"fossil", \
+        (char*)"name", \
+        nullptr, \
+        nullptr, \
+        test_name##_run, \
+        0, \
+        FOSSIL_PIZZA_CASE_EMPTY, \
+        { \
+            nullptr, \
+            nullptr, \
+            0, \
+            (char*)"unknown", \
+            (char*)"anonymous", \
+            0.0, \
+            0.0, \
+            false, \
+            nullptr \
+        } \
+    }; \
+    extern "C" void test_name##_run(void)
+#else
+#define _FOSSIL_TEST(test_name) \
+    void test_name##_run(void); \
+    static fossil_pizza_case_t test_case_##test_name = { \
+        .name = #test_name, \
+        .tags = "fossil", \
+        .criteria = "name", \
+        .setup = NULL, \
+        .teardown = NULL, \
+        .run = test_name##_run, \
+        .elapsed_ns = 0, \
+        .result = FOSSIL_PIZZA_CASE_EMPTY, \
+        .meta = { \
+            .hash = NULL, \
+            .prev_hash = NULL, \
+            .timestamp = 0, \
+            .origin_device_id = "unknown", \
+            .author = "anonymous", \
+            .trust_score = 0.0, \
+            .confidence = 0.0, \
+            .immutable = false, \
+            .signature = NULL \
+        } \
+    }; \
+    void test_name##_run(void)
+#endif
  
  /** @brief Macro to set a test case's tags.
   * 
@@ -316,7 +377,7 @@ void _on_skip(const char *description);
     void setup_##suite(void); \
     void teardown_##suite(void); \
     static fossil_pizza_suite_t suite_##suite { \
-        (cstr)#suite, \
+        (char*)#suite, \
         nullptr, \
         0, \
         0, \
@@ -325,7 +386,18 @@ void _on_skip(const char *description);
         0, \
         0, \
         0, \
-        {0, 0, 0, 0, 0, 0} \
+        {0, 0, 0, 0, 0, 0}, \
+        { \
+            nullptr,         /* hash */ \
+            nullptr,         /* prev_hash */ \
+            0,               /* timestamp */ \
+            (char*)"unknown",/* origin_device_id */ \
+            (char*)"anonymous", /* author */ \
+            0.0,             /* trust_score */ \
+            0.0,             /* confidence */ \
+            false,           /* immutable */ \
+            nullptr          /* signature */ \
+        } \
     }
 #else
 #define _FOSSIL_SUITE(suite) \
@@ -341,7 +413,18 @@ void _on_skip(const char *description);
         .time_elapsed_ns = 0, \
         .total_score = 0, \
         .total_possible = 0, \
-        .score = {0, 0, 0, 0, 0, 0} \
+        .score = {0, 0, 0, 0, 0, 0}, \
+        .meta = { \
+            .hash = NULL, \
+            .prev_hash = NULL, \
+            .timestamp = 0, \
+            .origin_device_id = "unknown", \
+            .author = "anonymous", \
+            .trust_score = 0.0, \
+            .confidence = 0.0, \
+            .immutable = false, \
+            .signature = NULL \
+        } \
     }
 #endif
 

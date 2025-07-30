@@ -15,17 +15,20 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
+#include <unistd.h>
+#include <float.h>
 #include <stdio.h>
 #include <float.h>
 #include <ctype.h>
+#include <time.h>
 #include <math.h>
-#include <unistd.h> // Only include once
 
 #ifdef _WIN32
     #include <windows.h>
@@ -56,6 +59,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define FOSSIL_PIZZA_HASH_SIZE 16
+
+/* Type definitions */
+typedef char* cstr;
+typedef const char* ccstr;
 
 // *****************************************************************************
 // Safe operations
@@ -179,6 +188,22 @@ extern "C" {
 #define cempty ""
 
 // *****************************************************************************
+// Hashing algorithm
+// *****************************************************************************
+
+/**
+ * @brief Computes a hash for the given input string.
+ *
+ * This function implements a simple hashing algorithm that combines the input
+ * string with an output string to produce a fixed-size hash.
+ *
+ * @param input The input string to hash.
+ * @param output The output string to combine with the input.
+ * @param hash_out Pointer to an array where the resulting hash will be stored.
+ */
+void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
+
+// *****************************************************************************
 // Command Pallet
 // *****************************************************************************
 
@@ -204,14 +229,28 @@ typedef struct {
     struct {
         int fail_fast;         // Flag for --fail-fast
         const char* only;      // Value for --only
+        cstr *only_cases;      // Array of test case names (split by ',')
+        size_t only_count;     // Number of test cases in only_cases
+        int only_has_wildcard; // 1 if any test case contains '*', 0 otherwise
         const char* skip;      // Value for --skip
         int repeat;            // Value for --repeat
     } run;                     // Run command flags
 
     struct {
         const char* test_name; // Value for --test-name
+        cstr *test_name_list;  // Array of test names (split by ',')
+        size_t test_name_count;// Number of test names
+        int test_name_has_wildcard; // 1 if any test name contains '*', 0 otherwise
+
         const char* suite_name;// Value for --suite-name
+        cstr *suite_name_list; // Array of suite names (split by ',')
+        size_t suite_name_count;// Number of suite names
+        int suite_name_has_wildcard; // 1 if any suite name contains '*', 0 otherwise
+
         const char* tag;       // Value for --tag
+        cstr *tag_list;        // Array of tags (split by ',')
+        size_t tag_count;      // Number of tags
+        int tag_has_wildcard;  // 1 if any tag contains '*', 0 otherwise
     } filter;                  // Filter command flags
 
     struct {
@@ -772,10 +811,6 @@ void pizza_io_flush(void);
 // string management
 // *****************************************************************************
 
-/* Type definitions */
-typedef char* cstr;
-typedef const char* ccstr;
-
 /**
  * @brief Creates a new cstr with the given initial value.
  * 
@@ -967,6 +1002,10 @@ cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
  * @return A new cstr that is the original cstr padded on the right side.
  */
 cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
+
+// Append a string to a buffer safely with NUL-termination.
+// Returns true on success, false if buffer would overflow.
+bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
 
 #ifdef __cplusplus
 }

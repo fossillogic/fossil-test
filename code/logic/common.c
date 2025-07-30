@@ -19,7 +19,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.2.5"
+#define FOSSIL_PIZZA_VERSION "1.2.6"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
@@ -35,6 +35,114 @@ const char* G_PIZZA_ONLY = null;
 int G_PIZZA_REPEAT = 0;
 int G_PIZZA_THREADS = 1;
 fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
+
+// *****************************************************************************
+// Hashing algorithm
+// *****************************************************************************
+
+// HASH Algorithm magic
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+uint64_t get_pizza_time_microseconds(void) {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t t = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+    return t / 10; // 100-nanosecond intervals to microseconds
+}
+#else
+#include <sys/time.h>
+uint64_t get_pizza_time_microseconds(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)tv.tv_sec * 1000000ULL + tv.tv_usec;
+}
+#endif
+
+static uint64_t get_pizza_device_salt(void) {
+    // FNV-1a 64-bit base offset
+    uint64_t hash = 0xcbf29ce484222325ULL;
+
+    // Cross-platform user and home detection
+#if defined(_WIN32) || defined(_WIN64)
+    const char *vars[] = {
+        getenv("USERNAME"),
+        getenv("USERPROFILE"),
+        getenv("COMPUTERNAME")
+    };
+#else
+    const char *vars[] = {
+        getenv("USER"),
+        getenv("HOME"),
+        getenv("SHELL"),
+        getenv("HOSTNAME")
+    };
+#endif
+
+    // Mix in each variable if it exists
+    for (size_t v = 0; v < sizeof(vars) / sizeof(vars[0]); ++v) {
+        const char *val = vars[v];
+        if (val) {
+            for (size_t i = 0; val[i]; ++i) {
+                hash ^= (uint8_t)val[i];
+                hash *= 0x100000001b3ULL;
+            }
+        }
+    }
+
+    return hash;
+}
+
+void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out) {
+    const uint64_t PRIME = 0x100000001b3ULL;
+    static uint64_t SALT = 0;
+    if (SALT == 0) SALT = get_pizza_device_salt();  // Initialize salt once
+
+    uint64_t state1 = 0xcbf29ce484222325ULL ^ SALT;
+    uint64_t state2 = 0x84222325cbf29ce4ULL ^ ~SALT;
+
+    size_t in_len = strlen(input);
+    size_t out_len = strlen(output);
+
+    uint64_t nonce = get_pizza_time_microseconds();  // Microsecond resolution
+
+    for (size_t i = 0; i < in_len; ++i) {
+        state1 ^= (uint8_t)input[i];
+        state1 *= PRIME;
+        state1 ^= (state1 >> 27);
+        state1 ^= (state1 << 33);
+    }
+
+    for (size_t i = 0; i < out_len; ++i) {
+        state2 ^= (uint8_t)output[i];
+        state2 *= PRIME;
+        state2 ^= (state2 >> 29);
+        state2 ^= (state2 << 31);
+    }
+
+    // Nonce and length entropy
+    state1 ^= nonce ^ ((uint64_t)in_len << 32);
+    state2 ^= ~nonce ^ ((uint64_t)out_len << 16);
+
+    // Mixing rounds
+    for (int i = 0; i < 6; ++i) {
+        state1 += (state2 ^ (state1 >> 17));
+        state2 += (state1 ^ (state2 >> 13));
+        state1 ^= (state1 << 41);
+        state2 ^= (state2 << 37);
+        state1 *= PRIME;
+        state2 *= PRIME;
+    }
+
+    for (size_t i = 0; i < FOSSIL_PIZZA_HASH_SIZE; ++i) {
+        uint64_t mixed = (i % 2 == 0) ? state1 : state2;
+        mixed ^= (mixed >> ((i % 7) + 13));
+        mixed *= PRIME;
+        mixed ^= SALT;
+        hash_out[i] = (uint8_t)((mixed >> (8 * (i % 8))) & 0xFF);
+    }
+}
+
 
 // *****************************************************************************
 // command pallet
@@ -80,10 +188,6 @@ static void _show_help(void) {
     exit(EXIT_SUCCESS);
 }
 
-// TODO support wildcards for test cases under --only
-// TODO support regex for test cases under --only
-// TODO support listing multiple test cases under --only
-
 static void _show_subhelp_run(void) {
     pizza_io_printf("{blue}Run command options:{reset}\n");
     pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
@@ -93,15 +197,6 @@ static void _show_subhelp_run(void) {
     pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
-
-// TODO support wildcards for test cases under --test-name
-// TODO support regex for test cases under --test-name
-// TODO support listing multiple test cases under --test-name
-// TODO support wildcards for suite names under --suite-name
-// TODO support regex for suite names under --suite-name
-// TODO support listing multiple suite names under --suite-name
-// TODO support regex for tags under --tag
-// TODO support listing multiple tags under --tag
 
 static void _show_subhelp_filter(void) {
     pizza_io_printf("{blue}Filter command options:{reset}\n");
@@ -237,7 +332,21 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     pallet.run.fail_fast = 1;
                     G_PIZZA_FAIL_FAST = 1;
                 } else if (pizza_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
-                    pallet.run.only = argv[++j];
+                    // Support multiple test cases separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *test_cases = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.run.only = argv[j]; // Store raw string for now
+                    pallet.run.only_cases = test_cases;
+                    pallet.run.only_count = count;
+                    // Wildcard support: mark if any test case contains '*'
+                    pallet.run.only_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(test_cases[k], '*')) {
+                            pallet.run.only_has_wildcard = 1;
+                            break;
+                        }
+                    }
                 } else if (pizza_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
                     pallet.run.skip = argv[++j];
                     G_PIZZA_SKIP = 1;
@@ -261,22 +370,69 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
                 if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
-                    pallet.filter.test_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
-                    pallet.filter.suite_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
-                    const char* tag = argv[++j];
-                    int is_valid_tag = 0;
-                    for (int k = 0; VALID_TAGS[k] != null; k++) {
-                        if (pizza_io_cstr_compare(tag, VALID_TAGS[k]) == 0) {
-                            is_valid_tag = 1;
+                    // Support multiple test names separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *test_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.filter.test_name = argv[j]; // Store raw string for now
+                    pallet.filter.test_name_list = test_names;
+                    pallet.filter.test_name_count = count;
+                    // Wildcard support: mark if any test name contains '*'
+                    pallet.filter.test_name_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(test_names[k], '*')) {
+                            pallet.filter.test_name_has_wildcard = 1;
                             break;
                         }
                     }
-                    if (is_valid_tag) {
-                        pallet.filter.tag = tag;
+                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                    // Support multiple suite names separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *suite_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    pallet.filter.suite_name = argv[j]; // Store raw string for now
+                    pallet.filter.suite_name_list = suite_names;
+                    pallet.filter.suite_name_count = count;
+                    // Wildcard support: mark if any suite name contains '*'
+                    pallet.filter.suite_name_has_wildcard = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (strchr(suite_names[k], '*')) {
+                            pallet.filter.suite_name_has_wildcard = 1;
+                            break;
+                        }
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                    // Support multiple tags separated by comma, and wildcards
+                    j++;
+                    size_t count = 0;
+                    cstr *tags = pizza_io_cstr_split(argv[j], ',', &count);
+                    int valid_count = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        int is_valid_tag = 0;
+                        for (int t = 0; VALID_TAGS[t] != null; t++) {
+                            if (pizza_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0) {
+                                is_valid_tag = 1;
+                                break;
+                            }
+                        }
+                        if (is_valid_tag || strchr(tags[k], '*')) {
+                            valid_count++;
+                        }
+                    }
+                    if (valid_count == (int)count) {
+                        pallet.filter.tag = argv[j]; // Store raw string for now
+                        pallet.filter.tag_list = tags;
+                        pallet.filter.tag_count = count;
+                        // Wildcard support: mark if any tag contains '*'
+                        pallet.filter.tag_has_wildcard = 0;
+                        for (size_t k = 0; k < count; k++) {
+                            if (strchr(tags[k], '*')) {
+                                pallet.filter.tag_has_wildcard = 1;
+                                break;
+                            }
+                        }
                     } else {
-                        pizza_io_printf("{red}Error: Invalid tag '%s'.{reset}\n", tag);
+                        pizza_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
                         exit(EXIT_FAILURE);
                     }
                 } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
@@ -1210,7 +1366,6 @@ pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, in
 
 void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_free() - Pointer is null.\n");
         return;
     }
     free(ptr); // No need for null check, free() already handles null.
@@ -1970,4 +2125,27 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
         result[total_length] = '\0';
     }
     return result;
+}
+
+bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
+    if (!dest || !src || max_len == 0) return false;
+
+    // Find current length of dest up to max_len
+    size_t dest_len = 0;
+    while (dest_len < max_len && dest[dest_len] != '\0') {
+        ++dest_len;
+    }
+
+    // If no null-terminator found in range, dest is not safe
+    if (dest_len == max_len) return false;
+
+    size_t src_len = strlen(src);
+
+    // Make sure there's enough space (including null terminator)
+    if (dest_len + src_len >= max_len) return false;
+
+    memcpy(dest + dest_len, src, src_len);
+    dest[dest_len + src_len] = '\0';
+
+    return true;
 }

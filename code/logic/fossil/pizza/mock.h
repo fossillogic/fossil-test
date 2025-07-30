@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+// TODO: Upgrade to have Truthful Intelligent Mocking (TIM) capabilities
+
 // *****************************************************************************
 // Type declarations
 // *****************************************************************************
