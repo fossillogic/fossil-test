@@ -181,14 +181,13 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
 void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
     if (!test_case || !suite) return;
 
-    // --- TI: Set result timestamp ---
+    // --- Set result timestamp ---
     test_case->meta.timestamp = time(NULL);
 
-    // --- TI: Compute score and validity ---
+    // --- Update individual suite score ---
     switch (test_case->result) {
         case FOSSIL_PIZZA_CASE_PASS:
             suite->score.passed++;
-            suite->total_score++;
             break;
         case FOSSIL_PIZZA_CASE_FAIL:
             suite->score.failed++;
@@ -208,34 +207,31 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
             break;
     }
 
-    suite->total_possible++;
+    // --- Recompute suite totals for safety ---
+    suite->total_score = suite->score.passed;
+    suite->total_possible = suite->count;
 
-    // --- TI: Build hash input ---
+    // --- Build hash input ---
     char input_buf[512] = {0};
     char temp[64];
 
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->name ? test_case->name : "unnamed") != 0)
-        return;
-
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->meta.author ? test_case->meta.author : "anonymous") != 0)
-        return;
-
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->meta.origin_device_id ? test_case->meta.origin_device_id : "unknown") != 0)
-        return;
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->name ? test_case->name : "unnamed");
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->meta.author ? test_case->meta.author : "anonymous");
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), test_case->meta.origin_device_id ? test_case->meta.origin_device_id : "unknown");
 
     snprintf(temp, sizeof(temp), "%d", test_case->result);
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
     snprintf(temp, sizeof(temp), "%.2f", test_case->meta.trust_score);
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
     snprintf(temp, sizeof(temp), "%.2f", test_case->meta.confidence);
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
     snprintf(temp, sizeof(temp), "%lld", (long long)test_case->meta.timestamp);
-    if (pizza_io_cstr_append(input_buf, sizeof(input_buf), temp) != 0) return;
+    pizza_io_cstr_append(input_buf, sizeof(input_buf), temp);
 
-    // --- TI: Determine previous hash ---
+    // --- Determine previous hash ---
     char* prev_hash = NULL;
     if (suite->count > 0) {
         fossil_pizza_case_t* last_case = &suite->cases[suite->count - 1];
@@ -245,7 +241,13 @@ void fossil_pizza_update_score(fossil_pizza_case_t* test_case, fossil_pizza_suit
     }
     test_case->meta.prev_hash = prev_hash;
 
-    // --- TI: Hash it ---
+    // --- Free old hash if present to prevent memory leak ---
+    if (test_case->meta.hash) {
+        pizza_sys_memory_free(test_case->meta.hash);
+        test_case->meta.hash = NULL;
+    }
+
+    // --- Compute new hash ---
     uint8_t hash_raw[32];
     fossil_pizza_hash(input_buf, prev_hash ? prev_hash : "", hash_raw);
 
