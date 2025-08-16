@@ -934,10 +934,11 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
 }
 
 // --- Summary Report ---
+
 const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     if (!score) return "No results available.";
 
-    static char message[256];
+    static char message[512];
     int total = score->passed + score->failed + score->skipped +
                 score->timeout + score->unexpected + score->empty;
 
@@ -946,19 +947,109 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     double pass_rate = (double)score->passed / total * 100.0;
     double fail_ratio = (double)(score->failed + score->unexpected) / total;
 
+    // --- Primary Summary Pool (50 messages) ---
+    static const char* summaries[] = {
+        // Perfect
+        "Perfect stability: all tests passed.",
+        "Outstanding run: no issues detected.",
+        "Flawless baseline: zero failures.",
+        "Solid confidence: all cases succeeded.",
+        "Full coverage success: suite passed without error.",
+        // Near perfect
+        "Near-perfect: minor failures present.",
+        "Almost clean: one or two cases failed.",
+        "Very strong performance with isolated gaps.",
+        "Excellent reliability, but not absolute.",
+        "A few adjustments needed for total success.",
+        // Strong but not perfect
+        "High pass rate, suite largely stable.",
+        "Reliability confirmed, with minor issues.",
+        "Above expectations, but not flawless.",
+        "Strong resilience across test cases.",
+        "Overall positive results, but check edge cases.",
+        // Mixed results
+        "Balanced outcome: passes and failures split.",
+        "Moderate reliability: issues present but not overwhelming.",
+        "Inconsistent behavior detected in suite.",
+        "Suite stability is uneven.",
+        "Test reliability shows room for improvement.",
+        // Failure-heavy
+        "High failure rate detected, needs investigation.",
+        "Many cases failed, stability concerns raised.",
+        "Serious regression: majority of cases did not pass.",
+        "Multiple failures indicate critical bugs.",
+        "Widespread issues identified across the suite.",
+        // Timeouts
+        "Some cases failed to finish in time.",
+        "Timeouts suggest performance bottlenecks.",
+        "Long-running operations caused instability.",
+        "Multiple timeouts detected — review efficiency.",
+        "Suite affected by delays or infinite loops.",
+        // Skipped
+        "Several cases were skipped.",
+        "Coverage gaps: too many skipped tests.",
+        "Partial run — skipped cases limit reliability.",
+        "Suite execution incomplete due to skipped cases.",
+        "Large number of skips indicates missing dependencies.",
+        // Empty
+        "No implemented tests detected.",
+        "Test placeholders exist but contain no logic.",
+        "Suite mostly empty, coverage not achieved.",
+        "Untested code paths remain.",
+        "Define actual logic before re-running.",
+        // Unexpected
+        "Unexpected results indicate possible undefined behavior.",
+        "Test suite produced anomalies not mapped in criteria.",
+        "Unexpected output raises questions about correctness.",
+        "Unstable behavior — criteria may be mismatched.",
+        "Suite generated results outside defined expectations.",
+        // Critical
+        "Catastrophic regression: system integrity at risk.",
+        "Severe instability detected, halt release pipeline.",
+        "Suite outcome suggests major defects.",
+        "Reliability too low for deployment.",
+        "Critical failures demand immediate review."
+    };
+
+    const char* chosen = NULL;
+
+    // --- Selection Logic ---
     if (pass_rate == 100.0) {
-        snprintf(message, sizeof(message), "Perfect run! All tests passed. Great job.");
+        chosen = summaries[rand() % 5]; // Perfect pool
     } else if (fail_ratio > 0.5) {
-        snprintf(message, sizeof(message), "High failure rate detected. Investigate the failing and unexpected tests.");
+        chosen = summaries[20 + (rand() % 5)]; // Failure-heavy pool
     } else if (score->timeout > 0) {
-        snprintf(message, sizeof(message), "Some tests timed out. Check for infinite loops or delays.");
+        chosen = summaries[25 + (rand() % 5)]; // Timeout pool
     } else if (score->skipped > 0) {
-        snprintf(message, sizeof(message), "Some tests were skipped. Make sure all dependencies are in place.");
+        chosen = summaries[30 + (rand() % 5)]; // Skipped pool
     } else if (score->empty > 0 && score->passed == 0) {
-        snprintf(message, sizeof(message), "All tests are empty or unimplemented.");
+        chosen = summaries[35 + (rand() % 5)]; // Empty pool
+    } else if (score->unexpected > 0) {
+        chosen = summaries[40 + (rand() % 5)]; // Unexpected pool
+    } else if (pass_rate > 90.0) {
+        chosen = summaries[5 + (rand() % 5)]; // Near-perfect pool
+    } else if (pass_rate > 70.0) {
+        chosen = summaries[10 + (rand() % 5)]; // Strong but not perfect
+    } else if (pass_rate > 40.0) {
+        chosen = summaries[15 + (rand() % 5)]; // Mixed pool
     } else {
-        snprintf(message, sizeof(message), "Test run completed. Review failures and improve reliability.");
+        chosen = summaries[45 + (rand() % 5)]; // Critical pool
     }
+
+    // --- Hints Section ---
+    char hints[256] = {0};
+    if (score->failed > 0)
+        strncat(hints, " Check failing cases for regressions.", sizeof(hints) - strlen(hints) - 1);
+    if (score->timeout > 0)
+        strncat(hints, " Review timeouts for performance issues.", sizeof(hints) - strlen(hints) - 1);
+    if (score->skipped > 0)
+        strncat(hints, " Ensure skipped tests are intentional.", sizeof(hints) - strlen(hints) - 1);
+    if (score->unexpected > 0)
+        strncat(hints, " Unexpected outcomes may need criteria review.", sizeof(hints) - strlen(hints) - 1);
+    if (score->empty > 0)
+        strncat(hints, " Implement empty test stubs for full coverage.", sizeof(hints) - strlen(hints) - 1);
+
+    snprintf(message, sizeof(message), "%s%s", chosen, hints);
 
     return message;
 }
