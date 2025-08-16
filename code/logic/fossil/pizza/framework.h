@@ -15,6 +15,7 @@
 #ifndef FOSSIL_TEST_FRAMEWORK_H
 #define FOSSIL_TEST_FRAMEWORK_H
 
+#include "common.h"
 #include "assume.h"
 #include "sanity.h"
 #include "mark.h"
