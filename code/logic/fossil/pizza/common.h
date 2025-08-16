@@ -25,9 +25,13 @@
 #endif
 
 #ifdef __cplusplus
-// C++ headers
+// C++17 headers
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdarg>
 #include <cstring>
-#include <unistd.h>   // POSIX, same in C and C++
+#include <unistd.h>   // POSIX
 #include <cfloat>
 #include <cstdio>
 #include <cctype>
@@ -37,9 +41,9 @@
 // C headers
 #include <inttypes.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>   // POSIX
