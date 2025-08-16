@@ -15,20 +15,30 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
+/* ---------- Configuration / visibility ---------- */
+#if defined(_WIN32) && defined(FOSSIL_PIZZA_BUILD_DLL)
+#  define FOSSIL_PIZZA_API __declspec(dllexport)
+#elif defined(_WIN32) && defined(FOSSIL_PIZZA_USE_DLL)
+#  define FOSSIL_PIZZA_API __declspec(dllimport)
+#else
+#  define FOSSIL_PIZZA_API
+#endif
+
+// C headers
 #include <inttypes.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
+#include <unistd.h>   // POSIX
 #include <float.h>
 #include <stdio.h>
-#include <float.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
+
 
 #ifdef _WIN32
     #include <windows.h>

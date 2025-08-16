@@ -1446,29 +1446,38 @@ pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sy
 }
 
 pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size) {
-    if (ptr == null) {
+    if (!ptr) {
         fprintf(stderr, "Error: pizza_sys_memory_resize() - Pointer is null.\n");
-        return null;
+        return NULL;
     }
 
     if (new_size == 0) {
         pizza_sys_memory_free(ptr);
-        return null;
+        return NULL;
     }
 
-    // Allocate new memory
-    pizza_sys_memory_t new_ptr = pizza_sys_memory_realloc(ptr, new_size);
+    if (new_size <= old_size) {
+        // Shrinking, just realloc (no data copy needed)
+        pizza_sys_memory_t new_ptr = pizza_sys_memory_realloc(ptr, new_size);
+        if (!new_ptr) {
+            fprintf(stderr, "Error: pizza_sys_memory_resize() - Memory shrink failed, original preserved.\n");
+            return ptr;
+        }
+        return new_ptr;
+    }
+
+    // Allocate new memory manually to preserve old data
+    pizza_sys_memory_t new_ptr = pizza_sys_memory_alloc(new_size);
     if (!new_ptr) {
-        // Allocation failed; return the original memory block
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Memory resize failed, original memory preserved.\n");
+        fprintf(stderr, "Error: pizza_sys_memory_resize() - Allocation failed.\n");
         return ptr;
     }
 
-    // Check if new size is larger, and if so, preserve the old data
-    if (new_size > old_size && ptr) {
-        // Initialize new memory with old data (if necessary)
-        memcpy(new_ptr, ptr, old_size);
-    }
+    // Copy old data
+    memcpy(new_ptr, ptr, old_size);
+
+    // Free old memory
+    pizza_sys_memory_free(ptr);
 
     return new_ptr;
 }

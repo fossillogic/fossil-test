@@ -17,13 +17,6 @@
 
 #include "framework.h"
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include <float.h>
-#include <math.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
