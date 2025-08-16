@@ -18,7 +18,6 @@
 #ifdef __cplusplus
 // C++ headers
 #include <cinttypes>
-#include <cstdbool>
 #include <cstdlib>
 #include <cstddef>
 #include <cstdint>
