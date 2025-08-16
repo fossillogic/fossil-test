@@ -33,7 +33,7 @@ jobs:
 
       - name: Create and build package
         run: |
-          conan create . --name=pizza_test --version=1.2.7 fossillogic/stable \
+          conan create . fossillogic/pizza_test-1.2.7@ \
             -s build_type=${{ matrix.build_type }}
 
       - name: Run test package
