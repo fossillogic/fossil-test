@@ -15,6 +15,23 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
+#ifdef __cplusplus
+// C++ headers
+#include <cinttypes>
+#include <cstdbool>
+#include <cstdlib>
+#include <cstddef>
+#include <cstdint>
+#include <cstdarg>
+#include <cstring>
+#include <unistd.h>   // POSIX, same in C and C++
+#include <cfloat>
+#include <cstdio>
+#include <cctype>
+#include <ctime>
+#include <cmath>
+#else
+// C headers
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -22,13 +39,13 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h>
+#include <unistd.h>   // POSIX
 #include <float.h>
 #include <stdio.h>
-#include <float.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
+#endif
 
 #ifdef _WIN32
     #include <windows.h>
