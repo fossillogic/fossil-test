@@ -286,7 +286,7 @@ char *fossil_pizza_format_ns(uint64_t ns) {
     return buffer;
 }
 
-void fossil_pizza_show_cases(const fossil_pizza_case_t* test_case, const fossil_pizza_case_t* test_case, const fossil_pizza_engine_t* engine) {
+void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_pizza_case_t* test_case, const fossil_pizza_engine_t* engine) {
     if (!test_case) return;
 
     // Determine mode (list, tree, graph), default to list
