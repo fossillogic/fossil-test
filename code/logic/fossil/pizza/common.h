@@ -27,13 +27,13 @@
 #ifdef __cplusplus
 // C++17 headers
 #include <cstring>
-#include <unistd.h>   // POSIX
 #include <cfloat>
 #include <cstdio>
 #include <cctype>
 #include <ctime>
 #include <cmath>
-#else
+#endif
+
 // C headers
 #include <inttypes.h>
 #include <stdbool.h>
@@ -48,7 +48,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
-#endif
+
 
 #ifdef _WIN32
     #include <windows.h>
