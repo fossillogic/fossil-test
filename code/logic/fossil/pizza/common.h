@@ -15,8 +15,6 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
-#define _LIBCPP_HARDENING_MODE debug
-
 /* ---------- Configuration / visibility ---------- */
 #if defined(_WIN32) && defined(FOSSIL_PIZZA_BUILD_DLL)
 #  define FOSSIL_PIZZA_API __declspec(dllexport)
