@@ -26,10 +26,6 @@
 
 #ifdef __cplusplus
 // C++17 headers
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdarg>
 #include <cstring>
 #include <unistd.h>   // POSIX
 #include <cfloat>
