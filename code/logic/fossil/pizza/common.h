@@ -26,7 +26,6 @@
 
 #ifdef __cplusplus
 // C++17 headers
-#include <cstring>
 #include <cfloat>
 #include <cstdio>
 #include <cctype>
