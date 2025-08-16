@@ -173,7 +173,7 @@ jobs:
 
     strategy:
       matrix:
-        distro: [ubuntu, fedora, archlinux, debian, opensuse]
+        distro: [ubuntu, fedora, archlinux, debian] # in a new experiment add alpine and opensuse
 
     steps:
       - name: Checkout code
