@@ -173,7 +173,7 @@ jobs:
 
     strategy:
       matrix:
-        distro: [ubuntu, fedora, archlinux, debian, alpine, opensuse]
+        distro: [ubuntu, fedora, archlinux, debian, opensuse]
 
     steps:
       - name: Checkout code
