@@ -17,7 +17,6 @@
 
 #ifdef __cplusplus
 // C++ headers
-#include <cstddef>
 #include <cstdint>
 #include <cstdarg>
 #include <cstring>
