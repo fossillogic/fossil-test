@@ -17,9 +17,6 @@
 
 #ifdef __cplusplus
 // C++ headers
-#include <cstdint>
-#include <cstdarg>
-#include <cstring>
 #include <unistd.h>   // POSIX, same in C and C++
 #include <cfloat>
 #include <cstdio>
