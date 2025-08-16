@@ -15,8 +15,20 @@
 #ifndef FOSSIL_TEST_COMMON_H
 #define FOSSIL_TEST_COMMON_H
 
+#define _LIBCPP_HARDENING_MODE debug
+
+/* ---------- Configuration / visibility ---------- */
+#if defined(_WIN32) && defined(FOSSIL_PIZZA_BUILD_DLL)
+#  define FOSSIL_PIZZA_API __declspec(dllexport)
+#elif defined(_WIN32) && defined(FOSSIL_PIZZA_USE_DLL)
+#  define FOSSIL_PIZZA_API __declspec(dllimport)
+#else
+#  define FOSSIL_PIZZA_API
+#endif
+
 #ifdef __cplusplus
 // C++ headers
+#include <cstring>
 #include <unistd.h>   // POSIX, same in C and C++
 #include <cfloat>
 #include <cstdio>
