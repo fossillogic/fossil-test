@@ -302,14 +302,14 @@ void fossil_pizza_show_cases(const fossil_pizza_case_t* test_case, const fossil_
 
     // Filtering logic
     if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
-        continue;
+        return;
     if (engine && engine->pallet.show.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
-        continue;
+        return;
     if (engine && engine->pallet.show.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag)))
-        continue;
+        return;
     if (engine && engine->pallet.show.result) {
         if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
-            continue;
+        return;
     }
 
     // Output according to mode and theme
@@ -673,7 +673,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
                 if (engine->pallet.run.fail_fast) {
                     fossil_pizza_update_score(test_case, suite);
-                    fossil_pizza_show_cases(suite, engine);
+                    fossil_pizza_show_cases(test_case, engine);
                     return;
                 }
             }
