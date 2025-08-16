@@ -286,7 +286,7 @@ char *fossil_pizza_format_ns(uint64_t ns) {
     return buffer;
 }
 
-void fossil_pizza_show_cases(const fossil_pizza_case_t* test_case, const fossil_pizza_engine_t* engine) {
+void fossil_pizza_show_cases(const fossil_pizza_case_t* test_case, const fossil_pizza_case_t* test_case, const fossil_pizza_engine_t* engine) {
     if (!test_case) return;
 
     // Determine mode (list, tree, graph), default to list
@@ -673,7 +673,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
                 if (engine->pallet.run.fail_fast) {
                     fossil_pizza_update_score(test_case, suite);
-                    fossil_pizza_show_cases(test_case, engine);
+                    fossil_pizza_show_cases(suite, test_case, engine);
                     return;
                 }
             }
@@ -686,7 +686,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
     }
 
     fossil_pizza_update_score(test_case, suite);
-    fossil_pizza_show_cases(test_case, engine);
+    fossil_pizza_show_cases(suite, test_case, engine);
     _ASSERT_COUNT = 0;
 }
 
