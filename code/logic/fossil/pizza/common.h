@@ -24,15 +24,6 @@
 #  define FOSSIL_PIZZA_API
 #endif
 
-#ifdef __cplusplus
-// C++17 headers
-#include <cfloat>
-#include <cstdio>
-#include <cctype>
-#include <ctime>
-#include <cmath>
-#endif
-
 // C headers
 #include <inttypes.h>
 #include <stdbool.h>
