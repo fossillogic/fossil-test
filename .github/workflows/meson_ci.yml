@@ -82,8 +82,8 @@ jobs:
         run: |
           echo "Available Xcode versions:"
           ls /Applications | grep Xcode || echo "No Xcode found"
-          AVAILABLE=$(ls /Applications | grep Xcode | sed 's/\.app//' | sed 's/\./_/g')
-          echo "AVAILABLE_XCODE=$AVAILABLE" >> $GITHUB_ENV
+          AVAILABLE=$(ls /Applications | grep Xcode | sed 's/\.app//')
+          echo "AVAILABLE_XCODE=\"$AVAILABLE\"" >> $GITHUB_ENV
   
       - name: Select Xcode version
         run: |
