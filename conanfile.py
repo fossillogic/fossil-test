@@ -16,7 +16,7 @@ class PizzaTestConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = {"shared": False}
 
-    exports_sources = "code/**", "meson.build"
+    exports_sources = "code/**", "meson.build", "meson.options"
     generators = "PkgConfigDeps"
 
     def layout(self):
