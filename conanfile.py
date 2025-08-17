@@ -33,7 +33,7 @@ class PizzaTestConan(ConanFile):
         """Configure and build the project using Meson"""
         meson = Meson(self)
         meson.configure()
-        meson.build(build_dir="builddir")
+        meson.build()
 
     def package(self):
         """Install headers and libraries into package folder"""
