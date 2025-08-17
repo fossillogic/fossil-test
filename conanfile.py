@@ -38,7 +38,7 @@ class PizzaTestConan(ConanFile):
     def package(self):
         """Install headers and libraries into package folder"""
         meson = Meson(self)
-        meson.install(build_dir="builddir")
+        meson.install()
 
         # Ensure headers are included even if not installed by Meson
         copy(self, "*.h",
