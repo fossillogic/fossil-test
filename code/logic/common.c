@@ -19,7 +19,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.2.6"
+#define FOSSIL_PIZZA_VERSION "1.2.7"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 

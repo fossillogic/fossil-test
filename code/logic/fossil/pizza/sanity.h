@@ -116,6 +116,81 @@ int fossil_sanity_sys_create_dir(const char* dirname);
  */
 int fossil_sanity_sys_dir_exists(const char* dirname);
 
+/**
+ * @brief Reads the entire contents of a file into memory.
+ *
+ * The returned buffer is null-terminated and allocated dynamically.
+ * The caller is responsible for freeing the returned memory using free().
+ *
+ * @param filename Path to the file to read.
+ * @return char* Pointer to allocated null-terminated buffer on success, 
+ *               or NULL on failure.
+ */
+char* fossil_sanity_sys_read_file(const char* filename);
+
+/**
+ * @brief Writes data to a file, replacing any existing contents.
+ *
+ * @param filename Path to the file.
+ * @param data Null-terminated string to write.
+ * @return int Returns 0 on success, negative on failure.
+ */
+int fossil_sanity_sys_write_file(const char* filename, const char* data);
+
+/**
+ * @brief Deletes a file from the filesystem.
+ *
+ * @param filename Path to the file to delete.
+ * @return int Returns 0 on success, negative on failure.
+ */
+int fossil_sanity_sys_delete_file(const char* filename);
+
+/**
+ * @brief Retrieves the value of an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @return const char* Value of the variable, or NULL if not found.
+ */
+const char* fossil_sanity_sys_getenv(const char* name);
+
+/**
+ * @brief Sets or overrides an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @param value Value to set.
+ * @return int Returns 0 on success, negative on failure.
+ */
+int fossil_sanity_sys_setenv(const char* name, const char* value);
+
+/**
+ * @brief Retrieves the current system timestamp as a formatted string.
+ *
+ * @return char* Newly allocated string with timestamp (caller must free).
+ */
+char* fossil_sanity_sys_timestamp(void);
+
+/**
+ * @brief Returns uptime in milliseconds since process start.
+ *
+ * @return long long Milliseconds since process launch.
+ */
+long long fossil_sanity_sys_uptime_ms(void);
+
+/**
+ * @brief Checks if a process is still running.
+ *
+ * @param pid Process ID.
+ * @return int Returns 1 if running, 0 if not, negative on error.
+ */
+int fossil_sanity_sys_is_running(int pid);
+
+/**
+ * @brief Attempts to terminate a process by PID.
+ *
+ * @param pid Process ID.
+ * @return int Returns 0 on success, negative on failure.
+ */
+int fossil_sanity_sys_kill(int pid);
 
 #ifdef __cplusplus
 }
@@ -225,6 +300,91 @@ int fossil_sanity_sys_dir_exists(const char* dirname);
 #define _FOSSIL_SANITY_SYS_DIR_EXISTS(dirname) \
     fossil_sanity_sys_dir_exists(dirname)
 
+/**
+ * @brief Reads the entire contents of a file into memory.
+ *
+ * The returned buffer is null-terminated and allocated dynamically.
+ * The caller is responsible for freeing the returned memory using free().
+ *
+ * @param filename Path to the file to read.
+ * @return char* Pointer to allocated null-terminated buffer on success,
+ *               or NULL on failure.
+ */
+#define _FOSSIL_SANITY_SYS_READ_FILE(filename) \
+    fossil_sanity_sys_read_file(filename)
+
+/**
+ * @brief Writes data to a file, replacing any existing contents.
+ *
+ * @param filename Path to the file.
+ * @param data Null-terminated string to write.
+ * @return int Returns 0 on success, negative on failure.
+ */
+ #define _FOSSIL_SANITY_SYS_WRITE_FILE(filename, data) \
+    fossil_sanity_sys_write_file(filename, data)
+
+/**
+ * @brief Deletes a file from the filesystem.
+ *
+ * @param filename Path to the file to delete.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define _FOSSIL_SANITY_SYS_DELETE_FILE(filename) \
+    fossil_sanity_sys_delete_file(filename)
+
+/**
+ * @brief Retrieves the value of an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @return const char* Value of the variable, or NULL if not found.
+ */
+#define _FOSSIL_SANITY_SYS_GETENV(name) \
+    fossil_sanity_sys_getenv(name)
+
+/**
+ * @brief Sets or overrides an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @param value Value to set.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define _FOSSIL_SANITY_SYS_SETENV(name, value) \
+    fossil_sanity_sys_setenv(name, value)
+
+/**
+ * @brief Retrieves the current system timestamp as a formatted string.
+ *
+ * @return char* Newly allocated string with timestamp (caller must free).
+ */
+#define _FOSSIL_SANITY_SYS_TIMESTAMP() \
+    fossil_sanity_sys_timestamp()
+
+/**
+ * @brief Returns uptime in milliseconds since process start.
+ *
+ * @return long long Milliseconds since process launch.
+ */
+#define _FOSSIL_SANITY_SYS_UPTIME_MS() \
+    fossil_sanity_sys_uptime_ms()
+
+/**
+ * @brief Checks if a process is still running.
+ *
+ * @param pid Process ID.
+ * @return int Returns 1 if running, 0 if not, negative on error.
+ */
+#define _FOSSIL_SANITY_SYS_IS_RUNNING(pid) \
+    fossil_sanity_sys_is_running(pid)
+
+/**
+ * @brief Attempts to terminate a process by PID.
+ *
+ * @param pid Process ID.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define _FOSSIL_SANITY_SYS_KILL(pid) \
+    fossil_sanity_sys_kill(pid)
+
 // *****************************************************************************
 // Public API Macros
 // *****************************************************************************
@@ -322,5 +482,90 @@ int fossil_sanity_sys_dir_exists(const char* dirname);
  */
 #define FOSSIL_SANITY_SYS_DIR_EXISTS(dirname) \
     _FOSSIL_SANITY_SYS_DIR_EXISTS(dirname)
+
+/**
+ * @brief Reads the entire contents of a file into memory.
+ *
+ * The returned buffer is null-terminated and allocated dynamically.
+ * The caller is responsible for freeing the returned memory using free().
+ *
+ * @param filename Path to the file to read.
+ * @return char* Pointer to allocated null-terminated buffer on success,
+ *               or NULL on failure.
+ */
+#define FOSSIL_SANITY_SYS_READ_FILE(filename) \
+    _FOSSIL_SANITY_SYS_READ_FILE(filename)
+
+/**
+ * @brief Writes data to a file, replacing any existing contents.
+ *
+ * @param filename Path to the file.
+ * @param data Null-terminated string to write.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define FOSSIL_SANITY_SYS_WRITE_FILE(filename, data) \
+    _FOSSIL_SANITY_SYS_WRITE_FILE(filename, data)
+
+/**
+ * @brief Deletes a file from the filesystem.
+ *
+ * @param filename Path to the file to delete.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define FOSSIL_SANITY_SYS_DELETE_FILE(filename) \
+    _FOSSIL_SANITY_SYS_DELETE_FILE(filename)
+
+/**
+ * @brief Retrieves the value of an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @return const char* Value of the variable, or NULL if not found.
+ */
+#define FOSSIL_SANITY_SYS_GETENV(name) \
+    _FOSSIL_SANITY_SYS_GETENV(name)
+
+/**
+ * @brief Sets or overrides an environment variable.
+ *
+ * @param name Name of the environment variable.
+ * @param value Value to set.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define FOSSIL_SANITY_SYS_SETENV(name, value) \
+    _FOSSIL_SANITY_SYS_SETENV(name, value)
+
+/**
+ * @brief Retrieves the current system timestamp as a formatted string.
+ *
+ * @return char* Newly allocated string with timestamp (caller must free).
+ */
+#define FOSSIL_SANITY_SYS_TIMESTAMP() \
+    _FOSSIL_SANITY_SYS_TIMESTAMP()
+
+/**
+ * @brief Returns uptime in milliseconds since process start.
+ *
+ * @return long long Milliseconds since process launch.
+ */
+#define FOSSIL_SANITY_SYS_UPTIME_MS() \
+    _FOSSIL_SANITY_SYS_UPTIME_MS()
+
+/**
+ * @brief Checks if a process is still running.
+ *
+ * @param pid Process ID.
+ * @return int Returns 1 if running, 0 if not, negative on error.
+ */
+#define FOSSIL_SANITY_SYS_IS_RUNNING(pid) \
+    _FOSSIL_SANITY_SYS_IS_RUNNING(pid)
+
+/**
+ * @brief Kills a running process.
+ *
+ * @param pid Process ID.
+ * @return int Returns 0 on success, negative on failure.
+ */
+#define FOSSIL_SANITY_SYS_KILL(pid) \
+    _FOSSIL_SANITY_SYS_KILL(pid)
 
 #endif // FOSSIL_SANITY_H
