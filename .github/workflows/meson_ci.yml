@@ -86,19 +86,11 @@ jobs:
       - name: Select Xcode version
         run: |
           DESIRED="Xcode_${{ matrix.xcode_version }}"
-          # Normalize the desired version for comparison
-          DESIRED_SAFE=${DESIRED//./_}
-      
-          echo "Desired Xcode: $DESIRED"
-          echo "Normalized for env check: $DESIRED_SAFE"
-      
-          if echo "$AVAILABLE_XCODE" | grep -q "$DESIRED_SAFE"; then
-            echo "Switching to $DESIRED"
-            sudo xcode-select --switch /Applications/$DESIRED.app
+          if echo "$AVAILABLE_XCODE" | grep -q "$DESIRED"; then
+              sudo xcode-select --switch /Applications/$DESIRED.app
           else
-            echo "$DESIRED not installed, using default Xcode"
+              echo "$DESIRED not installed, using default Xcode"
           fi
-      
           xcode-select -p
   
       - name: Install Meson and Ninja
