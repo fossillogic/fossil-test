@@ -49,3 +49,6 @@ class PizzaTestConan(ConanFile):
         """Set information for consumers of the package"""
         self.cpp_info.libs = ["pizza_test"]
         self.cpp_info.includedirs = ["include"]
+
+    def source(self):
+        self.run(f"git clone --branch v{self.version} {self.url} .")
