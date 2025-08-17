@@ -34,37 +34,54 @@ To get started with Pizza Test, ensure you have the following installed:
 
 ### Adding Pizza Test Dependency
 
-#### Adding Pizza Test Dependency With Meson
+#### Adding via Meson Build System
 
 1. **Install Meson Build System**:
    Install Meson version `1.3` or newer:
-   ```sh
-   python -m pip install meson           # To install Meson
-   python -m pip install --upgrade meson # To upgrade Meson
-   ```
+```bash
+python -m pip install meson           # To install Meson
+python -m pip install --upgrade meson # To upgrade Meson
+```
 
 2. **Create a `.wrap` File**:
    Add a `fossil-test.wrap` file in your `subprojects` directory with the following content:
 
-   ```ini
-   # ======================
-   # Git Wrap package definition
-   # ======================
-   [wrap-git]
-   url = https://github.com/fossillogic/fossil-test.git
-   revision = v1.2.7
+```ini
+# ======================
+# Git Wrap package definition
+# ======================
+[wrap-git]
+url = https://github.com/fossillogic/fossil-test.git
+revision = v1.2.7
 
-   [provide]
-   fossil-test = fossil_test_dep
-   ```
+[provide]
+fossil-test = fossil_test_dep
+```
 
 3. **Integrate the Dependency**:
    In your `meson.build` file, integrate Fossil Test by adding the following line:
-   ```meson
-   dep = dependency('fossil-test')
-   ```
+```meson
+dep = dependency('fossil-test')
+```
 
----
+#### Adding via Conan GitHub repository
+
+Conan can install packages directly from a GitHub repository if it contains a valid conanfile.py.
+
+```bash
+# Install from GitHub (replace branch/tag if needed)
+conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.7 --name pizza_test --build=missing
+
+# Build your project
+# CMake example:
+cmake -S . -B build
+cmake --build build
+
+# Meson example:
+meson setup builddir
+meson compile -C builddir
+meson test -C builddir
+```
 
 **Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/pizzalogic/pizza-test/releases) page for the latest versions.
 
