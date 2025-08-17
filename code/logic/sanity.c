@@ -13,8 +13,6 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/pizza/sanity.h"
-#define _POSIX_C_SOURCE 200809L
-
 #include <stdlib.h>   // getenv, setenv
 #include <time.h>     // localtime_r, strftime
 #include <sys/time.h> // gettimeofday
