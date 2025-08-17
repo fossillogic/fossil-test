@@ -84,7 +84,7 @@ jobs:
           python -m pip install meson ninja
   
       - name: Configure
-        run: meson setup builddir -Dwith_test=enabled -Dwarning_level=3
+        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
   
       - name: Compile
         run: meson compile -C builddir
