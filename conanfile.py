@@ -19,8 +19,8 @@ class PizzaTestConan(ConanFile):
 
     def build(self):
         meson = Meson(self)
-        meson.configure(build_dir="build")  # <-- FIX: force clean build dir
-        meson.build()
+        meson.configure()
+        meson.build(build_dir="builddir")
 
     def package(self):
         meson = Meson(self)
