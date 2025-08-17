@@ -1,4 +1,4 @@
-name: Build and Package PizzaTest
+name: Conan CI
 
 on:
   push:
@@ -13,11 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Install dependencies: Python, Meson, Ninja, Conan
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -33,26 +31,19 @@ jobs:
           pip install --upgrade pip
           pip install meson==1.3.2 conan==2.3.2
 
-      # 3. Configure Conan
-      - name: Configure Conan
-        run: |
-          conan profile new default --detect || true
-          conan profile update settings.compiler.libcxx=libstdc++11 default
+      - name: Detect Conan profile
+        run: conan profile detect
 
-      # 4. Install dependencies via Conan (if needed)
       - name: Install dependencies
-        run: conan install . --build=missing
+        run: conan install . --profile default --build=missing
 
-      # 5. Build with Meson
       - name: Build
         run: |
           meson setup builddir
           meson compile -C builddir
 
-      # 6. Run tests (optional)
       - name: Test
         run: meson test -C builddir
 
-      # 7. Package using Conan
       - name: Package
         run: conan create . pizza_test/1.2.7@
