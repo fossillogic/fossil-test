@@ -186,7 +186,7 @@ char* fossil_sanity_sys_timestamp(void) {
     if (strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tstruct) == 0)
         return NULL;
 
-    char* out = strdup(buf);
+    char* out = pizza_io_cstr_dup(buf);
     return out;
 }
 
