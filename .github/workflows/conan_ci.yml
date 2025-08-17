@@ -1,4 +1,4 @@
-name: Conan Build & Test
+name: Conan CI
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Create and build package
         run: |
-          conan new fossil-test/1.2.7 \
+          conan create . fossillogic/pizza_test-1.2.7@ \
             -s build_type=${{ matrix.build_type }}
 
       - name: Run test package
