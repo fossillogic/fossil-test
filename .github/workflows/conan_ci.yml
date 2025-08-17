@@ -46,4 +46,4 @@ jobs:
         run: meson test -C builddir
 
       - name: Package
-        run: conan create . pizza_test/1.2.7@
+        run: conan create . --name=pizza_test --version=1.2.7
