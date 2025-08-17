@@ -80,12 +80,8 @@ jobs:
       - name: List available Xcode versions
         id: xcode
         run: |
-          echo "Available Xcode versions:"
-          ls /Applications | grep Xcode || echo "No Xcode found"
-      
-          # Normalize: replace dots with underscores for safe environment variable
-          AVAILABLE_SAFE=$(ls /Applications | grep Xcode | sed 's/\.app//' | sed 's/\./_/g')
-          echo "AVAILABLE_XCODE=$AVAILABLE_SAFE" >> $GITHUB_ENV
+          AVAILABLE=$(ls /Applications | grep Xcode | sed 's/\.app//')
+          echo "AVAILABLE_XCODE='$AVAILABLE'" >> $GITHUB_ENV
   
       - name: Select Xcode version
         run: |
