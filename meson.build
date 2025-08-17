@@ -9,5 +9,4 @@ project('Pizza Test', 'c', 'cpp',
     ]
 )
 
-
 subdir('code')
