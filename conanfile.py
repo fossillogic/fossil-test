@@ -13,13 +13,13 @@ class PizzaTestConan(ConanFile):
     topics = ("testing", "mocking", "framework")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
-    default_options = {"shared": False}  # static library
+    default_options = {"shared": False}
     exports_sources = "code/logic/*", "meson.build"
     generators = "PkgConfigDeps"
 
     def build(self):
         meson = Meson(self)
-        meson.configure()
+        meson.configure(build_folder="build")  # <-- FIX: force clean build dir
         meson.build()
 
     def package(self):
