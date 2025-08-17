@@ -71,16 +71,6 @@ Conan can install packages directly from a GitHub repository if it contains a va
 ```bash
 # Install from GitHub (replace branch/tag if needed)
 conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.7 --name pizza_test --build=missing
-
-# Build your project
-# CMake example:
-cmake -S . -B build
-cmake --build build
-
-# Meson example:
-meson setup builddir
-meson compile -C builddir
-meson test -C builddir
 ```
 
 **Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/pizzalogic/pizza-test/releases) page for the latest versions.
@@ -116,6 +106,25 @@ To configure the build system with testing enabled, use the following command:
 ```sh
 meson setup builddir -Dwith_test=enabled
 ```
+
+#### Tests Double as Samples
+
+The `fossil-test` project is designed so that **test cases serve two purposes**:
+
+- ✅ **Unit Tests** – validate the framework’s correctness.  
+- 📖 **Usage Samples** – demonstrate how to write tests with `fossil-test`.  
+
+This approach keeps the codebase compact and avoids redundant “hello world” style examples.  
+Instead, the same code that proves correctness also teaches usage.  
+
+This mirrors the **Meson build system** itself, which tests its own functionality by using Meson to build Meson.  
+In the same way, `fossil-test` validates itself by demonstrating real-world usage in its own tests.  
+
+```bash
+meson test -C builddir -v
+```
+
+Running the test suite gives you both verification and practical examples you can learn from.
 
 ---
 
