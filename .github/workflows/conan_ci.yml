@@ -1,0 +1,49 @@
+name: Conan CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config python3-pip build-essential
+
+      - name: Install Meson and Conan
+        run: |
+          pip install --upgrade pip
+          pip install meson==1.3.2 conan==2.3.2
+
+      - name: Detect Conan profile
+        run: conan profile detect
+
+      - name: Install dependencies
+        run: conan install . --profile default --build=missing
+
+      - name: Build
+        run: |
+          meson setup builddir
+          meson compile -C builddir
+
+      - name: Test
+        run: meson test -C builddir
+
+      - name: Package
+        run: conan create . --name=pizza_test --version=1.2.7
