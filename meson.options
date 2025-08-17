@@ -5,3 +5,18 @@ option('with_test',
     type : 'feature',
     value : 'disabled',
     description : 'Enable Fossil Test for this project')
+
+option('as_objc',
+    type : 'feature',
+    value : 'enabled',
+    description : 'Enable Objective-C language support')
+
+option('as_python',
+    type : 'feature',
+    value : 'disabled',
+    description : 'Enable Python language support')
+
+option('as_java',
+    type : 'feature',
+    value : 'disabled',
+    description : 'Enable Java language support')
