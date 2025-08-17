@@ -81,8 +81,11 @@ jobs:
         id: xcode
         run: |
           AVAILABLE=$(ls /Applications | grep Xcode | sed 's/\.app//')
-          echo "AVAILABLE_XCODE='$AVAILABLE'" >> $GITHUB_ENV
-  
+          # Use a here-doc to safely append multiple lines with dots or spaces
+          cat <<EOF >> $GITHUB_ENV
+          AVAILABLE_XCODE=$AVAILABLE
+          EOF
+
       - name: Select Xcode version
         run: |
           DESIRED="Xcode_${{ matrix.xcode_version }}"
