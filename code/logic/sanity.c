@@ -13,6 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 #define _POSIX_C_SOURCE 200809L
+#define _DARWIN_C_SOURCE
 #include "fossil/pizza/sanity.h"
 #include <stdlib.h>   // getenv, setenv
 #include <time.h>     // localtime_r, strftime
