@@ -32,7 +32,7 @@ class PizzaTestConan(ConanFile):
     def build(self):
         """Configure and build the project using Meson"""
         meson = Meson(self)
-        meson.configure(build_dir="builddir")
+        meson.configure()
         meson.build(build_dir="builddir")
 
     def package(self):
