@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.build import Meson
+from conan.tools.meson import Meson
 from conan.tools.files import copy
 import os
 
@@ -18,7 +18,6 @@ class PizzaTestConan(ConanFile):
     generators = "PkgConfigDeps"
 
     def build(self):
-        # Configure Meson for static library
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -26,9 +25,9 @@ class PizzaTestConan(ConanFile):
     def package(self):
         meson = Meson(self)
         meson.install()
-        # Copy headers
-        copy(self, "*.h", src="code/logic/fossil/pizza", dst=os.path.join(self.package_folder, "include", "fossil", "pizza"))
+        copy(self, "*.h", src="code/logic/fossil/pizza",
+             dst=os.path.join(self.package_folder, "include", "fossil", "pizza"))
 
     def package_info(self):
-        self.cpp_info.libs = ["pizza_test"]  # static library
-        self.cpp_info.includedirs = ["include"]  # headers path
+        self.cpp_info.libs = ["pizza_test"]
+        self.cpp_info.includedirs = ["include"]
