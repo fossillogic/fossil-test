@@ -55,7 +55,7 @@ jobs:
 
       - name: Build
         run: |
-          meson setup -Dwith_tests=enabled builddir
+          meson setup -Dwith_test=enabled builddir
           meson compile -C builddir -v
 
       - name: Test
