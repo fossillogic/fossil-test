@@ -121,7 +121,7 @@ typedef struct {
  * @param argv The command line arguments.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv);
+FOSSIL_PIZZA_API int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv);
 
 // --- Adding Test Suites and Cases ---
 
@@ -130,14 +130,14 @@ int fossil_pizza_start(fossil_pizza_engine_t* engine, int argc, char** argv);
  * @param suite The suite to add.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t suite);
+FOSSIL_PIZZA_API int fossil_pizza_add_suite(fossil_pizza_engine_t* engine, fossil_pizza_suite_t suite);
 
 /** Adds a test case to a suite.
  * @param suite Pointer to the suite instance.
  * @param test_case Pointer to the test case to add.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case);
+FOSSIL_PIZZA_API int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_case);
 
 // --- Execution ---
 
@@ -145,25 +145,25 @@ int fossil_pizza_add_case(fossil_pizza_suite_t* suite, fossil_pizza_case_t test_
  * @param suite Pointer to the suite instance.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite);
+FOSSIL_PIZZA_API int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_suite_t* suite);
 
 /** Runs all test suites in the engine.
  * @param engine Pointer to the engine instance.
  * @return 0 on success, -1 on failure.
  */
-int fossil_pizza_run_all(fossil_pizza_engine_t* engine);
+FOSSIL_PIZZA_API int fossil_pizza_run_all(fossil_pizza_engine_t* engine);
 
 // --- Summary + Teardown ---
 
 /** Prints a summary of the test results.
  * @param engine Pointer to the engine instance.
  */
-void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
+FOSSIL_PIZZA_API void fossil_pizza_summary(const fossil_pizza_engine_t* engine);
 
 /** Cleans up and ends the test engine.
  * @param engine Pointer to the engine instance.
  */
-int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
+FOSSIL_PIZZA_API int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
 
 /**
  * @brief Internal function to handle assertions with anomaly detection.
@@ -177,7 +177,7 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine);
  * @param line The line number where the assertion occurred.
  * @param func The function name where the assertion occurred.
  */
-void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
+FOSSIL_PIZZA_API void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
 /**
  * @brief Internal function to handle assertions with message formatting.
@@ -188,7 +188,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
  * @param message The message to format.
  * @return A formatted message string.
  */
-char *pizza_test_assert_messagef(const char *message, ...);
+FOSSIL_PIZZA_API char *pizza_test_assert_messagef(const char *message, ...);
 
 // *********************************************************************************************
 // internal messages
@@ -202,7 +202,7 @@ char *pizza_test_assert_messagef(const char *message, ...);
  * 
  * @param description The description of the given step.
  */
-void _given(const char *description);
+FOSSIL_PIZZA_API void _given(const char *description);
 
 /**
  * @brief Internal function to handle the "when" step in a test case.
@@ -212,7 +212,7 @@ void _given(const char *description);
  * 
  * @param description The description of the when step.
  */
-void _when(const char *description);
+FOSSIL_PIZZA_API void _when(const char *description);
 
 /**
  * @brief Internal function to handle the "then" step in a test case.
@@ -222,7 +222,7 @@ void _when(const char *description);
  * 
  * @param description The description of the then step.
  */
-void _then(const char *description);
+FOSSIL_PIZZA_API void _then(const char *description);
 
 /**
  * @brief Internal function to handle the "skip" step in a test case.
@@ -232,7 +232,7 @@ void _then(const char *description);
  * 
  * @param description The description of the skip step.
  */
-void _on_skip(const char *description);
+FOSSIL_PIZZA_API void _on_skip(const char *description);
 
 #ifdef __cplusplus
 }
