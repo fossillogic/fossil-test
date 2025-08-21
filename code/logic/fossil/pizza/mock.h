@@ -93,14 +93,14 @@ typedef struct {
  * 
  * @param list The fossil_mock_calllist_t to initialize.
  */
-void fossil_mock_init(fossil_mock_calllist_t *list);
+FOSSIL_PIZZA_API void fossil_mock_init(fossil_mock_calllist_t *list);
 
 /**
  * Destroys a fossil_mock_calllist_t and frees all associated memory.
  * 
  * @param list The fossil_mock_calllist_t to destroy.
  */
-void fossil_mock_destroy(fossil_mock_calllist_t *list);
+FOSSIL_PIZZA_API void fossil_mock_destroy(fossil_mock_calllist_t *list);
 
 /**
  * Adds a fossil_mock_call_t to the fossil_mock_calllist_t.
@@ -110,14 +110,14 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list);
  * @param arguments The arguments passed to the function.
  * @param num_args The number of arguments.
  */
-void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args);
+FOSSIL_PIZZA_API void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args);
 
 /**
  * Prints the contents of a fossil_mock_calllist_t.
  * 
  * @param list The fossil_mock_calllist_t to print.
  */
-void fossil_mock_print(fossil_mock_calllist_t *list);
+FOSSIL_PIZZA_API void fossil_mock_print(fossil_mock_calllist_t *list);
 
 /**
  * Captures the output of a function to a buffer for testing purposes.
@@ -127,7 +127,7 @@ void fossil_mock_print(fossil_mock_calllist_t *list);
  * @param function The function whose output is to be captured.
  * @return The number of characters captured.
  */
-int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
+FOSSIL_PIZZA_API int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
 
 /**
  * Compares the captured output with the expected output.
@@ -136,7 +136,7 @@ int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)
  * @param expected The expected output.
  * @return True if the captured output matches the expected output, false otherwise.
  */
-bool fossil_mock_compare_output(const char *captured, const char *expected);
+FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const char *expected);
 
 #ifdef __cplusplus
 }
