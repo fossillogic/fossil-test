@@ -51,4 +51,4 @@ class PizzaTestConan(ConanFile):
         self.cpp_info.includedirs = ["include"]
 
     def source(self):
-        self.run(f"git clone --branch v{self.version} {self.url} .")
+        self.run(f"git clone --branch v{self.version} {self.url}")
