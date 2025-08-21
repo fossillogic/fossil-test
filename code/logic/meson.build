@@ -3,7 +3,7 @@ cc = meson.get_compiler('c')
 
 test_code = ['mock.c', 'test.c', 'mark.c', 'sanity.c', 'common.c']
 
-fossil_test_lib = static_library('pizza-test',
+fossil_test_lib = library('pizza-test',
     test_code,
     install: true,
     include_directories: dir,
