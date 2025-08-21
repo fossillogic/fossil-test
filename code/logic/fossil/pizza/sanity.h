@@ -33,7 +33,7 @@ extern "C" {
  * @return int The exit code of the executed command. A value of 0 typically indicates
  *             success, while non-zero values indicate errors or specific exit statuses.
  */
-int fossil_sanity_sys_execute(const char* command);
+FOSSIL_PIZZA_API int fossil_sanity_sys_execute(const char* command);
 
 /**
  * @brief Retrieves the process ID of the current process.
@@ -44,7 +44,7 @@ int fossil_sanity_sys_execute(const char* command);
  * 
  * @return int The process ID of the current process.
  */
-int fossil_sanity_sys_getpid(void);
+FOSSIL_PIZZA_API int fossil_sanity_sys_getpid(void);
 
 /**
  * @brief Suspends the execution of the current thread for a specified duration.
@@ -56,7 +56,7 @@ int fossil_sanity_sys_getpid(void);
  * @param milliseconds The number of milliseconds to sleep. Must be a non-negative value.
  *                     A value of 0 may yield the processor to other threads without delay.
  */
-void fossil_sanity_sys_sleep(int milliseconds);
+FOSSIL_PIZZA_API void fossil_sanity_sys_sleep(int milliseconds);
 
 /**
  * @brief Creates an empty file at the specified location.
@@ -71,7 +71,7 @@ void fossil_sanity_sys_sleep(int milliseconds);
  *             the file could not be created due to errors such as insufficient permissions
  *             or invalid file paths.
  */
-int fossil_sanity_sys_create_file(const char* filename);
+FOSSIL_PIZZA_API int fossil_sanity_sys_create_file(const char* filename);
 
 /**
  * @brief Checks whether a file exists at the specified location.
@@ -85,7 +85,7 @@ int fossil_sanity_sys_create_file(const char* filename);
  * @return int Returns 1 if the file exists, and 0 if it does not exist. Note that this
  *             function does not check for file accessibility or permissions.
  */
-int fossil_sanity_sys_file_exists(const char* filename);
+FOSSIL_PIZZA_API int fossil_sanity_sys_file_exists(const char* filename);
 
 /**
  * @brief Creates an empty directory at the specified location.
@@ -100,7 +100,7 @@ int fossil_sanity_sys_file_exists(const char* filename);
  *             the directory could not be created due to errors such as insufficient permissions
  *             or invalid paths.
  */
-int fossil_sanity_sys_create_dir(const char* dirname);
+FOSSIL_PIZZA_API int fossil_sanity_sys_create_dir(const char* dirname);
 
 /**
  * @brief Checks whether a directory exists at the specified location.
@@ -114,7 +114,7 @@ int fossil_sanity_sys_create_dir(const char* dirname);
  * @return int Returns 1 if the directory exists, and 0 if it does not exist. Note that this
  *             function does not check for directory accessibility or permissions.
  */
-int fossil_sanity_sys_dir_exists(const char* dirname);
+FOSSIL_PIZZA_API int fossil_sanity_sys_dir_exists(const char* dirname);
 
 /**
  * @brief Reads the entire contents of a file into memory.
@@ -126,7 +126,7 @@ int fossil_sanity_sys_dir_exists(const char* dirname);
  * @return char* Pointer to allocated null-terminated buffer on success, 
  *               or NULL on failure.
  */
-char* fossil_sanity_sys_read_file(const char* filename);
+FOSSIL_PIZZA_API char* fossil_sanity_sys_read_file(const char* filename);
 
 /**
  * @brief Writes data to a file, replacing any existing contents.
@@ -135,7 +135,7 @@ char* fossil_sanity_sys_read_file(const char* filename);
  * @param data Null-terminated string to write.
  * @return int Returns 0 on success, negative on failure.
  */
-int fossil_sanity_sys_write_file(const char* filename, const char* data);
+FOSSIL_PIZZA_API int fossil_sanity_sys_write_file(const char* filename, const char* data);
 
 /**
  * @brief Deletes a file from the filesystem.
@@ -143,7 +143,7 @@ int fossil_sanity_sys_write_file(const char* filename, const char* data);
  * @param filename Path to the file to delete.
  * @return int Returns 0 on success, negative on failure.
  */
-int fossil_sanity_sys_delete_file(const char* filename);
+FOSSIL_PIZZA_API int fossil_sanity_sys_delete_file(const char* filename);
 
 /**
  * @brief Retrieves the value of an environment variable.
@@ -151,7 +151,7 @@ int fossil_sanity_sys_delete_file(const char* filename);
  * @param name Name of the environment variable.
  * @return const char* Value of the variable, or NULL if not found.
  */
-const char* fossil_sanity_sys_getenv(const char* name);
+FOSSIL_PIZZA_API const char* fossil_sanity_sys_getenv(const char* name);
 
 /**
  * @brief Sets or overrides an environment variable.
@@ -160,21 +160,21 @@ const char* fossil_sanity_sys_getenv(const char* name);
  * @param value Value to set.
  * @return int Returns 0 on success, negative on failure.
  */
-int fossil_sanity_sys_setenv(const char* name, const char* value);
+FOSSIL_PIZZA_API int fossil_sanity_sys_setenv(const char* name, const char* value);
 
 /**
  * @brief Retrieves the current system timestamp as a formatted string.
  *
  * @return char* Newly allocated string with timestamp (caller must free).
  */
-char* fossil_sanity_sys_timestamp(void);
+FOSSIL_PIZZA_API char* fossil_sanity_sys_timestamp(void);
 
 /**
  * @brief Returns uptime in milliseconds since process start.
  *
  * @return long long Milliseconds since process launch.
  */
-long long fossil_sanity_sys_uptime_ms(void);
+FOSSIL_PIZZA_API long long fossil_sanity_sys_uptime_ms(void);
 
 /**
  * @brief Checks if a process is still running.
@@ -182,7 +182,7 @@ long long fossil_sanity_sys_uptime_ms(void);
  * @param pid Process ID.
  * @return int Returns 1 if running, 0 if not, negative on error.
  */
-int fossil_sanity_sys_is_running(int pid);
+FOSSIL_PIZZA_API int fossil_sanity_sys_is_running(int pid);
 
 /**
  * @brief Attempts to terminate a process by PID.
@@ -190,7 +190,7 @@ int fossil_sanity_sys_is_running(int pid);
  * @param pid Process ID.
  * @return int Returns 0 on success, negative on failure.
  */
-int fossil_sanity_sys_kill(int pid);
+FOSSIL_PIZZA_API int fossil_sanity_sys_kill(int pid);
 
 #ifdef __cplusplus
 }
