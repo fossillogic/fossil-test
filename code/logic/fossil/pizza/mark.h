@@ -45,59 +45,59 @@ typedef struct {
  * @param benchmark The fossil_mark_t object to initialize.
  * @param name The name of the benchmark.
  */
-void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name);
+FOSSIL_PIZZA_API void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name);
 
 /**
  * @brief Starts the benchmark timer.
  * @param benchmark The fossil_mark_t object to start.
  */
-void fossil_benchmark_start(fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API void fossil_benchmark_start(fossil_mark_t* benchmark);
 
 /**
  * @brief Stops the benchmark timer.
  * @param benchmark The fossil_mark_t object to stop.
  */
-void fossil_benchmark_stop(fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API void fossil_benchmark_stop(fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the total elapsed time in seconds.
  * @param benchmark The fossil_mark_t object to get the elapsed time from.
  * @return The total elapsed time in seconds.
  */
-double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the minimum elapsed time in seconds.
  * @param benchmark The fossil_mark_t object to get the minimum time from.
  * @return The minimum elapsed time in seconds.
  */
-double fossil_benchmark_min_time(const fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API double fossil_benchmark_min_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the maximum elapsed time in seconds.
  * @param benchmark The fossil_mark_t object to get the maximum time from.
  * @return The maximum elapsed time in seconds.
  */
-double fossil_benchmark_max_time(const fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API double fossil_benchmark_max_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the average elapsed time in seconds.
  * @param benchmark The fossil_mark_t object to get the average time from.
  * @return The average elapsed time in seconds.
  */
-double fossil_benchmark_avg_time(const fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API double fossil_benchmark_avg_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Resets the benchmark statistics.
  * @param benchmark The fossil_mark_t object to reset.
  */
-void fossil_benchmark_reset(fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API void fossil_benchmark_reset(fossil_mark_t* benchmark);
 
 /**
  * @brief Prints a report of the benchmark statistics.
  * @param benchmark The fossil_mark_t object to report.
  */
-void fossil_benchmark_report(const fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API void fossil_benchmark_report(const fossil_mark_t* benchmark);
 
 typedef struct {
     fossil_mark_t* benchmark;
@@ -108,13 +108,13 @@ typedef struct {
  * @param scoped_benchmark The fossil_scoped_mark_t object to initialize.
  * @param benchmark The benchmark to be scoped.
  */
-void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark);
+FOSSIL_PIZZA_API void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark);
 
 /**
  * @brief Destroys a fossil_scoped_mark_t object.
  * @param scoped_benchmark The fossil_scoped_mark_t object to destroy.
  */
-void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark);
+FOSSIL_PIZZA_API void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark);
 
 /**
  * Function to test benchmark with specified duration type, expected value, and actual value.
@@ -123,19 +123,19 @@ void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark);
  * @param expected The expected value.
  * @param actual The actual value.
  */
-void fossil_test_benchmark(char* duration_type, double expected, double actual);
+FOSSIL_PIZZA_API void fossil_test_benchmark(char* duration_type, double expected, double actual);
 
 /**
  * Function to start the benchmark.
  */
-void fossil_test_start_benchmark(void);
+FOSSIL_PIZZA_API void fossil_test_start_benchmark(void);
 
 /**
  * Function to stop the benchmark and return the elapsed time in nanoseconds.
  * 
  * @return The elapsed time in nanoseconds.
  */
-uint64_t fossil_test_stop_benchmark(void);
+FOSSIL_PIZZA_API uint64_t fossil_test_stop_benchmark(void);
 
 // *****************************************************************************
 // Macro definitions
