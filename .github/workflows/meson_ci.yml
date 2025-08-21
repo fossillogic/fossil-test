@@ -77,7 +77,7 @@ jobs:
           python-version: '3.12'
   
       - name: Install Xcode
-        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
   
       - name: Install Meson and Ninja
         run: |
