@@ -17,45 +17,45 @@
 #include <string>
 
 // Define the necessary types and functions for the test cases
-class Entity {
+class ObjcppEntity {
 public:
     int id;
     std::string name;
     bool processed;
 
-    Entity(int id, const std::string &name) : id(id), name(name), processed(false) {}
+    ObjcppEntity(int id, const std::string &name) : id(id), name(name), processed(false) {}
 };
 
-class ValueObject {
+class ObjcppValueObject {
 public:
     int x, y;
 
-    ValueObject(int x, int y) : x(x), y(y) {}
+    ObjcppValueObject(int x, int y) : x(x), y(y) {}
 
-    bool operator==(const ValueObject &other) const {
+    bool operator==(const ObjcppValueObject &other) const {
         return x == other.x && y == other.y;
     }
 };
 
-class AggregateRoot {
+class ObjcppAggregateRoot {
 public:
     int id;
-    std::vector<Entity> children;
+    std::vector<ObjcppEntity> children;
 
-    AggregateRoot(int id) : id(id) {}
+    ObjcppAggregateRoot(int id) : id(id) {}
 
-    void addChild(const Entity &entity) {
+    void addChild(const ObjcppEntity &entity) {
         if (children.size() < 10) {
             children.push_back(entity);
         }
     }
 };
 
-class Repository {
+class ObjcppRepository {
 public:
-    std::vector<Entity> entities;
+    std::vector<ObjcppEntity> entities;
 
-    void add(const Entity &entity) {
+    void add(const ObjcppEntity &entity) {
         if (entities.size() < 10) {
             entities.push_back(entity);
         }
@@ -65,19 +65,19 @@ public:
         return entities.size();
     }
 
-    Entity get(int id) const {
+    ObjcppEntity get(int id) const {
         for (const auto &entity : entities) {
             if (entity.id == id) {
                 return entity;
             }
         }
-        return Entity(0, "");
+        return ObjcppEntity(0, "");
     }
 };
 
-class Service {
+class ObjcppService {
 public:
-    void process(Entity &entity) {
+    void process(ObjcppEntity &entity) {
         entity.processed = true;
     }
 };
@@ -111,17 +111,17 @@ FOSSIL_TEARDOWN(objcpp_ddd_suite) {
 
 FOSSIL_TEST(objcpp_ddd_entity_creation) {
     // Example of creating an entity
-    Entity entity(42, "Sample Entity");
+    ObjcppEntity entity(42, "Sample ObjcppEntity");
 
     // Test cases
-    FOSSIL_TEST_ASSUME(entity.id == 42, "Entity ID should be 42");
-    FOSSIL_TEST_ASSUME(entity.name == "Sample Entity", "Entity name should be 'Sample Entity'");
+    FOSSIL_TEST_ASSUME(entity.id == 42, "ObjcppEntity ID should be 42");
+    FOSSIL_TEST_ASSUME(entity.name == "Sample ObjcppEntity", "ObjcppEntity name should be 'Sample ObjcppEntity'");
 } // end case
 
 FOSSIL_TEST(objcpp_ddd_value_object_equality) {
     // Example of value object equality
-    ValueObject vo1(10, 20);
-    ValueObject vo2(10, 20);
+    ObjcppValueObject vo1(10, 20);
+    ObjcppValueObject vo2(10, 20);
 
     // Test cases
     FOSSIL_TEST_ASSUME(vo1 == vo2, "Value objects should be equal");
@@ -129,8 +129,8 @@ FOSSIL_TEST(objcpp_ddd_value_object_equality) {
 
 FOSSIL_TEST(objcpp_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
-    AggregateRoot ar(1);
-    ar.addChild(Entity(2, "Child Entity"));
+    ObjcppAggregateRoot ar(1);
+    ar.addChild(ObjcppEntity(2, "Child ObjcppEntity"));
 
     // Test cases
     FOSSIL_TEST_ASSUME(ar.children.size() == 1, "Aggregate root should have one child entity");
@@ -139,23 +139,23 @@ FOSSIL_TEST(objcpp_ddd_aggregate_root_behavior) {
 
 FOSSIL_TEST(objcpp_ddd_repository_usage) {
     // Example of repository usage
-    Repository repo;
-    Entity entity(1, "Repo Entity");
+    ObjcppRepository repo;
+    ObjcppEntity entity(1, "Repo ObjcppEntity");
     repo.add(entity);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(repo.count() == 1, "Repository should contain one entity");
+    FOSSIL_TEST_ASSUME(repo.count() == 1, "ObjcppRepository should contain one entity");
     FOSSIL_TEST_ASSUME(repo.get(1).id == 1, "Retrieved entity ID should be 1");
 } // end case
 
 FOSSIL_TEST(objcpp_ddd_service_layer) {
     // Example of service layer usage
-    Service service;
-    Entity entity(1, "Service Entity");
+    ObjcppService service;
+    ObjcppEntity entity(1, "ObjcppService ObjcppEntity");
     service.process(entity);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(entity.processed == true, "Entity should be processed by the service");
+    FOSSIL_TEST_ASSUME(entity.processed == true, "ObjcppEntity should be processed by the service");
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *

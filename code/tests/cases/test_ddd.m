@@ -20,94 +20,94 @@ typedef struct {
     int id;
     char name[50];
     int processed;
-} Entity;
+} ObjcEntity;
 
 typedef struct {
     int x;
     int y;
-} ValueObject;
+} ObjcValueObject;
 
 typedef struct {
     int id;
     int child_count;
-    Entity children[10];
-} AggregateRoot;
+    ObjcEntity children[10];
+} ObjcAggregateRoot;
 
 typedef struct {
-    Entity entities[10];
+    ObjcEntity entities[10];
     int count;
-} Repository;
+} ObjcRepository;
 
 typedef struct {
     bool dummy;
-} Service;
+} ObjcService;
 
-Entity create_entity(int id, const char *name) {
-    Entity entity;
+ObjcEntity create_entity(int id, const char *name) {
+    ObjcEntity entity;
     entity.id = id;
     strcpy(entity.name, name);
     entity.processed = 0;
     return entity;
 }
 
-ValueObject create_value_object(int x, int y) {
-    ValueObject vo;
+ObjcValueObject create_value_object(int x, int y) {
+    ObjcValueObject vo;
     vo.x = x;
     vo.y = y;
     return vo;
 }
 
-int value_object_equals(ValueObject vo1, ValueObject vo2) {
+int value_object_equals(ObjcValueObject vo1, ObjcValueObject vo2) {
     return (vo1.x == vo2.x && vo1.y == vo2.y);
 }
 
-AggregateRoot create_aggregate_root(int id) {
-    AggregateRoot ar;
+ObjcAggregateRoot create_aggregate_root(int id) {
+    ObjcAggregateRoot ar;
     ar.id = id;
     ar.child_count = 0;
     return ar;
 }
 
-void add_child_entity(AggregateRoot *ar, Entity entity) {
+void add_child_entity(ObjcAggregateRoot *ar, ObjcEntity entity) {
     if (ar->child_count < 10) {
         ar->children[ar->child_count++] = entity;
     }
 }
 
-Repository create_repository(void) {
-    Repository repo;
+ObjcRepository create_repository(void) {
+    ObjcRepository repo;
     repo.count = 0;
     return repo;
 }
 
-void repository_add(Repository *repo, Entity entity) {
+void repository_add(ObjcRepository *repo, ObjcEntity entity) {
     if (repo->count < 10) {
         repo->entities[repo->count++] = entity;
     }
 }
 
-int repository_count(Repository *repo) {
+int repository_count(ObjcRepository *repo) {
     return repo->count;
 }
 
-Entity repository_get(Repository *repo, int id) {
+ObjcEntity repository_get(ObjcRepository *repo, int id) {
     for (int i = 0; i < repo->count; ++i) {
         if (repo->entities[i].id == id) {
             return repo->entities[i];
         }
     }
-    Entity empty_entity = {0};
+    ObjcEntity empty_entity = {0};
     return empty_entity;
 }
 
-Service create_service(void) {
-    Service service;
+ObjcService create_service(void) {
+    ObjcService service;
     service.dummy = 0;
     // Initialize service-specific fields
     return service;
 }
 
-void service_process(Service *service, Entity *entity) {
+void service_process(ObjcService *service, ObjcEntity *entity) {
     entity->processed = 1;
     service->dummy = 1;
 }
@@ -141,17 +141,17 @@ FOSSIL_TEARDOWN(objc_ddd_suite) {
 
 FOSSIL_TEST(objc_ddd_entity_creation) {
     // Example of creating an entity
-    Entity entity = create_entity(42, "Sample Entity");
+    ObjcEntity entity = create_entity(42, "Sample ObjcEntity");
 
     // Test cases
-    FOSSIL_TEST_ASSUME(entity.id == 42, "Entity ID should be 42");
-    FOSSIL_TEST_ASSUME(strcmp(entity.name, "Sample Entity") == 0, "Entity name should be 'Sample Entity'");
+    FOSSIL_TEST_ASSUME(entity.id == 42, "ObjcEntity ID should be 42");
+    FOSSIL_TEST_ASSUME(strcmp(entity.name, "Sample ObjcEntity") == 0, "ObjcEntity name should be 'Sample ObjcEntity'");
 } // end case
 
 FOSSIL_TEST(objc_ddd_value_object_equality) {
     // Example of value object equality
-    ValueObject vo1 = create_value_object(10, 20);
-    ValueObject vo2 = create_value_object(10, 20);
+    ObjcValueObject vo1 = create_value_object(10, 20);
+    ObjcValueObject vo2 = create_value_object(10, 20);
 
     // Test cases
     FOSSIL_TEST_ASSUME(value_object_equals(vo1, vo2), "Value objects should be equal");
@@ -159,8 +159,8 @@ FOSSIL_TEST(objc_ddd_value_object_equality) {
 
 FOSSIL_TEST(objc_ddd_aggregate_root_behavior) {
     // Example of aggregate root behavior
-    AggregateRoot ar = create_aggregate_root(1);
-    add_child_entity(&ar, create_entity(2, "Child Entity"));
+    ObjcAggregateRoot ar = create_aggregate_root(1);
+    add_child_entity(&ar, create_entity(2, "Child ObjcEntity"));
 
     // Test cases
     FOSSIL_TEST_ASSUME(ar.child_count == 1, "Aggregate root should have one child entity");
@@ -169,23 +169,23 @@ FOSSIL_TEST(objc_ddd_aggregate_root_behavior) {
 
 FOSSIL_TEST(objc_ddd_repository_usage) {
     // Example of repository usage
-    Repository repo = create_repository();
-    Entity entity = create_entity(1, "Repo Entity");
+    ObjcRepository repo = create_repository();
+    ObjcEntity entity = create_entity(1, "Repo ObjcEntity");
     repository_add(&repo, entity);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(repository_count(&repo) == 1, "Repository should contain one entity");
+    FOSSIL_TEST_ASSUME(repository_count(&repo) == 1, "ObjcRepository should contain one entity");
     FOSSIL_TEST_ASSUME(repository_get(&repo, 1).id == 1, "Retrieved entity ID should be 1");
 } // end case
 
 FOSSIL_TEST(objc_ddd_service_layer) {
     // Example of service layer usage
-    Service service = create_service();
-    Entity entity = create_entity(1, "Service Entity");
+    ObjcService service = create_service();
+    ObjcEntity entity = create_entity(1, "ObjcService ObjcEntity");
     service_process(&service, &entity);
 
     // Test cases
-    FOSSIL_TEST_ASSUME(entity.processed == true, "Entity should be processed by the service");
+    FOSSIL_TEST_ASSUME(entity.processed == true, "ObjcEntity should be processed by the service");
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
