@@ -53,7 +53,7 @@ FOSSIL_MOCK_FUNC(void, objc_mock_function_with_output, void) {
     pizza_io_printf("Hello, Fossil Logic!");
 }
 
-FOSSIL_MOCK_FUNC(void, mock_function_redirection, void) {
+FOSSIL_MOCK_FUNC(void, objc_mock_function_redirection, void) {
     pizza_io_printf("Testing macro redirection!");
 }
 
@@ -360,7 +360,7 @@ FOSSIL_TEST(objc_mock_io_redirect_stdout_macro) {
     char buffer[256];
 
     // Use the macro to redirect stdout and capture output
-    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), fossil_mockup_mock_function_redirection);
+    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), fossil_mockup_objc_mock_function_redirection);
 
     // Test cases
     FOSSIL_TEST_ASSUME(strcmp(buffer, "Testing macro redirection!") == 0, "Captured output should match expected output");
