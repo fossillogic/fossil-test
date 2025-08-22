@@ -1,6 +1,6 @@
-cpp = meson.get_compiler('cpp')
-if cpp.has_define('__llvm_libcxx__')
-  add_project_arguments('-D_LIBCPP_HARDENING_MODE=debug', language: 'cpp')
+if host_machine.system() == 'darwin'
+    add_languages('objc', native: false, required: true)
+    add_languages('objcpp', native: false, required: true)
 endif
 
 subdir('logic')

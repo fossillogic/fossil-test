@@ -50,7 +50,7 @@ jobs:
         run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='show --mode tree --verbose ci --result fail'
 
   build_macosx:
-    name: Building on macOS with Xcode ${{ matrix.xcode_version }}
+    name: Building on MacOSX
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -73,13 +73,13 @@ jobs:
       - name: Install Xcode
         run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
-      - name: Install Meson and Ninja
+      - name: Install Meson, Ninja
         run: |
           python -m pip install meson ninja
-  
+
       - name: Configure
-        run: meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
-  
+        run: OBJC=clang OBJCXX=clang++ meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
+
       - name: Compile
         run: meson compile -C builddir
   
