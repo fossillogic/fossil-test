@@ -4,5 +4,4 @@ if host_machine.system() == 'darwin'
 endif
 
 subdir('logic')
-subdir('binds')
 subdir('tests')
