@@ -6,15 +6,15 @@ option('with_test',
     value : 'disabled',
     description : 'Enable Fossil Test for this project')
 
-option('as_objc',
+option('as_d',
     type : 'feature',
     value : 'enabled',
-    description : 'Enable Objective-C language support')
+    description : 'Enable D language support')
 
-option('as_python',
+option('as_cython',
     type : 'feature',
     value : 'disabled',
-    description : 'Enable Python language support')
+    description : 'Enable Cython language support')
 
 option('as_java',
     type : 'feature',
