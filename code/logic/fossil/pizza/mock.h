@@ -229,8 +229,7 @@ FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const cha
     struct name
 #else
 #define _FOSSIL_MOCK_STRUCT(name) \
-    typedef struct name name; \
-    struct name
+    typedef struct name
 #endif
 
 /**

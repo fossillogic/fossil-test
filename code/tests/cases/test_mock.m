@@ -42,7 +42,7 @@ FOSSIL_MOCK_ALIAS(MockInt, int);
 FOSSIL_MOCK_STRUCT(MockStruct) {
     int a;
     char b;
-};
+} MockStruct;
 
 // Example of creating a mock function using the macro
 FOSSIL_MOCK_FUNC(int, objc_mock_function, int a, int b) {

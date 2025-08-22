@@ -16,7 +16,7 @@
 #include "fossil/pizza/framework.h"
 
 // Test data structure for a sample test
-FOSSIL_MOCK_STRUCT(CppSampleTestData) {
+FOSSIL_MOCK_STRUCT(ObjCppSampleTestData) {
     int input;
     int expected_output;
 };
@@ -36,7 +36,7 @@ FOSSIL_SUITE(objcpp_sample_suite);
 
 // A simple test case to check if input + 1 equals expected_output
 FOSSIL_TEST(objcpp_test_input_increment) {
-    CppSampleTestData data = {5, 6};  // Simplified initialization
+    ObjCppSampleTestData data = {5, 6};  // Simplified initialization
     
     int actual_output = data.input + 1;
     
@@ -45,7 +45,7 @@ FOSSIL_TEST(objcpp_test_input_increment) {
 
 // A simple test case to check if input - 1 equals expected_output
 FOSSIL_TEST(objcpp_test_input_decrement) {
-    CppSampleTestData data = {5, 4};  // Simplified initialization
+    ObjCppSampleTestData data = {5, 4};  // Simplified initialization
     
     int actual_output = data.input - 1;
     
@@ -54,7 +54,7 @@ FOSSIL_TEST(objcpp_test_input_decrement) {
 
 // A simple test case to check if input * 2 equals expected_output
 FOSSIL_TEST(objcpp_test_input_double) {
-    CppSampleTestData data = {5, 10};  // Simplified initialization
+    ObjCppSampleTestData data = {5, 10};  // Simplified initialization
     
     int actual_output = data.input * 2;
     
@@ -63,7 +63,7 @@ FOSSIL_TEST(objcpp_test_input_double) {
 
 // A simple test case to check if input / 2 equals expected_output
 FOSSIL_TEST(objcpp_test_input_half) {
-    CppSampleTestData data = {10, 5};  // Simplified initialization
+    ObjCppSampleTestData data = {10, 5};  // Simplified initialization
     
     int actual_output = data.input / 2;
     
@@ -72,7 +72,7 @@ FOSSIL_TEST(objcpp_test_input_half) {
 
 // A simple test case to check if input % 2 equals expected_output
 FOSSIL_TEST(objcpp_test_input_modulo) {
-    CppSampleTestData data = { 5, 1 };
+    ObjCppSampleTestData data = { 5, 1 };
     
     int actual_output = data.input % 2;
     
@@ -81,7 +81,7 @@ FOSSIL_TEST(objcpp_test_input_modulo) {
 
 // A simple test case to check if input squared equals expected_output
 FOSSIL_TEST(objcpp_test_input_square) {
-    CppSampleTestData data = { 3, 9 };
+    ObjCppSampleTestData data = { 3, 9 };
     
     int actual_output = data.input * data.input;
     
@@ -90,7 +90,7 @@ FOSSIL_TEST(objcpp_test_input_square) {
 
 // A simple test case to check if input is equal to expected_output
 FOSSIL_TEST(objcpp_test_input_equal) {
-    CppSampleTestData data = { 7, 7 };
+    ObjCppSampleTestData data = { 7, 7 };
     
     int actual_output = data.input;
     
