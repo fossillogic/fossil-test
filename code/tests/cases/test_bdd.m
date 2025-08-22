@@ -106,32 +106,32 @@ FOSSIL_TEST(objc_xbdd_empty_cart) {
 FOSSIL_TEST(objc_xbdd_valid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
-        std::string validUsername = "user123";
-        std::string validPassword = "pass456";
+        const char *validUsername = "user123";
+        const char *validPassword = "pass456";
 
         WHEN("the user provides correct username and password") {
             // Perform the action of user login
-            std::string inputUsername = "user123";
-            std::string inputPassword = "pass456";
+            const char *inputUsername = "user123";
+            const char *inputPassword = "pass456";
 
             THEN("the login should be successful") {
                 // Check the expected outcome
                 // Simulate login validation
-                FOSSIL_TEST_ASSUME(inputUsername == validUsername, "Username should match");
-                FOSSIL_TEST_ASSUME(inputPassword == validPassword, "Password should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) == 0, "Username should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) == 0, "Password should match");
             }
         }
 
         WHEN("the user provides incorrect password") {
             // Perform the action of user login
-            std::string inputUsername = "user123";
-            std::string inputPassword = "wrongpass";
+            const char *inputUsername = "user123";
+            const char *inputPassword = "wrongpass";
 
             THEN("the login should fail with an error message") {
                 // Check the expected outcome
                 // Simulate login validation
-                FOSSIL_TEST_ASSUME(inputUsername == validUsername, "Username should match");
-                FOSSIL_TEST_ASSUME(inputPassword != validPassword, "Password should not match");
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) == 0, "Username should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) != 0, "Password should not match");
             }
         }
     }
@@ -140,19 +140,19 @@ FOSSIL_TEST(objc_xbdd_valid_login) {
 FOSSIL_TEST(objc_xbdd_invalid_login) {
     GIVEN("a registered user with valid credentials") {
         // Set up the context
-        std::string validUsername = "user123";
-        std::string validPassword = "pass456";
+        const char *validUsername = "user123";
+        const char *validPassword = "pass456";
 
         WHEN("the user provides incorrect username") {
             // Perform the action of user login
-            std::string inputUsername = "wronguser";
-            std::string inputPassword = "pass456";
+            const char *inputUsername = "wronguser";
+            const char *inputPassword = "pass456";
 
             THEN("the login should fail with an error message") {
                 // Check the expected outcome
                 // Simulate login validation
-                FOSSIL_TEST_ASSUME(inputUsername != validUsername, "Username should not match");
-                FOSSIL_TEST_ASSUME(inputPassword == validPassword, "Password should match");
+                FOSSIL_TEST_ASSUME(strcmp(inputUsername, validUsername) != 0, "Username should not match");
+                FOSSIL_TEST_ASSUME(strcmp(inputPassword, validPassword) == 0, "Password should match");
             }
         }
     }
