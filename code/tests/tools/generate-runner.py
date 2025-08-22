@@ -1,21 +1,31 @@
 import os
 import re
+import sys
 
 
 class TestRunnerGenerator:
     def __init__(self):
         # Set the directory to a subdirectory named 'cases' within the current working directory
         self.directory = os.path.join(os.getcwd(), "cases")
+        # Detect if running on Apple (macOS)
+        self.is_apple = sys.platform == "darwin"
 
     def find_test_groups(self):
         test_groups = set()
         pattern = r"FOSSIL_TEST_GROUP\((\w+)\)"
 
+        # File extensions to include
+        extensions = [".c", ".cpp"]
+        if self.is_apple:
+            extensions += [".m", ".mm"]  # Objective-C and Objective-C++
+
         # Walk through files in the specified directory, 'cases'
         for root, _, files in os.walk(self.directory):
             for file in files:
-                # Search for C and C++ files
-                if (file.startswith("test_") and file.endswith(".c")) or file.endswith(".cpp"):
+                # Search for test files with the allowed extensions
+                if file.startswith("test_") and any(
+                    file.endswith(ext) for ext in extensions
+                ):
                     with open(os.path.join(root, file), "r") as f:
                         content = f.read()
                         matches = re.findall(pattern, content)
@@ -73,5 +83,5 @@ int main(int argc, char **argv) {
 generator = TestRunnerGenerator()
 test_groups = generator.find_test_groups()
 
-# Generate the test runner for C and C++ tests
+# Generate the test runner for C and C++ (and Objective-C/Objective-C++ on Apple) tests
 generator.generate_c_runner(test_groups)
