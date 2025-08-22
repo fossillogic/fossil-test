@@ -145,4 +145,3 @@
  
      FOSSIL_TEST_REGISTER(objc_mark_suite);
  }
- 
