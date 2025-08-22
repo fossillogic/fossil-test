@@ -211,7 +211,7 @@ typedef const char* ccstr;
  * @param output The output string to combine with the input.
  * @param hash_out Pointer to an array where the resulting hash will be stored.
  */
-void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
+FOSSIL_PIZZA_API void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
 
 // *****************************************************************************
 // Command Pallet
@@ -309,7 +309,7 @@ extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
  * @param argc The number of command line arguments.
  * @param argv The command line arguments.
  */
-fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
+FOSSIL_PIZZA_API fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
 
 // *****************************************************************************
 // INI Parser
@@ -328,7 +328,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
  * @param pallet Pointer to the pallet structure to populate.
  * @return 0 on success, or a negative error code on failure.
  */
-int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet);
+FOSSIL_PIZZA_API int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet);
 
 // *****************************************************************************
 // Host information
@@ -368,7 +368,7 @@ typedef struct {
  * @param info A pointer to a structure that will be filled with system information.
  * @return 0 on success, or a negative error code on failure.
  */
-int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
+FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
 
 /**
  * Retrieve memory information.
@@ -376,7 +376,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
  * @param info A pointer to a structure that will be filled with memory information.
  * @return 0 on success, or a negative error code on failure.
  */
-int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info);
+FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info);
 
 /**
  * Retrieve endianness information.
@@ -384,7 +384,7 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info);
  * @param info A pointer to a structure that will be filled with endianness information.
  * @return 0 on success, or a negative error code on failure.
  */
-int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info);
+FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info);
 
 // *****************************************************************************
 // Soap sanitizer
@@ -396,7 +396,7 @@ int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info);
  * @param text The input text to sanitize.
  * @return A dynamically allocated sanitized string (must be freed by the caller).
  */
-char *pizza_io_soap_sanitize(const char *text);
+FOSSIL_PIZZA_API char *pizza_io_soap_sanitize(const char *text);
 
 /**
  * @brief Suggest proper alternatives for rot-brain words or grammar fixes.
@@ -404,7 +404,7 @@ char *pizza_io_soap_sanitize(const char *text);
  * @param text The input text.
  * @return A dynamically allocated string with suggestions (must be freed by the caller).
  */
-char *pizza_io_soap_suggest(const char *text);
+FOSSIL_PIZZA_API char *pizza_io_soap_suggest(const char *text);
 
 /**
  * @brief Add a custom word or phrase to the filter.
@@ -412,12 +412,12 @@ char *pizza_io_soap_suggest(const char *text);
  * @param phrase The phrase to add.
  * @return 0 on success, nonzero on failure.
  */
-int pizza_io_soap_add_custom_filter(const char *phrase);
+FOSSIL_PIZZA_API int pizza_io_soap_add_custom_filter(const char *phrase);
 
 /**
  * @brief Clear all custom filters.
  */
-void pizza_io_soap_clear_custom_filters(void);
+FOSSIL_PIZZA_API void pizza_io_soap_clear_custom_filters(void);
 
 /**
  * @brief Detect the tone of a sentence.
@@ -425,7 +425,7 @@ void pizza_io_soap_clear_custom_filters(void);
  * @param text The input text.
  * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
  */
-const char *pizza_io_soap_detect_tone(const char *text);
+FOSSIL_PIZZA_API const char *pizza_io_soap_detect_tone(const char *text);
 
 /**
  * @brief Checks if the given text contains "rot-brain" language.
@@ -433,7 +433,7 @@ const char *pizza_io_soap_detect_tone(const char *text);
  * @param text The input text to check.
  * @return 1 if the text contains "rot-brain" language, 0 otherwise.
  */
-int pizza_io_is_rot_brain(const char *text);
+FOSSIL_PIZZA_API int pizza_io_is_rot_brain(const char *text);
 
 // *****************************************************************************
 // Memory management
@@ -449,7 +449,7 @@ typedef void* pizza_sys_memory_t;
  * @return A pointer to the allocated memory.
  * @throws Error message and exits if allocation fails.
  */
-pizza_sys_memory_t pizza_sys_memory_alloc(size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_alloc(size_t size);
 
 /**
  * Reallocate memory.
@@ -459,7 +459,7 @@ pizza_sys_memory_t pizza_sys_memory_alloc(size_t size);
  * @return A pointer to the reallocated memory.
  * @throws Error message and exits if reallocation fails or if the pointer is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size);
 
 /**
  * Allocate and zero memory.
@@ -469,7 +469,7 @@ pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size)
  * @return A pointer to the allocated and zeroed memory.
  * @throws Error message and exits if allocation fails.
  */
-pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size);
 
 /**
  * Initialize allocated memory to a known state.
@@ -479,7 +479,7 @@ pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size);
  * @param value The value to initialize the memory with (e.g., zero).
  * @return A pointer to the initialized memory.
  */
-pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value);
 
 /**
  * Free memory.
@@ -487,7 +487,7 @@ pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, in
  * @param ptr A pointer to the memory to free.
  * @throws Error message and exits if the pointer is NULL.
  */
-void pizza_sys_memory_free(pizza_sys_memory_t ptr);
+FOSSIL_PIZZA_API void pizza_sys_memory_free(pizza_sys_memory_t ptr);
 
 /**
  * Copy memory.
@@ -498,7 +498,7 @@ void pizza_sys_memory_free(pizza_sys_memory_t ptr);
  * @return A pointer to the destination memory.
  * @throws Error message and exits if copying fails or if either source or destination is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
 
 /**
  * Set memory.
@@ -509,7 +509,7 @@ pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sy
  * @return A pointer to the memory.
  * @throws Error message and exits if setting fails or if the pointer is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size);
 
 /**
  * Duplicate memory.
@@ -519,7 +519,7 @@ pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, s
  * @return A pointer to the duplicated memory.
  * @throws Error message and exits if duplication fails or if the source is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size);
 
 /**
  * Zero memory.
@@ -528,7 +528,7 @@ pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t siz
  * @param size The size of the memory to zero.
  * @throws Error message and exits if the pointer is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
 
 /**
  * Compare memory.
@@ -539,7 +539,7 @@ pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
  * @return The result of the comparison.
  * @throws Error message and exits if the pointers are NULL or if the size is zero.
  */
-int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size);
+FOSSIL_PIZZA_API int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size);
 
 /**
  * Move memory.
@@ -550,7 +550,7 @@ int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memo
  * @return A pointer to the destination memory.
  * @throws Error message and exits if moving fails or if either source or destination is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
 
 /**
  * Resize memory.
@@ -561,7 +561,7 @@ pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sy
  * @return A pointer to the resized memory.
  * @throws Error message and exits if resizing fails or if the pointer is NULL.
  */
-pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size);
+FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size);
 
 /**
  * Check if a memory pointer is valid.
@@ -569,7 +569,7 @@ pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_si
  * @param ptr A pointer to the memory.
  * @return 1 if the memory is valid, 0 otherwise.
  */
-bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr);
+FOSSIL_PIZZA_API bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr);
 
 // *****************************************************************************
 // output management
@@ -650,7 +650,7 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  *
  * @param stream The output stream where subsequent output should be redirected.
  */
-void pizza_io_redirect_output(pizza_fstream_t *stream);
+FOSSIL_PIZZA_API void pizza_io_redirect_output(pizza_fstream_t *stream);
 
 /**
  * Prints a string to the output.
@@ -661,7 +661,7 @@ void pizza_io_redirect_output(pizza_fstream_t *stream);
  *
  * @param str The string to be printed. This should be a null-terminated string.
  */
-void pizza_io_puts(const char *str);
+FOSSIL_PIZZA_API void pizza_io_puts(const char *str);
 
 /** 
  * Prints a formatted string to the output.
@@ -682,7 +682,7 @@ void pizza_io_puts(const char *str);
  * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
  *            in the order they appear, based on the format specifiers.
  */
-void pizza_io_printf(const char *format, ...);
+FOSSIL_PIZZA_API void pizza_io_printf(const char *format, ...);
 
 /**
  * Prints a formatted string to a buffer using a va_list.
@@ -706,7 +706,7 @@ void pizza_io_printf(const char *format, ...);
  * @param args The variable argument list containing the values to be formatted.
  * @return The number of characters written (excluding the null terminator), or a negative value if an error occurs.
  */
-int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
+FOSSIL_PIZZA_API int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
 
 /**
  * Prints a character to the output.
@@ -721,7 +721,7 @@ int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list ar
  *
  * @param c The character to be printed. This should be a single character.
  */
-void pizza_io_putchar(char c);
+FOSSIL_PIZZA_API void pizza_io_putchar(char c);
 
 /**
  * Prints a string to the specified output stream.
@@ -740,7 +740,7 @@ void pizza_io_putchar(char c);
  * @param stream The output stream where the string should be printed. This should be a valid pointer to a `FILE` object.
  * @param str The string to be printed. This should be a null-terminated string.
  */
-void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
+FOSSIL_PIZZA_API void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
 
 /**
  * Prints a formatted string to the specified output stream.
@@ -761,7 +761,7 @@ void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
  * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
  *            in the order they appear, based on the format specifiers.
  */
-void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...);
+FOSSIL_PIZZA_API void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...);
 
 // TUI part of the API
 
@@ -772,7 +772,7 @@ void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...);
  * and move the cursor to the top-left corner. It is useful when creating full-screen
  * terminal applications or refreshing the display.
  */
-void pizza_io_clear_screen(void);
+FOSSIL_PIZZA_API void pizza_io_clear_screen(void);
 
 /**
  * Moves the cursor to a specific row and column on the terminal.
@@ -780,19 +780,19 @@ void pizza_io_clear_screen(void);
  * @param row The row position (starting from 1).
  * @param col The column position (starting from 1).
  */
-void pizza_io_move_cursor(int row, int col);
+FOSSIL_PIZZA_API void pizza_io_move_cursor(int row, int col);
 
 /**
  * Hides the cursor from the terminal screen.
  *
  * This is useful for creating cleaner UIs without a blinking cursor.
  */
-void pizza_io_hide_cursor(void);
+FOSSIL_PIZZA_API void pizza_io_hide_cursor(void);
 
 /**
  * Shows the cursor on the terminal screen.
  */
-void pizza_io_show_cursor(void);
+FOSSIL_PIZZA_API void pizza_io_show_cursor(void);
 
 /**
  * Draws a horizontal line using a specified character.
@@ -800,7 +800,7 @@ void pizza_io_show_cursor(void);
  * @param length The number of characters to draw.
  * @param ch The character to use for drawing.
  */
-void pizza_io_draw_horizontal_line(int length, char ch);
+FOSSIL_PIZZA_API void pizza_io_draw_horizontal_line(int length, char ch);
 
 /**
  * Draws a vertical line using a specified character.
@@ -808,14 +808,14 @@ void pizza_io_draw_horizontal_line(int length, char ch);
  * @param length The number of characters to draw.
  * @param ch The character to use for drawing.
  */
-void pizza_io_draw_vertical_line(int length, char ch);
+FOSSIL_PIZZA_API void pizza_io_draw_vertical_line(int length, char ch);
 
 /**
  * Flushes the output stream, ensuring all buffered text is written.
  *
  * Useful when mixing multiple output functions or when printing from threads.
  */
-void pizza_io_flush(void);
+FOSSIL_PIZZA_API void pizza_io_flush(void);
 
 // *****************************************************************************
 // string management
@@ -827,14 +827,14 @@ void pizza_io_flush(void);
  * @param init The initial value for the cstr.
  * @return A new cstr initialized with the given value.
  */
-cstr pizza_io_cstr_create(const char *init);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_create(const char *init);
 
 /**
  * @brief Frees the memory allocated for the given cstr.
  * 
  * @param str The cstr to be freed.
  */
-void pizza_io_cstr_free(cstr str);
+FOSSIL_PIZZA_API void pizza_io_cstr_free(cstr str);
 
 /**
  * @brief Creates a copy of the given cstr.
@@ -842,7 +842,7 @@ void pizza_io_cstr_free(cstr str);
  * @param str The cstr to be copied.
  * @return A new cstr that is a copy of the given cstr.
  */
-cstr pizza_io_cstr_copy(ccstr str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_copy(ccstr str);
 
 /**
  * @brief Duplicates the given cstr.
@@ -850,7 +850,7 @@ cstr pizza_io_cstr_copy(ccstr str);
  * @param str The cstr to be duplicated.
  * @return A new cstr that is a duplicate of the given cstr.
  */
-cstr pizza_io_cstr_dup(ccstr str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_dup(ccstr str);
 
 /**
  * @brief Concatenates two cstrings into a new cstr.
@@ -859,7 +859,7 @@ cstr pizza_io_cstr_dup(ccstr str);
  * @param s2 The second cstr.
  * @return A new cstr that is the concatenation of s1 and s2.
  */
-cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
 
 /**
  * @brief Returns the length of the given cstr.
@@ -867,7 +867,7 @@ cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
  * @param str The cstr whose length is to be determined.
  * @return The length of the given cstr.
  */
-size_t pizza_io_cstr_length(ccstr str);
+FOSSIL_PIZZA_API size_t pizza_io_cstr_length(ccstr str);
 
 /**
  * @brief Compares two cstrings.
@@ -876,14 +876,14 @@ size_t pizza_io_cstr_length(ccstr str);
  * @param s2 The second cstr.
  * @return An integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.
  */
-int pizza_io_cstr_compare(ccstr s1, ccstr s2);
+FOSSIL_PIZZA_API int pizza_io_cstr_compare(ccstr s1, ccstr s2);
 
 /**
  * @brief Trims whitespace from the beginning and end of the given cstr.
  * 
  * @param str The cstr to be trimmed.
  */
-void pizza_io_cstr_trim(cstr str);
+FOSSIL_PIZZA_API void pizza_io_cstr_trim(cstr str);
 
 /**
  * @brief Splits the given cstr by the specified delimiter.
@@ -893,7 +893,7 @@ void pizza_io_cstr_trim(cstr str);
  * @param count Pointer to a size_t variable where the number of resulting substrings will be stored.
  * @return An array of cstrings resulting from the split operation.
  */
-cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count);
+FOSSIL_PIZZA_API cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count);
 
 /**
  * @brief Replaces all occurrences of a substring within a cstr with another substring.
@@ -903,7 +903,7 @@ cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count);
  * @param new_str The substring to replace with.
  * @return A new cstr with the replacements made.
  */
-cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
 
 /**
  * @brief Converts all characters in the given cstr to uppercase.
@@ -911,7 +911,7 @@ cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
  * @param str The cstr to be converted.
  * @return The cstr with all characters converted to uppercase.
  */
-cstr pizza_io_cstr_to_upper(cstr str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_to_upper(cstr str);
 
 /**
  * @brief Converts all characters in the given cstr to lowercase.
@@ -919,7 +919,7 @@ cstr pizza_io_cstr_to_upper(cstr str);
  * @param str The cstr to be converted.
  * @return The cstr with all characters converted to lowercase.
  */
-cstr pizza_io_cstr_to_lower(cstr str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_to_lower(cstr str);
 
 /**
  * @brief Checks if the given cstr starts with the specified prefix.
@@ -928,7 +928,7 @@ cstr pizza_io_cstr_to_lower(cstr str);
  * @param prefix The prefix to check for.
  * @return 1 if the cstr starts with the prefix, 0 otherwise.
  */
-int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
+FOSSIL_PIZZA_API int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
 
 /**
  * @brief Checks if the given cstr ends with the specified suffix.
@@ -937,7 +937,7 @@ int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
  * @param suffix The suffix to check for.
  * @return 1 if the cstr ends with the suffix, 0 otherwise.
  */
-int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
+FOSSIL_PIZZA_API int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
 
 /**
  * @brief Extracts a substring from the given cstr.
@@ -947,7 +947,7 @@ int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
  * @param length The length of the substring.
  * @return A new cstr that is the specified substring of the original cstr.
  */
-cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length);
 
 /**
  * @brief Reverses the given cstr.
@@ -955,7 +955,7 @@ cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length);
  * @param str The cstr to be reversed.
  * @return A new cstr that is the reverse of the given cstr.
  */
-cstr pizza_io_cstr_reverse(cstr str);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_reverse(cstr str);
 
 /**
  * @brief Checks if the given cstr contains the specified substring.
@@ -964,7 +964,7 @@ cstr pizza_io_cstr_reverse(cstr str);
  * @param substr The substring to check for.
  * @return 1 if the cstr contains the substring, 0 otherwise.
  */
-int pizza_io_cstr_contains(ccstr str, ccstr substr);
+FOSSIL_PIZZA_API int pizza_io_cstr_contains(ccstr str, ccstr substr);
 
 /**
  * @brief Repeats the given cstr the specified number of times.
@@ -973,7 +973,7 @@ int pizza_io_cstr_contains(ccstr str, ccstr substr);
  * @param count The number of times to repeat the cstr.
  * @return A new cstr that is the original cstr repeated the specified number of times.
  */
-cstr pizza_io_cstr_repeat(ccstr str, size_t count);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_repeat(ccstr str, size_t count);
 
 /**
  * @brief Strips the given character from the beginning and end of the cstr.
@@ -982,7 +982,7 @@ cstr pizza_io_cstr_repeat(ccstr str, size_t count);
  * @param ch The character to strip.
  * @return A new cstr that is the original cstr with the specified character stripped from the beginning and end.
  */
-cstr pizza_io_cstr_strip(ccstr str, char ch);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_strip(ccstr str, char ch);
 
 /**
  * @brief Counts the number of occurrences of a substring within the given cstr.
@@ -991,7 +991,7 @@ cstr pizza_io_cstr_strip(ccstr str, char ch);
  * @param substr The substring to search for.
  * @return The number of occurrences of the substring within the cstr.
  */
-size_t pizza_io_cstr_count(ccstr str, ccstr substr);
+FOSSIL_PIZZA_API size_t pizza_io_cstr_count(ccstr str, ccstr substr);
 
 /**
  * @brief Pads the given cstr with the specified character on the left side.
@@ -1001,7 +1001,7 @@ size_t pizza_io_cstr_count(ccstr str, ccstr substr);
  * @param pad_char The character to pad with.
  * @return A new cstr that is the original cstr padded on the left side.
  */
-cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
 
 /**
  * @brief Pads the given cstr with the specified character on the right side.
@@ -1011,11 +1011,11 @@ cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
  * @param pad_char The character to pad with.
  * @return A new cstr that is the original cstr padded on the right side.
  */
-cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
+FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
 
 // Append a string to a buffer safely with NUL-termination.
 // Returns true on success, false if buffer would overflow.
-bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
+FOSSIL_PIZZA_API bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
 
 #ifdef __cplusplus
 }

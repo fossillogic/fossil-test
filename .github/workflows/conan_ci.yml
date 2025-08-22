@@ -1,12 +1,17 @@
 name: Conan CI
 
 on:
+  schedule:
+    - cron: '15 21 * * *'
   push:
     branches:
-      - main
+      # Match branches with version numbers like 1.2.8, 2.0.0, etc.
+      - '[0-9]+.[0-9]+.[0-9]+'
+    tags:
+      - 'v*'       # Tag releases like v1.2.8
   pull_request:
     branches:
-      - main
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
@@ -21,15 +26,27 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip
+
+      - name: Cache Conan
+        uses: actions/cache@v3
+        with:
+          path: ~/.conan
+          key: ${{ runner.os }}-conan
+
       - name: Install system packages
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build pkg-config python3-pip build-essential
+          sudo apt update
+          sudo apt install -y ninja-build pkg-config python3-pip build-essential
 
       - name: Install Meson and Conan
         run: |
           pip install --upgrade pip
-          pip install meson==1.3.2 conan==2.3.2
+          pip install meson==1.8.0 conan==2.3.2
 
       - name: Detect Conan profile
         run: conan profile detect
@@ -39,11 +56,11 @@ jobs:
 
       - name: Build
         run: |
-          meson setup builddir
-          meson compile -C builddir
+          meson setup -Dwith_test=enabled builddir
+          meson compile -C builddir -v
 
       - name: Test
-        run: meson test -C builddir
+        run: meson test -C builddir -v
 
       - name: Package
-        run: conan create . --name=pizza_test --version=1.2.7
+        run: conan create . --name=pizza_test --version=1.2.8

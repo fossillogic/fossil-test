@@ -1,20 +1,14 @@
 name: Crossfile CI
 
 on:
+  schedule:
+    - cron: '15 21 * * *'
   push:
-    paths:
-      - "**.c"
-      - "**.h"
-      - "**.py"
-      - "**.build"
-      - "**.options"
+    branches:
+      - main
   pull_request:
-    paths:
-      - "**.c"
-      - "**.h"
-      - "**.py"
-      - "**.build"
-      - "**.options"
+    branches:
+      - main
 
 jobs:
   build_cross:

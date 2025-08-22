@@ -5,12 +5,12 @@ import os
 
 class PizzaTestConan(ConanFile):
     name = "pizza_test"
-    version = "1.2.7"
+    version = "1.2.8"
     license = "MPL-2.0"
     author = "Fossil Logic <michaelbrockus@gmail.com>"
     url = "https://github.com/fossillogic/fossil-test"
-    description = "Unit testing framework for software projects"
-    topics = ("testing", "mocking", "framework")
+    description = "Fossil Test is a lightweight, portable unit testing library written in pure C with zero external dependencies."
+    topics = ("testing", "mocking", "benchmark", "meson", "fossillogic")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
@@ -51,4 +51,4 @@ class PizzaTestConan(ConanFile):
         self.cpp_info.includedirs = ["include"]
 
     def source(self):
-        self.run(f"git clone --branch v{self.version} {self.url} .")
+        self.run(f"git clone --branch v{self.version} {self.url}")
