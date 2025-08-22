@@ -76,7 +76,15 @@ jobs:
         with:
           python-version: '3.12'
   
-      - name: Install Xcode
+      - name: Install Xcode Command Line Tools
+        run: |
+          if ! xcode-select -p &>/dev/null; then
+            sudo xcode-select --install
+            # Wait until installation finishes
+            until xcode-select -p &>/dev/null; do sleep 5; done
+          fi
+
+      - name: Select Xcode version
         run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
   
       - name: Install Meson and Ninja
