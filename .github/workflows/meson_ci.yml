@@ -85,7 +85,7 @@ jobs:
           fi
 
       - name: Select Xcode version
-        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode_version }}.app
   
       - name: Install Meson and Ninja
         run: |
