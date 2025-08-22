@@ -11,27 +11,27 @@ class TestRunnerGenerator:
         self.is_apple = sys.platform == "darwin"
 
     def find_test_groups(self):
-        test_groups = set()
+        c_cpp_groups = set()
+        objc_groups = set()
+        objcpp_groups = set()
         pattern = r"FOSSIL_TEST_GROUP\((\w+)\)"
-
-        # File extensions to include
-        extensions = [".c", ".cpp"]
-        if self.is_apple:
-            extensions += [".m", ".mm"]  # Objective-C and Objective-C++
 
         # Walk through files in the specified directory, 'cases'
         for root, _, files in os.walk(self.directory):
             for file in files:
-                # Search for test files with the allowed extensions
-                if file.startswith("test_") and any(
-                    file.endswith(ext) for ext in extensions
-                ):
-                    with open(os.path.join(root, file), "r") as f:
+                if file.startswith("test_"):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, "r") as f:
                         content = f.read()
                         matches = re.findall(pattern, content)
-                        test_groups.update(matches)
+                        if file.endswith(".c") or file.endswith(".cpp"):
+                            c_cpp_groups.update(matches)
+                        elif self.is_apple and file.endswith(".m"):
+                            objc_groups.update(matches)
+                        elif self.is_apple and file.endswith(".mm"):
+                            objcpp_groups.update(matches)
 
-        return list(test_groups)
+        return list(c_cpp_groups), list(objc_groups), list(objcpp_groups)
 
     def generate_c_runner(self, test_groups):
         # Prepare header content for the test runner
@@ -81,7 +81,12 @@ int main(int argc, char **argv) {
 
 # Instantiate the generator, find test groups, and generate the test runner
 generator = TestRunnerGenerator()
-test_groups = generator.find_test_groups()
+c_cpp_groups, objc_groups, objcpp_groups = generator.find_test_groups()
+
+# Only include Objective-C/Objective-C++ groups if on Apple
+test_groups = c_cpp_groups
+if generator.is_apple:
+    test_groups += objc_groups + objcpp_groups
 
 # Generate the test runner for C and C++ (and Objective-C/Objective-C++ on Apple) tests
 generator.generate_c_runner(test_groups)
