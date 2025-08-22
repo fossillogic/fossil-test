@@ -60,7 +60,7 @@ To get started with Pizza Test, ensure you have the following installed:
 Conan can install packages directly from a GitHub repository if it contains a valid conanfile.py.
 
 ```bash
-conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.7 --name pizza_test --build=missing
+conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.8 --name pizza_test --build=missing
 ```
 
 #### Adding via Meson Build System
