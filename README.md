@@ -71,14 +71,6 @@ Conan can install packages directly from a GitHub repository if it contains a va
 conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.8 --name pizza_test --build=missing
 ```
 
-#### Adding via Conan Center Index
-
-Conan can install packages directly from the Conan Center Index if it contains a valid conanfile.py.
-
-```bash
-conan install --require= pizza_test/1.2.8
-```
-
 #### Integrate the Dependency:
    In your `meson.build` file, integrate Fossil Test by adding the following line:
 
