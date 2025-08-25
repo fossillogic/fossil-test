@@ -12,3 +12,6 @@ fossil_test_lib = library('pizza_test',
 fossil_test_dep = declare_dependency(
     link_with: fossil_test_lib,
     include_directories: dir)
+
+meson.override_dependency('fossil-test', fossil_test_dep)
+meson.override_dependency('pizza-test', fossil_test_dep)
