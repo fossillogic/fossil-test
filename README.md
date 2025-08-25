@@ -55,6 +55,14 @@ To get started with Pizza Test, ensure you have the following installed:
 
 ### Adding Dependency
 
+#### Adding via Meson WrapDB
+
+Meson can install packages directly from the WrapDB just like so, newest versions by default.
+
+```bash
+meson wrap install fossil-test
+```
+
 #### Adding via Conan GitHub repository
 
 Conan can install packages directly from a GitHub repository if it contains a valid conanfile.py.
@@ -63,39 +71,22 @@ Conan can install packages directly from a GitHub repository if it contains a va
 conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.8 --name pizza_test --build=missing
 ```
 
-#### Adding via Meson Build System
+#### Adding via Conan Center Index
 
-1. **Install Meson Build System**:
-   Install Meson version `1.8.0` or newer:
+Conan can install packages directly from the Conan Center Index if it contains a valid conanfile.py.
 
 ```bash
-python -m pip install meson           # To install Meson
-python -m pip install --upgrade meson # To upgrade Meson
+conan install --require= pizza_test/1.2.8
 ```
 
-2. **Create a `.wrap` File**:
-   Add a `fossil-test.wrap` file in your `subprojects` directory with the following content:
-
-```ini
-# ======================
-# Git Wrap package definition
-# ======================
-[wrap-git]
-url = https://github.com/fossillogic/fossil-test.git
-revision = v1.2.8
-
-[provide]
-fossil-test = fossil_test_dep
-```
-
-3. **Integrate the Dependency**:
+#### Integrate the Dependency:
    In your `meson.build` file, integrate Fossil Test by adding the following line:
 
 ```meson
 dep = dependency('fossil-test')
 ```
 
-**Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/pizzalogic/pizza-test/releases) page for the latest versions.
+**Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
 
 ## Configure Build Options
 
