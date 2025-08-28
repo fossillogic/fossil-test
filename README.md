@@ -80,8 +80,6 @@ revision = v1.2.8
 dependency_names = fossil-test
 ```
 
-In your `meson.build` file, integrate Fossil Test by adding the following line:
-
 **Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
 
 ## Configure Build Options
