@@ -57,11 +57,11 @@ To get started with Pizza Test, ensure you have the following installed:
 
 #### Adding via Meson Git Wrap
 
-To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use dependency('fossil-test') in meson.build so Meson can fetch and build it automatically.
+To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use `dependency('fossil-test')` in `meson.build` so Meson can fetch and build it automatically.
 
 #### Adding via Conan GitHub repository
 
-Conan can install packages directly from a GitHub repository if it contains a valid conanfile.py.
+Conan can install packages directly from a GitHub repository if it contains a valid `conanfile.py`.
 
 ```bash
 conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.8 --name pizza_test --build=missing
@@ -81,10 +81,6 @@ dependency_names = fossil-test, pizza-test
 ```
 
 In your `meson.build` file, integrate Fossil Test by adding the following line:
-
-```meson
-dep = dependency('fossil-test')
-```
 
 **Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
 
