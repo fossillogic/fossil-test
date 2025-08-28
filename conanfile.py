@@ -50,7 +50,7 @@ class PizzaTestConan(ConanFile):
 
     def package_info(self):
         """Set information for consumers of the package"""
-        self.cpp_info.libs = ["pizza_test"]
+        self.cpp_info.libs = ["fossil_test"]
         self.cpp_info.includedirs = ["include"]
 
     def source(self):
