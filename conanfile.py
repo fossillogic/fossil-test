@@ -10,7 +10,7 @@ class PizzaTestConan(ConanFile):
     author = "Fossil Logic <michaelbrockus@gmail.com>"
     url = "https://github.com/fossillogic/fossil-test"
     description = "Fossil Test is a lightweight, portable unit testing library written in pure C with zero external dependencies."
-    topics = ("testing", "mocking", "benchmark", "meson", "fossillogic")
+    topics = ("c", "benchmark", "tdd", "cpp", "ddd", "bdd", "mocking", "unittesting", "meson", "conan-recipe", "mesonbuild", "ninja-build")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
