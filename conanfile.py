@@ -4,7 +4,7 @@ from conan.tools.files import copy
 import os
 
 class PizzaTestConan(ConanFile):
-    name = "pizza_test"
+    name = "fossil_test"
     version = "1.2.8"
     license = "MPL-2.0"
     author = "Fossil Logic <michaelbrockus@gmail.com>"
@@ -34,6 +34,9 @@ class PizzaTestConan(ConanFile):
         meson = Meson(self)
         meson.configure()
         meson.build()
+
+    def source(self):
+        self.run(f"git clone --branch v{self.version} --depth 1 {self.url}")
 
     def package(self):
         """Install headers and libraries into package folder"""
