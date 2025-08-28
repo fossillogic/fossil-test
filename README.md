@@ -55,13 +55,9 @@ To get started with Pizza Test, ensure you have the following installed:
 
 ### Adding Dependency
 
-#### Adding via Meson WrapDB
+#### Adding via Meson Git Wrap
 
-Meson can install packages directly from the WrapDB just like so, newest versions by default.
-
-```bash
-meson wrap install fossil-test
-```
+To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use dependency('fossil-test') in meson.build so Meson can fetch and build it automatically.
 
 #### Adding via Conan GitHub repository
 
