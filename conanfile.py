@@ -4,13 +4,13 @@ from conan.tools.files import copy
 import os
 
 class PizzaTestConan(ConanFile):
-    name = "pizza_test"
+    name = "fossil_test"
     version = "1.2.8"
     license = "MPL-2.0"
     author = "Fossil Logic <michaelbrockus@gmail.com>"
     url = "https://github.com/fossillogic/fossil-test"
     description = "Fossil Test is a lightweight, portable unit testing library written in pure C with zero external dependencies."
-    topics = ("testing", "mocking", "benchmark", "meson", "fossillogic")
+    topics = ("c", "benchmark", "tdd", "cpp", "ddd", "bdd", "mocking", "unittesting", "meson", "conan-recipe", "mesonbuild", "ninja-build")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
@@ -35,6 +35,9 @@ class PizzaTestConan(ConanFile):
         meson.configure()
         meson.build()
 
+    def source(self):
+        self.run(f"git clone --branch v{self.version} --depth 1 {self.url}")
+
     def package(self):
         """Install headers and libraries into package folder"""
         meson = Meson(self)
@@ -47,7 +50,7 @@ class PizzaTestConan(ConanFile):
 
     def package_info(self):
         """Set information for consumers of the package"""
-        self.cpp_info.libs = ["pizza_test"]
+        self.cpp_info.libs = ["fossil_test"]
         self.cpp_info.includedirs = ["include"]
 
     def source(self):
