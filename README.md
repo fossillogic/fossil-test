@@ -77,7 +77,7 @@ url = https://github.com/fossillogic/fossil-test.git
 revision = v1.2.8
 
 [provide]
-dependency_names = fossil-test, pizza-test
+dependency_names = fossil-test
 ```
 
 In your `meson.build` file, integrate Fossil Test by adding the following line:
