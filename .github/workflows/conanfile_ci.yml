@@ -63,4 +63,4 @@ jobs:
         run: meson test -C builddir -v
 
       - name: Package
-        run: conan create . --name=pizza_test --version=1.2.8
+        run: conan create . --name=fossil_test --version=1.2.8
