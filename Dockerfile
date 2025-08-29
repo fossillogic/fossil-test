@@ -35,7 +35,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Set the working directory
-RUN meson setup -Dwith_test=enable builddir
+RUN meson setup -Dwith_test=enabled builddir
 RUN meson compile -C builddir
 RUN meson test -C builddir
 RUN meson install -C builddir
