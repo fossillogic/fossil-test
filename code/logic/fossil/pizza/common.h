@@ -33,7 +33,7 @@
 
   // macOS, iOS, tvOS, watchOS
   #if TARGET_OS_OSX || TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_WATCH
-    #import <Foundation/Foundation.h>
+    #include <Foundation/Foundation.h>
   #endif
 #endif // __APPLE__
 
