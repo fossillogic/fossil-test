@@ -15,7 +15,7 @@ fossil_test_lib = library('fossil_test',
 
 fossil_test_dep = declare_dependency(
     link_with: fossil_test_lib,
-    dependencies: [apple_dep]
+    dependencies: [apple_dep],
     include_directories: dir
 )
 
