@@ -7,7 +7,9 @@ fossil_test_lib = library('fossil_test',
     test_code,
     install: true,
     include_directories: dir,
-    dependencies: [cc.find_library('m', required: false)
+    dependencies: [
+        cc.find_library('m', required: false),
+        apple_dep
     ]
 )
 
