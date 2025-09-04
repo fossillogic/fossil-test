@@ -24,6 +24,19 @@
 #  define FOSSIL_PIZZA_API
 #endif
 
+/*
+ * Objective-C / Objective-C++ includes guarded for Apple platforms
+ */
+
+#if defined(__APPLE__)
+  #include <TargetConditionals.h>
+
+  // macOS, iOS, tvOS, watchOS
+  #if TARGET_OS_OSX || TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_WATCH
+    #import <Foundation/Foundation.h>
+  #endif
+#endif // __APPLE__
+
 // C headers
 #include <inttypes.h>
 #include <stdbool.h>
