@@ -13,90 +13,90 @@
  * -----------------------------------------------------------------------------
  */
 
+#import <Foundation/Foundation.h>
 #include "fossil/pizza/framework.h"
 
-// Test data structure for a sample test
-FOSSIL_MOCK_STRUCT(ObjCSampleTestData) {
-    int input;
-    int expected_output;
-} ObjCSampleTestData;
+// -----------------------------------------------------------------------------
+// Objective-C Sample Test Data Class
+// -----------------------------------------------------------------------------
+@interface ObjCSampleTestData : NSObject
+@property(nonatomic, assign) int input;
+@property(nonatomic, assign) int expected_output;
+- (instancetype)initWithInput:(int)input expected:(int)expected;
+@end
 
-// Setup function for the test suite
+@implementation ObjCSampleTestData
+- (instancetype)initWithInput:(int)input expected:(int)expected {
+    self = [super init];
+    if (self) {
+        _input = input;
+        _expected_output = expected;
+    }
+    return self;
+}
+@end
+
+// -----------------------------------------------------------------------------
+// Fossil Logic Test Suite Setup/Teardown
+// -----------------------------------------------------------------------------
 FOSSIL_SETUP(objc_sample_suite) {
-    // Setup code here
+    // Setup code for Objective-C tests
 }
 
-// Teardown function for the test suite
 FOSSIL_TEARDOWN(objc_sample_suite) {
-    // Teardown code here
+    // Teardown code for Objective-C tests
 }
 
-// Define the test suite and add test cases
 FOSSIL_SUITE(objc_sample_suite);
 
-// A simple test case to check if input + 1 equals expected_output
+// -----------------------------------------------------------------------------
+// Fossil Logic Test Cases (Objective-C flavored)
+// -----------------------------------------------------------------------------
 FOSSIL_TEST(objc_test_input_increment) {
-    ObjCSampleTestData data = {5, 6};  // Simplified initialization
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:5 expected:6];
     int actual_output = data.input + 1;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Increment test failed");
 }
 
-// A simple test case to check if input - 1 equals expected_output
 FOSSIL_TEST(objc_test_input_decrement) {
-    ObjCSampleTestData data = {5, 4};  // Simplified initialization
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:5 expected:4];
     int actual_output = data.input - 1;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Decrement test failed");
 }
 
-// A simple test case to check if input * 2 equals expected_output
 FOSSIL_TEST(objc_test_input_double) {
-    ObjCSampleTestData data = {5, 10};  // Simplified initialization
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:5 expected:10];
     int actual_output = data.input * 2;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Double test failed");
 }
 
-// A simple test case to check if input / 2 equals expected_output
 FOSSIL_TEST(objc_test_input_half) {
-    ObjCSampleTestData data = {10, 5};  // Simplified initialization
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:10 expected:5];
     int actual_output = data.input / 2;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Half test failed");
 }
 
-// A simple test case to check if input % 2 equals expected_output
 FOSSIL_TEST(objc_test_input_modulo) {
-    ObjCSampleTestData data = { 5, 1 };
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:5 expected:1];
     int actual_output = data.input % 2;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Modulo test failed");
 }
 
-// A simple test case to check if input squared equals expected_output
 FOSSIL_TEST(objc_test_input_square) {
-    ObjCSampleTestData data = { 3, 9 };
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:3 expected:9];
     int actual_output = data.input * data.input;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Square test failed");
 }
 
-// A simple test case to check if input is equal to expected_output
 FOSSIL_TEST(objc_test_input_equal) {
-    ObjCSampleTestData data = { 7, 7 };
-    
+    ObjCSampleTestData *data = [[ObjCSampleTestData alloc] initWithInput:7 expected:7];
     int actual_output = data.input;
-    
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Equality test failed");
 }
 
+// -----------------------------------------------------------------------------
+// Grouping Tests
+// -----------------------------------------------------------------------------
 FOSSIL_TEST_GROUP(objc_sample_test_cases) {
     FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_increment);
     FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_decrement);
