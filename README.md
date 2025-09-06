@@ -59,14 +59,6 @@ To get started, ensure you have the following installed:
 
 To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use `dependency('fossil-test')` in `meson.build` so Meson can fetch and build it automatically.
 
-#### Adding via Conan GitHub repository
-
-Conan can install packages directly from a GitHub repository if it contains a valid `conanfile.py`.
-
-```bash
-conan install git+https://github.com/fossillogic/fossil-test.git#v1.3.0 --name fossil_test --build=missing
-```
-
 #### Integrate the Dependency:
 
 Add the `fossil-test.wrap` file in your `subprojects` directory and include the following content:
