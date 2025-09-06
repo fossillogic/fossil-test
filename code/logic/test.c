@@ -949,91 +949,250 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
 
     // --- Primary Summary Pool (50 messages) ---
     static const char* summaries[] = {
-        // Perfect
+        // Perfect (20)
         "Perfect stability: all tests passed.",
         "Outstanding run: no issues detected.",
         "Flawless baseline: zero failures.",
         "Solid confidence: all cases succeeded.",
         "Full coverage success: suite passed without error.",
-        // Near perfect
+        "Impeccable results: every test succeeded.",
+        "No regressions: suite is fully stable.",
+        "All systems go: 100 percent pass rate.",
+        "Unmatched reliability: no failures found.",
+        "Suite integrity confirmed: all checks passed.",
+        "Zero errors: flawless execution.",
+        "Complete validation: no issues present.",
+        "All criteria met: suite is robust.",
+        "No anomalies: perfect run.",
+        "Total coverage: every test executed successfully.",
+        "No skipped or failed cases: ideal outcome.",
+        "Suite passed with flying colors.",
+        "No warnings: suite is in top condition.",
+        "All logic verified: no defects.",
+        "Suite health: optimal, no faults.",
+        // Near perfect (20)
         "Near-perfect: minor failures present.",
         "Almost clean: one or two cases failed.",
         "Very strong performance with isolated gaps.",
         "Excellent reliability, but not absolute.",
         "A few adjustments needed for total success.",
-        // Strong but not perfect
+        "Minor issues detected: overall strong.",
+        "Suite nearly flawless: small improvements needed.",
+        "High reliability: rare failures.",
+        "Almost ideal: suite is mostly stable.",
+        "Few regressions: suite is robust.",
+        "Minor anomalies: suite is healthy.",
+        "Small number of failures: suite is strong.",
+        "Isolated issues: suite is reliable.",
+        "Suite passed with minor exceptions.",
+        "Strong results: minor corrections required.",
+        "Almost all tests passed: suite is solid.",
+        "Suite integrity: high, with rare faults.",
+        "Few missed criteria: suite is dependable.",
+        "Suite nearly perfect: check minor failures.",
+        "Minor gaps: suite is well-tested.",
+        // Strong but not perfect (20)
         "High pass rate, suite largely stable.",
         "Reliability confirmed, with minor issues.",
         "Above expectations, but not flawless.",
         "Strong resilience across test cases.",
         "Overall positive results, but check edge cases.",
-        // Mixed results
+        "Suite is robust: some failures present.",
+        "Most tests passed: suite is healthy.",
+        "Good coverage: some cases failed.",
+        "Suite stability: generally strong.",
+        "Majority of tests succeeded: suite is reliable.",
+        "Suite is solid: minor regressions.",
+        "Test reliability: above average.",
+        "Suite passed most checks: review failures.",
+        "Suite is dependable: some improvements needed.",
+        "Strong results: suite is well-maintained.",
+        "Suite health: good, with some faults.",
+        "Most logic verified: suite is stable.",
+        "Suite is resilient: minor issues detected.",
+        "Suite is well-tested: some gaps remain.",
+        "Suite performance: strong, but not perfect.",
+        // Mixed results (20)
         "Balanced outcome: passes and failures split.",
         "Moderate reliability: issues present but not overwhelming.",
         "Inconsistent behavior detected in suite.",
         "Suite stability is uneven.",
         "Test reliability shows room for improvement.",
-        // Failure-heavy
+        "Mixed results: suite needs review.",
+        "Suite passed and failed in equal measure.",
+        "Suite outcome: variable, check failures.",
+        "Suite health: inconsistent.",
+        "Suite is unstable: passes and failures mixed.",
+        "Suite coverage: partial, review failed cases.",
+        "Suite results: mixed reliability.",
+        "Suite is unpredictable: review logic.",
+        "Suite outcome: moderate, needs improvement.",
+        "Suite is inconsistent: check criteria.",
+        "Suite passed some, failed others.",
+        "Suite reliability: uncertain.",
+        "Suite is erratic: review test logic.",
+        "Suite results: uneven, needs attention.",
+        "Suite outcome: mixed, review for stability.",
+        // Failure-heavy (20)
         "High failure rate detected, needs investigation.",
         "Many cases failed, stability concerns raised.",
         "Serious regression: majority of cases did not pass.",
         "Multiple failures indicate critical bugs.",
         "Widespread issues identified across the suite.",
-        // Timeouts
+        "Suite is unstable: many failures.",
+        "Suite failed most tests: urgent review needed.",
+        "Suite health: poor, many faults.",
+        "Suite integrity: compromised by failures.",
+        "Suite outcome: failure-heavy, investigate.",
+        "Suite reliability: low, many regressions.",
+        "Suite is unreliable: major issues present.",
+        "Suite failed to meet criteria: review logic.",
+        "Suite is broken: many failed cases.",
+        "Suite outcome: critical, many failures.",
+        "Suite failed most checks: review required.",
+        "Suite is unstable: major defects detected.",
+        "Suite health: critical, many failures.",
+        "Suite failed to pass: investigate regressions.",
+        "Suite outcome: failure-dominant, review urgently.",
+        // Timeouts (20)
         "Some cases failed to finish in time.",
         "Timeouts suggest performance bottlenecks.",
         "Long-running operations caused instability.",
         "Multiple timeouts detected — review efficiency.",
         "Suite affected by delays or infinite loops.",
-        // Skipped
+        "Suite performance: timeouts present.",
+        "Suite is slow: review for bottlenecks.",
+        "Suite execution delayed: timeouts detected.",
+        "Suite health: affected by timeouts.",
+        "Suite failed to complete: timeouts present.",
+        "Suite outcome: slow, review for efficiency.",
+        "Suite is inefficient: timeouts detected.",
+        "Suite execution: delayed by timeouts.",
+        "Suite reliability: affected by timeouts.",
+        "Suite is unstable: timeouts present.",
+        "Suite failed to finish: review for delays.",
+        "Suite outcome: timeouts, review logic.",
+        "Suite is slow: performance issues detected.",
+        "Suite execution: timeouts, review efficiency.",
+        "Suite health: timeouts, review for bottlenecks.",
+        // Skipped (20)
         "Several cases were skipped.",
         "Coverage gaps: too many skipped tests.",
         "Partial run — skipped cases limit reliability.",
         "Suite execution incomplete due to skipped cases.",
         "Large number of skips indicates missing dependencies.",
-        // Empty
+        "Suite coverage: incomplete, many skips.",
+        "Suite health: affected by skipped cases.",
+        "Suite outcome: partial, many skips.",
+        "Suite reliability: limited by skipped tests.",
+        "Suite is incomplete: skipped cases present.",
+        "Suite execution: many skips detected.",
+        "Suite coverage: gaps due to skips.",
+        "Suite is partial: skipped cases limit reliability.",
+        "Suite health: incomplete, review skips.",
+        "Suite outcome: many skips, review dependencies.",
+        "Suite reliability: affected by skipped cases.",
+        "Suite is incomplete: review skipped tests.",
+        "Suite execution: skipped cases present.",
+        "Suite coverage: limited by skips.",
+        "Suite health: review skipped cases.",
+        // Empty (20)
         "No implemented tests detected.",
         "Test placeholders exist but contain no logic.",
         "Suite mostly empty, coverage not achieved.",
         "Untested code paths remain.",
         "Define actual logic before re-running.",
-        // Unexpected
+        "Suite is empty: no tests implemented.",
+        "Suite coverage: missing, no logic present.",
+        "Suite health: empty, implement tests.",
+        "Suite outcome: no tests, review coverage.",
+        "Suite reliability: not tested.",
+        "Suite is incomplete: no logic present.",
+        "Suite execution: empty, implement tests.",
+        "Suite coverage: missing, add logic.",
+        "Suite health: empty, review for coverage.",
+        "Suite outcome: no tests, implement logic.",
+        "Suite reliability: not achieved, no tests.",
+        "Suite is empty: add test logic.",
+        "Suite execution: no tests present.",
+        "Suite coverage: empty, implement tests.",
+        "Suite health: review for test logic.",
+        // Unexpected (20)
         "Unexpected results indicate possible undefined behavior.",
         "Test suite produced anomalies not mapped in criteria.",
         "Unexpected output raises questions about correctness.",
         "Unstable behavior — criteria may be mismatched.",
         "Suite generated results outside defined expectations.",
-        // Critical
+        "Suite outcome: unexpected, review logic.",
+        "Suite reliability: anomalies detected.",
+        "Suite is unstable: unexpected results.",
+        "Suite execution: unexpected outcomes present.",
+        "Suite health: anomalies, review criteria.",
+        "Suite outcome: unexpected, review for correctness.",
+        "Suite reliability: unstable, unexpected results.",
+        "Suite is unpredictable: anomalies detected.",
+        "Suite execution: unexpected outcomes.",
+        "Suite health: unexpected results, review logic.",
+        "Suite outcome: anomalies, review for correctness.",
+        "Suite reliability: unexpected, review criteria.",
+        "Suite is unstable: unexpected outcomes.",
+        "Suite execution: anomalies detected.",
+        "Suite health: unexpected results, review for correctness.",
+        // Critical (20)
         "Catastrophic regression: system integrity at risk.",
         "Severe instability detected, halt release pipeline.",
         "Suite outcome suggests major defects.",
         "Reliability too low for deployment.",
-        "Critical failures demand immediate review."
+        "Critical failures demand immediate review.",
+        "Suite is broken: critical issues present.",
+        "Suite health: catastrophic, halt deployment.",
+        "Suite outcome: major defects detected.",
+        "Suite reliability: too low for release.",
+        "Suite is unstable: critical failures present.",
+        "Suite execution: catastrophic, review urgently.",
+        "Suite health: major defects, halt release.",
+        "Suite outcome: critical, review for defects.",
+        "Suite reliability: catastrophic, halt deployment.",
+        "Suite is broken: major issues detected.",
+        "Suite execution: critical failures present.",
+        "Suite health: catastrophic, review urgently.",
+        "Suite outcome: major defects, halt release.",
+        "Suite reliability: critical, review for defects.",
+        "Suite is unstable: catastrophic failures present."
     };
 
     const char* chosen = NULL;
 
     // --- Selection Logic ---
     if (pass_rate == 100.0) {
-        chosen = summaries[rand() % 5]; // Perfect pool
+        chosen = summaries[rand() % 20]; // Perfect pool
     } else if (fail_ratio > 0.5) {
-        chosen = summaries[20 + (rand() % 5)]; // Failure-heavy pool
+        chosen = summaries[80 + (rand() % 20)]; // Failure-heavy pool
     } else if (score->timeout > 0) {
-        chosen = summaries[25 + (rand() % 5)]; // Timeout pool
+        chosen = summaries[100 + (rand() % 20)]; // Timeout pool
     } else if (score->skipped > 0) {
-        chosen = summaries[30 + (rand() % 5)]; // Skipped pool
+        chosen = summaries[120 + (rand() % 20)]; // Skipped pool
     } else if (score->empty > 0 && score->passed == 0) {
-        chosen = summaries[35 + (rand() % 5)]; // Empty pool
+        chosen = summaries[140 + (rand() % 20)]; // Empty pool
     } else if (score->unexpected > 0) {
-        chosen = summaries[40 + (rand() % 5)]; // Unexpected pool
+        chosen = summaries[160 + (rand() % 20)]; // Unexpected pool
     } else if (pass_rate > 90.0) {
-        chosen = summaries[5 + (rand() % 5)]; // Near-perfect pool
+        chosen = summaries[20 + (rand() % 20)]; // Near-perfect pool
     } else if (pass_rate > 70.0) {
-        chosen = summaries[10 + (rand() % 5)]; // Strong but not perfect
+        chosen = summaries[40 + (rand() % 20)]; // Strong but not perfect
     } else if (pass_rate > 40.0) {
-        chosen = summaries[15 + (rand() % 5)]; // Mixed pool
+        chosen = summaries[60 + (rand() % 20)]; // Mixed pool
     } else {
-        chosen = summaries[45 + (rand() % 5)]; // Critical pool
+        chosen = summaries[180 + (rand() % 20)]; // Critical pool
+    }
+
+    // --- Time-Aware Feedback ---
+    // If available, add time hints for slow/fast runs
+    extern uint64_t get_pizza_time_microseconds(void); // Provided elsewhere
+    uint64_t now_us = get_pizza_time_microseconds();
+    char time_hint[64] = {0};
+    if (score->timeout > 0) {
+        snprintf(time_hint, sizeof(time_hint), " [Time: %llu us]", (unsigned long long)now_us);
     }
 
     // --- Hints Section ---
@@ -1049,7 +1208,7 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     if (score->empty > 0)
         strncat(hints, " Implement empty test stubs for full coverage.", sizeof(hints) - strlen(hints) - 1);
 
-    snprintf(message, sizeof(message), "%s%s", chosen, hints);
+    snprintf(message, sizeof(message), "%s%s%s", chosen, time_hint, hints);
 
     return message;
 }

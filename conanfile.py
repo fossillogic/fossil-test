@@ -5,7 +5,7 @@ import os
 
 class PizzaTestConan(ConanFile):
     name = "fossil_test"
-    version = "1.2.8"
+    version = "1.3.0"
     license = "MPL-2.0"
     author = "Fossil Logic <michaelbrockus@gmail.com>"
     url = "https://github.com/fossillogic/fossil-test"

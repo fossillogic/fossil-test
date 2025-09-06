@@ -1,5 +1,7 @@
 dir = include_directories('.')
 cc = meson.get_compiler('c')
+add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
+add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'cpp')
 
 test_code = ['mock.c', 'test.c', 'mark.c', 'sanity.c', 'common.c']
 

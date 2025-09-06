@@ -58,14 +58,6 @@
     #include <sys/time.h>
 #endif
 
-#ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 199309L
-#endif
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
