@@ -46,9 +46,9 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 
 ## ***Prerequisites***
 
-To get started with Pizza Test, ensure you have the following installed:
+To get started, ensure you have the following installed:
 
-- **Meson Build System**: If you don’t have Meson installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Meson Build System**: If you don’t have Meson `1.8.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
 - **Conan Package Manager**: If you prefer using Conan, ensure it is installed by following the instructions on the official [Conan website](https://docs.conan.io/en/latest/installation.html).
 
 ---
@@ -95,8 +95,6 @@ revision = v1.2.8
 [provide]
 dependency_names = fossil-test
 ```
-
-In your `meson.build` file, integrate Fossil Test by adding the following line:
 
 **Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
 

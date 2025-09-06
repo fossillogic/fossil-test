@@ -63,4 +63,7 @@ jobs:
         run: meson test -C builddir -v
 
       - name: Package
-        run: conan create . --name=fossil_test --version=1.2.8
+        run: |
+          PKG_NAME=$(echo "${{ github.event.repository.name }}" | tr '-' '_')
+          PKG_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')  # remove leading 'v'
+          conan create . --name=$PKG_NAME --version=$PKG_VERSION
