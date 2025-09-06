@@ -64,7 +64,7 @@ To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL a
 Conan can install packages directly from a GitHub repository if it contains a valid `conanfile.py`.
 
 ```bash
-conan install git+https://github.com/fossillogic/fossil-test.git#v1.2.8 --name fossil_test --build=missing
+conan install git+https://github.com/fossillogic/fossil-test.git#v1.3.0 --name fossil_test --build=missing
 ```
 
 #### Integrate the Dependency:
@@ -75,7 +75,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.2.8
+revision = v1.3.0
 
 [provide]
 dependency_names = fossil-test, pizza-test
@@ -90,7 +90,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.2.8
+revision = v1.3.0
 
 [provide]
 dependency_names = fossil-test
