@@ -957,7 +957,7 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
         "Full coverage success: suite passed without error.",
         "Impeccable results: every test succeeded.",
         "No regressions: suite is fully stable.",
-        "All systems go: 100% pass rate.",
+        "All systems go: 100 percent pass rate.",
         "Unmatched reliability: no failures found.",
         "Suite integrity confirmed: all checks passed.",
         "Zero errors: flawless execution.",
