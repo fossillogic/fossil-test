@@ -5,18 +5,3 @@ option('with_test',
     type : 'feature',
     value : 'disabled',
     description : 'Enable Fossil Test for this project')
-
-option('as_d',
-    type : 'feature',
-    value : 'enabled',
-    description : 'Enable D language support')
-
-option('as_cython',
-    type : 'feature',
-    value : 'disabled',
-    description : 'Enable Cython language support')
-
-option('as_java',
-    type : 'feature',
-    value : 'disabled',
-    description : 'Enable Java language support')
