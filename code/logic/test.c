@@ -957,7 +957,7 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
         "Full coverage success: suite passed without error.",
         "Impeccable results: every test succeeded.",
         "No regressions: suite is fully stable.",
-        "All systems go: 100\% pass rate.",
+        "All systems go: 100% pass rate.",
         "Unmatched reliability: no failures found.",
         "Suite integrity confirmed: all checks passed.",
         "Zero errors: flawless execution.",
@@ -1165,25 +1165,34 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
 
     // --- Selection Logic ---
     if (pass_rate == 100.0) {
-        chosen = summaries[rand() % 5]; // Perfect pool
+        chosen = summaries[rand() % 20]; // Perfect pool
     } else if (fail_ratio > 0.5) {
-        chosen = summaries[20 + (rand() % 5)]; // Failure-heavy pool
+        chosen = summaries[80 + (rand() % 20)]; // Failure-heavy pool
     } else if (score->timeout > 0) {
-        chosen = summaries[25 + (rand() % 5)]; // Timeout pool
+        chosen = summaries[100 + (rand() % 20)]; // Timeout pool
     } else if (score->skipped > 0) {
-        chosen = summaries[30 + (rand() % 5)]; // Skipped pool
+        chosen = summaries[120 + (rand() % 20)]; // Skipped pool
     } else if (score->empty > 0 && score->passed == 0) {
-        chosen = summaries[35 + (rand() % 5)]; // Empty pool
+        chosen = summaries[140 + (rand() % 20)]; // Empty pool
     } else if (score->unexpected > 0) {
-        chosen = summaries[40 + (rand() % 5)]; // Unexpected pool
+        chosen = summaries[160 + (rand() % 20)]; // Unexpected pool
     } else if (pass_rate > 90.0) {
-        chosen = summaries[5 + (rand() % 5)]; // Near-perfect pool
+        chosen = summaries[20 + (rand() % 20)]; // Near-perfect pool
     } else if (pass_rate > 70.0) {
-        chosen = summaries[10 + (rand() % 5)]; // Strong but not perfect
+        chosen = summaries[40 + (rand() % 20)]; // Strong but not perfect
     } else if (pass_rate > 40.0) {
-        chosen = summaries[15 + (rand() % 5)]; // Mixed pool
+        chosen = summaries[60 + (rand() % 20)]; // Mixed pool
     } else {
-        chosen = summaries[45 + (rand() % 5)]; // Critical pool
+        chosen = summaries[180 + (rand() % 20)]; // Critical pool
+    }
+
+    // --- Time-Aware Feedback ---
+    // If available, add time hints for slow/fast runs
+    extern uint64_t get_pizza_time_microseconds(void); // Provided elsewhere
+    uint64_t now_us = get_pizza_time_microseconds();
+    char time_hint[64] = {0};
+    if (score->timeout > 0) {
+        snprintf(time_hint, sizeof(time_hint), " [Time: %llu us]", (unsigned long long)now_us);
     }
 
     // --- Hints Section ---
@@ -1199,7 +1208,7 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     if (score->empty > 0)
         strncat(hints, " Implement empty test stubs for full coverage.", sizeof(hints) - strlen(hints) - 1);
 
-    snprintf(message, sizeof(message), "%s%s", chosen, hints);
+    snprintf(message, sizeof(message), "%s%s%s", chosen, time_hint, hints);
 
     return message;
 }
