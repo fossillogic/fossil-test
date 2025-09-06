@@ -68,22 +68,6 @@ conan install git+https://github.com/fossillogic/fossil-test.git#v1.3.0 --name f
 ```
 
 #### Integrate the Dependency:
-<<<<<<< HEAD
-
-Add the `fossil-test.wrap` file in your `subprojects` directory and include the following content:
-
-```ini
-[wrap-git]
-url = https://github.com/fossillogic/fossil-test.git
-revision = v1.3.0
-
-[provide]
-dependency_names = fossil-test, pizza-test
-```
-
-In your `meson.build` file, integrate Fossil Test by adding the following line:
-=======
->>>>>>> 87dc614f0bfe1184212aee792fffc5d6d1968125
 
 Add the `fossil-test.wrap` file in your `subprojects` directory and include the following content:
 
