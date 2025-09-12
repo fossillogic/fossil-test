@@ -923,8 +923,36 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
 
 int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
     if (!info) return -1;
-    uint16_t test = 0x0001;
-    info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
+
+    // --- Compile-time detection if supported ---
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    info->is_little_endian = 1;
+    info->is_big_endian    = 0;
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    info->is_little_endian = 0;
+    info->is_big_endian    = 1;
+#else
+    #error "Unknown byte order at compile-time"
+#endif
+#else
+    // --- Runtime fallback using union ---
+    union {
+        uint16_t value;
+        uint8_t bytes[2];
+    } test;
+
+    test.value = 0x0102;
+
+    if (test.bytes[0] == 0x02) {
+        info->is_little_endian = 1;
+        info->is_big_endian    = 0;
+    } else {
+        info->is_little_endian = 0;
+        info->is_big_endian    = 1;
+    }
+#endif
+
     return 0;
 }
 
