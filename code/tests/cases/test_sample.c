@@ -97,6 +97,10 @@ FOSSIL_TEST(test_input_equal) {
     FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Equality test failed");
 }
 
+FOSSIL_TEST(test_empty_case) {
+    // test the absence of an assumption .
+}
+
 FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
@@ -105,6 +109,7 @@ FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_modulo);
     FOSSIL_TEST_ADD(sample_suite, test_input_square);
     FOSSIL_TEST_ADD(sample_suite, test_input_equal);
+    FOSSIL_TEST_ADD(sample_suite, test_empty_case);
 
     FOSSIL_TEST_REGISTER(sample_suite);
 }

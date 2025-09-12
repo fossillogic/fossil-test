@@ -1,10 +1,20 @@
-/*
+/**
  * -----------------------------------------------------------------------------
  * Project: Fossil Logic
  *
- * This file is part of the Fossil Logic project, which aims to develop high-
- * performance, cross-platform applications and libraries. The code contained
- * herein is subject to the terms and conditions defined in the project license.
+ * This file is part of the Fossil Logic project, which aims to develop
+ * high-performance, cross-platform applications and libraries. The code
+ * contained herein is licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  * Author: Michael Gene Brockus (Dreamer)
  * Date: 04/05/2014
@@ -628,32 +638,43 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
     return seconds * 1000000000ULL;
 }
 
-void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
+// from sanity, should be implemented and placed in common.c
+extern uint64_t get_pizza_time_microseconds(void);
+
+
+void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
+                           fossil_pizza_case_t* test_case,
+                           fossil_pizza_suite_t* suite) {
     if (!test_case || !suite || !engine) return;
 
     // --- Filter: --only ---
-    if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
+    if (engine->pallet.run.only &&
+        pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
         return;
     }
 
     // --- Filter: --skip ---
-    if (engine->pallet.run.skip && pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
+    if (engine->pallet.run.skip &&
+        pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
         test_case->result = FOSSIL_PIZZA_CASE_SKIPPED;
         fossil_pizza_update_score(test_case, suite);
         return;
     }
 
-    size_t repeat_count = (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
+    size_t repeat_count =
+        (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
 
     for (size_t i = 0; i < repeat_count; ++i) {
         if (test_case->setup) test_case->setup();
 
         test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+        _ASSERT_COUNT = 0; // Reset before running test
         uint64_t start_time = fossil_pizza_now_ns();
 
         if (test_case->run) {
             if (setjmp(test_jump_buffer) == 0) {
                 test_case->run();
+
                 uint64_t end_time = fossil_pizza_now_ns();
                 uint64_t elapsed = end_time - start_time;
                 test_case->elapsed_ns = elapsed;
@@ -664,9 +685,12 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_PIZZA_TIMEOUT)) {
                     test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
+                } else if (_ASSERT_COUNT == 0) {
+                    test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
                 } else {
                     test_case->result = FOSSIL_PIZZA_CASE_PASS;
                 }
+
             } else {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
                 test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
@@ -687,7 +711,6 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
     fossil_pizza_update_score(test_case, suite);
     fossil_pizza_show_cases(suite, test_case, engine);
-    _ASSERT_COUNT = 0;
 }
 
 // --- Algorithmic modifications ---
@@ -1187,27 +1210,40 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     }
 
     // --- Time-Aware Feedback ---
-    // If available, add time hints for slow/fast runs
-    extern uint64_t get_pizza_time_microseconds(void); // Provided elsewhere
     uint64_t now_us = get_pizza_time_microseconds();
     char time_hint[64] = {0};
+    
     if (score->timeout > 0) {
-        snprintf(time_hint, sizeof(time_hint), " [Time: %llu us]", (unsigned long long)now_us);
+        snprintf(time_hint, sizeof(time_hint),
+                 " [Elapsed: %llu us]", (unsigned long long)now_us);
     }
-
-    // --- Hints Section ---
+    
+    // --- Priority-Ordered Hints ---
+    // Priority order: FAIL > TIMEOUT > UNEXPECTED > SKIPPED > EMPTY
     char hints[256] = {0};
-    if (score->failed > 0)
-        strncat(hints, " Check failing cases for regressions.", sizeof(hints) - strlen(hints) - 1);
-    if (score->timeout > 0)
-        strncat(hints, " Review timeouts for performance issues.", sizeof(hints) - strlen(hints) - 1);
-    if (score->skipped > 0)
-        strncat(hints, " Ensure skipped tests are intentional.", sizeof(hints) - strlen(hints) - 1);
-    if (score->unexpected > 0)
-        strncat(hints, " Unexpected outcomes may need criteria review.", sizeof(hints) - strlen(hints) - 1);
-    if (score->empty > 0)
-        strncat(hints, " Implement empty test stubs for full coverage.", sizeof(hints) - strlen(hints) - 1);
-
+    
+    if (score->failed > 0) {
+        strncat(hints, " Check failing cases first for regressions.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->timeout > 0) {
+        strncat(hints, " Investigate timeouts to improve performance.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->unexpected > 0) {
+        strncat(hints, " Review unexpected outcomes for correctness.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->skipped > 0) {
+        strncat(hints, " Verify skipped tests are justified.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->empty > 0) {
+        strncat(hints, " Fill empty tests to ensure coverage.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    
+    // Final message composition
     snprintf(message, sizeof(message), "%s%s%s", chosen, time_hint, hints);
 
     return message;
@@ -1216,112 +1252,112 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
 void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
+    // --- Total Elapsed Time Calculation ---
     uint64_t total_elapsed_ns = 0;
     for (size_t i = 0; i < engine->count; ++i) {
         total_elapsed_ns += engine->suites[i].time_elapsed_ns;
     }
 
-    // Convert total nanoseconds into detailed breakdown
-    uint64_t total_elapsed_us = total_elapsed_ns / 1000;
-    uint64_t total_elapsed_ms = total_elapsed_us / 1000;
-    uint64_t total_elapsed_s = total_elapsed_ms / 1000;
+    // Derive time components directly from nanoseconds
+    uint64_t total_elapsed_s  = total_elapsed_ns / 1000000000ULL;
+    uint64_t hours            = total_elapsed_s / 3600;
+    uint64_t minutes          = (total_elapsed_s % 3600) / 60;
+    uint64_t seconds          = total_elapsed_s % 60;
+    uint64_t microseconds     = (total_elapsed_ns / 1000ULL) % 1000000ULL;
+    uint64_t nanoseconds_part = total_elapsed_ns % 1000ULL;
 
-    uint64_t hours        = total_elapsed_s / 3600;
-    uint64_t minutes      = (total_elapsed_s % 3600) / 60;
-    uint64_t seconds      = total_elapsed_s % 60;
-    uint64_t microseconds = total_elapsed_us % 1000;
-    uint64_t nanoseconds  = total_elapsed_ns % 1000;
-
-    // Format: HH:MM:SS.UUU,NNN
     char time_buffer[64];
     snprintf(time_buffer, sizeof(time_buffer),
-            "%02llu:%02llu:%02llu.%03llu,%03llu",
+            "%02llu:%02llu:%02llu.%06llu,%03llu",
             (unsigned long long)hours,
             (unsigned long long)minutes,
             (unsigned long long)seconds,
             (unsigned long long)microseconds,
-            (unsigned long long)nanoseconds);
+            (unsigned long long)nanoseconds_part);
 
-    // Display based on theme
+    // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}\n========================================================================={reset}\n");
             pizza_io_printf("{blue,bold}Elapsed Time:{white} %s (hh:mm:ss.micro,nano)\n{reset}", time_buffer);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("{magenta}\n========================================================================={reset}\n");
             pizza_io_printf("{magenta}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             pizza_io_printf("{magenta}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("{cyan}\n========================================================================={reset}\n");
             pizza_io_printf("{cyan}[Elapsed Time]:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             pizza_io_printf("{cyan}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_TAP:
             pizza_io_printf("\n# {yellow}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             break;
-
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             break;
-
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Elapsed Time:{reset}\n");
-            pizza_io_printf("{cyan}HH:MM:SS:{reset} %02llu:%02llu:%02llu, {cyan}Micro:{reset} %03llu, {cyan}Nano:{reset} %03llu\n",
-                            hours, minutes, seconds, microseconds, nanoseconds);
+            pizza_io_printf("{cyan}HH:MM:SS:{reset} %02llu:%02llu:%02llu, {cyan}Micro:{reset} %06llu, {cyan}Nano:{reset} %03llu\n",
+                            hours, minutes, seconds, microseconds, nanoseconds_part);
             break;
-
         default:
             pizza_io_printf("Unknown theme. Unable to display elapsed time.\n");
-        break;
+            break;
     }
 
-    // Calculate averages
-    double avg_time_per_suite_ns = (engine->count > 0) ? (double)total_elapsed_ns / engine->count : 0;
-    double avg_time_per_test_ns = (engine->score_possible > 0) ? (double)total_elapsed_ns / engine->score_possible : 0;
+    // --- Average Times ---
+    if (engine->count == 0 || engine->score_possible == 0) {
+        pizza_io_printf("No suites or tests executed; averages not available.\n");
+        return;
+    }
 
-    double avg_suite_us = avg_time_per_suite_ns / 1000.0;
-    double avg_suite_ms = avg_time_per_suite_ns / 1e6;
-    double avg_test_us = avg_time_per_test_ns / 1000.0;
-    double avg_test_ms = avg_time_per_test_ns / 1e6;
+    double avg_suite_ns = (double)total_elapsed_ns / engine->count;
+    double avg_test_ns  = (double)total_elapsed_ns / engine->score_possible;
 
+    double avg_suite_us = avg_suite_ns / 1e3;
+    double avg_suite_ms = avg_suite_ns / 1e6;
+    double avg_test_us  = avg_test_ns / 1e3;
+    double avg_test_ms  = avg_test_ns / 1e6;
+
+    // Theme-aware average reporting
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %.2f ns (%.2f µs | %.3f ms)\n{reset}", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("{blue,bold}Average Time per Test :{white} %.2f ns (%.2f µs | %.3f ms)\n{reset}", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
         case PIZZA_THEME_UNITY:
-            pizza_io_printf("Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("[Average Time per Suite]: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("[Average Time per Test ]: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("[Average Time per Suite]: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("[Average Time per Test ]: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_TAP:
-            pizza_io_printf("# Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("# Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("# Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("# Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_GOOGLETEST:
-            pizza_io_printf("[----------] Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("[----------] Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("[----------] Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("[----------] Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         default:
             pizza_io_printf("Unknown theme. Unable to display average times.\n");
             break;
@@ -1431,50 +1467,53 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
     pizza_sys_hostinfo_get_system(&system_info);
     pizza_sys_hostinfo_get_endianness(&endianness_info);
 
+    // Choose color based on endianness
+    const char* endian_str  = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
+    const char* endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
+
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
-            pizza_io_printf("{blue}==={cyan} Fossil Pizza Summary {blue}===: os{magenta} %s {blue}endianess:{magenta} %s {reset}\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {magenta}%s{blue}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("{magenta}========================================================================={reset}\n");
-            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} os {cyan}%s{reset} endianess: {cyan}%s{reset}\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {cyan}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{magenta}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("{cyan}========================================================================={reset}\n");
-            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: os {blue}%s{reset} endianess: {blue}%s{reset}\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {blue}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{cyan}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("TAP version 13\n");
-            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: os {cyan}%s{reset} endianess: {cyan}%s{reset}\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {cyan}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
-            // Google Test themed colors: blue, red, yellow, green (Google logo colors)
-            pizza_io_printf("[==========] {blue}F{red}o{yellow}s{green}s{blue}i{red}l {yellow}P{green}i{blue}z{red}z{yellow}a {green}S{blue}u{red}m{yellow}m{green}a{blue}r{red}y{reset}\n");
-            pizza_io_printf("[----------] OS: %s, Endianess: %s\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("[==========] {blue}F{red}o{yellow}s{green}s{blue}i{red}l {yellow}P{green}i{blue}z{red}z{yellow}a {green}Summary{reset}\n");
+            pizza_io_printf("[----------] OS: %s, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Summary{reset}\n");
-            pizza_io_printf("{cyan}OS:{reset} %s, {cyan}Endianess:{reset} %s\n",
-                system_info.os_name, endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+            pizza_io_printf("{cyan}OS:{reset} %s, {cyan}Endianness:{reset} %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         default:
-            pizza_io_printf("Unknown theme. Unable to display heading.\n");
+            pizza_io_printf("Unknown theme. Unable to display summary heading.\n");
             break;
     }
 }

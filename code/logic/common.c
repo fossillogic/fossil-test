@@ -1,10 +1,20 @@
-/*
+/**
  * -----------------------------------------------------------------------------
  * Project: Fossil Logic
  *
- * This file is part of the Fossil Logic project, which aims to develop high-
- * performance, cross-platform applications and libraries. The code contained
- * herein is subject to the terms and conditions defined in the project license.
+ * This file is part of the Fossil Logic project, which aims to develop
+ * high-performance, cross-platform applications and libraries. The code
+ * contained herein is licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  *
  * Author: Michael Gene Brockus (Dreamer)
  * Date: 04/05/2014
@@ -923,8 +933,36 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
 
 int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
     if (!info) return -1;
-    uint16_t test = 0x0001;
-    info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
+
+    // --- Compile-time detection if supported ---
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    info->is_little_endian = 1;
+    info->is_big_endian    = 0;
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    info->is_little_endian = 0;
+    info->is_big_endian    = 1;
+#else
+    #error "Unknown byte order at compile-time"
+#endif
+#else
+    // --- Runtime fallback using union ---
+    union {
+        uint16_t value;
+        uint8_t bytes[2];
+    } test;
+
+    test.value = 0x0102;
+
+    if (test.bytes[0] == 0x02) {
+        info->is_little_endian = 1;
+        info->is_big_endian    = 0;
+    } else {
+        info->is_little_endian = 0;
+        info->is_big_endian    = 1;
+    }
+#endif
+
     return 0;
 }
 
