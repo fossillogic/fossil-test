@@ -628,32 +628,39 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
     return seconds * 1000000000ULL;
 }
 
-void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_case_t* test_case, fossil_pizza_suite_t* suite) {
+void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
+                           fossil_pizza_case_t* test_case,
+                           fossil_pizza_suite_t* suite) {
     if (!test_case || !suite || !engine) return;
 
     // --- Filter: --only ---
-    if (engine->pallet.run.only && pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
+    if (engine->pallet.run.only &&
+        pizza_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0) {
         return;
     }
 
     // --- Filter: --skip ---
-    if (engine->pallet.run.skip && pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
+    if (engine->pallet.run.skip &&
+        pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0) {
         test_case->result = FOSSIL_PIZZA_CASE_SKIPPED;
         fossil_pizza_update_score(test_case, suite);
         return;
     }
 
-    size_t repeat_count = (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
+    size_t repeat_count =
+        (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
 
     for (size_t i = 0; i < repeat_count; ++i) {
         if (test_case->setup) test_case->setup();
 
         test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
+        _ASSERT_COUNT = 0; // Reset before running test
         uint64_t start_time = fossil_pizza_now_ns();
 
         if (test_case->run) {
             if (setjmp(test_jump_buffer) == 0) {
                 test_case->run();
+
                 uint64_t end_time = fossil_pizza_now_ns();
                 uint64_t elapsed = end_time - start_time;
                 test_case->elapsed_ns = elapsed;
@@ -664,9 +671,12 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_PIZZA_TIMEOUT)) {
                     test_case->result = FOSSIL_PIZZA_CASE_TIMEOUT;
+                } else if (_ASSERT_COUNT == 0) {
+                    test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
                 } else {
                     test_case->result = FOSSIL_PIZZA_CASE_PASS;
                 }
+
             } else {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
                 test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
@@ -687,7 +697,6 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine, fossil_pizza_cas
 
     fossil_pizza_update_score(test_case, suite);
     fossil_pizza_show_cases(suite, test_case, engine);
-    _ASSERT_COUNT = 0;
 }
 
 // --- Algorithmic modifications ---
