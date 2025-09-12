@@ -1467,47 +1467,49 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
     pizza_sys_hostinfo_get_system(&system_info);
     pizza_sys_hostinfo_get_endianness(&endianness_info);
 
-    const char* endian_str = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
+    // Choose color based on endianness
+    const char* endian_str  = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
+    const char* endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
-            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {magenta}%s{blue}, Endianness: {magenta}%s{reset}\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {magenta}%s{blue}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("{magenta}========================================================================={reset}\n");
-            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {cyan}%s{reset}, Endianness: {cyan}%s{reset}\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {cyan}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{magenta}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("{cyan}========================================================================={reset}\n");
-            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {blue}%s{reset}, Endianness: {blue}%s{reset}\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {blue}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             pizza_io_printf("{cyan}========================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("TAP version 13\n");
-            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {cyan}%s{reset}, Endianness: {cyan}%s{reset}\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {cyan}%s{reset}, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}F{red}o{yellow}s{green}s{blue}i{red}l {yellow}P{green}i{blue}z{red}z{yellow}a {green}Summary{reset}\n");
-            pizza_io_printf("[----------] OS: %s, Endianness: %s\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("[----------] OS: %s, Endianness: %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Summary{reset}\n");
-            pizza_io_printf("{cyan}OS:{reset} %s, {cyan}Endianness:{reset} %s\n",
-                system_info.os_name, endian_str);
+            pizza_io_printf("{cyan}OS:{reset} %s, {cyan}Endianness:{reset} %s%s{reset}\n",
+                system_info.os_name, endian_color, endian_str);
             break;
 
         default:
