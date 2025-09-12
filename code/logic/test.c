@@ -1196,27 +1196,40 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     }
 
     // --- Time-Aware Feedback ---
-    // If available, add time hints for slow/fast runs
-    extern uint64_t get_pizza_time_microseconds(void); // Provided elsewhere
     uint64_t now_us = get_pizza_time_microseconds();
     char time_hint[64] = {0};
+    
     if (score->timeout > 0) {
-        snprintf(time_hint, sizeof(time_hint), " [Time: %llu us]", (unsigned long long)now_us);
+        snprintf(time_hint, sizeof(time_hint),
+                 " [Elapsed: %llu us]", (unsigned long long)now_us);
     }
-
-    // --- Hints Section ---
+    
+    // --- Priority-Ordered Hints ---
+    // Priority order: FAIL > TIMEOUT > UNEXPECTED > SKIPPED > EMPTY
     char hints[256] = {0};
-    if (score->failed > 0)
-        strncat(hints, " Check failing cases for regressions.", sizeof(hints) - strlen(hints) - 1);
-    if (score->timeout > 0)
-        strncat(hints, " Review timeouts for performance issues.", sizeof(hints) - strlen(hints) - 1);
-    if (score->skipped > 0)
-        strncat(hints, " Ensure skipped tests are intentional.", sizeof(hints) - strlen(hints) - 1);
-    if (score->unexpected > 0)
-        strncat(hints, " Unexpected outcomes may need criteria review.", sizeof(hints) - strlen(hints) - 1);
-    if (score->empty > 0)
-        strncat(hints, " Implement empty test stubs for full coverage.", sizeof(hints) - strlen(hints) - 1);
-
+    
+    if (score->failed > 0) {
+        strncat(hints, " Check failing cases first for regressions.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->timeout > 0) {
+        strncat(hints, " Investigate timeouts to improve performance.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->unexpected > 0) {
+        strncat(hints, " Review unexpected outcomes for correctness.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->skipped > 0) {
+        strncat(hints, " Verify skipped tests are justified.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    if (score->empty > 0) {
+        strncat(hints, " Fill empty tests to ensure coverage.",
+                sizeof(hints) - strlen(hints) - 1);
+    }
+    
+    // Final message composition
     snprintf(message, sizeof(message), "%s%s%s", chosen, time_hint, hints);
 
     return message;
@@ -1225,112 +1238,112 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
 void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
+    // --- Total Elapsed Time Calculation ---
     uint64_t total_elapsed_ns = 0;
     for (size_t i = 0; i < engine->count; ++i) {
         total_elapsed_ns += engine->suites[i].time_elapsed_ns;
     }
 
-    // Convert total nanoseconds into detailed breakdown
-    uint64_t total_elapsed_us = total_elapsed_ns / 1000;
-    uint64_t total_elapsed_ms = total_elapsed_us / 1000;
-    uint64_t total_elapsed_s = total_elapsed_ms / 1000;
+    // Derive time components directly from nanoseconds
+    uint64_t total_elapsed_s  = total_elapsed_ns / 1000000000ULL;
+    uint64_t hours            = total_elapsed_s / 3600;
+    uint64_t minutes          = (total_elapsed_s % 3600) / 60;
+    uint64_t seconds          = total_elapsed_s % 60;
+    uint64_t microseconds     = (total_elapsed_ns / 1000ULL) % 1000000ULL;
+    uint64_t nanoseconds_part = total_elapsed_ns % 1000ULL;
 
-    uint64_t hours        = total_elapsed_s / 3600;
-    uint64_t minutes      = (total_elapsed_s % 3600) / 60;
-    uint64_t seconds      = total_elapsed_s % 60;
-    uint64_t microseconds = total_elapsed_us % 1000;
-    uint64_t nanoseconds  = total_elapsed_ns % 1000;
-
-    // Format: HH:MM:SS.UUU,NNN
     char time_buffer[64];
     snprintf(time_buffer, sizeof(time_buffer),
-            "%02llu:%02llu:%02llu.%03llu,%03llu",
+            "%02llu:%02llu:%02llu.%06llu,%03llu",
             (unsigned long long)hours,
             (unsigned long long)minutes,
             (unsigned long long)seconds,
             (unsigned long long)microseconds,
-            (unsigned long long)nanoseconds);
+            (unsigned long long)nanoseconds_part);
 
-    // Display based on theme
+    // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}\n========================================================================={reset}\n");
             pizza_io_printf("{blue,bold}Elapsed Time:{white} %s (hh:mm:ss.micro,nano)\n{reset}", time_buffer);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("{magenta}\n========================================================================={reset}\n");
             pizza_io_printf("{magenta}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             pizza_io_printf("{magenta}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("{cyan}\n========================================================================={reset}\n");
             pizza_io_printf("{cyan}[Elapsed Time]:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             pizza_io_printf("{cyan}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_TAP:
             pizza_io_printf("\n# {yellow}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             break;
-
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
             break;
-
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Elapsed Time:{reset}\n");
-            pizza_io_printf("{cyan}HH:MM:SS:{reset} %02llu:%02llu:%02llu, {cyan}Micro:{reset} %03llu, {cyan}Nano:{reset} %03llu\n",
-                            hours, minutes, seconds, microseconds, nanoseconds);
+            pizza_io_printf("{cyan}HH:MM:SS:{reset} %02llu:%02llu:%02llu, {cyan}Micro:{reset} %06llu, {cyan}Nano:{reset} %03llu\n",
+                            hours, minutes, seconds, microseconds, nanoseconds_part);
             break;
-
         default:
             pizza_io_printf("Unknown theme. Unable to display elapsed time.\n");
-        break;
+            break;
     }
 
-    // Calculate averages
-    double avg_time_per_suite_ns = (engine->count > 0) ? (double)total_elapsed_ns / engine->count : 0;
-    double avg_time_per_test_ns = (engine->score_possible > 0) ? (double)total_elapsed_ns / engine->score_possible : 0;
+    // --- Average Times ---
+    if (engine->count == 0 || engine->score_possible == 0) {
+        pizza_io_printf("No suites or tests executed; averages not available.\n");
+        return;
+    }
 
-    double avg_suite_us = avg_time_per_suite_ns / 1000.0;
-    double avg_suite_ms = avg_time_per_suite_ns / 1e6;
-    double avg_test_us = avg_time_per_test_ns / 1000.0;
-    double avg_test_ms = avg_time_per_test_ns / 1e6;
+    double avg_suite_ns = (double)total_elapsed_ns / engine->count;
+    double avg_test_ns  = (double)total_elapsed_ns / engine->score_possible;
 
+    double avg_suite_us = avg_suite_ns / 1e3;
+    double avg_suite_ms = avg_suite_ns / 1e6;
+    double avg_test_us  = avg_test_ns / 1e3;
+    double avg_test_ms  = avg_test_ns / 1e6;
+
+    // Theme-aware average reporting
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %.2f ns (%.2f µs | %.3f ms)\n{reset}", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("{blue,bold}Average Time per Test :{white} %.2f ns (%.2f µs | %.3f ms)\n{reset}", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;
-
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
         case PIZZA_THEME_UNITY:
-            pizza_io_printf("Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("[Average Time per Suite]: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("[Average Time per Test ]: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("=========================================================================\n");
+            pizza_io_printf("[Average Time per Suite]: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("[Average Time per Test ]: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_TAP:
-            pizza_io_printf("# Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("# Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("# Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("# Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         case PIZZA_THEME_GOOGLETEST:
-            pizza_io_printf("[----------] Average Time per Suite: %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("[----------] Average Time per Test : %.2f ns (%.2f µs | %.3f ms)\n", avg_time_per_test_ns, avg_test_us, avg_test_ms);
+            pizza_io_printf("[----------] Average Time per Suite: %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_suite_ns, avg_suite_us, avg_suite_ms);
+            pizza_io_printf("[----------] Average Time per Test : %12.2f ns (%8.2f µs | %8.3f ms)\n",
+                            avg_test_ns, avg_test_us, avg_test_ms);
             break;
-
         default:
             pizza_io_printf("Unknown theme. Unable to display average times.\n");
             break;
