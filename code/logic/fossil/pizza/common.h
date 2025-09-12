@@ -334,7 +334,8 @@ typedef struct {
 
 // Endianness information structure
 typedef struct {
-    int is_little_endian; // 1 if little-endian, 0 if big-endian
+    int is_little_endian;
+    int is_big_endian;
 } pizza_sys_hostinfo_endianness_t;
 
 // System information structure
