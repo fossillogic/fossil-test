@@ -628,6 +628,21 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
     return seconds * 1000000000ULL;
 }
 
+uint64_t get_pizza_time_microseconds(void) {
+#if defined(_WIN32)
+    // --- Windows High-Resolution Timer ---
+    LARGE_INTEGER freq, counter;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&counter);
+    return (uint64_t)((counter.QuadPart * 1000000ULL) / freq.QuadPart);
+#else
+    // --- POSIX Clock_gettime (Monotonic) ---
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000ULL + (uint64_t)ts.tv_nsec / 1000ULL;
+#endif
+}
+
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
                            fossil_pizza_case_t* test_case,
                            fossil_pizza_suite_t* suite) {
