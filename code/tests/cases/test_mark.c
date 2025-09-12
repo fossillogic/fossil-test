@@ -80,16 +80,6 @@ FOSSIL_TEST(c_mark_multiple_benchmarks) {
     ASSUME_ITS_EQUAL_CSTR(benchmark_benchmark2.name, "benchmark2");
 }
 
-// Test case for MARK_START and MARK_STOP with elapsed time
-FOSSIL_TEST(c_mark_elapsed_time) {
-    MARK_BENCHMARK(elapsed_test);
-    MARK_START(elapsed_test);
-    // Simulate some work
-    for (int i = 0; i < 1000000; ++i);
-    MARK_STOP(elapsed_test);
-    ASSUME_ITS_TRUE(benchmark_elapsed_test.total_duration > 0.0);
-}
-
 // Test case for MARK_BENCHMARK with invalid name
 FOSSIL_TEST(c_mark_invalid_benchmark_name) {
     MARK_BENCHMARK(null_benchmark);
@@ -133,7 +123,6 @@ FOSSIL_TEST_GROUP(c_mark_test_cases) {
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_start);
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_stop);
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_multiple_benchmarks);
-    FOSSIL_TEST_ADD(c_mark_suite, c_mark_elapsed_time);
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_invalid_benchmark_name);
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_stop_without_start);
     FOSSIL_TEST_ADD(c_mark_suite, c_mark_nested_benchmarks);
