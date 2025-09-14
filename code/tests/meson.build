@@ -1,5 +1,5 @@
 if get_option('with_test').enabled()
-    run_command(['python3', 'tools' / 'generate-runner.py'], check: true)
+    run_command(['python3', 'tools' / 'runner.py'], check: true)
     cards = run_command(['python3', 'tools' / 'wildcard.py'], check: true)
 
     test_cases = ['unit_runner.c', cards.stdout().strip().split('\n')]

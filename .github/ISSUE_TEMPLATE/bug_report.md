@@ -1,25 +1,28 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
+name: 🐞 Bug Report
+about: Report a reproducible issue or unexpected behavior
+title: "[BUG] "
+labels: bug
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Description
+<!-- A clear and concise description of the problem. -->
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## Steps to Reproduce
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+2. Click on '...'
+3. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Expected Behavior
+<!-- What you expected to happen. -->
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Version [e.g. 22]
+## Actual Behavior
+<!-- What actually happened. Include logs or screenshots if possible. -->
+
+## Environment
+- OS: [e.g. Linux, macOS, Windows]
+- Compiler/Interpreter: [e.g. GCC 13, Python 3.12]
+- Version/Commit: [e.g. v1.2.3 or commit SHA]
+
+## Additional Context
+<!-- Any other info that might help us debug. -->

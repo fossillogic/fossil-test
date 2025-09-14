@@ -5,7 +5,8 @@ project('Fossil Test', 'c', 'cpp',
     default_options: [
         'c_std=c11,c18',
         'cpp_std=c++20',
-        'buildtype=release'
+        'buildtype=release',
+        'default_library=static'
     ]
 )
 
