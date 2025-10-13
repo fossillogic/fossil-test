@@ -160,15 +160,26 @@ void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out)
 
 // Lookup tables for valid tags and criteria
 static const char* VALID_TAGS[] = {
-    "fossil",       // default tag
-    "jellyfish",    // Jellyfish AI tag
-    "network",      // Network-related tests
-    "database",     // Database-related tests
-    "ui",           // User Interface tests
-    "api",          // API-related tests
-    "critical",     // Critical tests
-    "non_critical", // Non-critical tests
-    null // Sentinel to mark the end
+    "fossil",           // Default tag for Fossil Logic core
+    "jellyfish",        // Jellyfish AI tag
+    "network",          // Network-related tests
+    "database",         // Database-related tests
+    "ui",               // User Interface tests
+    "api",              // API-related tests
+    "critical",         // Critical tests
+    "non_critical",     // Non-critical tests
+    "git_chain",        // Git-chain hybrid validation tests
+    "fson_v2",          // FSON v2 serialization and parsing tests
+    "engine",           // Core intelligence engine components
+    "hybrid",           // Hybrid logic or mixed subsystem tests
+    "logic",            // Logic layer validation or inference
+    "storage",          // Persistent or in-memory storage systems
+    "observer",         // Observation and inference components
+    "integration",      // Cross-module or integration-level tests
+    "performance",      // Performance and benchmark-related tests
+    "experimental",     // Experimental or prototype features
+    "security",         // Security, hashing, or chain validation tests
+    NULL                // Sentinel to mark the end
 };
 
 static const char* VALID_CRITERIA[] = {
