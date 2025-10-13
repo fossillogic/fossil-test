@@ -171,11 +171,23 @@ static const char* VALID_TAGS[] = {
     null // Sentinel to mark the end
 };
 
+// Lookup table for valid criteria and sorting keys
 static const char* VALID_CRITERIA[] = {
-    "name",
-    "time",
-    "result",
-    null // Sentinel to mark the end
+    "name",             // Test or case name
+    "time",             // Execution time or timestamp
+    "result",           // Outcome or return value
+    "tag",              // Associated tag category (e.g., jellyfish, api)
+    "priority",         // Importance or severity of the test
+    "module",           // Module or subsystem under evaluation
+    "type",             // Type of test (unit, integration, performance)
+    "status",           // Current run status (passed, failed, skipped)
+    "reliability",      // Stability or consistency of results
+    "revision",         // Git-chain or code revision identifier
+    "version",          // FSON or schema version used
+    "author",           // Developer or system that generated the entry
+    "context",          // Execution context or environment
+    "checksum",         // Integrity verification criterion
+    NULL                // Sentinel to mark the end
 };
 
 static void _show_help(void) {
