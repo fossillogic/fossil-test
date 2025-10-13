@@ -716,18 +716,48 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
 // --- Algorithmic modifications ---
 
 // --- Sorting Test Cases ---
+// --- Sorting Test Cases ---
+
+// Basic string comparisons
 static int compare_name_asc(const void* a, const void* b) {
     return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->name, ((fossil_pizza_case_t*)b)->name);
 }
-
 static int compare_name_desc(const void* a, const void* b) {
     return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->name, ((fossil_pizza_case_t*)a)->name);
 }
 
+static int compare_tag_asc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->tag, ((fossil_pizza_case_t*)b)->tag);
+}
+static int compare_tag_desc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->tag, ((fossil_pizza_case_t*)a)->tag);
+}
+
+static int compare_module_asc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->module, ((fossil_pizza_case_t*)b)->module);
+}
+static int compare_module_desc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->module, ((fossil_pizza_case_t*)a)->module);
+}
+
+static int compare_type_asc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->type, ((fossil_pizza_case_t*)b)->type);
+}
+static int compare_type_desc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->type, ((fossil_pizza_case_t*)a)->type);
+}
+
+static int compare_revision_asc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)a)->revision, ((fossil_pizza_case_t*)b)->revision);
+}
+static int compare_revision_desc(const void* a, const void* b) {
+    return pizza_io_cstr_compare(((fossil_pizza_case_t*)b)->revision, ((fossil_pizza_case_t*)a)->revision);
+}
+
+// Numeric and time-based comparisons
 static int compare_result_asc(const void* a, const void* b) {
     return ((fossil_pizza_case_t*)a)->result - ((fossil_pizza_case_t*)b)->result;
 }
-
 static int compare_result_desc(const void* a, const void* b) {
     return ((fossil_pizza_case_t*)b)->result - ((fossil_pizza_case_t*)a)->result;
 }
@@ -735,34 +765,46 @@ static int compare_result_desc(const void* a, const void* b) {
 static int compare_time_asc(const void* a, const void* b) {
     return ((fossil_pizza_case_t*)a)->elapsed_ns - ((fossil_pizza_case_t*)b)->elapsed_ns;
 }
-
 static int compare_time_desc(const void* a, const void* b) {
     return ((fossil_pizza_case_t*)b)->elapsed_ns - ((fossil_pizza_case_t*)a)->elapsed_ns;
 }
 
+static int compare_priority_asc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)a)->priority - ((fossil_pizza_case_t*)b)->priority;
+}
+static int compare_priority_desc(const void* a, const void* b) {
+    return ((fossil_pizza_case_t*)b)->priority - ((fossil_pizza_case_t*)a)->priority;
+}
+
+// --- Sort Dispatcher ---
 void fossil_pizza_sort_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
     if (!suite || !suite->cases || suite->count <= 1 || !engine) return;
 
-    int (*compare)(const void*, const void*) = null;
+    int (*compare)(const void*, const void*) = NULL;
 
     if (engine->pallet.sort.by) {
-        if (pizza_io_cstr_compare(engine->pallet.sort.by, "name") == 0) {
-            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_name_desc : compare_name_asc;
-        } else if (pizza_io_cstr_compare(engine->pallet.sort.by, "result") == 0) {
-            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_result_desc : compare_result_asc;
-        } else if (pizza_io_cstr_compare(engine->pallet.sort.by, "time") == 0) {
-            compare = (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) ? compare_time_desc : compare_time_asc;
-        } else {
-            // Invalid sort criteria
-            return;
-        }
-    }
+        const char* by = engine->pallet.sort.by;
+        const char* order = engine->pallet.sort.order ? engine->pallet.sort.order : "asc";
 
-    if (engine->pallet.sort.order) {
-        if (pizza_io_cstr_compare(engine->pallet.sort.order, "desc") == 0) {
-            compare = (compare == compare_name_asc) ? compare_name_desc : compare;
-        } else if (pizza_io_cstr_compare(engine->pallet.sort.order, "asc") == 0) {
-            compare = (compare == compare_name_desc) ? compare_name_asc : compare;
+        if (pizza_io_cstr_compare(by, "name") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_name_desc : compare_name_asc;
+        else if (pizza_io_cstr_compare(by, "result") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_result_desc : compare_result_asc;
+        else if (pizza_io_cstr_compare(by, "time") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_time_desc : compare_time_asc;
+        else if (pizza_io_cstr_compare(by, "tag") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_tag_desc : compare_tag_asc;
+        else if (pizza_io_cstr_compare(by, "priority") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_priority_desc : compare_priority_asc;
+        else if (pizza_io_cstr_compare(by, "module") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_module_desc : compare_module_asc;
+        else if (pizza_io_cstr_compare(by, "type") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_type_desc : compare_type_asc;
+        else if (pizza_io_cstr_compare(by, "revision") == 0)
+            compare = (pizza_io_cstr_compare(order, "desc") == 0) ? compare_revision_desc : compare_revision_asc;
+        else {
+            // Unknown sort criteria, skip sorting
+            return;
         }
     }
 
