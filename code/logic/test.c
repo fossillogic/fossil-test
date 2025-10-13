@@ -841,11 +841,13 @@ size_t fossil_pizza_filter_cases(fossil_pizza_suite_t* suite, const fossil_pizza
 void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_engine_t* engine) {
     if (!suite || !suite->cases || suite->count < 2) return;
 
+    // Initialize RNG seed
     unsigned int seed = (engine && engine->pallet.shuffle.seed) 
                         ? (unsigned int)atoi(engine->pallet.shuffle.seed) 
-                        : (unsigned int)time(null);
+                        : (unsigned int)time(NULL);
     srand(seed);
 
+    // Fisher-Yates shuffle
     for (size_t i = suite->count - 1; i > 0; --i) {
         size_t j = rand() % (i + 1);
         fossil_pizza_case_t temp = suite->cases[i];
@@ -853,14 +855,31 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t* suite, const fossil_pizza_
         suite->cases[j] = temp;
     }
 
+    // Optional deterministic reordering by a criteria
     if (engine && engine->pallet.shuffle.by) {
-        if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "name") == 0) {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), 
-                  (int (*)(const void*, const void*))pizza_io_cstr_compare);
-        } else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "result") == 0) {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_result_asc);
-        } else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "time") == 0) {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_time_asc);
+        const char* by = engine->pallet.shuffle.by;
+        int (*compare)(const void*, const void*) = NULL;
+
+        if (pizza_io_cstr_compare(by, "name") == 0) {
+            compare = compare_name_asc;
+        } else if (pizza_io_cstr_compare(by, "result") == 0) {
+            compare = compare_result_asc;
+        } else if (pizza_io_cstr_compare(by, "time") == 0) {
+            compare = compare_time_asc;
+        } else if (pizza_io_cstr_compare(by, "tag") == 0) {
+            compare = compare_tag_asc;
+        } else if (pizza_io_cstr_compare(by, "priority") == 0) {
+            compare = compare_priority_asc;
+        } else if (pizza_io_cstr_compare(by, "module") == 0) {
+            compare = compare_module_asc;
+        } else if (pizza_io_cstr_compare(by, "type") == 0) {
+            compare = compare_type_asc;
+        } else if (pizza_io_cstr_compare(by, "revision") == 0) {
+            compare = compare_revision_asc;
+        }
+
+        if (compare) {
+            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare);
         }
     }
 }
