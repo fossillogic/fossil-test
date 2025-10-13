@@ -716,7 +716,6 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
 // --- Algorithmic modifications ---
 
 // --- Sorting Test Cases ---
-// --- Sorting Test Cases ---
 
 // Basic string comparisons
 static int compare_name_asc(const void* a, const void* b) {
