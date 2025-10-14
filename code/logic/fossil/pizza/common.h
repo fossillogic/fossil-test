@@ -336,34 +336,43 @@ FOSSIL_PIZZA_API int fossil_pizza_ini_parse(const char *filename, fossil_pizza_p
 // Host information
 // *****************************************************************************
 
-// Memory information structure
-typedef struct {
-    uint64_t total_memory; // in bytes
-    uint64_t free_memory;  // in bytes
-} pizza_sys_hostinfo_memory_t;
-
-// Endianness information structure
-typedef struct {
-    int is_little_endian;
-    int is_big_endian;
-} pizza_sys_hostinfo_endianness_t;
-
 // System information structure
 typedef struct {
     char os_name[128];
     char os_version[128];
-    char os_arch[64];
-    char os_build[64];
-    char os_release[64];
-    char os_codename[64];
-    char os_description[256];
-    char os_vendor[128];
-    char os_family[64];
-    char os_type[64];
-    char os_platform[64];
-    char os_machine[64];
     char kernel_version[128];
+    char hostname[128];
+    char username[128];
+    char domain_name[128];
+    char machine_type[128];
+    char platform[128];
 } pizza_sys_hostinfo_system_t;
+
+// Architecture information structure
+typedef struct {
+    char architecture[128];
+    char cpu[128];
+    char cpu_cores[128];
+    char cpu_threads[128];
+    char cpu_frequency[128];
+    char cpu_architecture[128];
+} pizza_sys_hostinfo_architecture_t;
+
+// Memory information structure
+typedef struct {
+    uint64_t total_memory;    // in bytes
+    uint64_t free_memory;     // in bytes
+    uint64_t used_memory;     // in bytes
+    uint64_t available_memory;// in bytes
+    uint64_t total_swap;      // in bytes
+    uint64_t free_swap;       // in bytes
+    uint64_t used_swap;       // in bytes
+} pizza_sys_hostinfo_memory_t;
+
+// Endianness information structure
+typedef struct {
+    int is_little_endian; // 1 if little-endian, 0 if big-endian
+} pizza_sys_hostinfo_endianness_t;
 
 /**
  * Retrieve system information.
@@ -372,6 +381,14 @@ typedef struct {
  * @return 0 on success, or a negative error code on failure.
  */
 FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
+
+/**
+ * Retrieve architecture information.
+ *
+ * @param info A pointer to a structure that will be filled with architecture information.
+ * @return 0 on success, or a negative error code on failure.
+ */
+FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info);
 
 /**
  * Retrieve memory information.
