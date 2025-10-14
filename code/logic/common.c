@@ -277,30 +277,42 @@ static void _show_version(void) {
 
 static void _show_host(void) {
     pizza_sys_hostinfo_system_t system_info;
+    pizza_sys_hostinfo_architecture_t arch_info;
     pizza_sys_hostinfo_memory_t memory_info;
     pizza_sys_hostinfo_endianness_t endianness_info;
 
     if (pizza_sys_hostinfo_get_system(&system_info) == 0) {
         pizza_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
         pizza_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
-        pizza_io_printf("{blue}Architecture: {cyan}%s{reset}\n", system_info.os_arch);
-        pizza_io_printf("{blue}Build: {cyan}%s{reset}\n", system_info.os_build);
-        pizza_io_printf("{blue}Release: {cyan}%s{reset}\n", system_info.os_release);
-        pizza_io_printf("{blue}Codename: {cyan}%s{reset}\n", system_info.os_codename);
-        pizza_io_printf("{blue}Description: {cyan}%s{reset}\n", system_info.os_description);
-        pizza_io_printf("{blue}Vendor: {cyan}%s{reset}\n", system_info.os_vendor);
-        pizza_io_printf("{blue}Family: {cyan}%s{reset}\n", system_info.os_family);
-        pizza_io_printf("{blue}Type: {cyan}%s{reset}\n", system_info.os_type);
-        pizza_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.os_platform);
-        pizza_io_printf("{blue}Machine: {cyan}%s{reset}\n", system_info.os_machine);
         pizza_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
+        pizza_io_printf("{blue}Hostname: {cyan}%s{reset}\n", system_info.hostname);
+        pizza_io_printf("{blue}Username: {cyan}%s{reset}\n", system_info.username);
+        pizza_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
+        pizza_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
+        pizza_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
     } else {
         pizza_io_printf("{red}Error retrieving system information.{reset}\n");
     }
 
+    if (pizza_sys_hostinfo_get_architecture(&arch_info) == 0) {
+        pizza_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
+        pizza_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
+        pizza_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
+        pizza_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
+        pizza_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
+        pizza_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
+    } else {
+        pizza_io_printf("{red}Error retrieving architecture information.{reset}\n");
+    }
+
     if (pizza_sys_hostinfo_get_memory(&memory_info) == 0) {
-        pizza_io_printf("{blue}Total Memory: {cyan}%lu bytes{reset}\n", memory_info.total_memory);
-        pizza_io_printf("{blue}Free Memory: {cyan}%lu bytes{reset}\n", memory_info.free_memory);
+        pizza_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
+        pizza_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
+        pizza_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
+        pizza_io_printf("{blue}Available Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.available_memory);
+        pizza_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
+        pizza_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
+        pizza_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
     } else {
         pizza_io_printf("{red}Error retrieving memory information.{reset}\n");
     }
@@ -804,24 +816,30 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     if (!info) return -1;
 #ifdef _WIN32
     OSVERSIONINFO osvi;
-    SYSTEM_INFO sysinfo;
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     if (!GetVersionEx(&osvi)) return -1;
-    GetSystemInfo(&sysinfo);
-
     snprintf(info->os_name, sizeof(info->os_name), "Windows");
     snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
-    snprintf(info->os_arch, sizeof(info->os_arch), "%u", sysinfo.wProcessorArchitecture);
-    snprintf(info->os_build, sizeof(info->os_build), "%lu", osvi.dwBuildNumber);
-    snprintf(info->os_release, sizeof(info->os_release), "%lu", osvi.dwBuildNumber);
-    snprintf(info->os_codename, sizeof(info->os_codename), "N/A");
-    snprintf(info->os_description, sizeof(info->os_description), "Microsoft Windows");
-    snprintf(info->os_vendor, sizeof(info->os_vendor), "Microsoft");
-    snprintf(info->os_family, sizeof(info->os_family), "Windows NT");
-    snprintf(info->os_type, sizeof(info->os_type), "Desktop");
-    snprintf(info->os_platform, sizeof(info->os_platform), "win32");
-    snprintf(info->os_machine, sizeof(info->os_machine), "%lu", sysinfo.dwProcessorType);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
+
+    DWORD size = sizeof(info->hostname);
+    GetComputerNameA(info->hostname, &size);
+
+    size = sizeof(info->username);
+    GetUserNameA(info->username, &size);
+
+    // Domain name
+    size = sizeof(info->domain_name);
+    if (!GetEnvironmentVariableA("USERDOMAIN", info->domain_name, size)) {
+        strncpy(info->domain_name, "Unknown", sizeof(info->domain_name) - 1);
+        info->domain_name[sizeof(info->domain_name) - 1] = '\0';
+    }
+
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    snprintf(info->machine_type, sizeof(info->machine_type), "%u", sysinfo.wProcessorArchitecture);
+    snprintf(info->platform, sizeof(info->platform), "Win32");
+
 #elif defined(__APPLE__)
     struct utsname sysinfo;
     if (uname(&sysinfo) != 0) return -1;
@@ -829,22 +847,29 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
     info->os_version[sizeof(info->os_version) - 1] = '\0';
-    strncpy(info->os_arch, sysinfo.machine, sizeof(info->os_arch) - 1);
-    info->os_arch[sizeof(info->os_arch) - 1] = '\0';
-    strncpy(info->os_build, sysinfo.release, sizeof(info->os_build) - 1);
-    info->os_build[sizeof(info->os_build) - 1] = '\0';
-    strncpy(info->os_release, sysinfo.release, sizeof(info->os_release) - 1);
-    info->os_release[sizeof(info->os_release) - 1] = '\0';
-    snprintf(info->os_codename, sizeof(info->os_codename), "Darwin");
-    snprintf(info->os_description, sizeof(info->os_description), "Apple macOS");
-    snprintf(info->os_vendor, sizeof(info->os_vendor), "Apple");
-    snprintf(info->os_family, sizeof(info->os_family), "Unix");
-    snprintf(info->os_type, sizeof(info->os_type), "Desktop");
-    snprintf(info->os_platform, sizeof(info->os_platform), "darwin");
-    strncpy(info->os_machine, sysinfo.machine, sizeof(info->os_machine) - 1);
-    info->os_machine[sizeof(info->os_machine) - 1] = '\0';
     strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
     info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
+
+    if (gethostname(info->hostname, sizeof(info->hostname)) != 0)
+        strncpy(info->hostname, "Unknown", sizeof(info->hostname) - 1);
+    info->hostname[sizeof(info->hostname) - 1] = '\0';
+
+    const char *user = getenv("USER");
+    if (user)
+        strncpy(info->username, user, sizeof(info->username) - 1);
+    else
+        strncpy(info->username, "Unknown", sizeof(info->username) - 1);
+    info->username[sizeof(info->username) - 1] = '\0';
+
+    strncpy(info->domain_name, "Unknown", sizeof(info->domain_name) - 1);
+    info->domain_name[sizeof(info->domain_name) - 1] = '\0';
+
+    strncpy(info->machine_type, sysinfo.machine, sizeof(info->machine_type) - 1);
+    info->machine_type[sizeof(info->machine_type) - 1] = '\0';
+
+    strncpy(info->platform, "Apple", sizeof(info->platform) - 1);
+    info->platform[sizeof(info->platform) - 1] = '\0';
+
 #else
     struct utsname sysinfo;
     if (uname(&sysinfo) != 0) return -1;
@@ -852,61 +877,172 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
     info->os_version[sizeof(info->os_version) - 1] = '\0';
-    strncpy(info->os_arch, sysinfo.machine, sizeof(info->os_arch) - 1);
-    info->os_arch[sizeof(info->os_arch) - 1] = '\0';
-    strncpy(info->os_build, sysinfo.release, sizeof(info->os_build) - 1);
-    info->os_build[sizeof(info->os_build) - 1] = '\0';
-    strncpy(info->os_release, sysinfo.release, sizeof(info->os_release) - 1);
-    info->os_release[sizeof(info->os_release) - 1] = '\0';
-    snprintf(info->os_codename, sizeof(info->os_codename), "Linux");
-    snprintf(info->os_description, sizeof(info->os_description), "GNU/Linux");
-    // Try to detect Linux vendor from /etc/os-release or /etc/lsb-release
-    FILE *fp = fopen("/etc/os-release", "r");
-    char vendor[128] = "Unknown";
+    strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
+    info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
+
+    if (gethostname(info->hostname, sizeof(info->hostname)) != 0)
+        strncpy(info->hostname, "Unknown", sizeof(info->hostname) - 1);
+    info->hostname[sizeof(info->hostname) - 1] = '\0';
+
+    const char *user = getenv("USER");
+    if (user)
+        strncpy(info->username, user, sizeof(info->username) - 1);
+    else
+        strncpy(info->username, "Unknown", sizeof(info->username) - 1);
+    info->username[sizeof(info->username) - 1] = '\0';
+
+    const char *domain = getenv("DOMAINNAME");
+    if (domain)
+        strncpy(info->domain_name, domain, sizeof(info->domain_name) - 1);
+    else
+        strncpy(info->domain_name, "Unknown", sizeof(info->domain_name) - 1);
+    info->domain_name[sizeof(info->domain_name) - 1] = '\0';
+
+    strncpy(info->machine_type, sysinfo.machine, sizeof(info->machine_type) - 1);
+    info->machine_type[sizeof(info->machine_type) - 1] = '\0';
+
+    strncpy(info->platform, "Unix", sizeof(info->platform) - 1);
+    info->platform[sizeof(info->platform) - 1] = '\0';
+
+#endif
+    return 0;
+}
+
+int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info) {
+    if (!info) return -1;
+
+#ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+
+    // Architecture
+    switch (sysinfo.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+            strncpy(info->architecture, "x86_64", sizeof(info->architecture) - 1);
+            break;
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            strncpy(info->architecture, "x86", sizeof(info->architecture) - 1);
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM:
+            strncpy(info->architecture, "ARM", sizeof(info->architecture) - 1);
+            break;
+        default:
+            strncpy(info->architecture, "Unknown", sizeof(info->architecture) - 1);
+            break;
+    }
+    info->architecture[sizeof(info->architecture) - 1] = '\0';
+
+    // CPU info (limited on Windows)
+    strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
+    info->cpu[sizeof(info->cpu) - 1] = '\0';
+
+    snprintf(info->cpu_cores, sizeof(info->cpu_cores), "%lu", sysinfo.dwNumberOfProcessors);
+    strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
+    info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+    strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
+    info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
+    strncpy(info->cpu_architecture, info->architecture, sizeof(info->cpu_architecture) - 1);
+    info->cpu_architecture[sizeof(info->cpu_architecture) - 1] = '\0';
+
+#elif defined(__APPLE__)
+    size_t size = sizeof(info->architecture);
+    if (sysctlbyname("hw.machine", info->architecture, &size, NULL, 0) != 0)
+        strncpy(info->architecture, "Unknown", sizeof(info->architecture) - 1);
+    info->architecture[sizeof(info->architecture) - 1] = '\0';
+
+    size = sizeof(info->cpu);
+    if (sysctlbyname("machdep.cpu.brand_string", info->cpu, &size, NULL, 0) != 0)
+        strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
+    info->cpu[sizeof(info->cpu) - 1] = '\0';
+
+    int cores = 0;
+    size = sizeof(cores);
+    if (sysctlbyname("hw.physicalcpu", &cores, &size, NULL, 0) == 0)
+        snprintf(info->cpu_cores, sizeof(info->cpu_cores), "%d", cores);
+    else
+        strncpy(info->cpu_cores, "Unknown", sizeof(info->cpu_cores) - 1);
+    info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
+
+    int threads = 0;
+    size = sizeof(threads);
+    if (sysctlbyname("hw.logicalcpu", &threads, &size, NULL, 0) == 0)
+        snprintf(info->cpu_threads, sizeof(info->cpu_threads), "%d", threads);
+    else
+        strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
+    info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+
+    uint64_t freq = 0;
+    size = sizeof(freq);
+    if (sysctlbyname("hw.cpufrequency", &freq, &size, NULL, 0) == 0)
+        snprintf(info->cpu_frequency, sizeof(info->cpu_frequency), "%llu", (unsigned long long)freq);
+    else
+        strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
+    info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
+
+    strncpy(info->cpu_architecture, info->architecture, sizeof(info->cpu_architecture) - 1);
+    info->cpu_architecture[sizeof(info->cpu_architecture) - 1] = '\0';
+
+#else
+    struct utsname sysinfo;
+    if (uname(&sysinfo) != 0) return -1;
+
+    strncpy(info->architecture, sysinfo.machine, sizeof(info->architecture) - 1);
+    info->architecture[sizeof(info->architecture) - 1] = '\0';
+
+    FILE *fp = fopen("/proc/cpuinfo", "r");
     if (fp) {
         char line[256];
         while (fgets(line, sizeof(line), fp)) {
-            if (strncmp(line, "ID=", 3) == 0) {
-                char *val = line + 3;
-                // Remove newline and quotes
-                char *nline = strchr(val, '\n');
-                if (nline) *nline = '\0';
-                if (*val == '"' || *val == '\'') val++;
-                size_t len = strlen(val);
-                if (len > 0 && (val[len - 1] == '"' || val[len - 1] == '\'')) val[len - 1] = '\0';
-                strncpy(vendor, val, sizeof(vendor) - 1);
-                vendor[sizeof(vendor) - 1] = '\0';
-                break;
+            if (strncmp(line, "model name", 10) == 0) {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    colon++;
+                    while (*colon == ' ') colon++;
+                    strncpy(info->cpu, colon, sizeof(info->cpu) - 1);
+                    info->cpu[sizeof(info->cpu) - 1] = '\0';
+                }
+            } else if (strncmp(line, "cpu cores", 9) == 0) {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    colon++;
+                    while (*colon == ' ') colon++;
+                    strncpy(info->cpu_cores, colon, sizeof(info->cpu_cores) - 1);
+                    info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
+                }
+            } else if (strncmp(line, "siblings", 8) == 0) {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    colon++;
+                    while (*colon == ' ') colon++;
+                    strncpy(info->cpu_threads, colon, sizeof(info->cpu_threads) - 1);
+                    info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+                }
+            } else if (strncmp(line, "cpu MHz", 7) == 0) {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    colon++;
+                    while (*colon == ' ') colon++;
+                    strncpy(info->cpu_frequency, colon, sizeof(info->cpu_frequency) - 1);
+                    info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
+                }
             }
         }
         fclose(fp);
     } else {
-        // Fallback: try /etc/lsb-release
-        fp = fopen("/etc/lsb-release", "r");
-        if (fp) {
-            char line[256];
-            while (fgets(line, sizeof(line), fp)) {
-                if (strncmp(line, "DISTRIB_ID=", 11) == 0) {
-                    char *val = line + 11;
-                    char *nline = strchr(val, '\n');
-                    if (nline) *nline = '\0';
-                    strncpy(vendor, val, sizeof(vendor) - 1);
-                    vendor[sizeof(vendor) - 1] = '\0';
-                    break;
-                }
-            }
-            fclose(fp);
-        }
+        strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
+        info->cpu[sizeof(info->cpu) - 1] = '\0';
+        strncpy(info->cpu_cores, "Unknown", sizeof(info->cpu_cores) - 1);
+        info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
+        strncpy(info->cpu_threads, "Unknown", sizeof(info->cpu_threads) - 1);
+        info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
+        strncpy(info->cpu_frequency, "Unknown", sizeof(info->cpu_frequency) - 1);
+        info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
     }
-    snprintf(info->os_vendor, sizeof(info->os_vendor), "%s", vendor);
-    snprintf(info->os_family, sizeof(info->os_family), "Unix");
-    snprintf(info->os_type, sizeof(info->os_type), "Desktop/Server");
-    snprintf(info->os_platform, sizeof(info->os_platform), "linux");
-    strncpy(info->os_machine, sysinfo.machine, sizeof(info->os_machine) - 1);
-    info->os_machine[sizeof(info->os_machine) - 1] = '\0';
-    strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
-    info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
+
+    strncpy(info->cpu_architecture, info->architecture, sizeof(info->cpu_architecture) - 1);
+    info->cpu_architecture[sizeof(info->cpu_architecture) - 1] = '\0';
 #endif
+
     return 0;
 }
 
@@ -918,53 +1054,40 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
     if (!GlobalMemoryStatusEx(&statex)) return -1;
     info->total_memory = statex.ullTotalPhys;
     info->free_memory = statex.ullAvailPhys;
+    info->used_memory = statex.ullTotalPhys - statex.ullAvailPhys;
+    info->available_memory = statex.ullAvailPhys;
+    info->total_swap = statex.ullTotalPageFile;
+    info->free_swap = statex.ullAvailPageFile;
+    info->used_swap = statex.ullTotalPageFile - statex.ullAvailPageFile;
 #elif defined(__APPLE__)
     int64_t memsize;
     size_t len = sizeof(memsize);
-    if (sysctlbyname("hw.memsize", &memsize, &len, null, 0) != 0) return -1;
+    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
     info->total_memory = memsize;
     info->free_memory = 0; // macOS does not provide free memory info in the same way
+    info->used_memory = 0;
+    info->available_memory = 0;
+    info->total_swap = 0;
+    info->free_swap = 0;
+    info->used_swap = 0;
 #else
     struct sysinfo sys_info;
     if (sysinfo(&sys_info) != 0) return -1;
-    info->total_memory = sys_info.totalram;
-    info->free_memory = sys_info.freeram;
+    info->total_memory = sys_info.totalram * sys_info.mem_unit;
+    info->free_memory = sys_info.freeram * sys_info.mem_unit;
+    info->used_memory = (sys_info.totalram - sys_info.freeram) * sys_info.mem_unit;
+    info->available_memory = sys_info.freeram * sys_info.mem_unit;
+    info->total_swap = sys_info.totalswap * sys_info.mem_unit;
+    info->free_swap = sys_info.freeswap * sys_info.mem_unit;
+    info->used_swap = (sys_info.totalswap - sys_info.freeswap) * sys_info.mem_unit;
 #endif
     return 0;
 }
 
 int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
     if (!info) return -1;
-
-    // --- Compile-time detection if supported ---
-#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && defined(__ORDER_BIG_ENDIAN__)
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    info->is_little_endian = 1;
-    info->is_big_endian    = 0;
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    info->is_little_endian = 0;
-    info->is_big_endian    = 1;
-#else
-    #error "Unknown byte order at compile-time"
-#endif
-#else
-    // --- Runtime fallback using union ---
-    union {
-        uint16_t value;
-        uint8_t bytes[2];
-    } test;
-
-    test.value = 0x0102;
-
-    if (test.bytes[0] == 0x02) {
-        info->is_little_endian = 1;
-        info->is_big_endian    = 0;
-    } else {
-        info->is_little_endian = 0;
-        info->is_big_endian    = 1;
-    }
-#endif
-
+    uint16_t test = 0x0001;
+    info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
     return 0;
 }
 
