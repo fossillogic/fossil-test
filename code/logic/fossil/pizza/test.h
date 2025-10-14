@@ -80,6 +80,7 @@ typedef struct {
     void (*run)(void);                 // Test execution function
 
     uint64_t elapsed_ns;               // Timing in nanoseconds
+    int64_t priority;                 // Priority level (lower = higher priority)
     fossil_pizza_case_result_t result; // Outcome
 
     // TI Extensions:
@@ -272,6 +273,7 @@ FOSSIL_PIZZA_API void _on_skip(const char *description);
         nullptr, \
         test_name##_run, \
         0, \
+        0, \
         FOSSIL_PIZZA_CASE_EMPTY, \
         { \
             nullptr, \
@@ -297,6 +299,7 @@ FOSSIL_PIZZA_API void _on_skip(const char *description);
         .teardown = NULL, \
         .run = test_name##_run, \
         .elapsed_ns = 0, \
+        .priority = 0, \
         .result = FOSSIL_PIZZA_CASE_EMPTY, \
         .meta = { \
             .hash = NULL, \
