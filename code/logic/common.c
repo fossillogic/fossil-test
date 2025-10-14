@@ -161,13 +161,13 @@ void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out)
 // Lookup tables for valid tags and criteria
 static const char* VALID_TAGS[] = {
     "fossil",       // default tag
-    "jellyfish",    // Jellyfish AI tag
+    "ai",           // Jellyfish AI tag
     "network",      // Network-related tests
     "database",     // Database-related tests
     "ui",           // User Interface tests
     "api",          // API-related tests
     "critical",     // Critical tests
-    "non_critical", // Non-critical tests
+    "media",        // Media tests
     null // Sentinel to mark the end
 };
 
@@ -175,6 +175,8 @@ static const char* VALID_CRITERIA[] = {
     "name",
     "time",
     "result",
+    "priority",
+    "hash",
     null // Sentinel to mark the end
 };
 
