@@ -88,7 +88,7 @@ jobs:
   
       - name: Upload Test Log
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: macos_xcode_${{ matrix.xcode_version }}_meson_testlog
           path: builddir/meson-logs/testlog.txt
