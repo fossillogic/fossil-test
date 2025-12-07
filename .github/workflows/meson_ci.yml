@@ -84,7 +84,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v
+        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
   
       - name: Upload Test Log
         if: failure()
