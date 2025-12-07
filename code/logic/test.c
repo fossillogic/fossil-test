@@ -1493,7 +1493,7 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
-            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {magenta}%s{blue}, Endianness: %s%s, Architecture: {green}%s{reset}\n",
+            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s, {blue}Architecture: {green}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
             pizza_io_printf("{blue,bold}========================================================================={reset}\n");
             break;

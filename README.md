@@ -1,15 +1,15 @@
 # ***Pizza Test by Fossil Logic***
 
-Pizza Test is a smart unit testing framework developed by Fossil Logic for C and C++ projects, offering advanced features aimed at systems that demand high traceability, behavioral insight, and truth validation. It is especially well-suited for testing components within the Truthful Intelligence (TI) and Jellyfish AI ecosystems, where deterministic logic, memory integrity, and reasoning transparency are critical.
+**Pizza Test** is a smart unit testing framework developed by **Fossil Logic** for C and C++ projects. It offers advanced features designed for systems that demand high traceability, behavioral insight, and truth validation. Pizza Test is particularly well-suited for testing components where deterministic logic, memory integrity, and reasoning transparency are critical.
 
 ---
 
-## 🔑 Key Features
+## Key Features
 
 | Feature                            | Description                                                                                                                             |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | **Command-Line Interface (CLI)**   | A robust CLI for executing tests, managing test suites, and generating reports, enabling seamless automation and CI/CD workflows.      |
-| **Truthful Intelligence Auditing** | Each test case carries timestamped, hashed metadata for traceability and reproducibility via Jellyfish AI's cryptographic core.         |
+| **Traceable Test Metadata**        | Each test case carries timestamped, hashed metadata for traceability and reproducibility, ensuring full accountability of test results.|
 | **Support for Multiple Testing Styles** | Compatible with Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD) methodologies.   |
 | **Mocking Capabilities**           | Advanced mocking tools to simulate complex dependencies and edge conditions, enabling isolated and deterministic testing.              |
 | **Benchmarking Tools**             | Integrated benchmarking features to measure runtime performance, identify slow paths, and guide optimization.                         |
@@ -17,6 +17,7 @@ Pizza Test is a smart unit testing framework developed by Fossil Logic for C and
 | **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., pizza, catch, doctest) to match your preferred style of feedback.                    |
 | **Tag-Based Test Filtering**       | Execute subsets of tests based on custom tags for better test suite organization and faster iteration.                                |
 | **Detailed Performance Insights**  | In-depth statistics on execution time, memory usage, and test stability to help improve code performance and reliability.              |
+| **Objective-C & Objective-C++ Support (macOS)** | Full compatibility with Objective-C and Objective-C++ projects on macOS, allowing testing of Apple-specific frameworks and apps.  |
 
 ## Command-Line
 
