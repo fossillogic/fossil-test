@@ -995,6 +995,9 @@ typedef struct {
     char *example_message;
     char *example_test_name;
     char *example_suite_name;
+    int fail_count;
+    int timeout_count;
+    int unexpected_count;
 } fossil_failure_cluster_t;
 
 // Heuristic: categorize based on message content
@@ -1069,6 +1072,9 @@ void fossil_pizza_cluster_failures(const fossil_pizza_engine_t *engine) {
             for (int k = 0; k < cluster_count; ++k) {
                 if (memcmp(clusters[k].hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
                     clusters[k].count++;
+                    if (tc->result == FOSSIL_PIZZA_CASE_FAIL) clusters[k].fail_count++;
+                    if (tc->result == FOSSIL_PIZZA_CASE_TIMEOUT) clusters[k].timeout_count++;
+                    if (tc->result == FOSSIL_PIZZA_CASE_UNEXPECTED) clusters[k].unexpected_count++;
                     found = 1;
                     break;
                 }
@@ -1080,6 +1086,9 @@ void fossil_pizza_cluster_failures(const fossil_pizza_engine_t *engine) {
                 clusters[cluster_count].example_message = tc->criteria ? tc->criteria : "";
                 clusters[cluster_count].example_test_name = tc->name;
                 clusters[cluster_count].example_suite_name = suite->suite_name;
+                clusters[cluster_count].fail_count = (tc->result == FOSSIL_PIZZA_CASE_FAIL) ? 1 : 0;
+                clusters[cluster_count].timeout_count = (tc->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? 1 : 0;
+                clusters[cluster_count].unexpected_count = (tc->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? 1 : 0;
                 cluster_count++;
             }
         }
@@ -1094,6 +1103,8 @@ void fossil_pizza_cluster_failures(const fossil_pizza_engine_t *engine) {
             pizza_io_printf("  {blue}Example:{reset} [%s::%s] %s\n",
                 clusters[i].example_suite_name, clusters[i].example_test_name,
                 clusters[i].example_message ? clusters[i].example_message : "(no message)");
+            pizza_io_printf("    {red}Breakdown:{reset} Failures: %d, Timeouts: %d, Unexpected: %d\n",
+                clusters[i].fail_count, clusters[i].timeout_count, clusters[i].unexpected_count);
         }
         pizza_io_printf("{bold}{red}End of Root Cause Analysis{reset}\n\n");
     }
