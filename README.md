@@ -67,7 +67,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.3.0
+revision = v1.3.1
 
 [provide]
 dependency_names = fossil-test
