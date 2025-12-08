@@ -1808,7 +1808,7 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     }
 }
 
-static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func) {
+static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func, pizza_cause_category_t *out_cause) {
     static uint8_t last_hash[FOSSIL_PIZZA_HASH_SIZE] = {0};
     static int anomaly_count = 0;
 
@@ -1828,6 +1828,11 @@ static int pizza_test_assert_internal_detect_ti(const char *message, const char 
         memcpy(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE);
     }
 
+    // Detect cause category for this assertion
+    if (out_cause) {
+        *out_cause = pizza_guess_cause(message, file);
+    }
+
     return anomaly_count;
 }
 
@@ -1835,7 +1840,8 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
     _ASSERT_COUNT++;
 
     if (!condition) {
-        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func);
+        pizza_cause_category_t cause = PIZZA_CAUSE_UNKNOWN;
+        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func, &cause);
 
         // Compute hash for clustering
         char input_buf[512], output_buf[64];
@@ -1846,8 +1852,11 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
 
         pizza_cluster_failure(message, file, line, func, hash, get_pizza_time_microseconds());
 
-        // Enhanced output can include anomaly count and possibly hashed context
+        // Enhanced output includes anomaly count and cause category
         pizza_test_assert_internal_output(message, file, line, func, anomaly_count);
+        if (cause != PIZZA_CAUSE_UNKNOWN) {
+            pizza_io_printf("{yellow}Detected Cause: %s{reset}\n", pizza_cause_category_str(cause));
+        }
 
         longjmp(test_jump_buffer, 1);
     }
