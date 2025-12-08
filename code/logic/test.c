@@ -973,6 +973,205 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     return FOSSIL_PIZZA_SUCCESS;
 }
 
+// --- Root Cause ---
+
+/*
+ * --- TIM/TI Failure Clustering ---
+ * Patterned after fossil_test_summary_feedback: static, pool, hints, etc.
+ */
+
+#define PIZZA_MAX_FAILURE_CLUSTERS 32
+#define PIZZA_MAX_FAILURES_PER_CLUSTER 64
+
+typedef enum {
+    PIZZA_CAUSE_MEMORY,
+    PIZZA_CAUSE_IO,
+    PIZZA_CAUSE_ASSUMPTION,
+    PIZZA_CAUSE_LOGIC,
+    PIZZA_CAUSE_TIMEOUT,
+    PIZZA_CAUSE_UNKNOWN
+} pizza_cause_category_t;
+
+typedef struct {
+    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
+    char *message;
+    char file[128];
+    int line;
+    char func[64];
+    uint64_t timestamp;
+    pizza_cause_category_t cause;
+    int count;
+} pizza_failure_ti_entry;
+
+typedef struct {
+    uint8_t cluster_hash[FOSSIL_PIZZA_HASH_SIZE];
+    pizza_cause_category_t cause;
+    pizza_failure_ti_entry failures[PIZZA_MAX_FAILURES_PER_CLUSTER];
+    int failure_count;
+} pizza_failure_cluster_t;
+
+static pizza_failure_cluster_t g_failure_clusters[PIZZA_MAX_FAILURE_CLUSTERS];
+static int g_failure_cluster_count = 0;
+
+// --- Helper: categorize cause based on message/file ---
+static pizza_cause_category_t pizza_guess_cause(const char *message, const char *file) {
+    if (!message) return PIZZA_CAUSE_UNKNOWN;
+    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "segfault") || strstr(message, "memory") || strstr(message, "free") || strstr(message, "alloc"))
+        return PIZZA_CAUSE_MEMORY;
+    if (strstr(message, "file") || strstr(message, "read") || strstr(message, "write") || strstr(message, "open") || strstr(message, "IO"))
+        return PIZZA_CAUSE_IO;
+    if (file) {
+        if (strstr(file, "io") || strstr(file, "file"))
+            return PIZZA_CAUSE_IO;
+        if (strstr(file, "mem") || strstr(file, "alloc"))
+            return PIZZA_CAUSE_MEMORY;
+    }
+    if (strstr(message, "assume") || strstr(message, "assumption") || strstr(message, "precondition"))
+        return PIZZA_CAUSE_ASSUMPTION;
+    if (strstr(message, "timeout") || strstr(message, "timed out"))
+        return PIZZA_CAUSE_TIMEOUT;
+    if (strstr(message, "logic") || strstr(message, "unexpected") || strstr(message, "assert"))
+        return PIZZA_CAUSE_LOGIC;
+    return PIZZA_CAUSE_UNKNOWN;
+}
+
+static const char *pizza_cause_category_str(pizza_cause_category_t cause) {
+    switch (cause) {
+        case PIZZA_CAUSE_MEMORY: return "Memory";
+        case PIZZA_CAUSE_IO: return "I/O";
+        case PIZZA_CAUSE_ASSUMPTION: return "Assumption";
+        case PIZZA_CAUSE_LOGIC: return "Logic";
+        case PIZZA_CAUSE_TIMEOUT: return "Timeout";
+        default: return "Unknown";
+    }
+}
+
+// --- TIM/TI Failure Clustering Logic ---
+static void pizza_cluster_failure(const char *message, const char *file, int line, const char *func, uint8_t *hash, uint64_t timestamp) {
+    pizza_cause_category_t cause = pizza_guess_cause(message, file);
+
+    // Try to find existing cluster by hash
+    for (int i = 0; i < g_failure_cluster_count; ++i) {
+        if (memcmp(g_failure_clusters[i].cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
+            // Add to cluster if space
+            if (g_failure_clusters[i].failure_count < PIZZA_MAX_FAILURES_PER_CLUSTER) {
+                pizza_failure_ti_entry *entry = &g_failure_clusters[i].failures[g_failure_clusters[i].failure_count++];
+                memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+                entry->message = (char *)message;
+                strncpy(entry->file, file, sizeof(entry->file)-1);
+                entry->file[sizeof(entry->file)-1] = '\0';
+                entry->line = line;
+                strncpy(entry->func, func, sizeof(entry->func)-1);
+                entry->func[sizeof(entry->func)-1] = '\0';
+                entry->timestamp = timestamp;
+                entry->cause = cause;
+                entry->count = 1;
+            }
+            return;
+        }
+    }
+    // New cluster if space
+    if (g_failure_cluster_count < PIZZA_MAX_FAILURE_CLUSTERS) {
+        pizza_failure_cluster_t *cluster = &g_failure_clusters[g_failure_cluster_count++];
+        memcpy(cluster->cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+        cluster->cause = cause;
+        cluster->failure_count = 1;
+        pizza_failure_ti_entry *entry = &cluster->failures[0];
+        memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+        entry->message = (char *)message;
+        strncpy(entry->file, file, sizeof(entry->file)-1);
+        entry->file[sizeof(entry->file)-1] = '\0';
+        entry->line = line;
+        strncpy(entry->func, func, sizeof(entry->func)-1);
+        entry->func[sizeof(entry->func)-1] = '\0';
+        entry->timestamp = timestamp;
+        entry->cause = cause;
+        entry->count = 1;
+    }
+}
+
+// --- Report clustered failures and suggestions ---
+void pizza_report_failure_clusters(void) {
+    if (g_failure_cluster_count == 0) return;
+
+    static const char* cluster_summaries[] = {
+        // Memory
+        "Memory-related failures are often caused by invalid pointers, double frees, or buffer overruns.",
+        "Check for null dereferences, allocation errors, or memory leaks.",
+        "Memory corruption or access violation detected.",
+        // I/O
+        "I/O failures may be due to missing files, permission errors, or device issues.",
+        "Check file paths, permissions, and device availability.",
+        "I/O error: verify external resources are accessible.",
+        // Assumption
+        "Assumption/precondition failures indicate violated test assumptions.",
+        "Check test setup and input values for correctness.",
+        "Precondition not met: review test logic.",
+        // Logic
+        "Logic failures suggest bugs in code or test expectations.",
+        "Unexpected result: check assertions and logic flow.",
+        "Logic error: review implementation and test criteria.",
+        // Timeout
+        "Timeouts may indicate infinite loops or performance bottlenecks.",
+        "Test exceeded allowed time: check for deadlocks or slow code.",
+        "Timeout: review for long-running operations.",
+        // Unknown
+        "Unknown failure cause: review message and context.",
+        "Unclassified error: further investigation needed.",
+        "No clear cause detected: check logs and stack traces."
+    };
+
+    pizza_io_printf("\n{bold}{red}Failure Clusters (TIM/TI Analysis):{reset}\n");
+    for (int i = 0; i < g_failure_cluster_count; ++i) {
+        pizza_failure_cluster_t *cluster = &g_failure_clusters[i];
+        pizza_io_printf("{yellow}Cluster %d:{reset} %d similar failures, {cyan}Suggested Cause:{reset} %s\n",
+            i+1, cluster->failure_count, pizza_cause_category_str(cluster->cause));
+        // Show a sample failure
+        if (cluster->failure_count > 0) {
+            pizza_failure_ti_entry *sample = &cluster->failures[0];
+            pizza_io_printf("  {blue}Sample:{reset} %s {white}(%s:%d in %s){reset}\n",
+                sample->message, sample->file, sample->line, sample->func);
+        }
+        // Optionally, show all locations
+        if (cluster->failure_count > 1) {
+            pizza_io_printf("  {magenta}Other locations:{reset}\n");
+            for (int j = 1; j < cluster->failure_count; ++j) {
+                pizza_failure_ti_entry *entry = &cluster->failures[j];
+                pizza_io_printf("    - %s:%d in %s\n", entry->file, entry->line, entry->func);
+            }
+        }
+        // Suggestion based on cause
+        const char* suggestion = NULL;
+        switch (cluster->cause) {
+            case PIZZA_CAUSE_MEMORY:
+                suggestion = cluster_summaries[0 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_IO:
+                suggestion = cluster_summaries[3 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_ASSUMPTION:
+                suggestion = cluster_summaries[6 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_LOGIC:
+                suggestion = cluster_summaries[9 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_TIMEOUT:
+                suggestion = cluster_summaries[12 + (rand() % 3)];
+                break;
+            default:
+                suggestion = cluster_summaries[15 + (rand() % 3)];
+                break;
+        }
+        pizza_io_printf("  {green}Hint:{reset} %s\n", suggestion);
+    }
+    pizza_io_printf("{bold}{green}Suggestion:{reset} Review clustered failures for common root causes (e.g., %s, %s, %s, %s, %s).\n",
+        pizza_cause_category_str(PIZZA_CAUSE_MEMORY),
+        pizza_cause_category_str(PIZZA_CAUSE_IO),
+        pizza_cause_category_str(PIZZA_CAUSE_ASSUMPTION),
+        pizza_cause_category_str(PIZZA_CAUSE_LOGIC),
+        pizza_cause_category_str(PIZZA_CAUSE_TIMEOUT));
+}
+
 // --- Summary Report ---
 
 const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
@@ -1295,20 +1494,20 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}\n========================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}\n========================================================================================={reset}\n");
             pizza_io_printf("{blue,bold}Elapsed Time:{white} %s (hh:mm:ss.micro,nano)\n{reset}", time_buffer);
-            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{magenta}\n========================================================================={reset}\n");
+            pizza_io_printf("{magenta}\n========================================================================================={reset}\n");
             pizza_io_printf("{magenta}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
-            pizza_io_printf("{magenta}========================================================================={reset}\n");
+            pizza_io_printf("{magenta}========================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{cyan}\n========================================================================={reset}\n");
+            pizza_io_printf("{cyan}\n========================================================================================={reset}\n");
             pizza_io_printf("{cyan}[Elapsed Time]:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
-            pizza_io_printf("{cyan}========================================================================={reset}\n");
+            pizza_io_printf("{cyan}========================================================================================={reset}\n");
             break;
         case PIZZA_THEME_TAP:
             pizza_io_printf("\n# {yellow}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
@@ -1319,7 +1518,8 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Elapsed Time:{reset}\n");
             pizza_io_printf("{cyan}HH:MM:SS:{reset} %02llu:%02llu:%02llu, {cyan}Micro:{reset} %06llu, {cyan}Nano:{reset} %03llu\n",
-                            hours, minutes, seconds, microseconds, nanoseconds_part);
+                            (unsigned long long)hours, (unsigned long long)minutes, (unsigned long long)seconds,
+                            (unsigned long long)microseconds, (unsigned long long)nanoseconds_part);
             break;
         default:
             pizza_io_printf("Unknown theme. Unable to display elapsed time.\n");
@@ -1332,8 +1532,8 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
         return;
     }
 
-    double avg_suite_ns = (double)total_elapsed_ns / engine->count;
-    double avg_test_ns  = (double)total_elapsed_ns / engine->score_possible;
+    double avg_suite_ns = (double)total_elapsed_ns / (double)engine->count;
+    double avg_test_ns  = (double)total_elapsed_ns / (double)engine->score_possible;
 
     double avg_suite_us = avg_suite_ns / 1e3;
     double avg_suite_ms = avg_suite_ns / 1e6;
@@ -1347,7 +1547,7 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
                             avg_suite_ns, avg_suite_us, avg_suite_ms);
             pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
                             avg_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
@@ -1388,46 +1588,54 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
                           ? ((double)engine->score_total / engine->score_possible) * 100 
                           : 0;
 
+    // Enhanced summary: show pass/fail/skip/timeout/unexpected/empty percentages
+    int total_tests = engine->score_possible > 0 ? engine->score_possible : 1;
+    double pass_pct       = (double)engine->score.passed     / total_tests * 100.0;
+    double fail_pct       = (double)engine->score.failed     / total_tests * 100.0;
+    double skip_pct       = (double)engine->score.skipped    / total_tests * 100.0;
+    double timeout_pct    = (double)engine->score.timeout    / total_tests * 100.0;
+    double unexpected_pct = (double)engine->score.unexpected / total_tests * 100.0;
+    double empty_pct      = (double)engine->score.empty      / total_tests * 100.0;
+
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
                 engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}Passed    :{cyan} %4d\n{reset}", engine->score.passed);
-            pizza_io_printf("{blue}Failed    :{cyan} %4d\n{reset}", engine->score.failed);
-            pizza_io_printf("{blue}Skipped   :{cyan} %4d\n{reset}", engine->score.skipped);
-            pizza_io_printf("{blue}Timeouts  :{cyan} %4d\n{reset}", engine->score.timeout);
-            pizza_io_printf("{blue}Unexpected:{cyan} %4d\n{reset}", engine->score.unexpected);
-            pizza_io_printf("{blue}Empty     :{cyan} %4d\n{reset}", engine->score.empty);
+            pizza_io_printf("{blue}Passed    :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}Failed    :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}Skipped   :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}Timeouts  :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}Unexpected:{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}Empty     :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.empty, empty_pct);
             pizza_io_printf("{blue}Success Rate:{cyan} %.2f%%\n{reset}", success_rate);
             break;
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            // Catch2/Doctest themed colors: magenta for headings, green for pass, red for fail, yellow for skip/timeout, cyan for empty
             pizza_io_printf("{magenta}Suites run   :{reset} %zu\n", engine->count);
             pizza_io_printf("{magenta}Tests run    :{reset} %d\n", engine->score_possible);
             pizza_io_printf("{magenta}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{green}Passed       :{reset} %d\n", engine->score.passed);
-            pizza_io_printf("{red}Failed       :{reset} %d\n", engine->score.failed);
-            pizza_io_printf("{yellow}Skipped      :{reset} %d\n", engine->score.skipped);
-            pizza_io_printf("{yellow}Timeouts     :{reset} %d\n", engine->score.timeout);
-            pizza_io_printf("{red}Unexpected   :{reset} %d\n", engine->score.unexpected);
-            pizza_io_printf("{cyan}Empty        :{reset} %d\n", engine->score.empty);
-            pizza_io_printf("{blue}Success Rate :{reset} %.2f%%\n", success_rate);
+            pizza_io_printf("{magenta}Passed       :{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{magenta}Failed       :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{magenta}Skipped      :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{magenta}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{magenta}Unexpected   :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{magenta}Empty        :{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{magenta}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
             break;
 
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("{cyan}[TEST SUMMARY]{reset}\n");
-            pizza_io_printf("{blue}[SUITES RUN   ]{reset} %zu\n", engine->count);
-            pizza_io_printf("{blue}[TESTS RUN    ]{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{blue}[SCORE        ]{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{cyan}[  PASSED     ]{reset} %d\n", engine->score.passed);
-            pizza_io_printf("{cyan}[  FAILED     ]{reset} %d\n", engine->score.failed);
-            pizza_io_printf("{cyan}[  SKIPPED    ]{reset} %d\n", engine->score.skipped);
-            pizza_io_printf("{cyan}[  TIMEOUTS   ]{reset} %d\n", engine->score.timeout);
-            pizza_io_printf("{cyan}[UNEXPECTED   ]{reset} %d\n", engine->score.unexpected);
-            pizza_io_printf("{cyan}[   EMPTY     ]{reset} %d\n", engine->score.empty);
-            pizza_io_printf("{blue}[SUCCESS RATE ]{reset} %.2f%%\n", success_rate);
+            pizza_io_printf("{cyan}[SUITES RUN   ]{reset} %zu\n", engine->count);
+            pizza_io_printf("{cyan}[TESTS RUN    ]{reset} %d\n", engine->score_possible);
+            pizza_io_printf("{cyan}[SCORE        ]{reset} %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{cyan}[  PASSED     ]{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{cyan}[  FAILED     ]{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{cyan}[  SKIPPED    ]{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{cyan}[  TIMEOUTS   ]{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{cyan}[UNEXPECTED   ]{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{cyan}[   EMPTY     ]{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{cyan}[SUCCESS RATE ]{reset} {green}%.2f%%{reset}\n", success_rate);
             break;
 
         case PIZZA_THEME_TAP:
@@ -1435,40 +1643,40 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("# {yellow}Suites run   :{reset} %zu\n", engine->count);
             pizza_io_printf("# {yellow}Tests run    :{reset} %d\n", engine->score_possible);
             pizza_io_printf("# {yellow}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("# {green}Passed       :{reset} %d\n", engine->score.passed);
-            pizza_io_printf("# {red}Failed       :{reset} %d\n", engine->score.failed);
-            pizza_io_printf("# {yellow}Skipped      :{reset} %d\n", engine->score.skipped);
-            pizza_io_printf("# {yellow}Timeouts     :{reset} %d\n", engine->score.timeout);
-            pizza_io_printf("# {red}Unexpected   :{reset} %d\n", engine->score.unexpected);
-            pizza_io_printf("# {cyan}Empty        :{reset} %d\n", engine->score.empty);
-            pizza_io_printf("# {blue}Success Rate :{reset} %.2f%%\n", success_rate);
+            pizza_io_printf("# {green}Passed       :{reset} %d ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("# {red}Failed       :{reset} %d ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("# {yellow}Skipped      :{reset} %d ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("# {yellow}Timeouts     :{reset} %d ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("# {red}Unexpected   :{reset} %d ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("# {cyan}Empty        :{reset} %d ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("# {yellow}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}Suites run:{reset} %zu\n", engine->count);
             pizza_io_printf("[----------] {yellow}Tests run :{reset} %d\n", engine->score_possible);
             pizza_io_printf("[==========] {green}Score     :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("[  {green}PASSED{reset}  ] %d tests.\n", engine->score.passed);
-            pizza_io_printf("[  {red}FAILED{reset}  ] %d tests.\n", engine->score.failed);
-            pizza_io_printf("[  {yellow}SKIPPED{reset} ] %d tests.\n", engine->score.skipped);
-            pizza_io_printf("[ {yellow}TIMEOUTS{reset} ] %d tests.\n", engine->score.timeout);
-            pizza_io_printf("[{red}UNEXPECTED{reset}] %d tests.\n", engine->score.unexpected);
-            pizza_io_printf("[  {cyan}EMPTY{reset}   ] %d tests.\n", engine->score.empty);
-            pizza_io_printf("[ {green}SUCCESS{reset}  ] %.2f%%\n", success_rate);
+            pizza_io_printf("[  {green}PASSED{reset}  ] {green}%d{reset} tests ({green}%.2f%%{reset}).\n", engine->score.passed, pass_pct);
+            pizza_io_printf("[  {red}FAILED{reset}  ] {red}%d{reset} tests ({red}%.2f%%{reset}).\n", engine->score.failed, fail_pct);
+            pizza_io_printf("[  {yellow}SKIPPED{reset} ] {yellow}%d{reset} tests ({yellow}%.2f%%{reset}).\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("[ {yellow}TIMEOUTS{reset} ] {yellow}%d{reset} tests ({yellow}%.2f%%{reset}).\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("[{red}UNEXPECTED{reset}] {red}%d{reset} tests ({red}%.2f%%{reset}).\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("[  {cyan}EMPTY{reset}   ] {cyan}%d{reset} tests ({cyan}%.2f%%{reset}).\n", engine->score.empty, empty_pct);
+            pizza_io_printf("[ {green}SUCCESS{reset}  ] {green}%.2f%%{reset}\n", success_rate);
             break;
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Summary{reset}\n");
-            pizza_io_printf("{cyan}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{cyan}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{cyan}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{green}Passed       :{reset} %d\n", engine->score.passed);
-            pizza_io_printf("{red}Failed       :{reset} %d\n", engine->score.failed);
-            pizza_io_printf("{yellow}Skipped      :{reset} %d\n", engine->score.skipped);
-            pizza_io_printf("{yellow}Timeouts     :{reset} %d\n", engine->score.timeout);
-            pizza_io_printf("{red}Unexpected   :{reset} %d\n", engine->score.unexpected);
-            pizza_io_printf("{cyan}Empty        :{reset} %d\n", engine->score.empty);
-            pizza_io_printf("{blue}Success Rate :{reset} %.2f%%\n", success_rate);
+            pizza_io_printf("{green}Suites run   :{reset} %zu\n", engine->count);
+            pizza_io_printf("{green}Tests run    :{reset} %d\n", engine->score_possible);
+            pizza_io_printf("{green}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{green}Passed       :{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{green}Failed       :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{green}Skipped      :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{green}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{green}Unexpected   :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{green}Empty        :{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{green}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
             break;
 
         default:
@@ -1488,46 +1696,46 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 
     // Choose color based on endianness
     const char* endian_str  = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
-    const char* endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
+    const char* endian_color = endianness_info.is_little_endian ? "{green}" : "{red}";
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
-            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s, {blue}Architecture: {green}%s{reset}\n",
+            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
+            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s{blue}, Architecture: {green}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{blue,bold}========================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{magenta}========================================================================={reset}\n");
-            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {cyan}%s{reset}, Endianness: %s%s, Architecture: {green}%s{reset}\n",
+            pizza_io_printf("{magenta}========================================================================================={reset}\n");
+            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {magenta}%s{reset}, Endianness: %s%s{reset}, Architecture: {magenta}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{magenta}========================================================================={reset}\n");
+            pizza_io_printf("{magenta}========================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{cyan}========================================================================={reset}\n");
-            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {blue}%s{reset}, Endianness: %s%s, Architecture: {green}%s{reset}\n",
+            pizza_io_printf("{cyan}========================================================================================={reset}\n");
+            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {cyan}%s{reset}, Endianness: %s%s{reset}, Architecture: {cyan}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{cyan}========================================================================={reset}\n");
+            pizza_io_printf("{cyan}========================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("TAP version 13\n");
-            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {cyan}%s{reset}, Endianness: %s%s, Architecture: {green}%s{reset}\n",
+            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {yellow}%s{reset}, Endianness: %s%s{reset}, Architecture: {yellow}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}F{red}o{yellow}s{green}s{blue}i{red}l {yellow}P{green}i{blue}z{red}z{yellow}a {green}Summary{reset}\n");
-            pizza_io_printf("[----------] OS: %s, Endianness: %s%s, Architecture: %s{reset}\n",
+            pizza_io_printf("[----------] OS: {blue}%s{reset}, Endianness: %s%s{reset}, Architecture: {green}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
             break;
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("{green}Unity Test Summary{reset}\n");
-            pizza_io_printf("{cyan}OS:{reset} %s, {cyan}Endianness:{reset} %s%s, {cyan}Architecture:{reset} %s{reset}\n",
+            pizza_io_printf("{cyan}OS:{reset} {green}%s{reset}, {cyan}Endianness:{reset} %s%s{reset}, {cyan}Architecture:{reset} {green}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
             break;
 
@@ -1535,6 +1743,7 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("Unknown theme. Unable to display summary heading.\n");
             break;
     }
+
 }
 
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
@@ -1543,8 +1752,12 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);
+
     const char* msg = fossil_test_summary_feedback(&engine->score);
     pizza_io_printf("\n{bold}{blue}Feedback:{reset} %s\n", msg);
+
+    // TIM/TI Failure Clustering Report
+    pizza_report_failure_clusters();
 }
 
 // --- End / Cleanup ---
@@ -1568,6 +1781,7 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 
 // -- Assume --
 
+// --- TI Result Struct ---
 typedef struct {
     char *message;
     uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
@@ -1657,7 +1871,7 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     }
 }
 
-static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func) {
+static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func, pizza_cause_category_t *out_cause) {
     static uint8_t last_hash[FOSSIL_PIZZA_HASH_SIZE] = {0};
     static int anomaly_count = 0;
 
@@ -1677,6 +1891,11 @@ static int pizza_test_assert_internal_detect_ti(const char *message, const char 
         memcpy(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE);
     }
 
+    // Detect cause category for this assertion
+    if (out_cause) {
+        *out_cause = pizza_guess_cause(message, file);
+    }
+
     return anomaly_count;
 }
 
@@ -1684,10 +1903,23 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
     _ASSERT_COUNT++;
 
     if (!condition) {
-        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func);
+        pizza_cause_category_t cause = PIZZA_CAUSE_UNKNOWN;
+        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func, &cause);
 
-        // Enhanced output can include anomaly count and possibly hashed context
+        // Compute hash for clustering
+        char input_buf[512], output_buf[64];
+        snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
+        snprintf(output_buf, sizeof(output_buf), "%s", message);
+        uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
+        fossil_pizza_hash(input_buf, output_buf, hash);
+
+        pizza_cluster_failure(message, file, line, func, hash, get_pizza_time_microseconds());
+
+        // Enhanced output includes anomaly count and cause category
         pizza_test_assert_internal_output(message, file, line, func, anomaly_count);
+        if (cause != PIZZA_CAUSE_UNKNOWN) {
+            pizza_io_printf("{yellow}Detected Cause: %s{reset}\n", pizza_cause_category_str(cause));
+        }
 
         longjmp(test_jump_buffer, 1);
     }
