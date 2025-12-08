@@ -973,6 +973,132 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     return FOSSIL_PIZZA_SUCCESS;
 }
 
+// --- Root Cluster ---
+
+// Root cause categories
+typedef enum {
+    FOSSIL_ROOT_UNKNOWN = 0,
+    FOSSIL_ROOT_MEMORY,
+    FOSSIL_ROOT_IO,
+    FOSSIL_ROOT_ASSUMPTION,
+    FOSSIL_ROOT_LOGIC,
+    FOSSIL_ROOT_TIMEOUT,
+    FOSSIL_ROOT_ENVIRONMENT,
+    FOSSIL_ROOT_OTHER
+} fossil_root_cause_t;
+
+// Cluster entry for a failure
+typedef struct {
+    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
+    int count;
+    fossil_root_cause_t cause;
+    char *example_message;
+    char *example_test_name;
+    char *example_suite_name;
+} fossil_failure_cluster_t;
+
+// Heuristic: categorize based on message content
+static fossil_root_cause_t fossil_guess_root_cause(const char *message) {
+    if (!message) return FOSSIL_ROOT_UNKNOWN;
+    if (strstr(message, "null") || strstr(message, "NULL") ||
+        strstr(message, "segfault") || strstr(message, "memory") ||
+        strstr(message, "access violation") || strstr(message, "free") ||
+        strstr(message, "leak") || strstr(message, "overflow") ||
+        strstr(message, "underflow"))
+        return FOSSIL_ROOT_MEMORY;
+    if (strstr(message, "file") || strstr(message, "open") ||
+        strstr(message, "read") || strstr(message, "write") ||
+        strstr(message, "IO") || strstr(message, "input") ||
+        strstr(message, "output") || strstr(message, "permission"))
+        return FOSSIL_ROOT_IO;
+    if (strstr(message, "assume") || strstr(message, "precondition") ||
+        strstr(message, "postcondition") || strstr(message, "invariant"))
+        return FOSSIL_ROOT_ASSUMPTION;
+    if (strstr(message, "timeout") || strstr(message, "timed out") ||
+        strstr(message, "hang") || strstr(message, "infinite loop"))
+        return FOSSIL_ROOT_TIMEOUT;
+    if (strstr(message, "logic") || strstr(message, "unexpected") ||
+        strstr(message, "assert") || strstr(message, "fail") ||
+        strstr(message, "incorrect") || strstr(message, "wrong"))
+        return FOSSIL_ROOT_LOGIC;
+    if (strstr(message, "env") || strstr(message, "environment") ||
+        strstr(message, "variable") || strstr(message, "config"))
+        return FOSSIL_ROOT_ENVIRONMENT;
+    return FOSSIL_ROOT_OTHER;
+}
+
+// Human-readable cause
+static const char *fossil_root_cause_str(fossil_root_cause_t cause) {
+    switch (cause) {
+        case FOSSIL_ROOT_MEMORY:      return "Memory";
+        case FOSSIL_ROOT_IO:          return "IO";
+        case FOSSIL_ROOT_ASSUMPTION:  return "Assumption/Contract";
+        case FOSSIL_ROOT_LOGIC:       return "Logic";
+        case FOSSIL_ROOT_TIMEOUT:     return "Timeout";
+        case FOSSIL_ROOT_ENVIRONMENT: return "Environment";
+        case FOSSIL_ROOT_OTHER:       return "Other";
+        default:                      return "Unknown";
+    }
+}
+
+// Cluster failures by hash and suggest root cause
+void fossil_pizza_cluster_failures(const fossil_pizza_engine_t *engine) {
+    if (!engine) return;
+
+    // Limit: up to 256 clusters for simplicity
+    fossil_failure_cluster_t clusters[256] = {0};
+    int cluster_count = 0;
+
+    for (size_t si = 0; si < engine->count; ++si) {
+        const fossil_pizza_suite_t *suite = &engine->suites[si];
+        for (size_t ci = 0; ci < suite->count; ++ci) {
+            const fossil_pizza_case_t *tc = &suite->cases[ci];
+            if (tc->result != FOSSIL_PIZZA_CASE_FAIL &&
+                tc->result != FOSSIL_PIZZA_CASE_UNEXPECTED &&
+                tc->result != FOSSIL_PIZZA_CASE_TIMEOUT)
+                continue;
+
+            // Use hash of message+location as cluster key
+            uint8_t hash[FOSSIL_PIZZA_HASH_SIZE] = {0};
+            char input_buf[512];
+            snprintf(input_buf, sizeof(input_buf), "%s:%s:%s", suite->suite_name, tc->name, tc->criteria ? tc->criteria : "");
+            fossil_pizza_hash(tc->criteria ? tc->criteria : "", input_buf, hash);
+
+            // Search for existing cluster
+            int found = 0;
+            for (int k = 0; k < cluster_count; ++k) {
+                if (memcmp(clusters[k].hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
+                    clusters[k].count++;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found && cluster_count < 256) {
+                memcpy(clusters[cluster_count].hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+                clusters[cluster_count].count = 1;
+                clusters[cluster_count].cause = fossil_guess_root_cause(tc->criteria);
+                clusters[cluster_count].example_message = tc->criteria ? tc->criteria : "";
+                clusters[cluster_count].example_test_name = tc->name;
+                clusters[cluster_count].example_suite_name = suite->suite_name;
+                cluster_count++;
+            }
+        }
+    }
+
+    // Print cluster summary
+    if (cluster_count > 0) {
+        pizza_io_printf("\n{bold}{red}Root Cause Analysis (Failure Clusters):{reset}\n");
+        for (int i = 0; i < cluster_count; ++i) {
+            pizza_io_printf("{yellow}Cluster #%d:{reset} {cyan}%d occurrence(s){reset}, {green}Likely Cause:{reset} %s\n",
+                i + 1, clusters[i].count, fossil_root_cause_str(clusters[i].cause));
+            pizza_io_printf("  {blue}Example:{reset} [%s::%s] %s\n",
+                clusters[i].example_suite_name, clusters[i].example_test_name,
+                clusters[i].example_message ? clusters[i].example_message : "(no message)");
+        }
+        pizza_io_printf("{bold}{red}End of Root Cause Analysis{reset}\n\n");
+    }
+}
+
 // --- Summary Report ---
 
 const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
@@ -1553,6 +1679,10 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);
+
+    // Show root cause analysis for failures
+    fossil_pizza_cluster_failures(engine);
+
     const char* msg = fossil_test_summary_feedback(&engine->score);
     pizza_io_printf("\n{bold}{blue}Feedback:{reset} %s\n", msg);
 }
