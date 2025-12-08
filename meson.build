@@ -1,7 +1,7 @@
 project('Fossil Test', 'c', 'cpp',
     meson_version: '>=1.8.0',
     license: 'Apache-2.0',
-    version: '1.3.0',
+    version: '1.3.1',
     default_options: [
         'c_std=c11,c18',
         'cpp_std=c++20',
