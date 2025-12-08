@@ -973,6 +973,205 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     return FOSSIL_PIZZA_SUCCESS;
 }
 
+// --- Root Cause ---
+
+/*
+ * --- TIM/TI Failure Clustering ---
+ * Patterned after fossil_test_summary_feedback: static, pool, hints, etc.
+ */
+
+#define PIZZA_MAX_FAILURE_CLUSTERS 32
+#define PIZZA_MAX_FAILURES_PER_CLUSTER 64
+
+typedef enum {
+    PIZZA_CAUSE_MEMORY,
+    PIZZA_CAUSE_IO,
+    PIZZA_CAUSE_ASSUMPTION,
+    PIZZA_CAUSE_LOGIC,
+    PIZZA_CAUSE_TIMEOUT,
+    PIZZA_CAUSE_UNKNOWN
+} pizza_cause_category_t;
+
+typedef struct {
+    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
+    char *message;
+    char file[128];
+    int line;
+    char func[64];
+    uint64_t timestamp;
+    pizza_cause_category_t cause;
+    int count;
+} pizza_failure_ti_entry;
+
+typedef struct {
+    uint8_t cluster_hash[FOSSIL_PIZZA_HASH_SIZE];
+    pizza_cause_category_t cause;
+    pizza_failure_ti_entry failures[PIZZA_MAX_FAILURES_PER_CLUSTER];
+    int failure_count;
+} pizza_failure_cluster_t;
+
+static pizza_failure_cluster_t g_failure_clusters[PIZZA_MAX_FAILURE_CLUSTERS];
+static int g_failure_cluster_count = 0;
+
+// --- Helper: categorize cause based on message/file ---
+static pizza_cause_category_t pizza_guess_cause(const char *message, const char *file) {
+    if (!message) return PIZZA_CAUSE_UNKNOWN;
+    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "segfault") || strstr(message, "memory") || strstr(message, "free") || strstr(message, "alloc"))
+        return PIZZA_CAUSE_MEMORY;
+    if (strstr(message, "file") || strstr(message, "read") || strstr(message, "write") || strstr(message, "open") || strstr(message, "IO"))
+        return PIZZA_CAUSE_IO;
+    if (file) {
+        if (strstr(file, "io") || strstr(file, "file"))
+            return PIZZA_CAUSE_IO;
+        if (strstr(file, "mem") || strstr(file, "alloc"))
+            return PIZZA_CAUSE_MEMORY;
+    }
+    if (strstr(message, "assume") || strstr(message, "assumption") || strstr(message, "precondition"))
+        return PIZZA_CAUSE_ASSUMPTION;
+    if (strstr(message, "timeout") || strstr(message, "timed out"))
+        return PIZZA_CAUSE_TIMEOUT;
+    if (strstr(message, "logic") || strstr(message, "unexpected") || strstr(message, "assert"))
+        return PIZZA_CAUSE_LOGIC;
+    return PIZZA_CAUSE_UNKNOWN;
+}
+
+static const char *pizza_cause_category_str(pizza_cause_category_t cause) {
+    switch (cause) {
+        case PIZZA_CAUSE_MEMORY: return "Memory";
+        case PIZZA_CAUSE_IO: return "I/O";
+        case PIZZA_CAUSE_ASSUMPTION: return "Assumption";
+        case PIZZA_CAUSE_LOGIC: return "Logic";
+        case PIZZA_CAUSE_TIMEOUT: return "Timeout";
+        default: return "Unknown";
+    }
+}
+
+// --- TIM/TI Failure Clustering Logic ---
+static void pizza_cluster_failure(const char *message, const char *file, int line, const char *func, uint8_t *hash, uint64_t timestamp) {
+    pizza_cause_category_t cause = pizza_guess_cause(message, file);
+
+    // Try to find existing cluster by hash
+    for (int i = 0; i < g_failure_cluster_count; ++i) {
+        if (memcmp(g_failure_clusters[i].cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
+            // Add to cluster if space
+            if (g_failure_clusters[i].failure_count < PIZZA_MAX_FAILURES_PER_CLUSTER) {
+                pizza_failure_ti_entry *entry = &g_failure_clusters[i].failures[g_failure_clusters[i].failure_count++];
+                memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+                entry->message = (char *)message;
+                strncpy(entry->file, file, sizeof(entry->file)-1);
+                entry->file[sizeof(entry->file)-1] = '\0';
+                entry->line = line;
+                strncpy(entry->func, func, sizeof(entry->func)-1);
+                entry->func[sizeof(entry->func)-1] = '\0';
+                entry->timestamp = timestamp;
+                entry->cause = cause;
+                entry->count = 1;
+            }
+            return;
+        }
+    }
+    // New cluster if space
+    if (g_failure_cluster_count < PIZZA_MAX_FAILURE_CLUSTERS) {
+        pizza_failure_cluster_t *cluster = &g_failure_clusters[g_failure_cluster_count++];
+        memcpy(cluster->cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+        cluster->cause = cause;
+        cluster->failure_count = 1;
+        pizza_failure_ti_entry *entry = &cluster->failures[0];
+        memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
+        entry->message = (char *)message;
+        strncpy(entry->file, file, sizeof(entry->file)-1);
+        entry->file[sizeof(entry->file)-1] = '\0';
+        entry->line = line;
+        strncpy(entry->func, func, sizeof(entry->func)-1);
+        entry->func[sizeof(entry->func)-1] = '\0';
+        entry->timestamp = timestamp;
+        entry->cause = cause;
+        entry->count = 1;
+    }
+}
+
+// --- Report clustered failures and suggestions ---
+void pizza_report_failure_clusters(void) {
+    if (g_failure_cluster_count == 0) return;
+
+    static const char* cluster_summaries[] = {
+        // Memory
+        "Memory-related failures are often caused by invalid pointers, double frees, or buffer overruns.",
+        "Check for null dereferences, allocation errors, or memory leaks.",
+        "Memory corruption or access violation detected.",
+        // I/O
+        "I/O failures may be due to missing files, permission errors, or device issues.",
+        "Check file paths, permissions, and device availability.",
+        "I/O error: verify external resources are accessible.",
+        // Assumption
+        "Assumption/precondition failures indicate violated test assumptions.",
+        "Check test setup and input values for correctness.",
+        "Precondition not met: review test logic.",
+        // Logic
+        "Logic failures suggest bugs in code or test expectations.",
+        "Unexpected result: check assertions and logic flow.",
+        "Logic error: review implementation and test criteria.",
+        // Timeout
+        "Timeouts may indicate infinite loops or performance bottlenecks.",
+        "Test exceeded allowed time: check for deadlocks or slow code.",
+        "Timeout: review for long-running operations.",
+        // Unknown
+        "Unknown failure cause: review message and context.",
+        "Unclassified error: further investigation needed.",
+        "No clear cause detected: check logs and stack traces."
+    };
+
+    pizza_io_printf("\n{bold}{red}Failure Clusters (TIM/TI Analysis):{reset}\n");
+    for (int i = 0; i < g_failure_cluster_count; ++i) {
+        pizza_failure_cluster_t *cluster = &g_failure_clusters[i];
+        pizza_io_printf("{yellow}Cluster %d:{reset} %d similar failures, {cyan}Suggested Cause:{reset} %s\n",
+            i+1, cluster->failure_count, pizza_cause_category_str(cluster->cause));
+        // Show a sample failure
+        if (cluster->failure_count > 0) {
+            pizza_failure_ti_entry *sample = &cluster->failures[0];
+            pizza_io_printf("  {blue}Sample:{reset} %s {white}(%s:%d in %s){reset}\n",
+                sample->message, sample->file, sample->line, sample->func);
+        }
+        // Optionally, show all locations
+        if (cluster->failure_count > 1) {
+            pizza_io_printf("  {magenta}Other locations:{reset}\n");
+            for (int j = 1; j < cluster->failure_count; ++j) {
+                pizza_failure_ti_entry *entry = &cluster->failures[j];
+                pizza_io_printf("    - %s:%d in %s\n", entry->file, entry->line, entry->func);
+            }
+        }
+        // Suggestion based on cause
+        const char* suggestion = NULL;
+        switch (cluster->cause) {
+            case PIZZA_CAUSE_MEMORY:
+                suggestion = cluster_summaries[0 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_IO:
+                suggestion = cluster_summaries[3 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_ASSUMPTION:
+                suggestion = cluster_summaries[6 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_LOGIC:
+                suggestion = cluster_summaries[9 + (rand() % 3)];
+                break;
+            case PIZZA_CAUSE_TIMEOUT:
+                suggestion = cluster_summaries[12 + (rand() % 3)];
+                break;
+            default:
+                suggestion = cluster_summaries[15 + (rand() % 3)];
+                break;
+        }
+        pizza_io_printf("  {green}Hint:{reset} %s\n", suggestion);
+    }
+    pizza_io_printf("{bold}{green}Suggestion:{reset} Review clustered failures for common root causes (e.g., %s, %s, %s, %s, %s).\n",
+        pizza_cause_category_str(PIZZA_CAUSE_MEMORY),
+        pizza_cause_category_str(PIZZA_CAUSE_IO),
+        pizza_cause_category_str(PIZZA_CAUSE_ASSUMPTION),
+        pizza_cause_category_str(PIZZA_CAUSE_LOGIC),
+        pizza_cause_category_str(PIZZA_CAUSE_TIMEOUT));
+}
+
 // --- Summary Report ---
 
 const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
@@ -1556,6 +1755,9 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
 
     const char* msg = fossil_test_summary_feedback(&engine->score);
     pizza_io_printf("\n{bold}{blue}Feedback:{reset} %s\n", msg);
+
+    // TIM/TI Failure Clustering Report
+    pizza_report_failure_clusters();
 }
 
 // --- End / Cleanup ---
@@ -1578,145 +1780,6 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 }
 
 // -- Assume --
-
-// --- TIM/TI Failure Clustering ---
-
-#define PIZZA_MAX_FAILURE_CLUSTERS 32
-#define PIZZA_MAX_FAILURES_PER_CLUSTER 64
-
-typedef enum {
-    PIZZA_CAUSE_MEMORY,
-    PIZZA_CAUSE_IO,
-    PIZZA_CAUSE_ASSUMPTION,
-    PIZZA_CAUSE_LOGIC,
-    PIZZA_CAUSE_TIMEOUT,
-    PIZZA_CAUSE_UNKNOWN
-} pizza_cause_category_t;
-
-typedef struct {
-    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
-    char *message;
-    char file[128];
-    int line;
-    char func[64];
-    uint64_t timestamp;
-    pizza_cause_category_t cause;
-    int count;
-} pizza_failure_ti_entry;
-
-typedef struct {
-    uint8_t cluster_hash[FOSSIL_PIZZA_HASH_SIZE];
-    pizza_cause_category_t cause;
-    pizza_failure_ti_entry failures[PIZZA_MAX_FAILURES_PER_CLUSTER];
-    int failure_count;
-} pizza_failure_cluster_t;
-
-static pizza_failure_cluster_t g_failure_clusters[PIZZA_MAX_FAILURE_CLUSTERS];
-static int g_failure_cluster_count = 0;
-
-// --- Helper: categorize cause based on message/file ---
-static pizza_cause_category_t pizza_guess_cause(const char *message, const char *file) {
-    if (!message) return PIZZA_CAUSE_UNKNOWN;
-    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "segfault") || strstr(message, "memory") || strstr(message, "free") || strstr(message, "alloc"))
-        return PIZZA_CAUSE_MEMORY;
-    if (strstr(message, "file") || strstr(message, "read") || strstr(message, "write") || strstr(message, "open") || strstr(message, "IO"))
-        return PIZZA_CAUSE_IO;
-    if (file) {
-        if (strstr(file, "io") || strstr(file, "file"))
-            return PIZZA_CAUSE_IO;
-        if (strstr(file, "mem") || strstr(file, "alloc"))
-            return PIZZA_CAUSE_MEMORY;
-    }
-    if (strstr(message, "assume") || strstr(message, "assumption") || strstr(message, "precondition"))
-        return PIZZA_CAUSE_ASSUMPTION;
-    if (strstr(message, "timeout") || strstr(message, "timed out"))
-        return PIZZA_CAUSE_TIMEOUT;
-    if (strstr(message, "logic") || strstr(message, "unexpected") || strstr(message, "assert"))
-        return PIZZA_CAUSE_LOGIC;
-    return PIZZA_CAUSE_UNKNOWN;
-}
-
-static const char *pizza_cause_category_str(pizza_cause_category_t cause) {
-    switch (cause) {
-        case PIZZA_CAUSE_MEMORY: return "Memory";
-        case PIZZA_CAUSE_IO: return "I/O";
-        case PIZZA_CAUSE_ASSUMPTION: return "Assumption";
-        case PIZZA_CAUSE_LOGIC: return "Logic";
-        case PIZZA_CAUSE_TIMEOUT: return "Timeout";
-        default: return "Unknown";
-    }
-}
-
-// --- TIM/TI Failure Clustering Logic ---
-static void pizza_cluster_failure(const char *message, const char *file, int line, const char *func, uint8_t *hash, uint64_t timestamp) {
-    pizza_cause_category_t cause = pizza_guess_cause(message, file);
-
-    // Try to find existing cluster by hash
-    for (int i = 0; i < g_failure_cluster_count; ++i) {
-        if (memcmp(g_failure_clusters[i].cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
-            // Add to cluster if space
-            if (g_failure_clusters[i].failure_count < PIZZA_MAX_FAILURES_PER_CLUSTER) {
-                pizza_failure_ti_entry *entry = &g_failure_clusters[i].failures[g_failure_clusters[i].failure_count++];
-                memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-                entry->message = (char *)message;
-                strncpy(entry->file, file, sizeof(entry->file)-1);
-                entry->line = line;
-                strncpy(entry->func, func, sizeof(entry->func)-1);
-                entry->timestamp = timestamp;
-                entry->cause = cause;
-                entry->count = 1;
-            }
-            return;
-        }
-    }
-    // New cluster if space
-    if (g_failure_cluster_count < PIZZA_MAX_FAILURE_CLUSTERS) {
-        pizza_failure_cluster_t *cluster = &g_failure_clusters[g_failure_cluster_count++];
-        memcpy(cluster->cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-        cluster->cause = cause;
-        cluster->failure_count = 1;
-        pizza_failure_ti_entry *entry = &cluster->failures[0];
-        memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-        entry->message = (char *)message;
-        strncpy(entry->file, file, sizeof(entry->file)-1);
-        entry->line = line;
-        strncpy(entry->func, func, sizeof(entry->func)-1);
-        entry->timestamp = timestamp;
-        entry->cause = cause;
-        entry->count = 1;
-    }
-}
-
-// --- Report clustered failures and suggestions ---
-void pizza_report_failure_clusters(void) {
-    if (g_failure_cluster_count == 0) return;
-    pizza_io_printf("\n{bold}{red}Failure Clusters (TIM/TI Analysis):{reset}\n");
-    for (int i = 0; i < g_failure_cluster_count; ++i) {
-        pizza_failure_cluster_t *cluster = &g_failure_clusters[i];
-        pizza_io_printf("{yellow}Cluster %d:{reset} %d similar failures, {cyan}Suggested Cause:{reset} %s\n",
-            i+1, cluster->failure_count, pizza_cause_category_str(cluster->cause));
-        // Show a sample failure
-        if (cluster->failure_count > 0) {
-            pizza_failure_ti_entry *sample = &cluster->failures[0];
-            pizza_io_printf("  {blue}Sample:{reset} %s {white}(%s:%d in %s){reset}\n",
-                sample->message, sample->file, sample->line, sample->func);
-        }
-        // Optionally, show all locations
-        if (cluster->failure_count > 1) {
-            pizza_io_printf("  {magenta}Other locations:{reset}\n");
-            for (int j = 1; j < cluster->failure_count; ++j) {
-                pizza_failure_ti_entry *entry = &cluster->failures[j];
-                pizza_io_printf("    - %s:%d in %s\n", entry->file, entry->line, entry->func);
-            }
-        }
-    }
-    pizza_io_printf("{bold}{green}Suggestion:{reset} Review clustered failures for common root causes (e.g., %s, %s, %s, %s, %s).\n",
-        pizza_cause_category_str(PIZZA_CAUSE_MEMORY),
-        pizza_cause_category_str(PIZZA_CAUSE_IO),
-        pizza_cause_category_str(PIZZA_CAUSE_ASSUMPTION),
-        pizza_cause_category_str(PIZZA_CAUSE_LOGIC),
-        pizza_cause_category_str(PIZZA_CAUSE_TIMEOUT));
-}
 
 // --- TI Result Struct ---
 typedef struct {
