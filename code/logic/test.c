@@ -973,205 +973,6 @@ int fossil_pizza_run_all(fossil_pizza_engine_t* engine) {
     return FOSSIL_PIZZA_SUCCESS;
 }
 
-// --- Root Cause ---
-
-/*
- * --- TIM/TI Failure Clustering ---
- * Patterned after fossil_test_summary_feedback: static, pool, hints, etc.
- */
-
-#define PIZZA_MAX_FAILURE_CLUSTERS 32
-#define PIZZA_MAX_FAILURES_PER_CLUSTER 64
-
-typedef enum {
-    PIZZA_CAUSE_MEMORY,
-    PIZZA_CAUSE_IO,
-    PIZZA_CAUSE_ASSUMPTION,
-    PIZZA_CAUSE_LOGIC,
-    PIZZA_CAUSE_TIMEOUT,
-    PIZZA_CAUSE_UNKNOWN
-} pizza_cause_category_t;
-
-typedef struct {
-    uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
-    char *message;
-    char file[128];
-    int line;
-    char func[64];
-    uint64_t timestamp;
-    pizza_cause_category_t cause;
-    int count;
-} pizza_failure_ti_entry;
-
-typedef struct {
-    uint8_t cluster_hash[FOSSIL_PIZZA_HASH_SIZE];
-    pizza_cause_category_t cause;
-    pizza_failure_ti_entry failures[PIZZA_MAX_FAILURES_PER_CLUSTER];
-    int failure_count;
-} pizza_failure_cluster_t;
-
-static pizza_failure_cluster_t g_failure_clusters[PIZZA_MAX_FAILURE_CLUSTERS];
-static int g_failure_cluster_count = 0;
-
-// --- Helper: categorize cause based on message/file ---
-static pizza_cause_category_t pizza_guess_cause(const char *message, const char *file) {
-    if (!message) return PIZZA_CAUSE_UNKNOWN;
-    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "segfault") || strstr(message, "memory") || strstr(message, "free") || strstr(message, "alloc"))
-        return PIZZA_CAUSE_MEMORY;
-    if (strstr(message, "file") || strstr(message, "read") || strstr(message, "write") || strstr(message, "open") || strstr(message, "IO"))
-        return PIZZA_CAUSE_IO;
-    if (file) {
-        if (strstr(file, "io") || strstr(file, "file"))
-            return PIZZA_CAUSE_IO;
-        if (strstr(file, "mem") || strstr(file, "alloc"))
-            return PIZZA_CAUSE_MEMORY;
-    }
-    if (strstr(message, "assume") || strstr(message, "assumption") || strstr(message, "precondition"))
-        return PIZZA_CAUSE_ASSUMPTION;
-    if (strstr(message, "timeout") || strstr(message, "timed out"))
-        return PIZZA_CAUSE_TIMEOUT;
-    if (strstr(message, "logic") || strstr(message, "unexpected") || strstr(message, "assert"))
-        return PIZZA_CAUSE_LOGIC;
-    return PIZZA_CAUSE_UNKNOWN;
-}
-
-static const char *pizza_cause_category_str(pizza_cause_category_t cause) {
-    switch (cause) {
-        case PIZZA_CAUSE_MEMORY: return "Memory";
-        case PIZZA_CAUSE_IO: return "I/O";
-        case PIZZA_CAUSE_ASSUMPTION: return "Assumption";
-        case PIZZA_CAUSE_LOGIC: return "Logic";
-        case PIZZA_CAUSE_TIMEOUT: return "Timeout";
-        default: return "Unknown";
-    }
-}
-
-// --- TIM/TI Failure Clustering Logic ---
-static void pizza_cluster_failure(const char *message, const char *file, int line, const char *func, uint8_t *hash, uint64_t timestamp) {
-    pizza_cause_category_t cause = pizza_guess_cause(message, file);
-
-    // Try to find existing cluster by hash
-    for (int i = 0; i < g_failure_cluster_count; ++i) {
-        if (memcmp(g_failure_clusters[i].cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE) == 0) {
-            // Add to cluster if space
-            if (g_failure_clusters[i].failure_count < PIZZA_MAX_FAILURES_PER_CLUSTER) {
-                pizza_failure_ti_entry *entry = &g_failure_clusters[i].failures[g_failure_clusters[i].failure_count++];
-                memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-                entry->message = (char *)message;
-                strncpy(entry->file, file, sizeof(entry->file)-1);
-                entry->file[sizeof(entry->file)-1] = '\0';
-                entry->line = line;
-                strncpy(entry->func, func, sizeof(entry->func)-1);
-                entry->func[sizeof(entry->func)-1] = '\0';
-                entry->timestamp = timestamp;
-                entry->cause = cause;
-                entry->count = 1;
-            }
-            return;
-        }
-    }
-    // New cluster if space
-    if (g_failure_cluster_count < PIZZA_MAX_FAILURE_CLUSTERS) {
-        pizza_failure_cluster_t *cluster = &g_failure_clusters[g_failure_cluster_count++];
-        memcpy(cluster->cluster_hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-        cluster->cause = cause;
-        cluster->failure_count = 1;
-        pizza_failure_ti_entry *entry = &cluster->failures[0];
-        memcpy(entry->hash, hash, FOSSIL_PIZZA_HASH_SIZE);
-        entry->message = (char *)message;
-        strncpy(entry->file, file, sizeof(entry->file)-1);
-        entry->file[sizeof(entry->file)-1] = '\0';
-        entry->line = line;
-        strncpy(entry->func, func, sizeof(entry->func)-1);
-        entry->func[sizeof(entry->func)-1] = '\0';
-        entry->timestamp = timestamp;
-        entry->cause = cause;
-        entry->count = 1;
-    }
-}
-
-// --- Report clustered failures and suggestions ---
-void pizza_report_failure_clusters(void) {
-    if (g_failure_cluster_count == 0) return;
-
-    static const char* cluster_summaries[] = {
-        // Memory
-        "Memory-related failures are often caused by invalid pointers, double frees, or buffer overruns.",
-        "Check for null dereferences, allocation errors, or memory leaks.",
-        "Memory corruption or access violation detected.",
-        // I/O
-        "I/O failures may be due to missing files, permission errors, or device issues.",
-        "Check file paths, permissions, and device availability.",
-        "I/O error: verify external resources are accessible.",
-        // Assumption
-        "Assumption/precondition failures indicate violated test assumptions.",
-        "Check test setup and input values for correctness.",
-        "Precondition not met: review test logic.",
-        // Logic
-        "Logic failures suggest bugs in code or test expectations.",
-        "Unexpected result: check assertions and logic flow.",
-        "Logic error: review implementation and test criteria.",
-        // Timeout
-        "Timeouts may indicate infinite loops or performance bottlenecks.",
-        "Test exceeded allowed time: check for deadlocks or slow code.",
-        "Timeout: review for long-running operations.",
-        // Unknown
-        "Unknown failure cause: review message and context.",
-        "Unclassified error: further investigation needed.",
-        "No clear cause detected: check logs and stack traces."
-    };
-
-    pizza_io_printf("\n{bold}{red}Failure Clusters (TIM/TI Analysis):{reset}\n");
-    for (int i = 0; i < g_failure_cluster_count; ++i) {
-        pizza_failure_cluster_t *cluster = &g_failure_clusters[i];
-        pizza_io_printf("{yellow}Cluster %d:{reset} %d similar failures, {cyan}Suggested Cause:{reset} %s\n",
-            i+1, cluster->failure_count, pizza_cause_category_str(cluster->cause));
-        // Show a sample failure
-        if (cluster->failure_count > 0) {
-            pizza_failure_ti_entry *sample = &cluster->failures[0];
-            pizza_io_printf("  {blue}Sample:{reset} %s {white}(%s:%d in %s){reset}\n",
-                sample->message, sample->file, sample->line, sample->func);
-        }
-        // Optionally, show all locations
-        if (cluster->failure_count > 1) {
-            pizza_io_printf("  {magenta}Other locations:{reset}\n");
-            for (int j = 1; j < cluster->failure_count; ++j) {
-                pizza_failure_ti_entry *entry = &cluster->failures[j];
-                pizza_io_printf("    - %s:%d in %s\n", entry->file, entry->line, entry->func);
-            }
-        }
-        // Suggestion based on cause
-        const char* suggestion = NULL;
-        switch (cluster->cause) {
-            case PIZZA_CAUSE_MEMORY:
-                suggestion = cluster_summaries[0 + (rand() % 3)];
-                break;
-            case PIZZA_CAUSE_IO:
-                suggestion = cluster_summaries[3 + (rand() % 3)];
-                break;
-            case PIZZA_CAUSE_ASSUMPTION:
-                suggestion = cluster_summaries[6 + (rand() % 3)];
-                break;
-            case PIZZA_CAUSE_LOGIC:
-                suggestion = cluster_summaries[9 + (rand() % 3)];
-                break;
-            case PIZZA_CAUSE_TIMEOUT:
-                suggestion = cluster_summaries[12 + (rand() % 3)];
-                break;
-            default:
-                suggestion = cluster_summaries[15 + (rand() % 3)];
-                break;
-        }
-        pizza_io_printf("  {green}Hint:{reset} %s\n", suggestion);
-    }
-    pizza_io_printf("{bold}{green}Suggestion:{reset} Review clustered failures for common root causes (e.g., %s, %s, %s, %s, %s).\n",
-        pizza_cause_category_str(PIZZA_CAUSE_MEMORY),
-        pizza_cause_category_str(PIZZA_CAUSE_IO),
-        pizza_cause_category_str(PIZZA_CAUSE_ASSUMPTION),
-        pizza_cause_category_str(PIZZA_CAUSE_LOGIC),
-        pizza_cause_category_str(PIZZA_CAUSE_TIMEOUT));
-}
-
 // --- Summary Report ---
 
 const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
@@ -1184,283 +985,355 @@ const char* fossil_test_summary_feedback(const fossil_pizza_score_t* score) {
     if (total == 0) return "No tests were run.";
 
     double pass_rate = (double)score->passed / total * 100.0;
-    double fail_ratio = (double)(score->failed + score->unexpected) / total;
+    double fail_rate = (double)(score->failed + score->unexpected) / total * 100.0;
 
-    // --- Primary Summary Pool (50 messages) ---
-    static const char* summaries[] = {
-        // Perfect (20)
-        "Perfect stability: all tests passed.",
-        "Outstanding run: no issues detected.",
-        "Flawless baseline: zero failures.",
-        "Solid confidence: all cases succeeded.",
-        "Full coverage success: suite passed without error.",
-        "Impeccable results: every test succeeded.",
-        "No regressions: suite is fully stable.",
-        "All systems go: 100 percent pass rate.",
-        "Unmatched reliability: no failures found.",
-        "Suite integrity confirmed: all checks passed.",
-        "Zero errors: flawless execution.",
-        "Complete validation: no issues present.",
-        "All criteria met: suite is robust.",
-        "No anomalies: perfect run.",
-        "Total coverage: every test executed successfully.",
-        "No skipped or failed cases: ideal outcome.",
-        "Suite passed with flying colors.",
-        "No warnings: suite is in top condition.",
-        "All logic verified: no defects.",
-        "Suite health: optimal, no faults.",
-        // Near perfect (20)
-        "Near-perfect: minor failures present.",
-        "Almost clean: one or two cases failed.",
-        "Very strong performance with isolated gaps.",
-        "Excellent reliability, but not absolute.",
-        "A few adjustments needed for total success.",
-        "Minor issues detected: overall strong.",
-        "Suite nearly flawless: small improvements needed.",
-        "High reliability: rare failures.",
-        "Almost ideal: suite is mostly stable.",
-        "Few regressions: suite is robust.",
-        "Minor anomalies: suite is healthy.",
-        "Small number of failures: suite is strong.",
-        "Isolated issues: suite is reliable.",
-        "Suite passed with minor exceptions.",
-        "Strong results: minor corrections required.",
-        "Almost all tests passed: suite is solid.",
-        "Suite integrity: high, with rare faults.",
-        "Few missed criteria: suite is dependable.",
-        "Suite nearly perfect: check minor failures.",
-        "Minor gaps: suite is well-tested.",
-        // Strong but not perfect (20)
-        "High pass rate, suite largely stable.",
-        "Reliability confirmed, with minor issues.",
-        "Above expectations, but not flawless.",
-        "Strong resilience across test cases.",
-        "Overall positive results, but check edge cases.",
-        "Suite is robust: some failures present.",
-        "Most tests passed: suite is healthy.",
-        "Good coverage: some cases failed.",
-        "Suite stability: generally strong.",
-        "Majority of tests succeeded: suite is reliable.",
-        "Suite is solid: minor regressions.",
-        "Test reliability: above average.",
-        "Suite passed most checks: review failures.",
-        "Suite is dependable: some improvements needed.",
-        "Strong results: suite is well-maintained.",
-        "Suite health: good, with some faults.",
-        "Most logic verified: suite is stable.",
-        "Suite is resilient: minor issues detected.",
-        "Suite is well-tested: some gaps remain.",
-        "Suite performance: strong, but not perfect.",
-        // Mixed results (20)
-        "Balanced outcome: passes and failures split.",
-        "Moderate reliability: issues present but not overwhelming.",
-        "Inconsistent behavior detected in suite.",
-        "Suite stability is uneven.",
-        "Test reliability shows room for improvement.",
-        "Mixed results: suite needs review.",
-        "Suite passed and failed in equal measure.",
-        "Suite outcome: variable, check failures.",
-        "Suite health: inconsistent.",
-        "Suite is unstable: passes and failures mixed.",
-        "Suite coverage: partial, review failed cases.",
-        "Suite results: mixed reliability.",
-        "Suite is unpredictable: review logic.",
-        "Suite outcome: moderate, needs improvement.",
-        "Suite is inconsistent: check criteria.",
-        "Suite passed some, failed others.",
-        "Suite reliability: uncertain.",
-        "Suite is erratic: review test logic.",
-        "Suite results: uneven, needs attention.",
-        "Suite outcome: mixed, review for stability.",
-        // Failure-heavy (20)
-        "High failure rate detected, needs investigation.",
-        "Many cases failed, stability concerns raised.",
-        "Serious regression: majority of cases did not pass.",
-        "Multiple failures indicate critical bugs.",
-        "Widespread issues identified across the suite.",
-        "Suite is unstable: many failures.",
-        "Suite failed most tests: urgent review needed.",
-        "Suite health: poor, many faults.",
-        "Suite integrity: compromised by failures.",
-        "Suite outcome: failure-heavy, investigate.",
-        "Suite reliability: low, many regressions.",
-        "Suite is unreliable: major issues present.",
-        "Suite failed to meet criteria: review logic.",
-        "Suite is broken: many failed cases.",
-        "Suite outcome: critical, many failures.",
-        "Suite failed most checks: review required.",
-        "Suite is unstable: major defects detected.",
-        "Suite health: critical, many failures.",
-        "Suite failed to pass: investigate regressions.",
-        "Suite outcome: failure-dominant, review urgently.",
-        // Timeouts (20)
-        "Some cases failed to finish in time.",
-        "Timeouts suggest performance bottlenecks.",
-        "Long-running operations caused instability.",
-        "Multiple timeouts detected — review efficiency.",
-        "Suite affected by delays or infinite loops.",
-        "Suite performance: timeouts present.",
-        "Suite is slow: review for bottlenecks.",
-        "Suite execution delayed: timeouts detected.",
-        "Suite health: affected by timeouts.",
-        "Suite failed to complete: timeouts present.",
-        "Suite outcome: slow, review for efficiency.",
-        "Suite is inefficient: timeouts detected.",
-        "Suite execution: delayed by timeouts.",
-        "Suite reliability: affected by timeouts.",
-        "Suite is unstable: timeouts present.",
-        "Suite failed to finish: review for delays.",
-        "Suite outcome: timeouts, review logic.",
-        "Suite is slow: performance issues detected.",
-        "Suite execution: timeouts, review efficiency.",
-        "Suite health: timeouts, review for bottlenecks.",
-        // Skipped (20)
-        "Several cases were skipped.",
-        "Coverage gaps: too many skipped tests.",
-        "Partial run — skipped cases limit reliability.",
-        "Suite execution incomplete due to skipped cases.",
-        "Large number of skips indicates missing dependencies.",
-        "Suite coverage: incomplete, many skips.",
-        "Suite health: affected by skipped cases.",
-        "Suite outcome: partial, many skips.",
-        "Suite reliability: limited by skipped tests.",
-        "Suite is incomplete: skipped cases present.",
-        "Suite execution: many skips detected.",
-        "Suite coverage: gaps due to skips.",
-        "Suite is partial: skipped cases limit reliability.",
-        "Suite health: incomplete, review skips.",
-        "Suite outcome: many skips, review dependencies.",
-        "Suite reliability: affected by skipped cases.",
-        "Suite is incomplete: review skipped tests.",
-        "Suite execution: skipped cases present.",
-        "Suite coverage: limited by skips.",
-        "Suite health: review skipped cases.",
-        // Empty (20)
-        "No implemented tests detected.",
-        "Test placeholders exist but contain no logic.",
-        "Suite mostly empty, coverage not achieved.",
-        "Untested code paths remain.",
-        "Define actual logic before re-running.",
-        "Suite is empty: no tests implemented.",
-        "Suite coverage: missing, no logic present.",
-        "Suite health: empty, implement tests.",
-        "Suite outcome: no tests, review coverage.",
-        "Suite reliability: not tested.",
-        "Suite is incomplete: no logic present.",
-        "Suite execution: empty, implement tests.",
-        "Suite coverage: missing, add logic.",
-        "Suite health: empty, review for coverage.",
-        "Suite outcome: no tests, implement logic.",
-        "Suite reliability: not achieved, no tests.",
-        "Suite is empty: add test logic.",
-        "Suite execution: no tests present.",
-        "Suite coverage: empty, implement tests.",
-        "Suite health: review for test logic.",
-        // Unexpected (20)
-        "Unexpected results indicate possible undefined behavior.",
-        "Test suite produced anomalies not mapped in criteria.",
-        "Unexpected output raises questions about correctness.",
-        "Unstable behavior — criteria may be mismatched.",
-        "Suite generated results outside defined expectations.",
-        "Suite outcome: unexpected, review logic.",
-        "Suite reliability: anomalies detected.",
-        "Suite is unstable: unexpected results.",
-        "Suite execution: unexpected outcomes present.",
-        "Suite health: anomalies, review criteria.",
-        "Suite outcome: unexpected, review for correctness.",
-        "Suite reliability: unstable, unexpected results.",
-        "Suite is unpredictable: anomalies detected.",
-        "Suite execution: unexpected outcomes.",
-        "Suite health: unexpected results, review logic.",
-        "Suite outcome: anomalies, review for correctness.",
-        "Suite reliability: unexpected, review criteria.",
-        "Suite is unstable: unexpected outcomes.",
-        "Suite execution: anomalies detected.",
-        "Suite health: unexpected results, review for correctness.",
-        // Critical (20)
-        "Catastrophic regression: system integrity at risk.",
-        "Severe instability detected, halt release pipeline.",
-        "Suite outcome suggests major defects.",
-        "Reliability too low for deployment.",
-        "Critical failures demand immediate review.",
-        "Suite is broken: critical issues present.",
-        "Suite health: catastrophic, halt deployment.",
-        "Suite outcome: major defects detected.",
-        "Suite reliability: too low for release.",
-        "Suite is unstable: critical failures present.",
-        "Suite execution: catastrophic, review urgently.",
-        "Suite health: major defects, halt release.",
-        "Suite outcome: critical, review for defects.",
-        "Suite reliability: catastrophic, halt deployment.",
-        "Suite is broken: major issues detected.",
-        "Suite execution: critical failures present.",
-        "Suite health: catastrophic, review urgently.",
-        "Suite outcome: major defects, halt release.",
-        "Suite reliability: critical, review for defects.",
-        "Suite is unstable: catastrophic failures present."
+    // --- AI-Style Feedback Pool (300 responses) ---
+    static const char* ai_feedback[] = {
+        // 0-29: Perfect
+        "Outstanding! All tests passed. Your code is a masterpiece.",
+        "Flawless execution. Every test succeeded.",
+        "Perfect score! Your code is robust and reliable.",
+        "All green! No issues detected.",
+        "Impeccable work. Every test case passed.",
+        "100% success rate. Your code is production-ready.",
+        "No failures, no warnings. Just perfection.",
+        "All systems go. Excellent job.",
+        "Every test passed. You nailed it.",
+        "Zero defects. Your code is solid.",
+        "All assertions succeeded. Superb quality.",
+        "No errors found. Your code is pristine.",
+        "All tests green. Keep up the great work.",
+        "No bugs detected. Your code is clean.",
+        "All cases passed. Outstanding reliability.",
+        "Perfect run. Your code is bulletproof.",
+        "No failures. Your code is top-notch.",
+        "All checks passed. Excellent engineering.",
+        "No issues found. Your code is exemplary.",
+        "All tests succeeded. You're on fire.",
+        "Flawless test results. Well done.",
+        "No problems detected. Your code is stellar.",
+        "All cases green. Fantastic job.",
+        "Zero issues. Your code is impeccable.",
+        "All tests passed. You're a coding wizard.",
+        "No errors. Your code is rock solid.",
+        "All assertions true. Brilliant work.",
+        "No failures. Your code is perfect.",
+        "All tests green. You're unstoppable.",
+        "100% pass rate. Legendary performance.",
+
+        // 30-59: Near-perfect
+        "Almost perfect! Just a minor issue.",
+        "Great job! Only a tiny hiccup.",
+        "Excellent work. Nearly all tests passed.",
+        "Just one test failed. Review for edge cases.",
+        "Superb effort. One small fix needed.",
+        "Very strong results. Minor improvement possible.",
+        "Almost flawless. One test needs attention.",
+        "Fantastic job. Just a single failure.",
+        "Impressive! Only one test didn't pass.",
+        "Nearly there. One case to review.",
+        "Strong performance. One test failed.",
+        "Excellent coverage. One minor issue.",
+        "Great results. One test needs fixing.",
+        "Almost all green. One test failed.",
+        "Very good. Just one test to check.",
+        "Solid code. One test didn't pass.",
+        "Strong showing. One case failed.",
+        "Great work. One test needs review.",
+        "Almost perfect. One test failed.",
+        "Very close. One test to address.",
+        "Excellent job. One test failed.",
+        "Nearly perfect. One test needs work.",
+        "Great effort. One test failed.",
+        "Almost flawless. One test failed.",
+        "Very good results. One test failed.",
+        "Strong results. One test failed.",
+        "Excellent code. One test failed.",
+        "Almost all passed. One test failed.",
+        "Great job. One test failed.",
+        "Very close to perfect. One test failed.",
+
+        // 60-89: Good/Mixed
+        "Good job! Most tests passed.",
+        "Solid effort. A few tests failed.",
+        "Strong results. Some improvements needed.",
+        "Most tests succeeded. Review failures.",
+        "Good coverage. Address failed cases.",
+        "Nice work. Some tests need attention.",
+        "Majority passed. Check failed tests.",
+        "Good performance. Some failures detected.",
+        "Most cases green. Review the rest.",
+        "Solid code. Some tests failed.",
+        "Good results. Some issues remain.",
+        "Most tests passed. Fix the rest.",
+        "Nice job. Some tests failed.",
+        "Majority succeeded. Review failures.",
+        "Good showing. Some tests failed.",
+        "Most cases passed. Address failures.",
+        "Solid results. Some tests failed.",
+        "Good work. Some tests failed.",
+        "Most tests green. Some failed.",
+        "Nice effort. Some tests failed.",
+        "Majority passed. Some failed.",
+        "Good code. Some tests failed.",
+        "Most tests succeeded. Some failed.",
+        "Solid performance. Some failed.",
+        "Good results. Some failed.",
+        "Most cases passed. Some failed.",
+        "Nice work. Some failed.",
+        "Majority succeeded. Some failed.",
+        "Good showing. Some failed.",
+        "Most tests passed. Some failed.",
+
+        // 90-119: Warning
+        "Warning: Significant number of tests failed.",
+        "Caution: Many tests did not pass.",
+        "Alert: Multiple failures detected.",
+        "Review needed: Several tests failed.",
+        "Attention: Numerous test failures.",
+        "Warning: Code stability at risk.",
+        "Caution: High failure rate.",
+        "Alert: Many cases failed.",
+        "Review: Multiple failures.",
+        "Warning: Code needs improvement.",
+        "Caution: Several failed tests.",
+        "Alert: High number of failures.",
+        "Review: Many tests failed.",
+        "Warning: Code reliability low.",
+        "Caution: Multiple failed cases.",
+        "Alert: Numerous failures.",
+        "Review: High failure count.",
+        "Warning: Code needs attention.",
+        "Caution: Many failed tests.",
+        "Alert: Several failures.",
+        "Review: Code stability low.",
+        "Warning: Multiple failures.",
+        "Caution: High failure count.",
+        "Alert: Code needs review.",
+        "Review: Numerous failed tests.",
+        "Warning: Code needs fixes.",
+        "Caution: Many failures.",
+        "Alert: Code needs work.",
+        "Review: High failure rate.",
+        "Warning: Code needs review.",
+
+        // 120-149: Critical
+        "Critical: Most tests failed.",
+        "Severe: Code is unstable.",
+        "Urgent: Major failures detected.",
+        "Critical: Code needs immediate attention.",
+        "Severe: High failure rate.",
+        "Urgent: Code is unreliable.",
+        "Critical: Code is broken.",
+        "Severe: Major issues found.",
+        "Urgent: Code is failing.",
+        "Critical: Code is not working.",
+        "Severe: Code is unstable.",
+        "Urgent: Code needs fixing.",
+        "Critical: Code is failing.",
+        "Severe: Code is broken.",
+        "Urgent: Code is not reliable.",
+        "Critical: Code needs repair.",
+        "Severe: Code is not working.",
+        "Urgent: Code is unstable.",
+        "Critical: Code needs overhaul.",
+        "Severe: Code is failing.",
+        "Urgent: Code needs attention.",
+        "Critical: Code is not stable.",
+        "Severe: Code needs fixing.",
+        "Urgent: Code is broken.",
+        "Critical: Code needs work.",
+        "Severe: Code needs repair.",
+        "Urgent: Code needs overhaul.",
+        "Critical: Code needs fixing.",
+        "Severe: Code needs attention.",
+        "Urgent: Code needs review.",
+
+        // 150-179: Recovery
+        "Recovery needed: Many tests failed.",
+        "Action required: Code needs fixes.",
+        "Intervention needed: Code is unstable.",
+        "Recovery: Code needs improvement.",
+        "Action: Code needs repair.",
+        "Intervention: Code needs attention.",
+        "Recovery: Code needs overhaul.",
+        "Action: Code needs fixing.",
+        "Intervention: Code needs review.",
+        "Recovery: Code needs work.",
+        "Action: Code needs repair.",
+        "Intervention: Code needs overhaul.",
+        "Recovery: Code needs fixing.",
+        "Action: Code needs attention.",
+        "Intervention: Code needs review.",
+        "Recovery: Code needs repair.",
+        "Action: Code needs overhaul.",
+        "Intervention: Code needs fixing.",
+        "Recovery: Code needs attention.",
+        "Action: Code needs review.",
+        "Intervention: Code needs work.",
+        "Recovery: Code needs repair.",
+        "Action: Code needs overhaul.",
+        "Intervention: Code needs fixing.",
+        "Recovery: Code needs attention.",
+        "Action: Code needs review.",
+        "Intervention: Code needs work.",
+        "Recovery: Code needs repair.",
+        "Action: Code needs overhaul.",
+        "Intervention: Code needs fixing.",
+
+        // 180-209: Encouragement
+        "Keep going! Some tests passed.",
+        "Don't give up! Progress is being made.",
+        "You're on the right track. Keep improving.",
+        "Some tests succeeded. Keep working.",
+        "Progress detected. Continue refining.",
+        "You're making progress. Keep at it.",
+        "Some cases passed. Keep going.",
+        "Improvement seen. Keep working.",
+        "You're getting there. Keep refining.",
+        "Some tests succeeded. Keep improving.",
+        "Progress made. Continue working.",
+        "You're making headway. Keep going.",
+        "Some cases succeeded. Keep refining.",
+        "Improvement detected. Keep working.",
+        "You're on your way. Keep improving.",
+        "Some tests passed. Keep going.",
+        "Progress noted. Continue refining.",
+        "You're making strides. Keep working.",
+        "Some cases passed. Keep improving.",
+        "Improvement observed. Keep going.",
+        "You're moving forward. Keep refining.",
+        "Some tests succeeded. Keep working.",
+        "Progress achieved. Continue improving.",
+        "You're advancing. Keep going.",
+        "Some cases succeeded. Keep refining.",
+        "Improvement made. Keep working.",
+        "You're progressing. Keep improving.",
+        "Some tests passed. Keep going.",
+        "Progress shown. Continue refining.",
+        "You're improving. Keep working.",
+
+        // 210-239: Suggestions
+        "Consider reviewing failed tests for edge cases.",
+        "Check your logic for possible errors.",
+        "Review failed cases for potential bugs.",
+        "Investigate failed tests for root causes.",
+        "Analyze failures for improvement opportunities.",
+        "Check error messages for clues.",
+        "Review code for possible mistakes.",
+        "Investigate test failures for solutions.",
+        "Analyze failed cases for fixes.",
+        "Check your code for logic errors.",
+        "Review failed tests for debugging.",
+        "Investigate failures for corrections.",
+        "Analyze failed cases for improvements.",
+        "Check your code for possible bugs.",
+        "Review failed tests for troubleshooting.",
+        "Investigate failures for resolutions.",
+        "Analyze failed cases for enhancements.",
+        "Check your code for errors.",
+        "Review failed tests for analysis.",
+        "Investigate failures for fixes.",
+        "Analyze failed cases for solutions.",
+        "Check your code for improvements.",
+        "Review failed tests for insights.",
+        "Investigate failures for better results.",
+        "Analyze failed cases for optimization.",
+        "Check your code for refinements.",
+        "Review failed tests for better outcomes.",
+        "Investigate failures for better performance.",
+        "Analyze failed cases for better reliability.",
+        "Check your code for better stability.",
+
+        // 240-269: Motivation
+        "Don't be discouraged! Every failure is a learning opportunity.",
+        "Keep trying! You'll get there.",
+        "Failure is the first step to success.",
+        "Every bug fixed is progress made.",
+        "Persistence leads to improvement.",
+        "Keep pushing! Success is within reach.",
+        "Every test failed is a chance to learn.",
+        "Don't give up! You're improving.",
+        "Failure is feedback. Keep going.",
+        "Every mistake is a lesson learned.",
+        "Keep working! You'll succeed.",
+        "Failure is temporary. Success is permanent.",
+        "Every error is a step forward.",
+        "Don't stop! You're making progress.",
+        "Failure is part of the process.",
+        "Every bug is an opportunity.",
+        "Keep going! You're getting better.",
+        "Failure is not the end.",
+        "Every test failed is a chance to grow.",
+        "Don't quit! You're on your way.",
+        "Failure is a stepping stone.",
+        "Every mistake brings you closer to success.",
+        "Keep improving! You're making progress.",
+        "Failure is just feedback.",
+        "Every error is a chance to learn.",
+        "Don't lose hope! You're advancing.",
+        "Failure is part of learning.",
+        "Every bug fixed is a victory.",
+        "Keep at it! You're progressing.",
+        "Failure is just a detour.",
+
+        // 270-299: Humor
+        "Did you try turning it off and on again?",
+        "Looks like the bugs are winning this round.",
+        "The code elves are on strike.",
+        "Have you considered bribing the compiler?",
+        "It's not a bug, it's an undocumented feature.",
+        "The tests are revolting.",
+        "The code gremlins are at it again.",
+        "Maybe the tests need more coffee.",
+        "The bugs are multiplying.",
+        "The code is on vacation.",
+        "The tests are playing hide and seek.",
+        "The bugs are having a party.",
+        "The code is feeling shy.",
+        "The tests are on strike.",
+        "The bugs are taking over.",
+        "The code is in a bad mood.",
+        "The tests are confused.",
+        "The bugs are celebrating.",
+        "The code is lost in thought.",
+        "The tests are daydreaming.",
+        "The bugs are plotting.",
+        "The code is napping.",
+        "The tests are distracted.",
+        "The bugs are dancing.",
+        "The code is meditating.",
+        "The tests are philosophizing.",
+        "The bugs are writing poetry.",
+        "The code is composing music.",
+        "The tests are painting.",
+        "The bugs are telling jokes."
     };
 
+    // --- AI Feedback Selection Logic ---
     const char* chosen = NULL;
-
-    // --- Selection Logic ---
     if (pass_rate == 100.0) {
-        chosen = summaries[rand() % 20]; // Perfect pool
-    } else if (fail_ratio > 0.5) {
-        chosen = summaries[80 + (rand() % 20)]; // Failure-heavy pool
-    } else if (score->timeout > 0) {
-        chosen = summaries[100 + (rand() % 20)]; // Timeout pool
-    } else if (score->skipped > 0) {
-        chosen = summaries[120 + (rand() % 20)]; // Skipped pool
-    } else if (score->empty > 0 && score->passed == 0) {
-        chosen = summaries[140 + (rand() % 20)]; // Empty pool
-    } else if (score->unexpected > 0) {
-        chosen = summaries[160 + (rand() % 20)]; // Unexpected pool
+        chosen = ai_feedback[rand() % 30]; // 0-29: Perfect
     } else if (pass_rate > 90.0) {
-        chosen = summaries[20 + (rand() % 20)]; // Near-perfect pool
+        chosen = ai_feedback[30 + rand() % 30]; // 30-59: Near-perfect
     } else if (pass_rate > 70.0) {
-        chosen = summaries[40 + (rand() % 20)]; // Strong but not perfect
-    } else if (pass_rate > 40.0) {
-        chosen = summaries[60 + (rand() % 20)]; // Mixed pool
+        chosen = ai_feedback[60 + rand() % 30]; // 60-89: Good/Mixed
+    } else if (fail_rate > 40.0) {
+        chosen = ai_feedback[90 + rand() % 30]; // 90-119: Warning
+    } else if (fail_rate > 60.0) {
+        chosen = ai_feedback[120 + rand() % 30]; // 120-149: Critical
+    } else if (pass_rate > 50.0) {
+        chosen = ai_feedback[180 + rand() % 30]; // 180-209: Encouragement
+    } else if (pass_rate > 30.0) {
+        chosen = ai_feedback[210 + rand() % 30]; // 210-239: Suggestions
+    } else if (pass_rate > 10.0) {
+        chosen = ai_feedback[240 + rand() % 30]; // 240-269: Motivation
     } else {
-        chosen = summaries[180 + (rand() % 20)]; // Critical pool
+        chosen = ai_feedback[270 + rand() % 30]; // 270-299: Humor
     }
 
-    // --- Time-Aware Feedback ---
-    uint64_t now_us = get_pizza_time_microseconds();
-    char time_hint[64] = {0};
-    
-    if (score->timeout > 0) {
-        snprintf(time_hint, sizeof(time_hint),
-                 " [Elapsed: %llu us]", (unsigned long long)now_us);
-    }
-    
-    // --- Priority-Ordered Hints ---
-    // Priority order: FAIL > TIMEOUT > UNEXPECTED > SKIPPED > EMPTY
-    char hints[256] = {0};
-    
-    if (score->failed > 0) {
-        strncat(hints, " Check failing cases first for regressions.",
-                sizeof(hints) - strlen(hints) - 1);
-    }
-    if (score->timeout > 0) {
-        strncat(hints, " Investigate timeouts to improve performance.",
-                sizeof(hints) - strlen(hints) - 1);
-    }
-    if (score->unexpected > 0) {
-        strncat(hints, " Review unexpected outcomes for correctness.",
-                sizeof(hints) - strlen(hints) - 1);
-    }
-    if (score->skipped > 0) {
-        strncat(hints, " Verify skipped tests are justified.",
-                sizeof(hints) - strlen(hints) - 1);
-    }
-    if (score->empty > 0) {
-        strncat(hints, " Fill empty tests to ensure coverage.",
-                sizeof(hints) - strlen(hints) - 1);
-    }
-    
-    // Final message composition
-    snprintf(message, sizeof(message), "%s%s%s", chosen, time_hint, hints);
+    // --- Compose Final Message ---
+    snprintf(message, sizeof(message), "%s", chosen);
 
     return message;
 }
@@ -1494,20 +1367,20 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}\n========================================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}\n=================================================================================={reset}\n");
             pizza_io_printf("{blue,bold}Elapsed Time:{white} %s (hh:mm:ss.micro,nano)\n{reset}", time_buffer);
-            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{magenta}\n========================================================================================={reset}\n");
+            pizza_io_printf("{magenta}\n=================================================================================={reset}\n");
             pizza_io_printf("{magenta}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
-            pizza_io_printf("{magenta}========================================================================================={reset}\n");
+            pizza_io_printf("{magenta}=================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{cyan}\n========================================================================================={reset}\n");
+            pizza_io_printf("{cyan}\n=================================================================================={reset}\n");
             pizza_io_printf("{cyan}[Elapsed Time]:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
-            pizza_io_printf("{cyan}========================================================================================={reset}\n");
+            pizza_io_printf("{cyan}=================================================================================={reset}\n");
             break;
         case PIZZA_THEME_TAP:
             pizza_io_printf("\n# {yellow}Elapsed Time:{reset} %s (hh:mm:ss.micro,nano)\n", time_buffer);
@@ -1547,7 +1420,7 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
                             avg_suite_ns, avg_suite_us, avg_suite_ms);
             pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
                             avg_test_ns, avg_test_us, avg_test_ms);
-            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
@@ -1584,11 +1457,6 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
 void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
 
-    double success_rate = (engine->score_possible > 0) 
-                          ? ((double)engine->score_total / engine->score_possible) * 100 
-                          : 0;
-
-    // Enhanced summary: show pass/fail/skip/timeout/unexpected/empty percentages
     int total_tests = engine->score_possible > 0 ? engine->score_possible : 1;
     double pass_pct       = (double)engine->score.passed     / total_tests * 100.0;
     double fail_pct       = (double)engine->score.failed     / total_tests * 100.0;
@@ -1597,17 +1465,30 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
     double unexpected_pct = (double)engine->score.unexpected / total_tests * 100.0;
     double empty_pct      = (double)engine->score.empty      / total_tests * 100.0;
 
+    double success_rate = (engine->score_possible > 0) 
+                          ? ((double)engine->score_total / engine->score_possible) * 100.0 
+                          : 0.0;
+
+    // AI calculations: reliability, anomaly, coverage, stability, risk, health
+    double reliability = pass_pct - (fail_pct + unexpected_pct + timeout_pct);
+    double anomaly_rate = unexpected_pct + empty_pct;
+    double coverage = 100.0 - skip_pct - empty_pct;
+    double stability = 100.0 - fail_pct - timeout_pct - unexpected_pct;
+    double risk = fail_pct + timeout_pct + unexpected_pct;
+    double health = reliability * 0.6 + coverage * 0.2 + stability * 0.2;
+
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
-                engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}Passed    :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}Failed    :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}Skipped   :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}Timeouts  :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}Unexpected:{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}Empty     :{cyan} %4d {blue}-{cyan}(%.2f%%)\n{reset}", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}Success Rate:{cyan} %.2f%%\n{reset}", success_rate);
+            engine->count, engine->score_possible, engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}Passed      :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}Failed      :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}Skipped     :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}Timeouts    :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}Unexpected  :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}Empty       :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}Coverage    :{cyan} %06.2f%% {blue}| Stability:{cyan} %06.2f%% {blue}| Health :{cyan} %06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}Success Rate:{cyan} %06.2f%% {blue}| Risk     :{cyan} %06.2f%% {blue}| Anomaly:{cyan} %06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CATCH:
@@ -1615,13 +1496,14 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("{magenta}Suites run   :{reset} %zu\n", engine->count);
             pizza_io_printf("{magenta}Tests run    :{reset} %d\n", engine->score_possible);
             pizza_io_printf("{magenta}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{magenta}Passed       :{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{magenta}Failed       :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{magenta}Skipped      :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{magenta}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{magenta}Unexpected   :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{magenta}Empty        :{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{magenta}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
+            pizza_io_printf("{magenta}Passed       :{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{magenta}Failed       :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{magenta}Skipped      :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{magenta}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{magenta}Unexpected   :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{magenta}Empty        :{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{magenta}Coverage     :{reset} %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
+            pizza_io_printf("{magenta}Success Rate :{reset} {green}%06.2f%%{reset} | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CPPUTEST:
@@ -1629,13 +1511,14 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("{cyan}[SUITES RUN   ]{reset} %zu\n", engine->count);
             pizza_io_printf("{cyan}[TESTS RUN    ]{reset} %d\n", engine->score_possible);
             pizza_io_printf("{cyan}[SCORE        ]{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{cyan}[  PASSED     ]{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{cyan}[  FAILED     ]{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{cyan}[  SKIPPED    ]{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{cyan}[  TIMEOUTS   ]{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{cyan}[UNEXPECTED   ]{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{cyan}[   EMPTY     ]{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{cyan}[SUCCESS RATE ]{reset} {green}%.2f%%{reset}\n", success_rate);
+            pizza_io_printf("{cyan}[  PASSED     ]{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{cyan}[  FAILED     ]{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{cyan}[  SKIPPED    ]{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{cyan}[  TIMEOUTS   ]{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{cyan}[UNEXPECTED   ]{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{cyan}[   EMPTY     ]{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{cyan}[ COVERAGE    ]{reset} %06.2f%% | [STABILITY] %06.2f%% | [HEALTH] %06.2f%%\n", coverage, stability, health);
+            pizza_io_printf("{cyan}[SUCCESS RATE ]{reset} {green}%06.2f%%{reset} | [RISK] %06.2f%% | [ANOMALY] %06.2f%%\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_TAP:
@@ -1643,26 +1526,28 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("# {yellow}Suites run   :{reset} %zu\n", engine->count);
             pizza_io_printf("# {yellow}Tests run    :{reset} %d\n", engine->score_possible);
             pizza_io_printf("# {yellow}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("# {green}Passed       :{reset} %d ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("# {red}Failed       :{reset} %d ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("# {yellow}Skipped      :{reset} %d ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("# {yellow}Timeouts     :{reset} %d ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("# {red}Unexpected   :{reset} %d ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("# {cyan}Empty        :{reset} %d ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("# {yellow}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
+            pizza_io_printf("# {green}Passed       :{reset} %d ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("# {red}Failed       :{reset} %d ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("# {yellow}Skipped      :{reset} %d ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("# {yellow}Timeouts     :{reset} %d ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("# {red}Unexpected   :{reset} %d ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("# {cyan}Empty        :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("# Coverage   : %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
+            pizza_io_printf("# Success Rate: %06.2f%% | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[==========] {blue}Suites run:{reset} %zu\n", engine->count);
             pizza_io_printf("[----------] {yellow}Tests run :{reset} %d\n", engine->score_possible);
             pizza_io_printf("[==========] {green}Score     :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("[  {green}PASSED{reset}  ] {green}%d{reset} tests ({green}%.2f%%{reset}).\n", engine->score.passed, pass_pct);
-            pizza_io_printf("[  {red}FAILED{reset}  ] {red}%d{reset} tests ({red}%.2f%%{reset}).\n", engine->score.failed, fail_pct);
-            pizza_io_printf("[  {yellow}SKIPPED{reset} ] {yellow}%d{reset} tests ({yellow}%.2f%%{reset}).\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("[ {yellow}TIMEOUTS{reset} ] {yellow}%d{reset} tests ({yellow}%.2f%%{reset}).\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("[{red}UNEXPECTED{reset}] {red}%d{reset} tests ({red}%.2f%%{reset}).\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("[  {cyan}EMPTY{reset}   ] {cyan}%d{reset} tests ({cyan}%.2f%%{reset}).\n", engine->score.empty, empty_pct);
-            pizza_io_printf("[ {green}SUCCESS{reset}  ] {green}%.2f%%{reset}\n", success_rate);
+            pizza_io_printf("[  {green}PASSED{reset}  ] {green}%d{reset} tests ({green}%06.2f%%{reset}).\n", engine->score.passed, pass_pct);
+            pizza_io_printf("[  {red}FAILED{reset}  ] {red}%d{reset} tests ({red}%06.2f%%{reset}).\n", engine->score.failed, fail_pct);
+            pizza_io_printf("[  {yellow}SKIPPED{reset} ] {yellow}%d{reset} tests ({yellow}%06.2f%%{reset}).\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("[ {yellow}TIMEOUTS{reset} ] {yellow}%d{reset} tests ({yellow}%06.2f%%{reset}).\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("[{red}UNEXPECTED{reset}] {red}%d{reset} tests ({red}%06.2f%%{reset}).\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("[  {cyan}EMPTY{reset}   ] {cyan}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.empty, empty_pct);
+            pizza_io_printf("[ COVERAGE ] %06.2f%% | [STABILITY] %06.2f%% | [HEALTH] %06.2f%%\n", coverage, stability, health);
+            pizza_io_printf("[ {green}SUCCESS{reset}  ] {green}%06.2f%%{reset} | [RISK] %06.2f%% | [ANOMALY] %06.2f%%\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_UNITY:
@@ -1670,13 +1555,14 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             pizza_io_printf("{green}Suites run   :{reset} %zu\n", engine->count);
             pizza_io_printf("{green}Tests run    :{reset} %d\n", engine->score_possible);
             pizza_io_printf("{green}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{green}Passed       :{reset} {green}%d{reset} ({green}%.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{green}Failed       :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{green}Skipped      :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{green}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{green}Unexpected   :{reset} {red}%d{reset} ({red}%.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{green}Empty        :{reset} {cyan}%d{reset} ({cyan}%.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{green}Success Rate :{reset} {green}%.2f%%{reset}\n", success_rate);
+            pizza_io_printf("{green}Passed       :{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{green}Failed       :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{green}Skipped      :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{green}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{green}Unexpected   :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{green}Empty        :{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{green}Coverage     :{reset} %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
+            pizza_io_printf("{green}Success Rate :{reset} {green}%06.2f%%{reset} | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
             break;
 
         default:
@@ -1700,30 +1586,30 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
-            pizza_io_printf("{blue}=== {cyan}Fossil Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s{blue}, Architecture: {green}%s{reset}\n",
+            pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
+            pizza_io_printf("{blue}=== {cyan}Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s{blue}, Architecture: {green}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{blue,bold}========================================================================================={reset}\n");
+            pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{magenta}========================================================================================={reset}\n");
-            pizza_io_printf("{magenta}=== Fossil Pizza Summary ===:{reset} OS {magenta}%s{reset}, Endianness: %s%s{reset}, Architecture: {magenta}%s{reset}\n",
+            pizza_io_printf("{magenta}=================================================================================={reset}\n");
+            pizza_io_printf("{magenta}=== Pizza Summary ===:{reset} OS {magenta}%s{reset}, Endianness: %s%s{reset}, Architecture: {magenta}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{magenta}========================================================================================={reset}\n");
+            pizza_io_printf("{magenta}=================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{cyan}========================================================================================={reset}\n");
-            pizza_io_printf("{cyan}[Fossil Pizza Summary]{reset}: OS {cyan}%s{reset}, Endianness: %s%s{reset}, Architecture: {cyan}%s{reset}\n",
+            pizza_io_printf("{cyan}=================================================================================={reset}\n");
+            pizza_io_printf("{cyan}[Pizza Summary]{reset}: OS {cyan}%s{reset}, Endianness: %s%s{reset}, Architecture: {cyan}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
-            pizza_io_printf("{cyan}========================================================================================={reset}\n");
+            pizza_io_printf("{cyan}=================================================================================={reset}\n");
             break;
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("TAP version 13\n");
-            pizza_io_printf("# {yellow}Fossil Pizza Summary{reset}: OS {yellow}%s{reset}, Endianness: %s%s{reset}, Architecture: {yellow}%s{reset}\n",
+            pizza_io_printf("# {yellow}Pizza Summary{reset}: OS {yellow}%s{reset}, Endianness: %s%s{reset}, Architecture: {yellow}%s{reset}\n",
             system_info.os_name, endian_color, endian_str, arch_info.architecture);
             break;
 
@@ -1748,16 +1634,14 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
-
+    
+    // Classic Summary Components
     fossil_pizza_summary_heading(engine);
     fossil_pizza_summary_scoreboard(engine);
     fossil_pizza_summary_timestamp(engine);
 
-    const char* msg = fossil_test_summary_feedback(&engine->score);
-    pizza_io_printf("\n{bold}{blue}Feedback:{reset} %s\n", msg);
-
-    // TIM/TI Failure Clustering Report
-    pizza_report_failure_clusters();
+    // AI-Generated Feedback
+    pizza_io_printf("\n{blue,bold}Feedback:{reset} {cyan}%s{reset}\n", fossil_test_summary_feedback(&engine->score));
 }
 
 // --- End / Cleanup ---
@@ -1781,14 +1665,72 @@ int32_t fossil_pizza_end(fossil_pizza_engine_t* engine) {
 
 // -- Assume --
 
-// --- TI Result Struct ---
+// --- AI Result Struct ---
 typedef struct {
     char *message;
     uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
     uint64_t timestamp;
+    int root_cause_code; // 0: unknown, 1: logic, 2: timeout, 3: memory, 4: io, 5: coverage, 6: range, 7: float, 8: string, 9: soap/text
 } pizza_assert_ti_result;
 
 extern uint64_t get_pizza_time_microseconds(void); // from common utilities
+
+// --- Root Cause Detection Helper ---
+// Enhanced to support assumption macros and their message patterns
+static int pizza_test_detect_root_cause(const char *message) {
+    if (!message) return 0;
+
+    // Memory errors
+    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "cnull") || strstr(message, "not cnull") ||
+        strstr(message, "pointer") || strstr(message, "memory") || strstr(message, "buffer") ||
+        strstr(message, "valid memory") || strstr(message, "not valid memory") ||
+        strstr(message, "zeroed") || strstr(message, "not zeroed"))
+        return 3; // memory
+
+    // Timeout
+    if (strstr(message, "timeout") || strstr(message, "timed out"))
+        return 2; // timeout
+
+    // I/O errors
+    if (strstr(message, "file") || strstr(message, "I/O") || strstr(message, "io error"))
+        return 4; // io
+
+    // Range errors
+    if (strstr(message, "range") || strstr(message, "not within range") || strstr(message, "within range") ||
+        strstr(message, "overflow") || strstr(message, "underflow"))
+        return 6; // range
+
+    // Floating-point
+    if (strstr(message, "float") || strstr(message, "double") ||
+        strstr(message, "NaN") || strstr(message, "nan") ||
+        strstr(message, "infinity") || strstr(message, "infinite") ||
+        strstr(message, "tolerance"))
+        return 7; // float
+
+    // String/buffer
+    if (strstr(message, "string") || strstr(message, "C string") ||
+        strstr(message, "strlen") || strstr(message, "cstr") ||
+        strstr(message, "starts with") || strstr(message, "ends with") ||
+        strstr(message, "contains") || strstr(message, "not contain") ||
+        strstr(message, "length of"))
+        return 8; // string
+
+    // SOAP/text
+    if (strstr(message, "soap") || strstr(message, "text") || strstr(message, "tone") ||
+        strstr(message, "rot-brain"))
+        return 9; // soap/text
+
+    // Coverage/empty/skipped/not implemented
+    if (strstr(message, "empty") || strstr(message, "skipped") || strstr(message, "not implemented"))
+        return 5; // coverage
+
+    // Logic errors (default for assumption failures)
+    if (strstr(message, "Expected") || strstr(message, "not be") || strstr(message, "to be") ||
+        strstr(message, "fail") || strstr(message, "logic") || strstr(message, "assert"))
+        return 1; // logic
+
+    return 0; // unknown
+}
 
 char *pizza_test_assert_messagef(const char *message, ...) {
     va_list args;
@@ -1809,18 +1751,37 @@ char *pizza_test_assert_messagef(const char *message, ...) {
 
         // Hash both format string and final message to detect templating vs content errors
         fossil_pizza_hash(message, formatted_message, result.hash);
+
+        // Root cause detection
+        result.root_cause_code = pizza_test_detect_root_cause(formatted_message);
     }
 
     va_end(args);
     return formatted_message;
 }
 
-void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count) {
-    // Output assertion failure based on theme
+void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count, int root_cause_code) {
+    // Output assertion failure based on theme, with root cause if detected
+    const char *root_cause_str = NULL;
+    switch (root_cause_code) {
+        case 1: root_cause_str = "Logic error"; break;
+        case 2: root_cause_str = "Timeout"; break;
+        case 3: root_cause_str = "Memory error"; break;
+        case 4: root_cause_str = "I/O error"; break;
+        case 5: root_cause_str = "Coverage/Empty"; break;
+        case 6: root_cause_str = "Range error"; break;
+        case 7: root_cause_str = "Floating-point"; break;
+        case 8: root_cause_str = "String/buffer"; break;
+        case 9: root_cause_str = "Text/SOAP"; break;
+        default: root_cause_str = NULL; break;
+    }
+
     switch (G_PIZZA_THEME) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{red,bold}Assertion failed:{reset} {yellow}%s{reset} {blue}(%s:%d in %s){reset}\n",
                             message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("{magenta}Root Cause:{reset} %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("{yellow}Duplicate or similar assertion detected [Anomaly Count: %d]{reset}\n", anomaly_count);
             }
@@ -1829,6 +1790,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("Root Cause: %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1836,6 +1799,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("[ASSERTION FAILED] %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("[ROOT CAUSE] %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("[DUPLICATE ASSERTION] Anomaly Count: %d\n", anomaly_count);
             }
@@ -1843,6 +1808,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("not ok - Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("# Root Cause: %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("# Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1850,6 +1817,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[  FAILED  ] Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("[  ROOT    ] %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("[  WARNING ] Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1857,6 +1826,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("Unity Assertion Failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("Unity Root Cause: %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("Unity Duplicate Assertion Detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1864,6 +1835,8 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         default:
             pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
+            if (root_cause_str)
+                pizza_io_printf("Root Cause: %s\n", root_cause_str);
             if (anomaly_count > 0) {
                 pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1871,7 +1844,7 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     }
 }
 
-static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func, pizza_cause_category_t *out_cause) {
+static int pizza_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func) {
     static uint8_t last_hash[FOSSIL_PIZZA_HASH_SIZE] = {0};
     static int anomaly_count = 0;
 
@@ -1891,11 +1864,6 @@ static int pizza_test_assert_internal_detect_ti(const char *message, const char 
         memcpy(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE);
     }
 
-    // Detect cause category for this assertion
-    if (out_cause) {
-        *out_cause = pizza_guess_cause(message, file);
-    }
-
     return anomaly_count;
 }
 
@@ -1903,8 +1871,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
     _ASSERT_COUNT++;
 
     if (!condition) {
-        pizza_cause_category_t cause = PIZZA_CAUSE_UNKNOWN;
-        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func, &cause);
+        int anomaly_count = pizza_test_assert_internal_detect_ti(message, file, line, func);
 
         // Compute hash for clustering
         char input_buf[512], output_buf[64];
@@ -1913,18 +1880,14 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
         fossil_pizza_hash(input_buf, output_buf, hash);
 
-        pizza_cluster_failure(message, file, line, func, hash, get_pizza_time_microseconds());
+        int root_cause_code = pizza_test_detect_root_cause(message);
 
-        // Enhanced output includes anomaly count and cause category
-        pizza_test_assert_internal_output(message, file, line, func, anomaly_count);
-        if (cause != PIZZA_CAUSE_UNKNOWN) {
-            pizza_io_printf("{yellow}Detected Cause: %s{reset}\n", pizza_cause_category_str(cause));
-        }
+        // Enhanced output includes anomaly count and root cause
+        pizza_test_assert_internal_output(message, file, line, func, anomaly_count, root_cause_code);
 
         longjmp(test_jump_buffer, 1);
     }
 }
-
 
 // *********************************************************************************************
 // internal messages
