@@ -303,12 +303,12 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
     const char* mode = (engine && engine->pallet.show.mode) ? engine->pallet.show.mode : "list";
 
     const char* result_str =
-                (test_case->result == FOSSIL_PIZZA_CASE_EMPTY) ? "empty" :
-                (test_case->result == FOSSIL_PIZZA_CASE_PASS) ? "pass" :
-                (test_case->result == FOSSIL_PIZZA_CASE_FAIL) ? "fail" :
-                (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT) ? "timeout" :
-                (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED) ? "skipped" :
-                (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "unexpected" : "unknown";
+                (test_case->result == FOSSIL_PIZZA_CASE_EMPTY)      ? "{cyan}empty{reset}" :
+                (test_case->result == FOSSIL_PIZZA_CASE_PASS)       ? "{green}pass{reset}" :
+                (test_case->result == FOSSIL_PIZZA_CASE_FAIL)       ? "{red}fail{reset}" :
+                (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT)    ? "{yellow}timeout{reset}" :
+                (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED)    ? "{yellow}skipped{reset}" :
+                (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}" : "{white}unknown{reset}";
 
     // Filtering logic
     if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
@@ -319,7 +319,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
         return;
     if (engine && engine->pallet.show.result) {
         if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
-        return;
+            return;
     }
 
     // Output according to mode and theme
@@ -331,7 +331,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {white}%s{reset} {yellow}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {white}%s{reset} {yellow}[given criteria]{reset}\n", test_case->criteria);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {white}%s{reset} {yellow}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {green}%s{reset} {yellow}[the result]{reset}\n", result_str);
+                pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: %s {yellow}[the result]{reset}\n", result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("  ::TEST:: %s\n", test_case->name);
                 pizza_io_printf("    ::TAGS:: %s\n", test_case->tags);
@@ -343,7 +343,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {white}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {white}%s{reset}\n", test_case->criteria);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {white}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {green}%s{reset}\n", result_str);
+                pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: %s\n", result_str);
             }
             break;
         case PIZZA_THEME_CPPUTEST:
@@ -373,7 +373,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Tags     {reset}: {white}%s{reset} {yellow}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Criteria {reset}: {white}%s{reset} {yellow}[given criteria]{reset}\n", test_case->criteria);
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Time     {reset}: {white}%s{reset} {yellow}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("  {yellow}# │   └─{reset} {cyan}Result   {reset}: {green}%s{reset} {yellow}[the result]{reset}\n", result_str);
+                pizza_io_printf("  {yellow}# │   └─{reset} {cyan}Result   {reset}: %s {yellow}[the result]{reset}\n", result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("  {yellow}# ::CASE::{reset} {cyan}%s{reset}\n", test_case->name);
                 pizza_io_printf("  {yellow}#   ::TAGS::{reset} %s\n", test_case->tags);
@@ -385,7 +385,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Tags     {reset}: {white}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Criteria {reset}: {white}%s{reset}\n", test_case->criteria);
                 pizza_io_printf("  {yellow}# │   ├─{reset} {cyan}Time     {reset}: {white}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("  {yellow}# │   └─{reset} {cyan}Result   {reset}: {green}%s{reset}\n", result_str);
+                pizza_io_printf("  {yellow}# │   └─{reset} {cyan}Result   {reset}: %s\n", result_str);
             }
             break;
         case PIZZA_THEME_GOOGLETEST:
@@ -395,7 +395,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("    {yellow}[Tags]{reset} {green}%s{reset} {yellow}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("    {yellow}[Criteria]{reset} {green}%s{reset} {yellow}[given criteria]{reset}\n", test_case->criteria);
                 pizza_io_printf("    {yellow}[Time]{reset} {green}%s{reset} {yellow}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("    {yellow}[Result]{reset} {red}%s{reset} {yellow}[the result]{reset}\n", result_str);
+                pizza_io_printf("    {yellow}[Result]{reset} %s {yellow}[the result]{reset}\n", result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("  [  CASE   ] ::CASE:: %s\n", test_case->name);
                 pizza_io_printf("    ::TAGS:: %s\n", test_case->tags);
@@ -407,7 +407,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("    {yellow}[Tags]{reset} {green}%s{reset}\n", test_case->tags);
                 pizza_io_printf("    {yellow}[Criteria]{reset} {green}%s{reset}\n", test_case->criteria);
                 pizza_io_printf("    {yellow}[Time]{reset} {green}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("    {yellow}[Result]{reset} {red}%s{reset}\n", result_str);
+                pizza_io_printf("    {yellow}[Result]{reset} %s\n", result_str);
             }
             break;
         case PIZZA_THEME_UNITY:
@@ -416,7 +416,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("    {yellow}Tags    {reset}: {white}%s{reset} {yellow}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("    {yellow}Criteria{reset}: {white}%s{reset} {yellow}[given criteria]{reset}\n", test_case->criteria);
                 pizza_io_printf("    {yellow}Time    {reset}: {white}%s{reset} {yellow}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("    {yellow}Result  {reset}: {green}%s{reset} {yellow}[the result]{reset}\n", result_str);
+                pizza_io_printf("    {yellow}Result  {reset}: %s {yellow}[the result]{reset}\n", result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("  ::UNITY_CASE:: %s\n", test_case->name);
                 pizza_io_printf("    ::TAGS:: %s\n", test_case->tags);
@@ -428,7 +428,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 pizza_io_printf("    {yellow}Tags    {reset}: {white}%s{reset}\n", test_case->tags);
                 pizza_io_printf("    {yellow}Criteria{reset}: {white}%s{reset}\n", test_case->criteria);
                 pizza_io_printf("    {yellow}Time    {reset}: {white}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("    {yellow}Result  {reset}: {green}%s{reset}\n", result_str);
+                pizza_io_printf("    {yellow}Result  {reset}: %s\n", result_str);
             }
             break;
         case PIZZA_THEME_CATCH:
@@ -462,7 +462,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
         switch (engine ? engine->pallet.theme : PIZZA_THEME_FOSSIL) {
         case PIZZA_THEME_FOSSIL:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}{green}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}%s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("::CASE:: %s --[::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s]\n",
@@ -474,38 +474,38 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
             break;
         case PIZZA_THEME_CPPUTEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}{green}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}%s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
-                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset}{green} %s{reset}]\n",
+                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else { // plain or default
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset}{green}%s{reset}]\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_TAP:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{yellow}# [CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}{green}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{yellow}# [CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}%s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
-                pizza_io_printf("{yellow}# ::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset}{green} %s{reset}]\n",
+                pizza_io_printf("{yellow}# ::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else {
-                pizza_io_printf("{yellow}# [CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset}{green}%s{reset}]\n",
+                pizza_io_printf("{yellow}# [CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_GOOGLETEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
                 // Google Test themed colors: blue, red, yellow, green (Google logo colors)
-                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} {red}[test case]{reset} --[{yellow}tags:{reset} {green}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset} {green}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset} {green}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset} {red}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} {red}[test case]{reset} --[{yellow}tags:{reset} {green}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset} {green}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset} {green}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset} %s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("[  CASE   ] ::CASE:: %s --[::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else {
-                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} --[{yellow}tags:{reset} {green}%s{reset},{yellow}criteria:{reset} {green}%s{reset},{yellow}time:{reset} {green}%s{reset},{yellow}result:{reset} {red}%s{reset}]\n",
+                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} --[{yellow}tags:{reset} {green}%s{reset},{yellow}criteria:{reset} {green}%s{reset},{yellow}time:{reset} {green}%s{reset},{yellow}result:{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
@@ -524,25 +524,25 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}{green}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}%s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
-                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset}{green} %s{reset}]\n",
+                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} --[{yellow}::TAGS::{reset}{white} %s{reset},{yellow}::CRITERIA::{reset}{white} %s{reset},{yellow}::TIME::{reset}{white} %s{reset},{yellow}::RESULT::{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else {
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset}{green}%s{reset}]\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         default:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{blue}- {reset}{cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset}{green}%s{reset} {yellow}[the result]{reset}]\n",
+                pizza_io_printf("{blue}- {reset}{cyan}%s{reset} {yellow}[test case]{reset} --[{yellow}tags:{reset}{white}%s{reset} {yellow}[with tag]{reset},{yellow}criteria:{reset}{white}%s{reset} {yellow}[given criteria]{reset},{yellow}time:{reset}{white}%s{reset} {yellow}[the time]{reset},{yellow}result:{reset} %s {yellow}[the result]{reset}]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("::CASE:: %s --[::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else {
-                pizza_io_printf("{blue}- {reset}{cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset}{green}%s{reset}]\n",
+                pizza_io_printf("{blue}- {reset}{cyan}%s{reset} --[{yellow}tags:{reset}{white}%s{reset},{yellow}criteria:{reset}{white}%s{reset},{yellow}time:{reset}{white}%s{reset},{yellow}result:{reset} %s]\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
@@ -551,7 +551,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
         switch (engine ? engine->pallet.theme : PIZZA_THEME_FOSSIL) {
         case PIZZA_THEME_FOSSIL:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf(" {blue}-{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} {green}%s{reset} {yellow}[the result]{reset})\n",
+                pizza_io_printf(" {blue}-{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} %s {yellow}[the result]{reset})\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf(" ::CASE:: %s ( ::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s )\n",
@@ -563,13 +563,13 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
             break;
         case PIZZA_THEME_CPPUTEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} {green}%s{reset} {yellow}[the result]{reset})\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} %s {yellow}[the result]{reset})\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
-                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} ( {yellow}::TAGS::{reset} {white}%s{reset}, {yellow}::CRITERIA::{reset} {white}%s{reset}, {yellow}::TIME::{reset} {white}%s{reset}, {yellow}::RESULT::{reset} {green}%s{reset} )\n",
+                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} ( {yellow}::TAGS::{reset} {white}%s{reset}, {yellow}::CRITERIA::{reset} {white}%s{reset}, {yellow}::TIME::{reset} {white}%s{reset}, {yellow}::RESULT::{reset} %s )\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else { // plain or default
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} {green}%s{reset})\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} %s)\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
@@ -588,38 +588,38 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
         case PIZZA_THEME_GOOGLETEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
                 // Google Test themed colors: blue, red, yellow, green (Google logo colors)
-                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} {red}[test case]{reset} ({yellow}Tags:{reset} {green}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {green}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {green}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} {red}%s{reset} {yellow}[the result]{reset})\n",
+                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} {red}[test case]{reset} ({yellow}Tags:{reset} {green}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {green}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {green}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} %s {yellow}[the result]{reset})\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf("[  CASE   ] ::CASE:: %s ( ::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s )\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else { // plain or default
-                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {green}%s{reset}, {yellow}Criteria:{reset} {green}%s{reset}, {yellow}Time:{reset} {green}%s{reset}, {yellow}Result:{reset} {red}%s{reset})\n",
+                pizza_io_printf("{blue}[  CASE   ]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {green}%s{reset}, {yellow}Criteria:{reset} {green}%s{reset}, {yellow}Time:{reset} {green}%s{reset}, {yellow}Result:{reset} %s)\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_UNITY:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{green}Unity Case:{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} {green}%s{reset} {yellow}[the result]{reset})\n",
+                pizza_io_printf("{green}Unity Case:{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} %s {yellow}[the result]{reset})\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
                 pizza_io_printf(" ::UNITY_CASE:: %s ( ::TAGS:: %s, ::CRITERIA:: %s, ::TIME:: %s, ::RESULT:: %s )\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else { // plain or default
-                pizza_io_printf("{green}Unity Case:{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} {green}%s{reset})\n",
+                pizza_io_printf("{green}Unity Case:{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} %s)\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0) {
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} {green}%s{reset} {yellow}[the result]{reset})\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} {yellow}[test case]{reset} ({yellow}Tags:{reset} {white}%s{reset} {yellow}[with tag]{reset}, {yellow}Criteria:{reset} {white}%s{reset} {yellow}[given criteria]{reset}, {yellow}Time:{reset} {white}%s{reset} {yellow}[the time]{reset}, {yellow}Result:{reset} %s {yellow}[the result]{reset})\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0) {
-                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} ( {yellow}::TAGS::{reset} {white}%s{reset}, {yellow}::CRITERIA::{reset} {white}%s{reset}, {yellow}::TIME::{reset} {white}%s{reset}, {yellow}::RESULT::{reset} {green}%s{reset} )\n",
+                pizza_io_printf("{magenta}::CASE::{reset} {cyan}%s{reset} ( {yellow}::TAGS::{reset} {white}%s{reset}, {yellow}::CRITERIA::{reset} {white}%s{reset}, {yellow}::TIME::{reset} {white}%s{reset}, {yellow}::RESULT::{reset} %s )\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             } else { // plain or default
-                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} {green}%s{reset})\n",
+                pizza_io_printf("{magenta}[CASE]{reset} {cyan}%s{reset} ({yellow}Tags:{reset} {white}%s{reset}, {yellow}Criteria:{reset} {white}%s{reset}, {yellow}Time:{reset} {white}%s{reset}, {yellow}Result:{reset} %s)\n",
                     test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
@@ -1762,6 +1762,158 @@ char *pizza_test_assert_messagef(const char *message, ...) {
 
 void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count, int root_cause_code) {
     // Output assertion failure based on theme, with root cause if detected
+    // Advanced root cause analysis for assumption macros and patterns
+
+    // --- Advanced root cause detection ---
+    // If root_cause_code is unknown (0), try to analyze message for assumption patterns
+    if (root_cause_code == 0 && message) {
+        // Boolean assumption patterns
+        if (strstr(message, "Expected") && strstr(message, "to be true")) {
+            root_cause_code = 1; // logic
+        } else if (strstr(message, "Expected") && strstr(message, "to be false")) {
+            root_cause_code = 1; // logic
+        } else if (strstr(message, "to not be true") || strstr(message, "to not be false")) {
+            root_cause_code = 1; // logic
+        }
+
+        // Floating point assumption patterns
+        else if (strstr(message, "within tolerance") || strstr(message, "to be equal") || strstr(message, "to not be equal")) {
+            if (strstr(message, "value %f") || strstr(message, "value %lf")) {
+                root_cause_code = 7; // float
+            }
+        } else if (strstr(message, "to be less than") || strstr(message, "to be more than") ||
+                   strstr(message, "to be less than or equal to") || strstr(message, "to be more than or equal to") ||
+                   strstr(message, "to not be less than") || strstr(message, "to not be more than") ||
+                   strstr(message, "to not be less than or equal to") || strstr(message, "to not be more than or equal to")) {
+            if (strstr(message, "value %f") || strstr(message, "value %lf")) {
+                root_cause_code = 7; // float
+            }
+        } else if (strstr(message, "to be NaN") || strstr(message, "to be infinity")) {
+            root_cause_code = 7; // float
+        }
+
+        // Numeric/range assumption patterns
+        else if (strstr(message, "is not within range") || strstr(message, "is within range")) {
+            root_cause_code = 6; // range
+        }
+
+        // Memory assumption patterns
+        else if (strstr(message, "to be zeroed") || strstr(message, "to not be zeroed") ||
+                 strstr(message, "to be equal") || strstr(message, "to not be equal") ||
+                 strstr(message, "to be more than") || strstr(message, "to be less than") ||
+                 strstr(message, "to be more than or equal to") || strstr(message, "to be less than or equal to") ||
+                 strstr(message, "to not be more than") || strstr(message, "to not be less than") ||
+                 strstr(message, "to not be more than or equal to") || strstr(message, "to not be less than or equal to") ||
+                 strstr(message, "to be valid") || strstr(message, "to not be valid")) {
+            if (strstr(message, "memory") || strstr(message, "pointer")) {
+                root_cause_code = 3; // memory
+            }
+        }
+
+        // Null pointer assumption patterns
+        else if (strstr(message, "to be cnull") || strstr(message, "to not be cnull")) {
+            root_cause_code = 3; // memory (null pointer)
+        }
+
+        // String assumption patterns
+        else if (strstr(message, "C string") || strstr(message, "cstr") ||
+                 strstr(message, "to be equal") || strstr(message, "to not be equal") ||
+                 strstr(message, "length of") || strstr(message, "to start with prefix") ||
+                 strstr(message, "to end with suffix") || strstr(message, "to contain substring") ||
+                 strstr(message, "to not contain substring") || strstr(message, "to contain") ||
+                 strstr(message, "to not contain") || strstr(message, "occurrences of substring")) {
+            root_cause_code = 8; // string
+        }
+
+        // SOAP/text assumption patterns
+        else if (strstr(message, "rot-brain") || strstr(message, "tone of text")) {
+            root_cause_code = 9; // soap/text
+        }
+    }
+
+    // --- Suggestion hints for assumption failures ---
+    const char *hint_str = NULL;
+    if (message) {
+        // Boolean hints
+        if (strstr(message, "to be true")) {
+            hint_str = "Check your logic or expected condition. Ensure the value is true.";
+        } else if (strstr(message, "to be false")) {
+            hint_str = "Check your logic or expected condition. Ensure the value is false.";
+        } else if (strstr(message, "to not be true")) {
+            hint_str = "Check your logic. The value should not be true.";
+        } else if (strstr(message, "to not be false")) {
+            hint_str = "Check your logic. The value should not be false.";
+        }
+        // Floating point hints
+        else if (strstr(message, "within tolerance")) {
+            hint_str = "Check your tolerance value and floating-point comparison.";
+        } else if (strstr(message, "to be equal") && (strstr(message, "value %f") || strstr(message, "value %lf"))) {
+            hint_str = "Check your floating-point values and consider rounding or tolerance.";
+        } else if (strstr(message, "to not be equal") && (strstr(message, "value %f") || strstr(message, "value %lf"))) {
+            hint_str = "Check your floating-point values and ensure they differ beyond tolerance.";
+        } else if (strstr(message, "to be less than")) {
+            hint_str = "Check the actual and expected values. Actual should be less than expected.";
+        } else if (strstr(message, "to be more than")) {
+            hint_str = "Check the actual and expected values. Actual should be more than expected.";
+        } else if (strstr(message, "to be less than or equal to")) {
+            hint_str = "Check the actual and expected values. Actual should be <= expected.";
+        } else if (strstr(message, "to be more than or equal to")) {
+            hint_str = "Check the actual and expected values. Actual should be >= expected.";
+        } else if (strstr(message, "to not be less than")) {
+            hint_str = "Check the actual and expected values. Actual should not be less than expected.";
+        } else if (strstr(message, "to not be more than")) {
+            hint_str = "Check the actual and expected values. Actual should not be more than expected.";
+        } else if (strstr(message, "to not be less than or equal to")) {
+            hint_str = "Check the actual and expected values. Actual should be > expected.";
+        } else if (strstr(message, "to not be more than or equal to")) {
+            hint_str = "Check the actual and expected values. Actual should be < expected.";
+        } else if (strstr(message, "to be NaN")) {
+            hint_str = "Check for NaN values. Use isnan() for validation.";
+        } else if (strstr(message, "to be infinity")) {
+            hint_str = "Check for infinity values. Use isinf() for validation.";
+        }
+        // Range hints
+        else if (strstr(message, "is not within range")) {
+            hint_str = "Check the value and range boundaries. Ensure value is within [min, max].";
+        } else if (strstr(message, "is within range")) {
+            hint_str = "Check the value and range boundaries. Ensure value is outside [min, max].";
+        }
+        // Memory hints
+        else if (strstr(message, "to be zeroed")) {
+            hint_str = "Check memory initialization. Use memset or equivalent.";
+        } else if (strstr(message, "to not be zeroed")) {
+            hint_str = "Check memory contents. Ensure not all bytes are zero.";
+        } else if (strstr(message, "to be valid")) {
+            hint_str = "Check pointer validity. Ensure pointer is not null and points to valid memory.";
+        } else if (strstr(message, "to not be valid")) {
+            hint_str = "Check pointer validity. Ensure pointer is null or invalid.";
+        } else if (strstr(message, "to be cnull")) {
+            hint_str = "Check pointer assignment. Ensure pointer is NULL.";
+        } else if (strstr(message, "to not be cnull")) {
+            hint_str = "Check pointer assignment. Ensure pointer is not NULL.";
+        }
+        // String hints
+        else if (strstr(message, "C string") || strstr(message, "cstr")) {
+            hint_str = "Check string contents and length. Use strcmp or strlen for validation.";
+        } else if (strstr(message, "to start with prefix")) {
+            hint_str = "Check string prefix. Use strncmp or custom prefix check.";
+        } else if (strstr(message, "to end with suffix")) {
+            hint_str = "Check string suffix. Use string length and memcmp.";
+        } else if (strstr(message, "to contain substring")) {
+            hint_str = "Check substring presence. Use strstr or custom search.";
+        } else if (strstr(message, "to not contain substring")) {
+            hint_str = "Check substring absence. Use strstr or custom search.";
+        } else if (strstr(message, "occurrences of substring")) {
+            hint_str = "Check substring count. Use a loop or custom count function.";
+        }
+        // SOAP/text hints
+        else if (strstr(message, "rot-brain")) {
+            hint_str = "Check for inappropriate language or tone in text.";
+        } else if (strstr(message, "tone of text")) {
+            hint_str = "Check tone detection logic and expected tone value.";
+        }
+    }
+
     const char *root_cause_str = NULL;
     switch (root_cause_code) {
         case 1: root_cause_str = "Logic error"; break;
@@ -1780,8 +1932,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{red,bold}Assertion failed:{reset} {yellow}%s{reset} {blue}(%s:%d in %s){reset}\n",
                             message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("{magenta}Root Cause:{reset} %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("{magenta}Root Cause:{reset} %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("{yellow}Duplicate or similar assertion detected [Anomaly Count: %d]{reset}\n", anomaly_count);
             }
@@ -1790,8 +1946,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
             pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("Root Cause: %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("Root Cause: %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1799,8 +1959,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_CPPUTEST:
             pizza_io_printf("[ASSERTION FAILED] %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("[ROOT CAUSE] %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("[ROOT CAUSE] %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("[DUPLICATE ASSERTION] Anomaly Count: %d\n", anomaly_count);
             }
@@ -1808,8 +1972,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("not ok - Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("# Root Cause: %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("# Root Cause: %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("# Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1817,8 +1985,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_GOOGLETEST:
             pizza_io_printf("[  FAILED  ] Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("[  ROOT    ] %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("[  ROOT    ] %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("[  WARNING ] Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1826,8 +1998,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         case PIZZA_THEME_UNITY:
             pizza_io_printf("Unity Assertion Failed: %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("Unity Root Cause: %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("Unity Root Cause: %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("Unity Duplicate Assertion Detected [Anomaly Count: %d]\n", anomaly_count);
             }
@@ -1835,8 +2011,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
 
         default:
             pizza_io_printf("Assertion failed: %s (%s:%d in %s)\n", message, file, line, func);
-            if (root_cause_str)
-                pizza_io_printf("Root Cause: %s\n", root_cause_str);
+            if (root_cause_str || hint_str) {
+                pizza_io_printf("Root Cause: %s%s%s\n",
+                    root_cause_str ? root_cause_str : "Unknown",
+                    (root_cause_str && hint_str) ? " - " : "",
+                    hint_str ? hint_str : "");
+            }
             if (anomaly_count > 0) {
                 pizza_io_printf("Duplicate or similar assertion detected [Anomaly Count: %d]\n", anomaly_count);
             }
