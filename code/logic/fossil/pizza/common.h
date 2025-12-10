@@ -226,7 +226,10 @@ typedef enum {
     PIZZA_THEME_CPPUTEST,    // C     Test Framework
     PIZZA_THEME_TAP,         // C     Test Framework
     PIZZA_THEME_GOOGLETEST,  // C++   Test Framework
-    PIZZA_THEME_UNITY        // C     Test Framework
+    PIZZA_THEME_UNITY,       // C     Test Framework
+    PIZZA_THEME_ACUTEST,     // C     Test Framework
+    PIZZA_THEME_MINUNIT,     // C     Test Framework
+    PIZZA_THEME_CMOCKA       // C     Test Framework
 } fossil_pizza_cli_theme_t;
 
 typedef enum {

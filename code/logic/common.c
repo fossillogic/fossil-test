@@ -256,6 +256,9 @@ static void _show_subhelp_theme(void) {
     pizza_io_printf("{cyan}  tap               TAP theme (C Test Framework){reset}\n");
     pizza_io_printf("{cyan}  gtest             GoogleTest theme (C++ Test Framework){reset}\n");
     pizza_io_printf("{cyan}  unity             Unity theme (C Test Framework){reset}\n");
+    pizza_io_printf("{cyan}  acutest           Acutest theme (C Test Framework){reset}\n");
+    pizza_io_printf("{cyan}  minunit           MinUnit theme (C Test Framework){reset}\n");
+    pizza_io_printf("{cyan}  cmocka            CMocka theme (C Test Framework){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -591,6 +594,15 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             } else if (pizza_io_cstr_compare(theme_str, "unity") == 0) {
                 pallet.theme = PIZZA_THEME_UNITY;
                 G_PIZZA_THEME = PIZZA_THEME_UNITY;
+            } else if (pizza_io_cstr_compare(theme_str, "acutest") == 0) {
+                pallet.theme = PIZZA_THEME_ACUTEST;
+                G_PIZZA_THEME = PIZZA_THEME_ACUTEST;
+            } else if (pizza_io_cstr_compare(theme_str, "minunit") == 0) {
+                pallet.theme = PIZZA_THEME_MINUNIT;
+                G_PIZZA_THEME = PIZZA_THEME_MINUNIT;
+            } else if (pizza_io_cstr_compare(theme_str, "cmocka") == 0) {
+                pallet.theme = PIZZA_THEME_CMOCKA;
+                G_PIZZA_THEME = PIZZA_THEME_CMOCKA;
             }
         } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
