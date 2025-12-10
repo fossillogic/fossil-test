@@ -130,15 +130,15 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
 
     fossil_mock_call_t *current = list->head;
     while (current) {
-        pizza_io_printf("Function: %s\n", current->function_name);
-        pizza_io_printf("Arguments:\n");
+        pizza_io_printf("{cyan,bold}Function:{normal} {yellow}%s{reset}\n", current->function_name);
+        pizza_io_printf("{magenta}Arguments:{reset}\n");
         for (int i = 0; i < current->num_args; ++i) {
-            pizza_io_printf("  Type: %d\n", current->arguments[i].type);
-            pizza_io_printf("  Value: %s\n", current->arguments[i].value.data);
-            pizza_io_printf("  Mutable: %s\n", current->arguments[i].value.mutable_flag ? "true" : "false");
-            pizza_io_printf("  Attribute Name: %s\n", current->arguments[i].attribute.name);
-            pizza_io_printf("  Attribute Description: %s\n", current->arguments[i].attribute.description);
-            pizza_io_printf("  Attribute ID: %s\n", current->arguments[i].attribute.id);
+            pizza_io_printf("  {blue}Type:{reset} %d\n", current->arguments[i].type);
+            pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data);
+            pizza_io_printf("  {red}Mutable:{reset} %s\n", current->arguments[i].value.mutable_flag ? "{green}true{reset}" : "{yellow}false{reset}");
+            pizza_io_printf("  {cyan}Attribute Name:{reset} %s\n", current->arguments[i].attribute.name);
+            pizza_io_printf("  {cyan}Attribute Description:{reset} %s\n", current->arguments[i].attribute.description);
+            pizza_io_printf("  {cyan}Attribute ID:{reset} %s\n", current->arguments[i].attribute.id);
         }
         current = current->next;
     }

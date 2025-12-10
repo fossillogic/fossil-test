@@ -210,11 +210,11 @@ void fossil_benchmark_report(const fossil_mark_t* benchmark) {
         pizza_io_printf("Error: benchmark is null\n");
         return;
     }
-    pizza_io_printf("\033[1;36mBenchmark : %s\n", benchmark->name);
-    pizza_io_printf("\033[1;32mTotal Time: %.6f seconds\n", fossil_benchmark_elapsed_seconds(benchmark));
-    pizza_io_printf("\033[1;32mMin Time  : %.6f seconds\n", fossil_benchmark_min_time(benchmark));
-    pizza_io_printf("\033[1;32mMax Time  : %.6f seconds\n", fossil_benchmark_max_time(benchmark));
-    pizza_io_printf("\033[1;32mAvg Time  : %.6f seconds\n", fossil_benchmark_avg_time(benchmark));
+    pizza_io_printf("{blue,bold}Benchmark : %s{reset}\n", benchmark->name);
+    pizza_io_printf("{cyan}Total Time: %.6f seconds{reset}\n", fossil_benchmark_elapsed_seconds(benchmark));
+    pizza_io_printf("{cyan}Min Time  : %.6f seconds{reset}\n", fossil_benchmark_min_time(benchmark));
+    pizza_io_printf("{cyan}Max Time  : %.6f seconds{reset}\n", fossil_benchmark_max_time(benchmark));
+    pizza_io_printf("{cyan}Avg Time  : %.6f seconds{reset}\n", fossil_benchmark_avg_time(benchmark));
 }
 
 void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark) {
