@@ -1632,6 +1632,37 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 
 }
 
+void fossil_pizza_ai_feedback(const fossil_pizza_engine_t* engine) {
+    if (!engine) return;
+
+    const char* feedback = fossil_test_summary_feedback(&engine->score);
+
+    switch (engine->pallet.theme) {
+        case PIZZA_THEME_FOSSIL:
+            pizza_io_printf("\n{blue,bold}Feedback:{reset} {cyan}%s{reset}\n", feedback);
+            break;
+        case PIZZA_THEME_CATCH:
+        case PIZZA_THEME_DOCTEST:
+            pizza_io_printf("\n{magenta}Feedback:{reset} %s\n", feedback);
+            break;
+        case PIZZA_THEME_CPPUTEST:
+            pizza_io_printf("\n{cyan}[FEEDBACK]{reset} %s\n", feedback);
+            break;
+        case PIZZA_THEME_TAP:
+            pizza_io_printf("\n# {yellow}Feedback:{reset} %s\n", feedback);
+            break;
+        case PIZZA_THEME_GOOGLETEST:
+            pizza_io_printf("\n[==========] {blue}Feedback:{reset} %s\n", feedback);
+            break;
+        case PIZZA_THEME_UNITY:
+            pizza_io_printf("\n{green}Unity Feedback:{reset} %s\n", feedback);
+            break;
+        default:
+            pizza_io_printf("\nFeedback: %s\n", feedback);
+            break;
+    }
+}
+
 void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     if (!engine) return;
     
@@ -1641,7 +1672,7 @@ void fossil_pizza_summary(const fossil_pizza_engine_t* engine) {
     fossil_pizza_summary_timestamp(engine);
 
     // AI-Generated Feedback
-    pizza_io_printf("\n{blue,bold}Feedback:{reset} {cyan}%s{reset}\n", fossil_test_summary_feedback(&engine->score));
+    fossil_pizza_ai_feedback(engine);
 }
 
 // --- End / Cleanup ---
