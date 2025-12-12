@@ -1609,13 +1609,6 @@ int pizza_io_is_rot_brain(const char *text) {
  * - Use static inline for small helpers (if header included).
  */
 
-/* Helper: safe addition check for size_t (returns true on overflow) */
-static inline bool size_add_overflow(size_t a, size_t b, size_t *out) {
-    if (b > SIZE_MAX - a) return true;
-    *out = a + b;
-    return false;
-}
-
 /* Helper: safe multiplication check for size_t (returns true on overflow) */
 static inline bool size_mul_overflow(size_t a, size_t b, size_t *out) {
     if (a == 0 || b == 0) { *out = 0; return false; }
