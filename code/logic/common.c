@@ -859,48 +859,24 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
 // Host information
 // *****************************************************************************
 
-/*
- * Host information functions with AI tricks:
- * - Defensive programming: always check for null pointers.
- * - Use likely/unlikely macros for branch prediction (if available).
- * - Use memset to zero out structures before filling (for safety).
- * - Use strncpy with explicit null-termination.
- * - Use static buffers for temporary strings (if needed).
- * - Use fallback/default values on error.
- * - Use platform-specific APIs with error checking.
- * - Avoid double evaluation of arguments.
- * - Use size_t for buffer sizes.
- * - Use restrict for pointer arguments (if header included).
- * - Use attribute((nonnull)) if header included.
- * - Use local variables for intermediate results.
- */
-
 int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
-    if (unlikely(!info)) return -1;
-    memset(info, 0, sizeof(*info));
+    if (!info) return -1;
 #ifdef _WIN32
     OSVERSIONINFO osvi;
-    memset(&osvi, 0, sizeof(osvi));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    if (unlikely(!GetVersionEx(&osvi))) return -1;
+    if (!GetVersionEx(&osvi)) return -1;
     snprintf(info->os_name, sizeof(info->os_name), "Windows");
     snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
 
-    DWORD size = (DWORD)sizeof(info->hostname);
-    if (!GetComputerNameA(info->hostname, &size)) {
-        strncpy(info->hostname, "Unknown", sizeof(info->hostname) - 1);
-        info->hostname[sizeof(info->hostname) - 1] = '\0';
-    }
+    DWORD size = sizeof(info->hostname);
+    GetComputerNameA(info->hostname, &size);
 
-    size = (DWORD)sizeof(info->username);
-    if (!GetUserNameA(info->username, &size)) {
-        strncpy(info->username, "Unknown", sizeof(info->username) - 1);
-        info->username[sizeof(info->username) - 1] = '\0';
-    }
+    size = sizeof(info->username);
+    GetUserNameA(info->username, &size);
 
     // Domain name
-    size = (DWORD)sizeof(info->domain_name);
+    size = sizeof(info->domain_name);
     if (!GetEnvironmentVariableA("USERDOMAIN", info->domain_name, size)) {
         strncpy(info->domain_name, "Unknown", sizeof(info->domain_name) - 1);
         info->domain_name[sizeof(info->domain_name) - 1] = '\0';
@@ -913,8 +889,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
 
 #elif defined(__APPLE__)
     struct utsname sysinfo;
-    memset(&sysinfo, 0, sizeof(sysinfo));
-    if (unlikely(uname(&sysinfo) != 0)) return -1;
+    if (uname(&sysinfo) != 0) return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
@@ -922,7 +897,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
     info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
 
-    if (unlikely(gethostname(info->hostname, sizeof(info->hostname)) != 0))
+    if (gethostname(info->hostname, sizeof(info->hostname)) != 0)
         strncpy(info->hostname, "Unknown", sizeof(info->hostname) - 1);
     info->hostname[sizeof(info->hostname) - 1] = '\0';
 
@@ -944,8 +919,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
 
 #else
     struct utsname sysinfo;
-    memset(&sysinfo, 0, sizeof(sysinfo));
-    if (unlikely(uname(&sysinfo) != 0)) return -1;
+    if (uname(&sysinfo) != 0) return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
@@ -953,7 +927,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     strncpy(info->kernel_version, sysinfo.release, sizeof(info->kernel_version) - 1);
     info->kernel_version[sizeof(info->kernel_version) - 1] = '\0';
 
-    if (unlikely(gethostname(info->hostname, sizeof(info->hostname)) != 0))
+    if (gethostname(info->hostname, sizeof(info->hostname)) != 0)
         strncpy(info->hostname, "Unknown", sizeof(info->hostname) - 1);
     info->hostname[sizeof(info->hostname) - 1] = '\0';
 
@@ -982,8 +956,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
 }
 
 int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info) {
-    if (unlikely(!info)) return -1;
-    memset(info, 0, sizeof(*info));
+    if (!info) return -1;
 
 #ifdef _WIN32
     SYSTEM_INFO sysinfo;
@@ -1058,8 +1031,7 @@ int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info)
 
 #else
     struct utsname sysinfo;
-    memset(&sysinfo, 0, sizeof(sysinfo));
-    if (unlikely(uname(&sysinfo) != 0)) return -1;
+    if (uname(&sysinfo) != 0) return -1;
 
     strncpy(info->architecture, sysinfo.machine, sizeof(info->architecture) - 1);
     info->architecture[sizeof(info->architecture) - 1] = '\0';
@@ -1122,13 +1094,11 @@ int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info)
 }
 
 int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
-    if (unlikely(!info)) return -1;
-    memset(info, 0, sizeof(*info));
+    if (!info) return -1;
 #ifdef _WIN32
     MEMORYSTATUSEX statex;
-    memset(&statex, 0, sizeof(statex));
     statex.dwLength = sizeof(statex);
-    if (unlikely(!GlobalMemoryStatusEx(&statex))) return -1;
+    if (!GlobalMemoryStatusEx(&statex)) return -1;
     info->total_memory = statex.ullTotalPhys;
     info->free_memory = statex.ullAvailPhys;
     info->used_memory = statex.ullTotalPhys - statex.ullAvailPhys;
@@ -1137,9 +1107,9 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
     info->free_swap = statex.ullAvailPageFile;
     info->used_swap = statex.ullTotalPageFile - statex.ullAvailPageFile;
 #elif defined(__APPLE__)
-    int64_t memsize = 0;
+    int64_t memsize;
     size_t len = sizeof(memsize);
-    if (unlikely(sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0)) return -1;
+    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
     info->total_memory = memsize;
     info->free_memory = 0; // macOS does not provide free memory info in the same way
     info->used_memory = 0;
@@ -1149,8 +1119,7 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
     info->used_swap = 0;
 #else
     struct sysinfo sys_info;
-    memset(&sys_info, 0, sizeof(sys_info));
-    if (unlikely(sysinfo(&sys_info) != 0)) return -1;
+    if (sysinfo(&sys_info) != 0) return -1;
     info->total_memory = sys_info.totalram * sys_info.mem_unit;
     info->free_memory = sys_info.freeram * sys_info.mem_unit;
     info->used_memory = (sys_info.totalram - sys_info.freeram) * sys_info.mem_unit;
@@ -1163,8 +1132,7 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
 }
 
 int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
-    if (unlikely(!info)) return -1;
-    memset(info, 0, sizeof(*info));
+    if (!info) return -1;
     uint16_t test = 0x0001;
     info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
     return 0;
