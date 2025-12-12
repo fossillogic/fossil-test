@@ -43,6 +43,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>   // POSIX
+#include <limits.h>
 #include <float.h>
 #include <stdio.h>
 #include <ctype.h>
