@@ -2410,7 +2410,7 @@ cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
     cstr result = (cstr)malloc(result_len + 1);
     if (unlikely(!result)) return null;
     index = 0;
-    size_t start = 0, out = 0;
+    size_t out = 0;
     while (index < length) {
         if (strncmp(str + index, old, old_length) == 0) {
             memcpy(result + out, new_str, new_length);
@@ -2570,7 +2570,13 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
 
 bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
     if (unlikely(!dest || !src || max_len == 0)) return false;
+#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L
     size_t dest_len = strnlen(dest, max_len);
+#else
+    // Fallback for platforms without strnlen
+    size_t dest_len = 0;
+    while (dest_len < max_len && dest[dest_len] != '\0') dest_len++;
+#endif
     if (dest_len == max_len) return false;
     size_t src_len = strlen(src);
     if (dest_len + src_len >= max_len) return false;
