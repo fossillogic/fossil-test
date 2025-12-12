@@ -2001,7 +2001,7 @@ char *pizza_test_assert_messagef(const char *message, ...) {
     pizza_assert_ti_result result = {0};
 
     if (formatted_message) {
-        pizza_io_snprintf(formatted_message, buffer_size, message, args);
+        pizza_io_vsnprintf(formatted_message, buffer_size, message, args);
         formatted_message[buffer_size - 1] = '\0'; // Ensure null-termination
 
         // TI upgrade: compute hash and timestamp
