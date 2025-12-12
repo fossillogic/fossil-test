@@ -1609,169 +1609,280 @@ int pizza_io_is_rot_brain(const char *text) {
  * - Use static inline for small helpers (if header included).
  */
 
-pizza_sys_memory_t pizza_sys_memory_alloc(size_t size) {
-    if (unlikely(size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Cannot allocate zero bytes.\n");
-        return null;
-    }
-    pizza_sys_memory_t ptr = malloc(size);
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Memory allocation failed.\n");
-        return null;
-    }
-    // AI trick: zero out memory for security
-    memset(ptr, 0, size);
-    return ptr;
+/* Helper: safe addition check for size_t (returns true on overflow) */
+static inline bool size_add_overflow(size_t a, size_t b, size_t *out) {
+    if (b > SIZE_MAX - a) return true;
+    *out = a + b;
+    return false;
 }
 
-pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size) {
-    if (unlikely(size == 0)) {
-        pizza_sys_memory_free(ptr);
-        return null;
-    }
-    pizza_sys_memory_t new_ptr = realloc(ptr, size);
-    if (unlikely(!new_ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_realloc() - Memory reallocation failed.\n");
-        return null;
-    }
-    return new_ptr;
+/* Helper: safe multiplication check for size_t (returns true on overflow) */
+static inline bool size_mul_overflow(size_t a, size_t b, size_t *out) {
+    if (a == 0 || b == 0) { *out = 0; return false; }
+    if (a > SIZE_MAX / b) return true;
+    *out = a * b;
+    return false;
 }
 
-pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size) {
-    if (unlikely(num == 0 || size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
-        return null;
-    }
-    pizza_sys_memory_t ptr = calloc(num, size);
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Memory allocation failed.\n");
-        return null;
-    }
-    return ptr;
+/* deterministic malloc wrapper: never request malloc(0) from system */
+static void *pizza_malloc_checked(size_t n) {
+    if (n == 0) n = 1;
+    return malloc(n);
 }
 
-pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value) {
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_init() - Pointer is null.\n");
-        return null;
-    }
-    if (unlikely(size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_init() - Cannot initialize zero bytes.\n");
-        return null;
-    }
-    return memset(ptr, value, size);
-}
-
-void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
-    if (unlikely(!ptr)) return;
-    free(ptr);
-}
-
-pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t restrict dest, const pizza_sys_memory_t restrict src, size_t size) {
-    if (unlikely(!dest || !src)) {
-        fprintf(stderr, "Error: pizza_sys_memory_copy() - Source or destination is null.\n");
-        return null;
-    }
-    if (unlikely(size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_copy() - Cannot copy zero bytes.\n");
-        return null;
-    }
-    return memcpy(dest, src, size);
-}
-
-pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size) {
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_set() - Pointer is null.\n");
-        return null;
-    }
-    if (unlikely(size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_set() - Cannot set zero bytes.\n");
-        return null;
-    }
-    return memset(ptr, value, size);
-}
-
-pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size) {
-    if (unlikely(!src || size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_dup() - Invalid source or zero size.\n");
-        return null;
-    }
-    pizza_sys_memory_t dest = pizza_sys_memory_alloc(size);
-    if (unlikely(!dest)) {
-        // Error already handled in pizza_sys_memory_alloc
-        return null;
-    }
-    return memcpy(dest, src, size);
-}
-
-// Secure zeroing if available (AI trick: use memset_s if present)
-static void pizza_sys_memory_secure_zero(void *ptr, size_t size) {
-#if defined(__STDC_LIB_EXT1__)
-    memset_s(ptr, size, 0, size);
+/* Secure zeroing: use memset_s when available, otherwise volatile write */
+static void pizza_sys_memory_secure_zero_impl(void *ptr, size_t size) {
+#if defined(__STDC_LIB_EXT1__) /* bounds-checked libs (memset_s) */
+    /* memset_s returns zero on success per annex K, but presence is platform-dependent */
+    (void)memset_s(ptr, size, 0, size);
 #else
     volatile unsigned char *p = (volatile unsigned char *)ptr;
     while (size--) *p++ = 0;
 #endif
 }
 
-pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size) {
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_zero() - Pointer is null.\n");
-        return null;
-    }
+/* -------------------------
+ * Memory API
+ * ------------------------- */
+
+/* Allocate size bytes, zeroed. Returns NULL on failure or if size==0 (prints error). */
+pizza_sys_memory_t pizza_sys_memory_alloc(size_t size) {
     if (unlikely(size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_zero() - Cannot zero out zero bytes.\n");
-        return null;
+        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Cannot allocate zero bytes.\n");
+        return NULL;
     }
-    pizza_sys_memory_secure_zero(ptr, size);
+    /* guard extremely large allocation requests */
+    if (size > SIZE_MAX - 1) {
+        fprintf(stderr, "Error: pizza_sys_memory_alloc() - size too large.\n");
+        return NULL;
+    }
+
+    void *ptr = pizza_malloc_checked(size);
+    if (unlikely(!ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Memory allocation failed.\n");
+        return NULL;
+    }
+
+    /* Zero memory for security by default (matches original AI trick) */
+    memset(ptr, 0, size);
     return ptr;
 }
 
+/*
+ * Realloc semantics:
+ * - if size == 0: free(ptr) and return NULL (explicit)
+ * - on failure: original pointer remains valid (we don't free it), return NULL
+ * - on success: return new pointer
+ */
+pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size) {
+    if (size == 0) {
+        /* free existing block and return NULL as a clear signal */
+        if (ptr) free(ptr);
+        return NULL;
+    }
+
+    /* check extreme size */
+    if (size > SIZE_MAX - 1) {
+        fprintf(stderr, "Error: pizza_sys_memory_realloc() - size too large.\n");
+        return NULL;
+    }
+
+    /* Note: realloc(NULL, size) behaves like malloc(size) */
+    void *new_ptr = realloc(ptr, size);
+    if (unlikely(!new_ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_realloc() - Memory reallocation failed.\n");
+        /* original ptr remains allocated per C standard; return NULL to indicate failure */
+        return NULL;
+    }
+    return new_ptr;
+}
+
+/* calloc wrapper; returns NULL on error or zero arguments */
+pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size) {
+    if (unlikely(num == 0 || size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
+        return NULL;
+    }
+
+    /* check multiplication overflow */
+    size_t total;
+    if (size_mul_overflow(num, size, &total)) {
+        fprintf(stderr, "Error: pizza_sys_memory_calloc() - size overflow.\n");
+        return NULL;
+    }
+
+    void *ptr = calloc(num, size);
+    if (unlikely(!ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Memory allocation failed.\n");
+        return NULL;
+    }
+    return ptr;
+}
+
+/*
+ * Initialize a region with a byte value.
+ * Returns ptr on success, NULL on invalid args.
+ */
+pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value) {
+    if (unlikely(!ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_init() - Pointer is null.\n");
+        return NULL;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_init() - Cannot initialize zero bytes.\n");
+        return NULL;
+    }
+    /* memset returns void*, cast to pizza_sys_memory_t for a consistent return */
+    (void)memset(ptr, (unsigned char)value, size);
+    return ptr;
+}
+
+/* Free wrapper; safe to call with NULL */
+void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
+    if (likely(ptr)) free(ptr);
+}
+
+/*
+ * Copy memory with bounds checks.
+ * Returns dest on success, NULL on failure.
+ */
+pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t restrict dest, const pizza_sys_memory_t restrict src, size_t size) {
+    if (unlikely(!dest || !src)) {
+        fprintf(stderr, "Error: pizza_sys_memory_copy() - Source or destination is null.\n");
+        return NULL;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_copy() - Cannot copy zero bytes.\n");
+        return NULL;
+    }
+    return memcpy(dest, src, size);
+}
+
+/*
+ * Set memory region with a byte value; returns ptr on success.
+ */
+pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size) {
+    if (unlikely(!ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_set() - Pointer is null.\n");
+        return NULL;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_set() - Cannot set zero bytes.\n");
+        return NULL;
+    }
+    (void)memset(ptr, (unsigned char)value, size);
+    return ptr;
+}
+
+/*
+ * Duplicate raw memory block: allocate new block and copy.
+ * Returns new pointer or NULL.
+ */
+pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size) {
+    if (unlikely(!src || size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_dup() - Invalid source or zero size.\n");
+        return NULL;
+    }
+    pizza_sys_memory_t dest = pizza_sys_memory_alloc(size);
+    if (unlikely(!dest)) {
+        /* error already logged inside pizza_sys_memory_alloc */
+        return NULL;
+    }
+    memcpy(dest, src, size);
+    return dest;
+}
+
+/* Secure zero wrapper */
+pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size) {
+    if (unlikely(!ptr)) {
+        fprintf(stderr, "Error: pizza_sys_memory_zero() - Pointer is null.\n");
+        return NULL;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_zero() - Cannot zero out zero bytes.\n");
+        return NULL;
+    }
+    pizza_sys_memory_secure_zero_impl(ptr, size);
+    return ptr;
+}
+
+/*
+ * Compare memory blocks:
+ * - returns 0 if equal, non-zero otherwise
+ * - returns INT_MIN on invalid args (so caller can distinguish error)
+ */
 int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size) {
-    if (unlikely(!ptr1 || !ptr2 || size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_compare() - Invalid pointers or zero size.\n");
-        return -1;
+    if (unlikely(!ptr1 || !ptr2)) {
+        fprintf(stderr, "Error: pizza_sys_memory_compare() - Invalid pointer(s).\n");
+        return INT_MIN;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_compare() - Zero size comparison.\n");
+        return INT_MIN;
     }
     return memcmp(ptr1, ptr2, size);
 }
 
+/* memmove wrapper */
 pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t restrict dest, const pizza_sys_memory_t restrict src, size_t size) {
-    if (unlikely(!dest || !src || size == 0)) {
-        fprintf(stderr, "Error: pizza_sys_memory_move() - Invalid source or destination pointers, or zero size.\n");
-        return null;
+    if (unlikely(!dest || !src)) {
+        fprintf(stderr, "Error: pizza_sys_memory_move() - Invalid source or destination pointer.\n");
+        return NULL;
+    }
+    if (unlikely(size == 0)) {
+        fprintf(stderr, "Error: pizza_sys_memory_move() - Cannot move zero bytes.\n");
+        return NULL;
     }
     return memmove(dest, src, size);
 }
 
+/*
+ * Resize semantics:
+ * - If ptr == NULL, behaves like alloc(new_size)
+ * - If new_size == 0, free(ptr) and return NULL
+ * - If new_size <= old_size, shrink with realloc (or return original on failure)
+ * - If new_size > old_size, try to allocate new block, copy old_size bytes, free old and return new
+ *
+ * Note: We require caller to pass old_size when doing manual reallocation copy path.
+ */
 pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size) {
-    if (unlikely(!ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Pointer is null.\n");
-        return null;
+    if (ptr == NULL) {
+        /* behave like alloc */
+        return pizza_sys_memory_alloc(new_size);
     }
+
     if (unlikely(new_size == 0)) {
         pizza_sys_memory_free(ptr);
-        return null;
+        return NULL;
     }
+
     if (new_size <= old_size) {
+        /* attempt shrink; if realloc fails, keep original */
         pizza_sys_memory_t new_ptr = pizza_sys_memory_realloc(ptr, new_size);
         if (unlikely(!new_ptr)) {
-            fprintf(stderr, "Error: pizza_sys_memory_resize() - Memory shrink failed, original preserved.\n");
+            fprintf(stderr, "Warning: pizza_sys_memory_resize() - shrink realloc failed, original preserved.\n");
             return ptr;
         }
         return new_ptr;
     }
+
+    /* grow path: allocate new block and copy old contents */
     pizza_sys_memory_t new_ptr = pizza_sys_memory_alloc(new_size);
     if (unlikely(!new_ptr)) {
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Allocation failed.\n");
+        fprintf(stderr, "Error: pizza_sys_memory_resize() - Allocation failed; returning original pointer.\n");
         return ptr;
     }
-    memcpy(new_ptr, ptr, old_size);
+
+    /* copy the min(old_size, new_size) bytes */
+    size_t to_copy = old_size < new_size ? old_size : new_size;
+    memcpy(new_ptr, ptr, to_copy);
     pizza_sys_memory_free(ptr);
     return new_ptr;
 }
 
+/* Validate pointer (simple non-NULL check) */
 bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr) {
-    return likely(ptr != null);
+    return likely(ptr != NULL);
 }
 
 // *****************************************************************************
