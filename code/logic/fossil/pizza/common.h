@@ -665,178 +665,139 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  * needs of more complex applications.
  */
 
-/**
- * Redirects the output to a specified stream.
- *
- * This function allows you to change the default output destination to a custom stream.
- * It is useful when you want to redirect output to a file or another output stream.
- *
- * @param stream The output stream where subsequent output should be redirected.
- */
-FOSSIL_PIZZA_API void pizza_io_redirect_output(pizza_fstream_t *stream);
+//
+// OUTPUT FUNCTIONS
+//
 
 /**
- * Prints a string to the output.
- * 
- * This function outputs the provided string `str` to the terminal or console. It is a simple utility function
- * that can be used for printing plain text to the screen. The string is printed as-is, with no formatting or
- * color modifications applied.
+ * @brief Prints a sanitized string with formatting attributes specified inside curly braces {}.
  *
- * @param str The string to be printed. This should be a null-terminated string.
+ * This function takes a constant C string, sanitizes it, and prints it to the standard output.
+ * Any formatting attributes (such as colors or styles) specified within curly braces in the string
+ * will be interpreted and applied to the output. If the input string is NULL, the function prints
+ * "cnullptr" to stderr.
+ *
+ * @param str The input string to print. May contain attribute markup.
  */
-FOSSIL_PIZZA_API void pizza_io_puts(const char *str);
-
-/** 
- * Prints a formatted string to the output.
- *
- * This function allows for formatted output, similar to `printf`. It takes a format string that can include
- * format specifiers (e.g., `%d`, `%s`, `%f`), and the additional arguments provided will be formatted accordingly.
- * The function uses a variable argument list (`...`) to handle a wide variety of format specifiers and argument types.
- * 
- * The format string can also include custom formatting markers enclosed in curly braces `{}`, such as `{red}` for
- * color or `{bold}` for text attributes, which will be processed and applied to the output.
- *
- * Example usage:
- * ```c
- * pizza_io_printf("Hello, %s! Your score is %d\n", "Alice", 95);
- * ```
- *
- * @param format The format string, which contains the text to be printed, along with format specifiers.
- * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
- *            in the order they appear, based on the format specifiers.
- */
-FOSSIL_PIZZA_API void pizza_io_printf(const char *format, ...);
+FOSSIL_PIZZA_API void pizza_io_puts(ccstr str);
 
 /**
- * Prints a formatted string to a buffer using a va_list.
+ * @brief Prints a single character to the standard output.
  *
- * This function is similar to `vsnprintf`, but it allows for custom formatting
- * markers enclosed in curly braces `{}`, such as `{red}` for color or `{bold}` for
- * text attributes. The formatted string is written to the provided buffer.
+ * This function outputs a single character to stdout. It does not perform any sanitization or formatting.
  *
- * Example usage:
- * ```c
- * char buffer[100];
- * va_list args;
- * va_start(args, format);
- * pizza_io_vsnprintf(buffer, sizeof(buffer), format, args);
- * va_end(args);
- * ```
- *
- * @param buffer The buffer where the formatted string will be written.
- * @param size The size of the buffer.
- * @param format The format string, which contains the text to be formatted, along with format specifiers.
- * @param args The variable argument list containing the values to be formatted.
- * @return The number of characters written (excluding the null terminator), or a negative value if an error occurs.
- */
-FOSSIL_PIZZA_API int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
-
-/**
- * Prints a character to the output.
- * 
- * This function is a basic utility to print a single character to the output. It is especially useful when you
- * need to print individual characters rather than strings or formatted text.
- *
- * Example usage:
- * ```c
- * pizza_io_putchar('A');
- * ```
- *
- * @param c The character to be printed. This should be a single character.
+ * @param c The character to print.
  */
 FOSSIL_PIZZA_API void pizza_io_putchar(char c);
 
 /**
- * Prints a string to the specified output stream.
- * 
- * This function is similar to `pizza_io_puts`, but instead of printing to the standard output, it allows you
- * to specify an output stream (like a file or a custom output stream). This can be useful when writing to files
- * or other output destinations.
+ * @brief Prints a sanitized, formatted string with attributes to the standard output.
  *
- * Example usage:
- * ```c
- * FILE *file = fopen("output.txt", "w");
- * pizza_io_fputs(file, "Hello, File Output!\n");
- * fclose(file);
- * ```
+ * This function accepts a printf-style format string and a variable argument list, formats the string,
+ * sanitizes it, and prints it to stdout. Any attribute markup inside curly braces will be interpreted.
  *
- * @param stream The output stream where the string should be printed. This should be a valid pointer to a `FILE` object.
- * @param str The string to be printed. This should be a null-terminated string.
+ * @param format The format string (may contain attribute markup).
+ * @param ...    Additional arguments for formatting.
  */
-FOSSIL_PIZZA_API void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
+FOSSIL_PIZZA_API void pizza_io_printf(ccstr format, ...);
 
 /**
- * Prints a formatted string to the specified output stream.
- * 
- * This function is similar to `pizza_io_printf`, but instead of printing to the standard output, it allows you
- * to specify an output stream. The format string can include format specifiers and custom formatting markers, just
- * like `pizza_io_printf`. This can be useful when writing formatted text to files or other output destinations.
+ * @brief Prints a sanitized string to a specific pizza_fstream_t stream.
  *
- * Example usage:
- * ```c
- * FILE *file = fopen("output.txt", "w");
- * pizza_io_fprintf(file, "Hello, %s! Your score is %d\n", "Alice", 95);
- * fclose(file);
- * ```
+ * This function writes the given string to the specified pizza_fstream_t stream, applying any formatting
+ * attributes found in the string. If the stream or string is NULL, it prints "cnullptr" to stderr.
  *
- * @param stream The output stream where the formatted string should be printed. This should be a valid pointer to a `FILE` object.
- * @param format The format string, which contains the text to be printed, along with format specifiers.
- * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
- *            in the order they appear, based on the format specifiers.
+ * @param stream The pizza_fstream_t stream to write to.
+ * @param str    The string to print (may contain attribute markup).
  */
-FOSSIL_PIZZA_API void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...);
-
-// TUI part of the API
+FOSSIL_PIZZA_API void pizza_io_fputs(pizza_fstream_t *stream, ccstr str);
 
 /**
- * Clears the terminal screen.
+ * @brief Prints a sanitized, formatted string to a specific pizza_fstream_t stream.
  *
- * This function sends the ANSI escape sequence to clear the terminal screen
- * and move the cursor to the top-left corner. It is useful when creating full-screen
- * terminal applications or refreshing the display.
+ * This function formats the input string using printf-style arguments, sanitizes it, and writes it to
+ * the specified pizza_fstream_t stream. Attribute markup inside curly braces will be interpreted.
+ * If the stream is NULL, output is sent to stderr.
+ *
+ * @param stream The pizza_fstream_t stream to write to.
+ * @param format The format string (may contain attribute markup).
+ * @param ...    Additional arguments for formatting.
+ */
+FOSSIL_PIZZA_API void pizza_io_fprintf(pizza_fstream_t *stream, ccstr format, ...);
+
+/**
+ * @brief Formats a string into a buffer using printf-style formatting.
+ *
+ * This function writes formatted data to the provided buffer, ensuring that the output does not exceed
+ * the specified size. The resulting string is always null-terminated if size is greater than zero.
+ *
+ * @param buffer The buffer to write the formatted string into.
+ * @param size   The size of the buffer.
+ * @param format The format string.
+ * @param ...    Additional arguments for formatting.
+ * @return The number of characters that would have been written if size was sufficiently large,
+ *         not counting the terminating null character.
+ */
+FOSSIL_PIZZA_API int pizza_io_snprintf(char *buffer, size_t size, ccstr format, ...);
+
+// TUI PART
+
+/**
+ * @brief Clears the terminal screen and moves the cursor to the home position.
+ *
+ * This function sends the ANSI escape sequence to clear the entire terminal screen and
+ * positions the cursor at the top-left corner (row 1, column 1).
  */
 FOSSIL_PIZZA_API void pizza_io_clear_screen(void);
 
 /**
- * Moves the cursor to a specific row and column on the terminal.
+ * @brief Moves the terminal cursor to a specific row and column.
  *
- * @param row The row position (starting from 1).
- * @param col The column position (starting from 1).
+ * This function positions the cursor at the specified row and column using ANSI escape codes.
+ *
+ * @param row The row number (1-based).
+ * @param col The column number (1-based).
  */
 FOSSIL_PIZZA_API void pizza_io_move_cursor(int row, int col);
 
 /**
- * Hides the cursor from the terminal screen.
+ * @brief Hides the cursor in the terminal window.
  *
- * This is useful for creating cleaner UIs without a blinking cursor.
+ * This function sends the ANSI escape sequence to make the cursor invisible.
  */
 FOSSIL_PIZZA_API void pizza_io_hide_cursor(void);
 
 /**
- * Shows the cursor on the terminal screen.
+ * @brief Shows the cursor in the terminal window.
+ *
+ * This function sends the ANSI escape sequence to make the cursor visible.
  */
 FOSSIL_PIZZA_API void pizza_io_show_cursor(void);
 
 /**
- * Draws a horizontal line using a specified character.
+ * @brief Draws a horizontal line of a specified length and character.
  *
- * @param length The number of characters to draw.
- * @param ch The character to use for drawing.
+ * This function prints a horizontal line using the given character, followed by a newline.
+ *
+ * @param length The number of characters in the line.
+ * @param ch     The character to use for the line.
  */
 FOSSIL_PIZZA_API void pizza_io_draw_horizontal_line(int length, char ch);
 
 /**
- * Draws a vertical line using a specified character.
+ * @brief Draws a vertical line of a specified length and character.
  *
- * @param length The number of characters to draw.
- * @param ch The character to use for drawing.
+ * This function prints a vertical line by outputting the given character and a newline for each row.
+ *
+ * @param length The number of lines to draw.
+ * @param ch     The character to use for the line.
  */
 FOSSIL_PIZZA_API void pizza_io_draw_vertical_line(int length, char ch);
 
 /**
- * Flushes the output stream, ensuring all buffered text is written.
+ * @brief Flushes the standard output stream.
  *
- * Useful when mixing multiple output functions or when printing from threads.
+ * This function ensures that all buffered output to stdout is written immediately.
  */
 FOSSIL_PIZZA_API void pizza_io_flush(void);
 
