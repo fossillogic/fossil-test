@@ -1609,6 +1609,19 @@ int pizza_io_is_rot_brain(const char *text) {
  * - Use static inline for small helpers (if header included).
  */
 
+/* Overflow check helpers */
+static inline bool add_overflow_size(size_t a, size_t b, size_t *out) {
+    if (b > SIZE_MAX - a) return true;
+    *out = a + b;
+    return false;
+}
+static inline bool mul_overflow_size(size_t a, size_t b, size_t *out) {
+    if (a == 0 || b == 0) { *out = 0; return false; }
+    if (a > SIZE_MAX / b) return true;
+    *out = a * b;
+    return false;
+}
+
 /* Helper: safe multiplication check for size_t (returns true on overflow) */
 static inline bool size_mul_overflow(size_t a, size_t b, size_t *out) {
     if (a == 0 || b == 0) { *out = 0; return false; }
@@ -2391,299 +2404,396 @@ void pizza_io_flush(void) {
 // - Avoid double evaluation of arguments.
 // - Use strnlen for safety where possible.
 
-cstr pizza_io_cstr_create(const char *init) {
-    if (unlikely(!init)) return null;
-    size_t length = strlen(init);
-    cstr str = (cstr)malloc(length + 1);
-    if (likely(str)) {
-        memcpy(str, init, length + 1);
-    }
-    return str;
+/***************************************
+ * Safe string creation
+ ***************************************/
+cstr pizza_io_cstr_create(ccstr init) {
+    if (unlikely(!init)) return NULL;
+    size_t len = strlen(init);
+    size_t alloc_sz;
+    if (add_overflow_size(len, 1, &alloc_sz)) return NULL;
+
+    cstr s = malloc(alloc_sz);
+    if (!s) return NULL;
+
+    memcpy(s, init, len + 1);
+    return s;
 }
 
-void pizza_io_cstr_free(cstr str) {
-    if (likely(str)) {
-        free(str);
-    }
+void pizza_io_cstr_free(cstr s) {
+    if (s) free(s);
 }
 
-cstr pizza_io_cstr_copy(ccstr str) {
-    if (unlikely(!str)) return null;
-    return pizza_io_cstr_create(str);
+cstr pizza_io_cstr_copy(ccstr s) {
+    if (!s) return NULL;
+    return pizza_io_cstr_create(s);
 }
 
-cstr pizza_io_cstr_dup(ccstr str) {
-    if (unlikely(!str)) return null;
-    size_t length = strlen(str);
-    cstr new_str = (cstr)malloc(length + 1);
-    if (likely(new_str)) {
-        memcpy(new_str, str, length + 1);
-    }
-    return new_str;
+/***************************************
+ * Dup
+ ***************************************/
+cstr pizza_io_cstr_dup(ccstr s) {
+    if (unlikely(!s)) return NULL;
+    return pizza_io_cstr_create(s);
 }
 
+/***************************************
+ * Concatenate safe
+ ***************************************/
 cstr pizza_io_cstr_concat(ccstr s1, ccstr s2) {
-    if (unlikely(!s1 || !s2)) return null;
-    size_t length1 = strlen(s1);
-    size_t length2 = strlen(s2);
-    cstr str = (cstr)malloc(length1 + length2 + 1);
-    if (likely(str)) {
-        memcpy(str, s1, length1);
-        memcpy(str + length1, s2, length2 + 1);
-    }
-    return str;
+    if (unlikely(!s1 || !s2)) return NULL;
+
+    size_t len1 = strlen(s1);
+    size_t len2 = strlen(s2);
+    size_t tmp;
+
+    if (add_overflow_size(len1, len2, &tmp)) return NULL;
+    if (add_overflow_size(tmp, 1, &tmp)) return NULL;
+
+    cstr out = malloc(tmp);
+    if (!out) return NULL;
+
+    memcpy(out, s1, len1);
+    memcpy(out + len1, s2, len2 + 1);
+    return out;
 }
 
-size_t pizza_io_cstr_length(ccstr str) {
-    if (unlikely(!str)) return 0;
-    return strlen(str);
+/***************************************
+ * Length / Compare
+ ***************************************/
+size_t pizza_io_cstr_length(ccstr s) {
+    if (!s) return 0;
+    return strlen(s);
 }
 
-int pizza_io_cstr_compare(ccstr s1, ccstr s2) {
-    if (unlikely(!s1 || !s2)) return -1;
-    return strcmp(s1, s2);
+int pizza_io_cstr_compare(ccstr a, ccstr b) {
+    if (!a || !b) return -1;
+    return strcmp(a, b);
 }
 
-void pizza_io_cstr_trim(cstr str) {
-    if (unlikely(!str)) return;
-    size_t length = strlen(str);
+/***************************************
+ * Trim safe
+ ***************************************/
+void pizza_io_cstr_trim(cstr s) {
+    if (!s) return;
+
+    size_t len = strlen(s);
+    if (len == 0) return;
+
     size_t start = 0;
-    size_t end = length ? length - 1 : 0;
-    while (start < length && isspace((unsigned char)str[start])) start++;
-    while (end > start && isspace((unsigned char)str[end])) end--;
-    size_t count = (end >= start) ? (end - start + 1) : 0;
-    if (start > 0 && count > 0) {
-        memmove(str, str + start, count);
-    }
-    str[count] = '\0';
+    size_t end = len - 1;
+
+    while (start < len && isspace((unsigned char)s[start])) start++;
+    while (end > start && isspace((unsigned char)s[end])) end--;
+
+    size_t new_len = (end >= start) ? (end - start + 1) : 0;
+
+    if (start > 0 && new_len > 0)
+        memmove(s, s + start, new_len);
+
+    s[new_len] = '\0';
 }
 
-cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
-    if (unlikely(!str || !count)) return null;
-    size_t length = strlen(str);
-    size_t num_delimiters = 0;
-    for (size_t i = 0; i < length; i++) {
-        if (str[i] == delimiter) num_delimiters++;
-    }
-    *count = num_delimiters + 1;
-    cstr *result = (cstr*)malloc(*count * sizeof(cstr));
-    if (unlikely(!result)) return null;
-    size_t start = 0, index = 0;
-    for (size_t i = 0; i < length; i++) {
-        if (str[i] == delimiter) {
+/***************************************
+ * Split safe
+ ***************************************/
+cstr *pizza_io_cstr_split(ccstr s, char delimiter, size_t *count) {
+    if (!s || !count) return NULL;
+
+    *count = 0;
+    size_t len = strlen(s);
+    if (len == 0) return NULL;
+
+    size_t delim_count = 0;
+    for (size_t i = 0; i < len; i++)
+        if (s[i] == delimiter) delim_count++;
+
+    *count = delim_count + 1;
+
+    /* overflow safe */
+    if (*count > SIZE_MAX / sizeof(cstr)) return NULL;
+
+    cstr *out = malloc((*count) * sizeof(cstr));
+    if (!out) return NULL;
+
+    size_t start = 0;
+    size_t idx = 0;
+
+    for (size_t i = 0; i < len; i++) {
+        if (s[i] == delimiter) {
             size_t seglen = i - start;
-            result[index] = (cstr)malloc(seglen + 1);
-            if (unlikely(!result[index])) {
-                for (size_t j = 0; j < index; j++) free(result[j]);
-                free(result);
-                return null;
-            }
-            memcpy(result[index], str + start, seglen);
-            result[index][seglen] = '\0';
+            cstr seg = malloc(seglen + 1);
+            if (!seg) goto fail;
+            memcpy(seg, s + start, seglen);
+            seg[seglen] = '\0';
+            out[idx++] = seg;
             start = i + 1;
-            index++;
         }
     }
-    size_t seglen = length - start;
-    result[index] = (cstr)malloc(seglen + 1);
-    if (unlikely(!result[index])) {
-        for (size_t j = 0; j < index; j++) free(result[j]);
-        free(result);
-        return null;
-    }
-    memcpy(result[index], str + start, seglen);
-    result[index][seglen] = '\0';
-    return result;
+
+    /* last segment */
+    size_t seglen = len - start;
+    cstr seg = malloc(seglen + 1);
+    if (!seg) goto fail;
+    memcpy(seg, s + start, seglen);
+    seg[seglen] = '\0';
+    out[idx] = seg;
+
+    return out;
+
+fail:
+    for (size_t j = 0; j < idx; j++) free(out[j]);
+    free(out);
+    *count = 0;
+    return NULL;
 }
 
-cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
-    if (unlikely(!str || !old || !new_str)) return null;
-    size_t old_length = strlen(old);
-    size_t new_length = strlen(new_str);
-    if (unlikely(old_length == 0)) return pizza_io_cstr_copy(str);
-    size_t count = 0, index = 0, length = strlen(str);
-    while (index < length) {
-        if (strncmp(str + index, old, old_length) == 0) {
-            count++;
-            index += old_length;
-        } else {
-            index++;
-        }
-    }
-    size_t result_len = length + count * (new_length - old_length);
-    cstr result = (cstr)malloc(result_len + 1);
-    if (unlikely(!result)) return null;
-    index = 0;
-    size_t out = 0;
-    while (index < length) {
-        if (strncmp(str + index, old, old_length) == 0) {
-            memcpy(result + out, new_str, new_length);
-            out += new_length;
-            index += old_length;
-        } else {
-            result[out++] = str[index++];
-        }
-    }
-    result[out] = '\0';
-    return result;
-}
+/***************************************
+ * Replace safe
+ ***************************************/
+cstr pizza_io_cstr_replace(ccstr s, ccstr old, ccstr rep) {
+    if (!s || !old || !rep) return NULL;
 
-cstr pizza_io_cstr_to_upper(cstr str) {
-    if (unlikely(!str)) return null;
-    size_t length = strlen(str);
-    cstr result = (cstr)malloc(length + 1);
-    if (likely(result)) {
-        for (size_t i = 0; i < length; i++) {
-            result[i] = toupper((unsigned char)str[i]);
-        }
-        result[length] = '\0';
-    }
-    return result;
-}
+    size_t old_len = strlen(old);
+    if (old_len == 0) return pizza_io_cstr_copy(s);
 
-cstr pizza_io_cstr_to_lower(cstr str) {
-    if (unlikely(!str)) return null;
-    size_t length = strlen(str);
-    cstr result = (cstr)malloc(length + 1);
-    if (likely(result)) {
-        for (size_t i = 0; i < length; i++) {
-            result[i] = tolower((unsigned char)str[i]);
-        }
-        result[length] = '\0';
-    }
-    return result;
-}
+    size_t rep_len = strlen(rep);
+    size_t s_len = strlen(s);
 
-int pizza_io_cstr_starts_with(ccstr str, ccstr prefix) {
-    if (unlikely(!str || !prefix)) return 0;
-    size_t str_length = strlen(str);
-    size_t prefix_length = strlen(prefix);
-    if (unlikely(prefix_length > str_length)) return 0;
-    return strncmp(str, prefix, prefix_length) == 0;
-}
-
-int pizza_io_cstr_ends_with(ccstr str, ccstr suffix) {
-    if (unlikely(!str || !suffix)) return 0;
-    size_t str_length = strlen(str);
-    size_t suffix_length = strlen(suffix);
-    if (unlikely(suffix_length > str_length)) return 0;
-    return strncmp(str + str_length - suffix_length, suffix, suffix_length) == 0;
-}
-
-cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length) {
-    if (unlikely(!str)) return null;
-    size_t str_length = strlen(str);
-    if (unlikely(start >= str_length)) return null;
-    size_t count = str_length - start;
-    if (length < count) count = length;
-    cstr result = (cstr)malloc(count + 1);
-    if (likely(result)) {
-        memcpy(result, str + start, count);
-        result[count] = '\0';
-    }
-    return result;
-}
-
-cstr pizza_io_cstr_reverse(cstr str) {
-    if (unlikely(!str)) return null;
-    size_t length = strlen(str);
-    cstr result = (cstr)malloc(length + 1);
-    if (likely(result)) {
-        for (size_t i = 0; i < length; i++) {
-            result[i] = str[length - i - 1];
-        }
-        result[length] = '\0';
-    }
-    return result;
-}
-
-int pizza_io_cstr_contains(ccstr str, ccstr substr) {
-    if (unlikely(!str || !substr)) return 0;
-    return strstr(str, substr) != null;
-}
-
-cstr pizza_io_cstr_repeat(ccstr str, size_t count) {
-    if (unlikely(!str || count == 0)) return null;
-    size_t length = strlen(str);
-    if (unlikely(length == 0)) return pizza_io_cstr_create("");
-    size_t new_length = length * count;
-    cstr result = (cstr)malloc(new_length + 1);
-    if (likely(result)) {
-        for (size_t i = 0; i < count; i++) {
-            memcpy(result + i * length, str, length);
-        }
-        result[new_length] = '\0';
-    }
-    return result;
-}
-
-cstr pizza_io_cstr_strip(ccstr str, char ch) {
-    if (unlikely(!str)) return null;
-    size_t length = strlen(str);
-    size_t start = 0, end = length ? length - 1 : 0;
-    while (start < length && str[start] == ch) start++;
-    while (end > start && str[end] == ch) end--;
-    size_t count = (end >= start) ? (end - start + 1) : 0;
-    cstr result = (cstr)malloc(count + 1);
-    if (likely(result)) {
-        memcpy(result, str + start, count);
-        result[count] = '\0';
-    }
-    return result;
-}
-
-size_t pizza_io_cstr_count(ccstr str, ccstr substr) {
-    if (unlikely(!str || !substr)) return 0;
+    /* Count occurrences */
     size_t count = 0;
-    size_t length = strlen(substr);
-    if (unlikely(length == 0)) return 0;
-    const char *p = str;
-    while ((p = strstr(p, substr)) != null) {
+    for (size_t i = 0; i + old_len <= s_len; ) {
+        if (memcmp(s + i, old, old_len) == 0) {
+            count++;
+            i += old_len;
+        } else {
+            i++;
+        }
+    }
+
+    size_t added_bytes = 0;
+    if (mul_overflow_size(count, rep_len - old_len, &added_bytes)) return NULL;
+
+    size_t new_len;
+    if (add_overflow_size(s_len, added_bytes, &new_len)) return NULL;
+
+    cstr out = malloc(new_len + 1);
+    if (!out) return NULL;
+
+    /* Build */
+    size_t i = 0, o = 0;
+    while (i < s_len) {
+        if (i + old_len <= s_len && memcmp(s + i, old, old_len) == 0) {
+            memcpy(out + o, rep, rep_len);
+            o += rep_len;
+            i += old_len;
+        } else {
+            out[o++] = s[i++];
+        }
+    }
+
+    out[o] = '\0';
+    return out;
+}
+
+/***************************************
+ * Upper/lower safe
+ ***************************************/
+cstr pizza_io_cstr_to_upper(ccstr s) {
+    if (!s) return NULL;
+    size_t len = strlen(s);
+    cstr out = malloc(len + 1);
+    if (!out) return NULL;
+
+    for (size_t i = 0; i < len; i++)
+        out[i] = toupper((unsigned char)s[i]);
+    out[len] = '\0';
+    return out;
+}
+
+cstr pizza_io_cstr_to_lower(ccstr s) {
+    if (!s) return NULL;
+    size_t len = strlen(s);
+    cstr out = malloc(len + 1);
+    if (!out) return NULL;
+
+    for (size_t i = 0; i < len; i++)
+        out[i] = tolower((unsigned char)s[i]);
+    out[len] = '\0';
+    return out;
+}
+
+/***************************************
+ * Prefix/Suffix safe
+ ***************************************/
+int pizza_io_cstr_starts_with(ccstr s, ccstr prefix) {
+    if (!s || !prefix) return 0;
+    size_t sl = strlen(s), pl = strlen(prefix);
+    if (pl > sl) return 0;
+    return memcmp(s, prefix, pl) == 0;
+}
+
+int pizza_io_cstr_ends_with(ccstr s, ccstr suffix) {
+    if (!s || !suffix) return 0;
+    size_t sl = strlen(s), pl = strlen(suffix);
+    if (pl > sl) return 0;
+    return memcmp(s + sl - pl, suffix, pl) == 0;
+}
+
+/***************************************
+ * Substring safe
+ ***************************************/
+cstr pizza_io_cstr_substring(ccstr s, size_t start, size_t len) {
+    if (!s) return NULL;
+    size_t sl = strlen(s);
+    if (start >= sl) return NULL;
+
+    size_t max = sl - start;
+    if (len > max) len = max;
+
+    cstr out = malloc(len + 1);
+    if (!out) return NULL;
+
+    memcpy(out, s + start, len);
+    out[len] = '\0';
+    return out;
+}
+
+/***************************************
+ * Reverse safe
+ ***************************************/
+cstr pizza_io_cstr_reverse(ccstr s) {
+    if (!s) return NULL;
+
+    size_t len = strlen(s);
+    cstr out = malloc(len + 1);
+    if (!out) return NULL;
+
+    for (size_t i = 0; i < len; i++)
+        out[i] = s[len - i - 1];
+
+    out[len] = '\0';
+    return out;
+}
+
+/***************************************
+ * Contains safe
+ ***************************************/
+int pizza_io_cstr_contains(ccstr s, ccstr sub) {
+    if (!s || !sub) return 0;
+    return strstr(s, sub) != NULL;
+}
+
+/***************************************
+ * Repeat safe
+ ***************************************/
+cstr pizza_io_cstr_repeat(ccstr s, size_t cnt) {
+    if (!s || cnt == 0) return NULL;
+
+    size_t len = strlen(s);
+    if (len == 0) return pizza_io_cstr_create("");
+
+    size_t total;
+    if (mul_overflow_size(len, cnt, &total)) return NULL;
+    if (add_overflow_size(total, 1, &total)) return NULL;
+
+    cstr out = malloc(total);
+    if (!out) return NULL;
+
+    for (size_t i = 0; i < cnt; i++)
+        memcpy(out + i * len, s, len);
+
+    out[total - 1] = '\0';
+    return out;
+}
+
+/***************************************
+ * Strip safe
+ ***************************************/
+cstr pizza_io_cstr_strip(ccstr s, char ch) {
+    if (!s) return NULL;
+    size_t len = strlen(s);
+    if (len == 0) return pizza_io_cstr_create("");
+
+    size_t start = 0, end = len - 1;
+
+    while (start < len && s[start] == ch) start++;
+    while (end > start && s[end] == ch) end--;
+
+    size_t new_len = (end >= start) ? (end - start + 1) : 0;
+
+    cstr out = malloc(new_len + 1);
+    if (!out) return NULL;
+
+    memcpy(out, s + start, new_len);
+    out[new_len] = '\0';
+    return out;
+}
+
+/***************************************
+ * Count safe
+ ***************************************/
+size_t pizza_io_cstr_count(ccstr s, ccstr sub) {
+    if (!s || !sub) return 0;
+    size_t sublen = strlen(sub);
+    if (sublen == 0) return 0;
+
+    size_t count = 0;
+    const char *p = s;
+
+    while ((p = strstr(p, sub))) {
         count++;
-        p += length;
+        p += sublen;
     }
     return count;
 }
 
-cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
-    if (unlikely(!str || total_length == 0)) return null;
-    size_t length = strlen(str);
-    if (length >= total_length) return pizza_io_cstr_copy(str);
-    size_t pad_length = total_length - length;
-    cstr result = (cstr)malloc(total_length + 1);
-    if (likely(result)) {
-        memset(result, pad_char, pad_length);
-        memcpy(result + pad_length, str, length + 1);
-    }
-    return result;
+/***************************************
+ * Pad left / right safe
+ ***************************************/
+cstr pizza_io_cstr_pad_left(ccstr s, size_t total, char pad) {
+    if (!s || total == 0) return NULL;
+
+    size_t sl = strlen(s);
+    if (sl >= total) return pizza_io_cstr_copy(s);
+
+    size_t pad_len = total - sl;
+
+    cstr out = malloc(total + 1);
+    if (!out) return NULL;
+
+    memset(out, pad, pad_len);
+    memcpy(out + pad_len, s, sl + 1);
+    return out;
 }
 
-cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
-    if (unlikely(!str || total_length == 0)) return null;
-    size_t length = strlen(str);
-    if (length >= total_length) return pizza_io_cstr_copy(str);
-    size_t pad_length = total_length - length;
-    cstr result = (cstr)malloc(total_length + 1);
-    if (likely(result)) {
-        memcpy(result, str, length);
-        memset(result + length, pad_char, pad_length);
-        result[total_length] = '\0';
-    }
-    return result;
+cstr pizza_io_cstr_pad_right(ccstr s, size_t total, char pad) {
+    if (!s || total == 0) return NULL;
+
+    size_t sl = strlen(s);
+    if (sl >= total) return pizza_io_cstr_copy(s);
+
+    cstr out = malloc(total + 1);
+    if (!out) return NULL;
+
+    memcpy(out, s, sl);
+    memset(out + sl, pad, total - sl);
+    out[total] = '\0';
+    return out;
 }
 
-bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
-    if (unlikely(!dest || !src || max_len == 0)) return false;
-#if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200809L
+/***************************************
+ * Append safe (fixed all overflow conditions)
+ ***************************************/
+bool pizza_io_cstr_append(cstr dest, size_t max_len, ccstr src) {
+    if (!dest || !src || max_len == 0) return false;
+
     size_t dest_len = strnlen(dest, max_len);
-#else
-    // Fallback for platforms without strnlen
-    size_t dest_len = 0;
-    while (dest_len < max_len && dest[dest_len] != '\0') dest_len++;
-#endif
     if (dest_len == max_len) return false;
+
     size_t src_len = strlen(src);
-    if (dest_len + src_len >= max_len) return false;
+    if (src_len >= max_len - dest_len) return false;
+
     memcpy(dest + dest_len, src, src_len + 1);
     return true;
 }
