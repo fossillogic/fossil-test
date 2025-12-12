@@ -50,7 +50,7 @@ fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
 // Hashing algorithm
 // *****************************************************************************
 
-// HASH Algorithm magic
+// HASH Algorithm magic - Maximized for power and entropy
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -73,7 +73,6 @@ static uint64_t get_pizza_device_salt(void) {
     // FNV-1a 64-bit base offset
     uint64_t hash = 0xcbf29ce484222325ULL;
 
-    // Cross-platform user and home detection
 #if defined(_WIN32) || defined(_WIN64)
     const char *vars[] = {
         getenv("USERNAME"),
@@ -89,66 +88,102 @@ static uint64_t get_pizza_device_salt(void) {
     };
 #endif
 
-    // Mix in each variable if it exists
     for (size_t v = 0; v < sizeof(vars) / sizeof(vars[0]); ++v) {
         const char *val = vars[v];
         if (val) {
             for (size_t i = 0; val[i]; ++i) {
                 hash ^= (uint8_t)val[i];
                 hash *= 0x100000001b3ULL;
+                hash ^= (hash >> 23);
             }
         }
     }
+
+    // Add some entropy from current time
+    hash ^= get_pizza_time_microseconds();
+    hash *= 0x100000001b3ULL;
+    hash ^= (hash >> 31);
 
     return hash;
 }
 
 void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out) {
-    const uint64_t PRIME = 0x100000001b3ULL;
+    const uint64_t PRIME1 = 0x100000001b3ULL;
+    const uint64_t PRIME2 = 0x9e3779b185ebca87ULL;
+    const uint64_t PRIME3 = 0x84222325cbf29ce4ULL;
     static uint64_t SALT = 0;
-    if (SALT == 0) SALT = get_pizza_device_salt();  // Initialize salt once
+    if (SALT == 0) SALT = get_pizza_device_salt();
 
     uint64_t state1 = 0xcbf29ce484222325ULL ^ SALT;
     uint64_t state2 = 0x84222325cbf29ce4ULL ^ ~SALT;
+    uint64_t state3 = 0x9e3779b185ebca87ULL ^ (SALT << 1);
 
     size_t in_len = strlen(input);
     size_t out_len = strlen(output);
 
-    uint64_t nonce = get_pizza_time_microseconds();  // Microsecond resolution
+    uint64_t nonce = get_pizza_time_microseconds();
 
+    // Mix input string
     for (size_t i = 0; i < in_len; ++i) {
         state1 ^= (uint8_t)input[i];
-        state1 *= PRIME;
+        state1 *= PRIME1;
         state1 ^= (state1 >> 27);
         state1 ^= (state1 << 33);
+        state2 += (state1 ^ (state2 >> 19));
+        state2 *= PRIME2;
+        state2 ^= (state2 << 29);
+        state3 ^= (state2 ^ (state1 >> 11));
+        state3 *= PRIME3;
+        state3 ^= (state3 >> 17);
     }
 
+    // Mix output string
     for (size_t i = 0; i < out_len; ++i) {
         state2 ^= (uint8_t)output[i];
-        state2 *= PRIME;
+        state2 *= PRIME2;
         state2 ^= (state2 >> 29);
         state2 ^= (state2 << 31);
+        state1 += (state2 ^ (state1 >> 13));
+        state1 *= PRIME1;
+        state3 ^= (state1 ^ (state2 >> 7));
+        state3 *= PRIME3;
+        state3 ^= (state3 << 23);
     }
 
     // Nonce and length entropy
     state1 ^= nonce ^ ((uint64_t)in_len << 32);
     state2 ^= ~nonce ^ ((uint64_t)out_len << 16);
+    state3 ^= (nonce << 3) ^ ((uint64_t)(in_len + out_len) << 24);
 
-    // Mixing rounds
-    for (int i = 0; i < 6; ++i) {
-        state1 += (state2 ^ (state1 >> 17));
-        state2 += (state1 ^ (state2 >> 13));
-        state1 ^= (state1 << 41);
-        state2 ^= (state2 << 37);
-        state1 *= PRIME;
-        state2 *= PRIME;
+    // Extra mixing rounds for avalanche effect
+    for (int i = 0; i < 12; ++i) {
+        state1 += (state2 ^ (state1 >> (13 + (i % 7))));
+        state2 += (state3 ^ (state2 >> (11 + (i % 5))));
+        state3 += (state1 ^ (state3 >> (17 + (i % 3))));
+        state1 ^= (state1 << (41 - (i % 13)));
+        state2 ^= (state2 << (37 - (i % 11)));
+        state3 ^= (state3 << (29 - (i % 9)));
+        state1 *= PRIME1;
+        state2 *= PRIME2;
+        state3 *= PRIME3;
+        state1 ^= (state2 >> (i + 1));
+        state2 ^= (state3 >> (i + 2));
+        state3 ^= (state1 >> (i + 3));
     }
 
+    // Final hash output
     for (size_t i = 0; i < FOSSIL_PIZZA_HASH_SIZE; ++i) {
-        uint64_t mixed = (i % 2 == 0) ? state1 : state2;
+        uint64_t mixed;
+        if (i % 3 == 0) mixed = state1;
+        else if (i % 3 == 1) mixed = state2;
+        else mixed = state3;
         mixed ^= (mixed >> ((i % 7) + 13));
-        mixed *= PRIME;
+        mixed *= (i % 2 == 0 ? PRIME1 : PRIME2);
         mixed ^= SALT;
+        mixed ^= (nonce << (i % 17));
+        mixed ^= (state1 >> (i % 23));
+        mixed ^= (state2 << (i % 19));
+        mixed ^= (state3 >> (i % 11));
         hash_out[i] = (uint8_t)((mixed >> (8 * (i % 8))) & 0xFF);
     }
 }
@@ -1675,42 +1710,161 @@ pizza_fstream_t *PIZZA_STDERR;
 
 int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 
-// Define color codes for output
-#define FOSSIL_IO_COLOR_RESET       "\033[0m"
-#define FOSSIL_IO_COLOR_RED         "\033[31m"
-#define FOSSIL_IO_COLOR_GREEN       "\033[32m"
-#define FOSSIL_IO_COLOR_YELLOW      "\033[33m"
-#define FOSSIL_IO_COLOR_BLUE        "\033[34m"
-#define FOSSIL_IO_COLOR_MAGENTA     "\033[35m"
-#define FOSSIL_IO_COLOR_CYAN        "\033[36m"
-#define FOSSIL_IO_COLOR_WHITE       "\033[37m"
+// ================================================================
+// RESET
+// ================================================================
+#define FOSSIL_IO_COLOR_RESET            "\033[0m"
 
-// Bright colors
-#define FOSSIL_IO_COLOR_BRIGHT_RED   "\033[91m"
-#define FOSSIL_IO_COLOR_BRIGHT_GREEN "\033[92m"
-#define FOSSIL_IO_COLOR_BRIGHT_YELLOW "\033[93m"
-#define FOSSIL_IO_COLOR_BRIGHT_BLUE  "\033[94m"
-#define FOSSIL_IO_COLOR_BRIGHT_MAGENTA "\033[95m"
-#define FOSSIL_IO_COLOR_BRIGHT_CYAN  "\033[96m"
-#define FOSSIL_IO_COLOR_BRIGHT_WHITE "\033[97m"
+// ================================================================
+// DARK (STANDARD) COLORS
+// ================================================================
+#define FOSSIL_IO_COLOR_BLACK            "\033[30m"
+#define FOSSIL_IO_COLOR_RED              "\033[31m"
+#define FOSSIL_IO_COLOR_GREEN            "\033[32m"
+#define FOSSIL_IO_COLOR_YELLOW           "\033[33m"
+#define FOSSIL_IO_COLOR_BLUE             "\033[34m"
+#define FOSSIL_IO_COLOR_MAGENTA          "\033[35m"
+#define FOSSIL_IO_COLOR_CYAN             "\033[36m"
+#define FOSSIL_IO_COLOR_WHITE            "\033[37m"
+#define FOSSIL_IO_COLOR_GRAY             "\033[90m"
+#define FOSSIL_IO_COLOR_ORANGE           "\033[38;5;208m"
+#define FOSSIL_IO_COLOR_PINK             "\033[38;5;205m"
+#define FOSSIL_IO_COLOR_PURPLE           "\033[38;5;93m"
+#define FOSSIL_IO_COLOR_BROWN            "\033[38;5;94m"
+#define FOSSIL_IO_COLOR_TEAL             "\033[38;5;30m"
+#define FOSSIL_IO_COLOR_SILVER           "\033[38;5;7m"
 
-// Define text attributes
-#define FOSSIL_IO_ATTR_BOLD         "\033[1m"
-#define FOSSIL_IO_ATTR_UNDERLINE    "\033[4m"
-#define FOSSIL_IO_ATTR_REVERSED     "\033[7m"
-#define FOSSIL_IO_ATTR_BLINK        "\033[5m"
-#define FOSSIL_IO_ATTR_HIDDEN       "\033[8m"
-#define FOSSIL_IO_ATTR_NORMAL       "\033[22m" // For reverting to normal text
+// ================================================================
+// BRIGHT COLORS
+// ================================================================
+#define FOSSIL_IO_COLOR_BRIGHT_BLACK     "\033[90m"
+#define FOSSIL_IO_COLOR_BRIGHT_RED       "\033[91m"
+#define FOSSIL_IO_COLOR_BRIGHT_GREEN     "\033[92m"
+#define FOSSIL_IO_COLOR_BRIGHT_YELLOW    "\033[93m"
+#define FOSSIL_IO_COLOR_BRIGHT_BLUE      "\033[94m"
+#define FOSSIL_IO_COLOR_BRIGHT_MAGENTA   "\033[95m"
+#define FOSSIL_IO_COLOR_BRIGHT_CYAN      "\033[96m"
+#define FOSSIL_IO_COLOR_BRIGHT_WHITE     "\033[97m"
 
-// Additional attributes
-#define FOSSIL_IO_ATTR_ITALIC       "\033[3m"
-#define FOSSIL_IO_ATTR_STRIKETHROUGH "\033[9m"
+// ================================================================
+// BACKGROUND COLORS
+// ================================================================
+#define FOSSIL_IO_BG_BLACK            "\033[40m"
+#define FOSSIL_IO_BG_RED              "\033[41m"
+#define FOSSIL_IO_BG_GREEN            "\033[42m"
+#define FOSSIL_IO_BG_YELLOW           "\033[43m"
+#define FOSSIL_IO_BG_BLUE             "\033[44m"
+#define FOSSIL_IO_BG_MAGENTA          "\033[45m"
+#define FOSSIL_IO_BG_CYAN             "\033[46m"
+#define FOSSIL_IO_BG_WHITE            "\033[47m"
+#define FOSSIL_IO_BG_GRAY             "\033[100m"
+#define FOSSIL_IO_BG_ORANGE           "\033[48;5;208m"
+#define FOSSIL_IO_BG_PINK             "\033[48;5;205m"
+#define FOSSIL_IO_BG_PURPLE           "\033[48;5;93m"
+#define FOSSIL_IO_BG_BROWN            "\033[48;5;94m"
+#define FOSSIL_IO_BG_TEAL             "\033[48;5;30m"
+#define FOSSIL_IO_BG_SILVER           "\033[48;5;7m"
+
+// Bright background colors
+#define FOSSIL_IO_BG_BRIGHT_BLACK     "\033[100m"
+#define FOSSIL_IO_BG_BRIGHT_RED       "\033[101m"
+#define FOSSIL_IO_BG_BRIGHT_GREEN     "\033[102m"
+#define FOSSIL_IO_BG_BRIGHT_YELLOW    "\033[103m"
+#define FOSSIL_IO_BG_BRIGHT_BLUE      "\033[104m"
+#define FOSSIL_IO_BG_BRIGHT_MAGENTA   "\033[105m"
+#define FOSSIL_IO_BG_BRIGHT_CYAN      "\033[106m"
+#define FOSSIL_IO_BG_BRIGHT_WHITE     "\033[107m"
+
+// ================================================================
+// TEXT ATTRIBUTES
+// ================================================================
+#define FOSSIL_IO_ATTR_BOLD              "\033[1m"
+#define FOSSIL_IO_ATTR_DIM               "\033[2m"
+#define FOSSIL_IO_ATTR_ITALIC            "\033[3m"
+#define FOSSIL_IO_ATTR_UNDERLINE         "\033[4m"
+#define FOSSIL_IO_ATTR_BLINK             "\033[5m"
+#define FOSSIL_IO_ATTR_REVERSE           "\033[7m"
+#define FOSSIL_IO_ATTR_HIDDEN            "\033[8m"
+#define FOSSIL_IO_ATTR_STRIKETHROUGH     "\033[9m"
+#define FOSSIL_IO_ATTR_NORMAL            "\033[22;23;24;25;27;28m" // Reset all attributes
+#define FOSSIL_IO_ATTR_REVERSED          "\033[7m"
+
+// Reset specific attributes
+#define FOSSIL_IO_ATTR_RESET_BOLD        "\033[22m"
+#define FOSSIL_IO_ATTR_RESET_DIM         "\033[22m"
+#define FOSSIL_IO_ATTR_RESET_ITALIC      "\033[23m"
+#define FOSSIL_IO_ATTR_RESET_UNDERLINE   "\033[24m"
+#define FOSSIL_IO_ATTR_RESET_BLINK       "\033[25m"
+#define FOSSIL_IO_ATTR_RESET_REVERSE     "\033[27m"
+#define FOSSIL_IO_ATTR_RESET_HIDDEN      "\033[28m"
+#define FOSSIL_IO_ATTR_RESET_STRIKE      "\033[29m"
 
 #define FOSSIL_IO_BUFFER_SIZE 1000
 
-// Function to apply color
+/**
+ * Apply a background color using pizza_io color names.
+ */
+void pizza_io_apply_bg_color(const char *bg_color) {
+    if (pizza_io_cstr_compare(bg_color, "black") == 0) {
+        printf(FOSSIL_IO_BG_BLACK);
+    } else if (pizza_io_cstr_compare(bg_color, "red") == 0) {
+        printf(FOSSIL_IO_BG_RED);
+    } else if (pizza_io_cstr_compare(bg_color, "green") == 0) {
+        printf(FOSSIL_IO_BG_GREEN);
+    } else if (pizza_io_cstr_compare(bg_color, "yellow") == 0) {
+        printf(FOSSIL_IO_BG_YELLOW);
+    } else if (pizza_io_cstr_compare(bg_color, "blue") == 0) {
+        printf(FOSSIL_IO_BG_BLUE);
+    } else if (pizza_io_cstr_compare(bg_color, "magenta") == 0) {
+        printf(FOSSIL_IO_BG_MAGENTA);
+    } else if (pizza_io_cstr_compare(bg_color, "cyan") == 0) {
+        printf(FOSSIL_IO_BG_CYAN);
+    } else if (pizza_io_cstr_compare(bg_color, "white") == 0) {
+        printf(FOSSIL_IO_BG_WHITE);
+    } else if (pizza_io_cstr_compare(bg_color, "gray") == 0) {
+        printf(FOSSIL_IO_BG_GRAY);
+    } else if (pizza_io_cstr_compare(bg_color, "orange") == 0) {
+        printf(FOSSIL_IO_BG_ORANGE);
+    } else if (pizza_io_cstr_compare(bg_color, "pink") == 0) {
+        printf(FOSSIL_IO_BG_PINK);
+    } else if (pizza_io_cstr_compare(bg_color, "purple") == 0) {
+        printf(FOSSIL_IO_BG_PURPLE);
+    } else if (pizza_io_cstr_compare(bg_color, "brown") == 0) {
+        printf(FOSSIL_IO_BG_BROWN);
+    } else if (pizza_io_cstr_compare(bg_color, "teal") == 0) {
+        printf(FOSSIL_IO_BG_TEAL);
+    } else if (pizza_io_cstr_compare(bg_color, "silver") == 0) {
+        printf(FOSSIL_IO_BG_SILVER);
+    }
+    // Bright background colors
+    else if (pizza_io_cstr_compare(bg_color, "bright_black") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_BLACK);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_red") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_RED);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_green") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_GREEN);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_yellow") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_YELLOW);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_blue") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_BLUE);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_magenta") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_MAGENTA);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_cyan") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_CYAN);
+    } else if (pizza_io_cstr_compare(bg_color, "bright_white") == 0) {
+        printf(FOSSIL_IO_BG_BRIGHT_WHITE);
+    } else if (pizza_io_cstr_compare(bg_color, "reset") == 0) {
+        printf(FOSSIL_IO_COLOR_RESET);
+    }
+}
+
+/**
+ * Apply a foreground color using pizza_io color names.
+ */
 void pizza_io_apply_color(const char *color) {
-    if (pizza_io_cstr_compare(color, "red") == 0) {
+    if (pizza_io_cstr_compare(color, "black") == 0) {
+        printf(FOSSIL_IO_COLOR_BLACK);
+    } else if (pizza_io_cstr_compare(color, "red") == 0) {
         printf(FOSSIL_IO_COLOR_RED);
     } else if (pizza_io_cstr_compare(color, "green") == 0) {
         printf(FOSSIL_IO_COLOR_GREEN);
@@ -1724,9 +1878,25 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_CYAN);
     } else if (pizza_io_cstr_compare(color, "white") == 0) {
         printf(FOSSIL_IO_COLOR_WHITE);
+    } else if (pizza_io_cstr_compare(color, "gray") == 0) {
+        printf(FOSSIL_IO_COLOR_GRAY);
+    } else if (pizza_io_cstr_compare(color, "orange") == 0) {
+        printf(FOSSIL_IO_COLOR_ORANGE);
+    } else if (pizza_io_cstr_compare(color, "pink") == 0) {
+        printf(FOSSIL_IO_COLOR_PINK);
+    } else if (pizza_io_cstr_compare(color, "purple") == 0) {
+        printf(FOSSIL_IO_COLOR_PURPLE);
+    } else if (pizza_io_cstr_compare(color, "brown") == 0) {
+        printf(FOSSIL_IO_COLOR_BROWN);
+    } else if (pizza_io_cstr_compare(color, "teal") == 0) {
+        printf(FOSSIL_IO_COLOR_TEAL);
+    } else if (pizza_io_cstr_compare(color, "silver") == 0) {
+        printf(FOSSIL_IO_COLOR_SILVER);
     }
     // Bright colors
-    else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
+    else if (pizza_io_cstr_compare(color, "bright_black") == 0) {
+        printf(FOSSIL_IO_COLOR_BRIGHT_BLACK);
+    } else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_RED);
     } else if (pizza_io_cstr_compare(color, "bright_green") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
@@ -1740,131 +1910,160 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
     } else if (pizza_io_cstr_compare(color, "bright_white") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
-    } else {
-        printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
+    } else if (pizza_io_cstr_compare(color, "reset") == 0) {
+        printf(FOSSIL_IO_COLOR_RESET);
     }
 }
 
-// Function to apply text attributes (e.g., bold, underline)
+/**
+ * Apply a text attribute using pizza_io attribute names.
+ */
 void pizza_io_apply_attribute(const char *attribute) {
     if (pizza_io_cstr_compare(attribute, "bold") == 0) {
         printf(FOSSIL_IO_ATTR_BOLD);
-    } else if (pizza_io_cstr_compare(attribute, "underline") == 0) {
-        printf(FOSSIL_IO_ATTR_UNDERLINE);
-    } else if (pizza_io_cstr_compare(attribute, "reversed") == 0) {
-        printf(FOSSIL_IO_ATTR_REVERSED);
-    } else if (pizza_io_cstr_compare(attribute, "blink") == 0) {
-        printf(FOSSIL_IO_ATTR_BLINK);
-    } else if (pizza_io_cstr_compare(attribute, "hidden") == 0) {
-        printf(FOSSIL_IO_ATTR_HIDDEN);
-    } else if (pizza_io_cstr_compare(attribute, "normal") == 0) {
-        printf(FOSSIL_IO_ATTR_NORMAL);
+    } else if (pizza_io_cstr_compare(attribute, "dim") == 0) {
+        printf(FOSSIL_IO_ATTR_DIM);
     } else if (pizza_io_cstr_compare(attribute, "italic") == 0) {
         printf(FOSSIL_IO_ATTR_ITALIC);
+    } else if (pizza_io_cstr_compare(attribute, "underline") == 0) {
+        printf(FOSSIL_IO_ATTR_UNDERLINE);
+    } else if (pizza_io_cstr_compare(attribute, "blink") == 0) {
+        printf(FOSSIL_IO_ATTR_BLINK);
+    } else if (pizza_io_cstr_compare(attribute, "reverse") == 0) {
+        printf(FOSSIL_IO_ATTR_REVERSE);
+    } else if (pizza_io_cstr_compare(attribute, "reversed") == 0) {
+        printf(FOSSIL_IO_ATTR_REVERSED);
+    } else if (pizza_io_cstr_compare(attribute, "hidden") == 0) {
+        printf(FOSSIL_IO_ATTR_HIDDEN);
     } else if (pizza_io_cstr_compare(attribute, "strikethrough") == 0) {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
-    } else {
-        printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
+    } else if (pizza_io_cstr_compare(attribute, "normal") == 0) {
+        printf(FOSSIL_IO_ATTR_NORMAL);
+    } else if (pizza_io_cstr_compare(attribute, "reset_bold") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_BOLD);
+    } else if (pizza_io_cstr_compare(attribute, "reset_dim") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_DIM);
+    } else if (pizza_io_cstr_compare(attribute, "reset_italic") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_ITALIC);
+    } else if (pizza_io_cstr_compare(attribute, "reset_underline") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_UNDERLINE);
+    } else if (pizza_io_cstr_compare(attribute, "reset_blink") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_BLINK);
+    } else if (pizza_io_cstr_compare(attribute, "reset_reverse") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_REVERSE);
+    } else if (pizza_io_cstr_compare(attribute, "reset_hidden") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_HIDDEN);
+    } else if (pizza_io_cstr_compare(attribute, "reset_strike") == 0) {
+        printf(FOSSIL_IO_ATTR_RESET_STRIKE);
+    } else if (pizza_io_cstr_compare(attribute, "reset") == 0) {
+        printf(FOSSIL_IO_ATTR_NORMAL);
     }
 }
 
-// Function to handle named positions (like top, bottom, left, right)
+/**
+ * Apply a named position (top, bottom, left, right, center, etc).
+ */
 void pizza_io_apply_position(const char *pos) {
     if (pizza_io_cstr_compare(pos, "top") == 0) {
-        // Apply position logic for top
-        printf("\033[H"); // Move cursor to the top
+        printf("\033[1;1H");
     } else if (pizza_io_cstr_compare(pos, "bottom") == 0) {
-        // Apply position logic for bottom
-        printf("\033[999;1H"); // Move cursor to the bottom (example within reasonable bounds)
+        printf("\033[1000;1H");
     } else if (pizza_io_cstr_compare(pos, "left") == 0) {
-        // Apply position logic for left
-        printf("\033[1;1H"); // Move cursor to the top-left corner
+        printf("\033[1;1H");
     } else if (pizza_io_cstr_compare(pos, "right") == 0) {
-        // Apply position logic for right
-        printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
+        printf("\033[1;1000H");
+    } else if (pizza_io_cstr_compare(pos, "center") == 0) {
+        printf("\033[25;40H");
+    } else if (pizza_io_cstr_compare(pos, "top-left") == 0) {
+        printf("\033[1;1H");
+    } else if (pizza_io_cstr_compare(pos, "top-right") == 0) {
+        printf("\033[1;1000H");
+    } else if (pizza_io_cstr_compare(pos, "bottom-left") == 0) {
+        printf("\033[1000;1H");
+    } else if (pizza_io_cstr_compare(pos, "bottom-right") == 0) {
+        printf("\033[1000;1000H");
+    } else if (pizza_io_cstr_compare(pos, "middle-left") == 0) {
+        printf("\033[25;1H");
+    } else if (pizza_io_cstr_compare(pos, "middle-right") == 0) {
+        printf("\033[25;1000H");
+    } else {
+        fprintf(stderr, "Unknown position: %s\n", pos);
     }
-    // Add more positions if needed
 }
 
-// Function to print text with attributes, colors, positions, and format specifiers
-void pizza_io_print_with_attributes(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
+/**
+ * Print text with attributes, colors, background colors, positions, and format specifiers.
+ * Supports {color}, {color,attribute}, {bg:bg_color}, {bg:bg_color,attribute}, {pos:name}, and combinations.
+ */
+void pizza_io_print_with_attributes(const char *str) {
+    if (str == NULL) {
+        fputs("cnullptr\n", stderr);
+        return;
+    }
 
-    // Create a buffer to hold the formatted string
-    char buffer[FOSSIL_IO_BUFFER_SIZE];
-    vsnprintf(buffer, sizeof(buffer), format, args);
+    const char *current_pos = str;
+    const char *start = NULL;
+    const char *end = NULL;
 
-    // Variable to keep track of the current position in the buffer
-    const char *current_pos = buffer;
-    const char *start = null;
-    const char *end = null;
-
-    // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
-    while ((start = strchr(current_pos, '{')) != null) {
-        // Print text before '{'
+    while ((start = strchr(current_pos, '{')) != NULL) {
+        // Output text before '{'
         printf("%.*s", (int)(start - current_pos), current_pos);
-        
+
         // Find the matching '}'
         end = strchr(start, '}');
         if (end) {
             // Extract attributes inside '{}'
             size_t length = end - start - 1;
-            char attributes[length + 1];
+            char attributes[64];
+            if (length >= sizeof(attributes)) length = sizeof(attributes) - 1;
             strncpy(attributes, start + 1, length);
             attributes[length] = '\0';
 
-            // Split by comma to separate color, attribute, or position
-            char *color = null;
-            char *attribute = null;
-            char *pos = null;
-            char *comma_pos = strchr(attributes, ',');
-            if (comma_pos) {
-                *comma_pos = '\0';  // null-terminate the first part
-                color = attributes; // Color or position part
-                attribute = comma_pos + 1; // Attribute part
+            // Check for bg: or pos: prefix
+            if (strncmp(attributes, "bg:", 3) == 0) {
+                // Handle background color and optional attribute
+                char *bg_color = attributes + 3;
+                char *comma_pos = strchr(bg_color, ',');
+                if (comma_pos) {
+                    *comma_pos = '\0';
+                    if (PIZZA_IO_COLOR_ENABLE) pizza_io_apply_bg_color(bg_color);
+                    pizza_io_apply_attribute(comma_pos + 1);
+                } else {
+                    if (PIZZA_IO_COLOR_ENABLE) pizza_io_apply_bg_color(bg_color);
+                }
+            } else if (strncmp(attributes, "pos:", 4) == 0) {
+                // Handle position
+                pizza_io_apply_position(attributes + 4);
             } else {
-                color = attributes; // Only one part (could be color, attribute, or position)
-            }
-
-            // Handle positions (like {pos:name})
-            if (strstr(color, "pos:") == color) {
-                pos = color + 4; // Skip the "pos:" prefix
-                pizza_io_apply_position(pos);
-            } else {
-                // Apply color and/or attribute based on flags
-                if (PIZZA_IO_COLOR_ENABLE && color) {
+                // Handle color and/or attribute
+                char *color = attributes;
+                char *attribute = NULL;
+                char *comma_pos = strchr(attributes, ',');
+                if (comma_pos) {
+                    *comma_pos = '\0';
+                    color = attributes;
+                    attribute = comma_pos + 1;
+                }
+                if (PIZZA_IO_COLOR_ENABLE && color && color[0] != '\0') {
                     pizza_io_apply_color(color);
                 }
-                pizza_io_apply_attribute(attribute);
+                if (attribute && attribute[0] != '\0') {
+                    pizza_io_apply_attribute(attribute);
+                }
             }
 
             // Move past '}' and continue processing
             current_pos = end + 1;
+        } else {
+            // No matching '}', print the rest and break
+            printf("%s", start);
+            break;
         }
     }
 
-    // Print remaining text after last '}'
+    // Output remaining text after last '}'
     printf("%s", current_pos);
-
-    va_end(args);
-}
-
-// Function to print a sanitized formatted string to a specific file stream with attributes
-void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
-    if (str != null && stream != null) {
-        char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
-        strncpy(sanitized_str, str, sizeof(sanitized_str));
-        sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
-
-        // Apply color and attribute logic (same as the print version)
-        pizza_io_print_with_attributes(sanitized_str);
-
-        // Write the sanitized string to the stream
-        fputs(sanitized_str, stream->file);
-    } else {
-        fputs("cnullptr\n", stderr);
-    }
+    fflush(stdout);
 }
 
 //
@@ -1872,8 +2071,8 @@ void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
 //
 
 // Function to print a sanitized string with attributes inside {}
-void pizza_io_puts(const char *str) {
-    if (str != null) {
+void pizza_io_puts(ccstr str) {
+    if (str != NULL) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
@@ -1887,11 +2086,11 @@ void pizza_io_puts(const char *str) {
 
 // Function to print a single character
 void pizza_io_putchar(char c) {
-    putchar(c);
+    fputc(c, stdout);
 }
 
 // Function to print sanitized formatted output with attributes
-void pizza_io_printf(const char *format, ...) {
+void pizza_io_printf(ccstr format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -1905,44 +2104,23 @@ void pizza_io_printf(const char *format, ...) {
     va_end(args);
 }
 
-int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
-    if (buffer == null || size == 0 || format == null) {
-        return -1; // Invalid input
-    }
-
-    // Create a temporary buffer to hold the formatted string
-    char temp_buffer[FOSSIL_IO_BUFFER_SIZE];
-    int formatted_length = vsnprintf(temp_buffer, sizeof(temp_buffer), format, args);
-
-    if (formatted_length < 0 || (size_t)formatted_length >= size) {
-        // Truncate the string if it exceeds the provided buffer size
-        strncpy(buffer, temp_buffer, size - 1);
-        buffer[size - 1] = '\0'; // Ensure null termination
-        return (formatted_length < 0) ? -1 : (int)(size - 1);
-    }
-
-    // Copy the formatted string to the provided buffer
-    strncpy(buffer, temp_buffer, size);
-    buffer[formatted_length] = '\0'; // Ensure null termination
-    return formatted_length;
-}
-
-// Function to print a sanitized string to a specific file stream
-void pizza_io_fputs(pizza_fstream_t *stream, const char *str) {
-    if (str != null && stream != null) {
+// Function to print a sanitized string to a specific pizza_fstream_t stream
+void pizza_io_fputs(pizza_fstream_t *stream, ccstr str) {
+    if (str != NULL && stream != NULL && stream->file != NULL) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
 
-        // Apply color/attributes and sanitize the string before printing
-        pizza_io_fprint_with_attributes(stream, sanitized_str);
+        // Print with attributes to the stream
+        // For simplicity, just fputs here; color/attribute support can be added as needed
+        fputs(sanitized_str, stream->file);
     } else {
         fputs("cnullptr\n", stderr);
     }
 }
 
-// Function to print a sanitized formatted string to a specific file stream
-void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...) {
+// Function to print a sanitized formatted string to a specific pizza_fstream_t stream
+void pizza_io_fprintf(pizza_fstream_t *stream, ccstr format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -1951,40 +2129,53 @@ void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     // Print the sanitized formatted string with attributes to the specified stream
-    pizza_io_fprint_with_attributes(stream, buffer);
+    if (stream != NULL && stream->file != NULL) {
+        fputs(buffer, stream->file);
+    } else {
+        fputs(buffer, stderr);
+    }
 
     va_end(args);
+}
+
+// Function to format a string into a buffer
+int pizza_io_snprintf(char *buffer, size_t size, ccstr format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = vsnprintf(buffer, size, format, args);
+    va_end(args);
+    return result;
 }
 
 // TUI PART
 
 void pizza_io_clear_screen(void) {
-    pizza_io_printf("\033[2J\033[H");
+    printf("\033[2J\033[H");
 }
 
 void pizza_io_move_cursor(int row, int col) {
-    pizza_io_printf("\033[%d;%dH", row, col);
+    printf("\033[%d;%dH", row, col);
 }
 
 void pizza_io_hide_cursor(void) {
-    pizza_io_printf("\033[?25l");
+    printf("\033[?25l");
 }
 
 void pizza_io_show_cursor(void) {
-    pizza_io_printf("\033[?25h");
+    printf("\033[?25h");
 }
 
 void pizza_io_draw_horizontal_line(int length, char ch) {
     for (int i = 0; i < length; ++i) {
-        putchar(ch);
+        fputc(ch, stdout);
     }
-    putchar('\n');
+    fputc('\n', stdout);
 }
 
 void pizza_io_draw_vertical_line(int length, char ch) {
     for (int i = 0; i < length; ++i) {
-        putchar(ch);
-        putchar('\n');
+        fputc(ch, stdout);
+        fputc('\n', stdout);
     }
 }
 
