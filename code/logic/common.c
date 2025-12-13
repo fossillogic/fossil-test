@@ -1097,25 +1097,11 @@ int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
 
 #define MAX_CUSTOM_FILTERS 64
 
-// Optional: reasoning / TI metadata
-typedef struct {
-    const char *category_name;
-    const char *matched_pattern;
-    int confidence; // 0-100
-} soap_ti_reason_t;
-
 /** Lookup table for rot-brain words and their suggested replacements */
 static const struct {
     const char *bad;
     const char *suggested;
 } FOSSIL_SOAP_SUGGESTIONS[] = {
-    {"u", "you"},
-    {"gonna", "going to"},
-    {"ppl", "people"},
-    {"funny", "laugh out loud"},
-    {"lol", "laugh out loud"},
-    {"idk", "I don't know"},
-    {"wanna", "want to"},
     {"rizz", "charisma"},
     {"skibidi", "dance"},
     {"yeet", "throw"},
@@ -1146,13 +1132,15 @@ static const struct {
     {"zaddy", "attractive man"},
     {"drip", "fashion"},
     {"fire", "amazing"},
+    {"lol", "funny"},
     {"omg", "surprising"},
     {"brb", "be right back"},
+    {"idk", "I don't know"},
     {"imo", "in my opinion"},
     {"lmao", "laughing"},
     {"nvm", "never mind"},
     {"tbh", "to be honest"},
-    {"tldr", "too long; didn't read"},
+    {"tldr", "too long"},
     {"ttyl", "talk to you later"},
     {"wyd", "what are you doing"},
     {"wtf", "what the heck"},
@@ -1160,97 +1148,7 @@ static const struct {
     {"rot-brain", "stupid"},
     {"rot brain", "stupid"},
     {"rotbrain", "stupid"},
-    {"smh", "shaking my head"},
-    {"fomo", "fear of missing out"},
-    {"bff", "best friend forever"},
-    {"irl", "in real life"},
-    {"afaik", "as far as I know"},
-    {"btw", "by the way"},
-    {"omw", "on my way"},
-    {"ikr", "I know right"},
-    {"tgif", "thank goodness it's Friday"},
-    {"np", "no problem"},
-    {"rofl", "rolling on the floor laughing"},
-    {"lmk", "let me know"},
-    {"dm", "direct message"},
-    {"rn", "right now"},
-    {"yw", "you're welcome"},
-    {"af", "very"},
-    {"ftw", "for the win"},
-    {"gg", "good game"},
-    {"pov", "point of view"},
-    {"omfg", "oh my goodness"},
-    {"tl;dr", "too long; didn't read"},
-    {"fwiw", "for what it's worth"},
-    {"bday", "birthday"},
-    {"gr8", "great"},
-    {"hmu", "hit me up"},
-    {"jk", "just kidding"},
-    {"k", "okay"},
-    {"l8r", "later"},
-    {"msg", "message"},
-    {"pls", "please"},
-    {"plz", "please"},
-    {"thx", "thanks"},
-    {"tho", "though"},
-    {"w/", "with"},
-    {"w/o", "without"},
-    {"xoxo", "hugs and kisses"},
-    {"y", "why"},
-    {"b/c", "because"},
-    {"cuz", "because"},
-    {"coz", "because"},
-    {"dunno", "don't know"},
-    {"g2g", "got to go"},
-    {"hbu", "how about you"},
-    {"idc", "I don't care"},
-    {"ily", "I love you"},
-    {"l8", "late"},
-    {"n/a", "not applicable"},
-    {"nvm", "never mind"},
-    {"omw", "on my way"},
-    {"ppl", "people"},
-    {"qt", "cutie"},
-    {"sup", "what's up"},
-    {"tba", "to be announced"},
-    {"tbc", "to be continued"},
-    {"w/e", "whatever"},
-    {"wth", "what the heck"},
-    // Additions for test coverage and robustness:
-    {"premium", "high quality"},
-    {"excellence", "high quality"},
-    {"standards", "quality standards"},
-    {"standard", "quality standard"},
-    {"built with", "constructed with"},
-    {"government", "government"},
-    {"tax", "tax"},
-    {"taxes", "taxes"},
-    {"policy", "policy"},
-    {"politics", "politics"},
-    {"political", "political"},
-    {"vote", "vote"},
-    {"election", "election"},
-    {"law", "law"},
-    {"regulation", "regulation"},
-    {"congress", "congress"},
-    {"senate", "senate"},
-    {"president", "president"},
-    {"democrat", "democrat"},
-    {"republican", "republican"},
-    {"parliament", "parliament"},
-    {"moon landing was faked by the government", "conspiracy theory"},
-    {"the sky is blue", "the sky is blue"},
-    {"the quick brown fox jumps over the lazy dog", "the quick brown fox jumps over the lazy dog"},
-    {"water boils at 100°c", "water boils at 100°c"},
-    {"water boils at 100c", "water boils at 100c"},
-    {"water boils at 100 degrees", "water boils at 100 degrees"},
-    {"the results were as expected", "the results were as expected"},
-    {"quantum flux capacitor", "technobabble"},
-    {"hyperdimensional", "technobabble"},
-    {"throughput", "technobabble"},
-    {"unlock your potential", "marketing phrase"},
-    {"revolutionary solution", "marketing phrase"},
-    {NULL, NULL} // Sentinel to mark the end
+    {null, null} // Sentinel to mark the end
 };
 
 /** Grammar suggestions for common mistakes */
@@ -1262,301 +1160,51 @@ static const struct {
     {"ain't", "isn't"},
     {"should of", "should have"},
     {"could of", "could have"},
-    {"would of", "would have"},
     {"not never", "never"},
     {"free gift", "gift"},
     {"very unique", "unique"},
-    {"actually true", "true"},
-    {"past history", "history"},
-    {"future plans", "plans"},
-    {"true fact", "fact"},
-    {"basic fundamentals", "fundamentals"},
-    {"completely destroyed", "destroyed"},
-    {"revert back", "revert"},
-    {"each and every", "each"},
-    {"end result", "result"},
-    {"final outcome", "outcome"},
-    {"unexpected surprise", "surprise"},
-    {"advance planning", "planning"},
-    {"close proximity", "proximity"},
-    {"ATM machine", "ATM"},
-    {"PIN number", "PIN"},
-    {"ISBN number", "ISBN"},
-    {"LCD display", "LCD"},
-    {"HIV virus", "HIV"},
-    {"true facts", "facts"},
-    {"past experiences", "experiences"},
-    {"irregardless", "regardless"},
-    {"supposably", "supposedly"},
-    {"could care less", "couldn't care less"},
-    {"for all intensive purposes", "for all intents and purposes"},
-    {"escape goat", "scapegoat"},
-    {"expresso", "espresso"},
-    {"nucular", "nuclear"},
-    {"pacifically", "specifically"},
-    {"definately", "definitely"},
-    {"probly", "probably"},
-    {"prolly", "probably"},
-    {"alot", "a lot"},
-    {"wouldn't of", "wouldn't have"},
-    {"shouldn't of", "shouldn't have"},
-    {"couldn't of", "couldn't have"},
-    {"less people", "fewer people"},
-    {"less cars", "fewer cars"},
-    {"less books", "fewer books"},
-    {"less problems", "fewer problems"},
-    {"less mistakes", "fewer mistakes"},
-    {"between you and I", "between you and me"},
-    {"me and him", "he and I"},
-    {"me and her", "she and I"},
-    {"me and them", "they and I"},
-    {"me and John", "John and I"},
-    {"I seen", "I saw"},
-    {"I done", "I did"},
-    {"I been", "I have been"},
-    {"I had went", "I had gone"},
-    {"I had ran", "I had run"},
-    {"I had ate", "I had eaten"},
-    {"I had wrote", "I had written"},
-    {"I had broke", "I had broken"},
-    {"I had spoke", "I had spoken"},
-    {"I had took", "I had taken"},
-    {"I had drank", "I had drunk"},
-    {"I had drove", "I had driven"},
-    {"I had froze", "I had frozen"},
-    {"I had chose", "I had chosen"},
-    {"I had gave", "I had given"},
-    {"I had rode", "I had ridden"},
-    {"I had stole", "I had stolen"},
-    {"I had swam", "I had swum"},
-    {"I had wore", "I had worn"},
-    {NULL, NULL} // Sentinel to mark the end
+    {null, null} // Sentinel to mark the end
 };
 
 /** Lookup table for sarcastic phrases */
-static const char *SOAP_SARCASTIC_PATTERNS[] = {
-    "Oh, great", "Yeah, right", "Nice job", "Well done", "Good luck with that", "Sure, why not", "Fantastic", "Brilliant", "Wonderful", "Perfect",
-    "Oh, just what I needed", "Wow, amazing", "How original", "Incredible", "As if that will work", "Sure, that's smart", "Totally believable", "Oh, really?",
-    "You're a genius", "Thanks a lot", "Couldn't be better", "That's exactly what I wanted", "Well, isn't that special", "Lovely", "Just perfect",
-    "What could go wrong?", "Right, because that makes sense", "Great idea", "Absolutely flawless", "Marvelous", "Just wonderful", "Oh, that's helpful",
-    "Just what I expected", "Couldn't ask for more", "That's not suspicious at all", "Oh, that's convincing", "What a surprise", "How unexpected",
-    "Just my luck", "Of course, why wouldn't it", "That's so typical", "What a coincidence", "Just in time", "Couldn't be happier",
-    "That's exactly what I needed", "Oh, that's rich", "How fortunate", "Just fantastic", "Oh, that's brilliant", "Couldn't be more obvious",
-    "How convenient", NULL
+static const char *SARCASTIC_PHRASES[] = {
+    "Oh, great",
+    "Yeah, right",
+    "Nice job",
+    "Well done",
+    "Good luck with that",
+    "Sure, why not",
+    "Fantastic",
+    "Brilliant",
+    "Wonderful",
+    "Perfect",
+    null // Sentinel to mark the end
 };
 
 /** Lookup table for formal phrases */
-static const char *SOAP_FORMAL_PATTERNS[] = {
-    "Dear Sir or Madam", "To whom it may concern", "Yours sincerely", "Yours faithfully", "Best regards", "Respectfully",
-    "I would like to", "I am writing to", "Please find attached", "Thank you for your consideration", "I look forward to your response",
-    "Kindly note", "Please be advised", "It is my pleasure to", "I would appreciate your assistance", "Should you require any further information",
-    "I remain at your disposal", "With kind regards", "Thank you for your attention", "I am writing on behalf of", "Please accept my apologies",
-    "I wish to inform you", "We would be grateful if", "I hope this message finds you well", "I would be obliged if", "Kindly consider",
-    "I trust this finds you well", "Allow me to express", "With utmost respect", "Permit me to", "I am pleased to inform you",
-    "I would like to request", "I am delighted to", "I am honored to", "I am grateful for", "I am reaching out to",
-    "I am writing regarding", "I am contacting you to", "I am pleased to submit", "I am pleased to provide", "I am pleased to announce",
-    "I am pleased to offer", "I am pleased to confirm", "I am pleased to accept", "I am pleased to acknowledge", "I am pleased to extend",
-    "I am pleased to invite", "I am pleased to welcome", "I am pleased to recommend", "I am pleased to endorse", NULL
+static const char *FORMAL_PHRASES[] = {
+    "Dear Sir or Madam",
+    "To whom it may concern",
+    "Yours sincerely",
+    "Yours faithfully",
+    "Best regards",
+    "Respectfully",
+    "I would like to",
+    "I am writing to",
+    "Please find attached",
+    "Thank you for your consideration",
+    null // Sentinel to mark the end
 };
 
-static const char *SOAP_RAGEBAIT_PATTERNS[] = {
-    "you won't believe", "outrageous", "infuriating", "makes me angry", "how dare they", "ridiculous", "unbelievable", "trigger warning", "enraging", "shocking injustice",
-    "furious", "disgusting", "outrage", "unacceptable", "appalling", "scandalous", "outraged", "angry reaction", "horrifying", "outrage alert",
-    "infuriated", "rage induced", "madness", "shocking", "unthinkable", "angry outrage", "outrage fest", "provocative", "furious outrage", "triggered",
-    "ragebait", "fuming", "explosive reaction", "heated debate", "controversial", "offensive", "insulting", "hate-filled", "hate speech", "unjust",
-    "unfair", "disrespectful", "call to action", "raging", "storm of anger", "backlash", "public outrage", "viral outrage", "internet rage", "mass outrage",
-    "social media outrage", NULL
-};
-
-static const char *SOAP_CLICKBAIT_PATTERNS[] = {
-    "how to", "top 10", "amazing", "must see", "you won't believe what happened", "life changing", "secret revealed", "uncovered", "incredible", "mind blown",
-    "you won't believe this", "shocking", "insane", "epic", "ultimate guide", "hidden truth", "never knew", "reveal", "best ever", "fantastic", "jaw dropping",
-    "you must see", "exclusive", "surprising", "unreal", "best of", "amazing discovery", "life hack", "can't miss", "insider tips", "what happened next",
-    "this will change your life", "the truth about", "watch until the end", "don't miss this", "the secret to", "revealed", "breakthrough", "the real reason",
-    "you need to know", "must watch", "unbelievable", "game changer", "before and after", "biggest ever", "most shocking", "crazy story", "you won't believe your eyes",
-    "the best kept secret", "what experts don't tell you", "the ultimate list", NULL
-};
-
-static const char *SOAP_SPAM_PATTERNS[] = {
-    "free money", "work from home", "act now", "earn cash fast", "get rich quick", "limited time offer", "buy now", "exclusive deal",
-    "instant results", "100% free", "click here", "apply now", "offer expires", "make money online", "risk free", "guaranteed",
-    "easy income", "double your money", "urgent", "special promotion", "no investment", "limited offer", "win big", "free trial",
-    "claim prize", "extra cash", "instant payout", "hot deal", "bonus", "cash bonus", "lowest price", "save big", "limited stock",
-    "don't miss out", "order now", "get started today", "exclusive offer", "limited time only", "no obligation", "money back guarantee",
-    "fast cash", "get paid today", "easy steps", "no experience needed", "start earning now", "unbelievable deal", "limited seats",
-    "special discount", "win a prize", "free access", "limited availability", NULL
-};
-
-static const char *SOAP_WOKE_PATTERNS[] = {
-    "safe space", "microaggression", "check your privilege", "diversity and inclusion", "equity over equality",
-    "social justice", "systemic oppression", "cultural appropriation", "intersectionality", "allyship",
-    "gender equality", "anti-racism", "inclusive language", "oppression", "privilege check",
-    "marginalized voices", "bias awareness", "equity", "discrimination", "social activism",
-    "representation matters", "critical race theory", "minority rights", "empowerment", "identity politics",
-    "decolonize", "bias training", "social equity", "inclusive policy", "identity awareness",
-    "gender neutral", "pronoun respect", "intersectional feminism", "diversity training", "racial justice",
-    "gender fluidity", "safe environment", "trigger warning", "progressive values", "inclusive spaces",
-    "anti-bias", "restorative justice", "affirmative action", "equitable access", "community empowerment",
-    "inclusive curriculum", "representation equity", "social responsibility", "inclusive leadership",
-    "gender inclusivity", "racial equity", NULL
-};
-
-/** Lookup table for bot-like patterns */
-static const char *SOAP_BOT_PATTERNS[] = {
-    "ai generated", "algorithmic message", "artificial response", "auto reply", "auto responder", "auto-generated",
-    "automated comment", "automated message", "automated post", "automated reply", "automation bot", "automation detected",
-    "autonomous post", "bot activity", "bot behavior", "bot comment", "bot detected", "bot follower", "bot interaction",
-    "bot like", "bot moderator", "bot network", "bot retweet", "bot spam", "bot upvote", "bulk message", "copy-paste answer",
-    "fake account", "fake bot", "fake user", "generated content", "generic message", "machine generated", "mass message",
-    "mass posting", "mass produced content", "non-human reply", "predefined response", "programmed answer", "repetitive comment",
-    "robot account", "robot post", "robotic message", "robotic reply", "scripted content", "scripted response", "spam account",
-    "spam bot", "system generated", "synthetic post", "template reply", "unoriginal reply", NULL
-};
-
-/** Lookup table for snowflake patterns */
-static const char *SOAP_SNOWFLAKE_PATTERNS[] = {
-    "snowflake", "triggered", "fragile ego", "offended easily", "sensitive snowflake",
-    "microaggression", "safe space", "special snowflake", "delicate", "thin-skinned",
-    "overly sensitive", "crybaby", "tender feelings", "too sensitive", "emotionally fragile",
-    "overreacting", "touchy", "soft-hearted", "extra sensitive", "hyper-sensitive",
-    "prickly", "easily upset", "nervous nellie", "fragile personality", "highly sensitive",
-    "overly emotional", "whiny", "melodramatic", "delicate flower", "fragile soul",
-    "overprotected", "coddled", "pampered", "overly sheltered", "easily offended",
-    "thin skin", "overly dramatic", "sheltered", "overly cautious", "emotionally weak",
-    "overly anxious", "overly reactive", "overly sentimental", "easily disturbed",
-    "overly nurturing", "emotionally unstable", "overly caring", "overly empathetic",
-    "overly worried", "overly fearful", NULL
-};
-
-/** Lookup table for offensive content detection */
-static const char *SOAP_OFFENSIVE_PATTERNS[] = {
-    "idiot", "stupid", "dumb", "moron", "fool", "loser", "jerk", "trash", "garbage",
-    "worthless", "pathetic", "ugly", "disgusting", "nonsense", "ridiculous", "absurd",
-    "hate", "kill", "die", "sucks", "shut up", "dunce", "ignorant", "nasty",
-    "offensive", "freak", "creep", "weirdo", "worthless", "imbecile", "retard",
-    "scum", "vermin", "filth", "vile", "repulsive", "gross", "horrible", "evil",
-    "abomination", "monster", "beast", "brainless", "airhead", "twit", "twat",
-    "douche", "bastard", "maniac", "psycho", "lunatic", "savage", NULL
-};
-
-/** Lookup table for neutral tone patterns */
-static const char *SOAP_NEUTRAL_PATTERNS[] = {
-    // Add factual, unbiased, and neutral language patterns
-    "as expected", "according to plan", "no problem", "all good", "fine", "okay", "normal",
-    "standard procedure", "routine", "average", "typical", "usual", "nothing special",
-    "business as usual", "no issues", "no concerns", "no complaints", "acceptable",
-    "satisfactory", "regular", "ordinary", "unremarkable", "moderate", "fair", "adequate",
-    "sufficient", "reasonable", "not bad", "not great", "so-so", "meh", "neutral",
-    "indifferent", "unbiased", "impartial", "objective", "even-handed", "middle ground",
-    "balanced", "equitable", "nonpartisan", "detached", "reserved", "unemotional",
-    "calm", "steady", "level-headed", "matter-of-fact", "plain", "straightforward",
-    "clear", "direct", "simple", "uncomplicated",
-    // Add common factual/neutral sentences for test coverage
-    "the sky is blue", "the quick brown fox jumps over the lazy dog", "water boils at 100°c", "water boils at 100c", "water boils at 100 degrees", "the results were as expected",
-    NULL
-};
-
-/** Lookup table for hype phrases */
-static const char *SOAP_HYPE_PATTERNS[] = {
-    "game-changing","revolutionary","cutting-edge","disruptive","never before seen",
-    "unprecedented","the ultimate","next-level","life-changing","epic","legendary",
-    "the best ever","mind-blowing","world-class","exclusive","groundbreaking","innovative",
-    "unparalleled","must-have","hot new","phenomenal","incredible","jaw-dropping",
-    "guaranteed","proven results","miracle","unstoppable","the future of","beyond belief",
-    "state-of-the-art","amazing","once in a lifetime","extraordinary","unbeatable","elite",
-    "remarkable","top-tier","exceptional","stellar","premium","best-in-class","outstanding",
-    "next big thing","ultimate solution","transformative","game-changer","reimagined","breakthrough",
-    "trailblazing","legendary product","redefining",NULL
-};
-
-/** Political */
-static const char *SOAP_POLITICAL_PATTERNS[] = { 
-    "left-wing","right-wing","liberal agenda","conservative values","fake news media",
-    "mainstream media","deep state","radical","extremist","social justice warrior","tax and spend",
-    "big government","free market","personal freedom","authoritarian","totalitarian","censorship",
-    "political correctness","cancel culture","big brother","elitist","grassroots movement",
-    "identity politics","partisan","special interests","lobbyist","corrupt politicians","vote rigging",
-    "rigged system","polarized nation","propaganda","electoral fraud","media bias","government overreach",
-    "legislation","policy reform","constitutional","impeachment","regulatory capture","voter suppression",
-    "political scandal","public office","government shutdown","state control","national security",
-    "campaign finance","party platform",
-    // Add common political words for test coverage
-    "government", "tax", "taxes", "policy", "politics", "political", "vote", "election", "law", "regulation", "congress", "senate", "president", "democrat", "republican", "parliament",
-    NULL
-};
-
-/** Conspiracy */
-static const char *SOAP_CONSPIRACY_PATTERNS[] = {
-    "they don’t want you to know","hidden truth","cover up","shadow government","mind control",
-    "secret society","illuminati","new world order","false flag","plandemic","chemtrails",
-    "crisis actors","fabricated evidence","hollow earth","flat earth","alien cover-up",
-    "government lies","deep underground base","suppressed technology","mass surveillance",
-    "thought police","fabricated by the media","controlled opposition","secret labs",
-    "fake moon landing","reptilian","massive hoax","in on it","they control everything",
-    "behind closed doors","manipulation","hidden agenda","classified files","covert operations",
-    "black ops","unexplained phenomena","shadowy figures","secret programs","disinformation",
-    "conspiratorial","hidden messages","mind games","secret experiments","underground network",
-    // Add for test coverage
-    "moon landing was faked", "faked by the government", "moon landing was faked by the government",
-    NULL
-};
-
-/** Marketing */
-static const char *SOAP_MARKETING_PATTERNS[] = {
-    "limited time offer","act now","don’t miss out","guaranteed results","risk free",
-    "sign up today","exclusive deal","free trial","buy one get one","special promotion",
-    "limited stock","save big","lowest price ever","best deal","offer ends soon",
-    "only for today","unlock savings","no obligation","instant access","money back guarantee",
-    "redeem now","hot deal","flash sale","discounted rate","claim your spot","exclusive offer",
-    "limited edition","join thousands","be the first","special savings","new arrival",
-    "get yours now","best value","exclusive bonus","early bird","special launch","today only",
-    "final chance","bonus included","premium package","offer valid","special offer","don’t wait",
-    "hurry up","exclusive access","deal of the day",
-    // Add for test coverage
-    "unlock your potential", "revolutionary solution",
-    NULL
-};
-
-/** Technobabble */
-static const char *SOAP_TECHNOBABBLE_PATTERNS[] = {
-    "synergy","blockchain-enabled","AI-powered","machine learning solution",
-    "next-gen","hyper scalable","paradigm shift","deep tech","seamless integration",
-    "big data","cloud-native","cutting-edge platform","quantum leap","value proposition",
-    "turnkey solution","innovative ecosystem","frictionless","low-hanging fruit",
-    "mission critical","digital transformation","smart disruption","empower users",
-    "end-to-end","future-proof","holistic approach","thought leadership","revolutionize",
-    "strategic alignment","game-changer","intelligent automation","data-driven","disruptive innovation",
-    "scalable architecture","AI-driven","cloud-first","next-generation","hyper convergence",
-    "machine intelligence","tech stack","real-time analytics","dynamic workflow","intelligent design",
-    "agile methodology",
-    // Add for test coverage
-    "quantum flux capacitor", "hyperdimensional", "throughput",
-    NULL
-};
-
-/** Lookup table for low-quality signals */
-static const char *SOAP_QUALITY_PATTERNS[] = {
-    "just saying","you know","like literally","basically","whatever","stuff and things",
-    "random nonsense","blah blah","and so on","thingy","meh","idk","not sure","somehow",
-    "something like that","kind of","sort of","whatever works","in a way","obviously",
-    "clearly","everyone knows","trust me","believe me","it is what it is","that kind of thing",
-    "doesn’t matter","whatever you think","unimportant","insignificant","minor detail",
-    "whatever floats your boat","trivial","meaningless","small stuff","irrelevant",
-    "empty words","hollow statement","noise","filler","pointless",
-    // Add for test coverage
-    "quality", "premium", "excellence", "standard", "standards", "built with", "high quality", "top quality", "best-in-class", "best in class", "superior", "exceptional", "outstanding", "excellent",
-    NULL
-};
+static char custom_storage[MAX_CUSTOM_FILTERS][64];
+static const char *custom_filters[MAX_CUSTOM_FILTERS] = {0};
 
 /** Lookup table for words that need to be skipped due to misdetection */
 static const char *SKIP_WORDS[] = {
-    "limit", "size", "width", "height", "length", "depth", "volume", "capacity", "weight",
-    "age", "year", "month", "day", "hour", "minute", "second", "ID", "serial", "version",
-    "code", "label", "status", "level",
-    NULL // Sentinel to mark the end
+    "limit",
+    "size",
+    null // Sentinel to mark the end
 };
-
-static const char *custom_filters[MAX_CUSTOM_FILTERS] = {0};
 
 /**
  * @brief Convert leetspeak to normal letters.
@@ -1577,30 +1225,38 @@ static void pizza_io_soap_normalize_leetspeak(char *word) {
 
 /**
  * @brief Fuzzy matching using Levenshtein distance.
+ * Optimized for short words, early exit if distance > 2.
  */
 static int fuzzy_match(const char *str1, const char *str2) {
     size_t len1 = strlen(str1);
     size_t len2 = strlen(str2);
-    size_t dist[len1 + 1][len2 + 1];
+    if (len1 == 0 || len2 == 0) return (int)(len1 + len2);
+    if (abs((int)len1 - (int)len2) > 2) return 3; // AI trick: early exit for big length diff
 
-    for (size_t i = 0; i <= len1; i++) dist[i][0] = i;
-    for (size_t j = 0; j <= len2; j++) dist[0][j] = j;
+    int prev[65], curr[65];
+    if (len2 > 64) return 3; // AI trick: limit for stack buffer
 
+    for (size_t j = 0; j <= len2; j++) prev[j] = (int)j;
     for (size_t i = 1; i <= len1; i++) {
+        curr[0] = (int)i;
+        int min_row = curr[0];
         for (size_t j = 1; j <= len2; j++) {
-            int cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1;
-            dist[i][j] = fmin(fmin(dist[i - 1][j] + 1, dist[i][j - 1] + 1), dist[i - 1][j - 1] + cost);
+            int cost = (tolower((unsigned char)str1[i - 1]) == tolower((unsigned char)str2[j - 1])) ? 0 : 1;
+            curr[j] = fmin(fmin(prev[j] + 1, curr[j - 1] + 1), prev[j - 1] + cost);
+            if (curr[j] < min_row) min_row = curr[j];
         }
+        if (min_row > 2) return 3; // AI trick: early exit if row min > 2
+        memcpy(prev, curr, (len2 + 1) * sizeof(int));
     }
-    return dist[len1][len2];
+    return curr[len2];
 }
 
 /**
  * @brief Check if a word should be skipped.
  */
 static int should_skip_word(const char *word) {
-    for (size_t i = 0; SKIP_WORDS[i] != NULL; i++) {
-        if (strcmp(word, SKIP_WORDS[i]) == 0) {
+    for (size_t i = 0; SKIP_WORDS[i] != null; i++) {
+        if (pizza_io_cstr_compare(word, SKIP_WORDS[i]) == 0) {
             return 1;
         }
     }
@@ -1637,61 +1293,20 @@ static const char *custom_strcasestr(const char *haystack, const char *needle) {
             if (!*n) return haystack;
         }
     }
-    return NULL;
-}
-
-/**
- * @brief Simple regex-like pattern matcher for phrase arrays.
- *        Supports '*' (matches any sequence) and '?' (matches any single char).
- *        Case-insensitive.
- */
-static int pizza_io_soap_simple_regex_match(const char *text, const char *pattern) {
-    // Case-insensitive matching
-    while (*pattern) {
-        if (*pattern == '*') {
-            pattern++;
-            if (!*pattern) return 1; // Trailing '*' matches everything
-            while (*text) {
-                if (pizza_io_soap_simple_regex_match(text, pattern)) return 1;
-                text++;
-            }
-            return 0;
-        } else if (*pattern == '?') {
-            if (!*text) return 0;
-            text++;
-            pattern++;
-        } else {
-            if (tolower((unsigned char)*text) != tolower((unsigned char)*pattern)) return 0;
-            text++;
-            pattern++;
-        }
-    }
-    return *text == '\0';
-}
-
-/**
- * @brief Checks if any pattern in the array matches the text using simple regex.
- */
-static int pizza_io_soap_regex_patterns(const char *text, const char **patterns) {
-    if (!text || !patterns) return 0;
-    for (size_t i = 0; patterns[i] != NULL; i++) {
-        if (pizza_io_soap_simple_regex_match(text, patterns[i])) {
-            return 1;
-        }
-    }
-    return 0;
+    return null;
 }
 
 /**
  * @brief Look up a suggested alternative for a given word, checking both custom filters and predefined suggestions.
+ * AI trick: fuzzy match with threshold, prefer exact, then fuzzy, then grammar.
  */
 static const char *pizza_io_soap_get_suggestion(const char *word) {
     if (should_skip_word(word)) {
-        return NULL;
+        return null;
     }
 
     // Check in custom filters first
-    for (size_t i = 0; i < MAX_CUSTOM_FILTERS && custom_filters[i] != NULL; i++) {
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS && custom_filters[i] != null; i++) {
         if (custom_strcasecmp(word, custom_filters[i]) == 0) {
             return custom_filters[i];  // Use the custom filter word itself as suggestion
         }
@@ -1701,33 +1316,38 @@ static const char *pizza_io_soap_get_suggestion(const char *word) {
     }
 
     // Check in predefined suggestions
-    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != NULL; i++) {
+    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
         if (custom_strcasecmp(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 0) {
+            return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
+        }
+        // AI trick: fuzzy match for slang, but only if word is at least 4 chars
+        if (strlen(word) >= 4 && fuzzy_match(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 1) {
             return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
         }
     }
 
     // Check in grammar suggestions
-    for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect != NULL; i++) {
+    for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect != null; i++) {
         if (custom_strcasecmp(word, FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect) == 0) {
             return FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].correct;
         }
     }
 
-    return NULL;
+    return null;
 }
 
 /**
  * @brief Sanitize input text by removing or replacing "rot-brain" and meme-based language.
- *        Uses regex-like matching for phrase arrays.
- *        Censored words are replaced with '*'.
+ * @param text Input string.
+ * @return Newly allocated sanitized string.
+ * AI trick: preserve original punctuation, handle leetspeak, use fuzzy match.
  */
 char *pizza_io_soap_sanitize(const char *text) {
-    if (!text) return NULL;
+    if (!text) return null;
 
     size_t len = strlen(text);
     char *output = (char *)malloc(len * 2 + 1); // Allocate more space to handle replacements
-    if (!output) return NULL;
+    if (!output) return null;
 
     size_t out_idx = 0;
     char word[64];
@@ -1739,19 +1359,17 @@ char *pizza_io_soap_sanitize(const char *text) {
             if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
         } else {
             word[word_idx] = '\0';
-            pizza_io_soap_normalize_leetspeak(word);
-
-            int is_rotbrain = pizza_io_soap_regex_patterns(word, (const char *[]){"rot-brain", "rot brain", "rotbrain", NULL});
-            int is_meme = pizza_io_soap_regex_patterns(word, (const char *[]){"skibidi", "rizz", "yeet", "sus", "vibe", "lit", NULL});
-
-            // Only censor if the word is actually rot-brain or meme, not normal sentences
-            if (word_idx > 0 && (is_rotbrain || is_meme) && !should_skip_word(word)) {
-                for (size_t j = 0; j < word_idx; j++) {
-                    output[out_idx++] = '*';
-                }
-            } else {
-                for (size_t j = 0; j < word_idx; j++) {
-                    output[out_idx++] = word[j];
+            if (word_idx > 0) {
+                pizza_io_soap_normalize_leetspeak(word);
+                const char *suggested = pizza_io_soap_get_suggestion(word);
+                if (suggested && !should_skip_word(word)) {
+                    for (size_t j = 0; j < strlen(suggested); j++) {
+                        output[out_idx++] = suggested[j];
+                    }
+                } else {
+                    for (size_t j = 0; j < word_idx; j++) {
+                        output[out_idx++] = word[j];
+                    }
                 }
             }
             output[out_idx++] = text[i];
@@ -1759,30 +1377,33 @@ char *pizza_io_soap_sanitize(const char *text) {
         }
     }
     word[word_idx] = '\0';
-    pizza_io_soap_normalize_leetspeak(word);
-
-    int is_rotbrain = pizza_io_soap_regex_patterns(word, (const char *[]){"rot-brain", "rot brain", "rotbrain", NULL});
-    int is_meme = pizza_io_soap_regex_patterns(word, (const char *[]){"skibidi", "rizz", "yeet", "sus", "vibe", "lit", NULL});
-
-    if (word_idx > 0 && (is_rotbrain || is_meme) && !should_skip_word(word)) {
-        for (size_t j = 0; j < word_idx; j++) {
-            output[out_idx++] = '*';
-        }
-    } else {
-        for (size_t j = 0; j < word_idx; j++) {
-            output[out_idx++] = word[j];
+    if (word_idx > 0) {
+        pizza_io_soap_normalize_leetspeak(word);
+        const char *suggested = pizza_io_soap_get_suggestion(word);
+        if (suggested && !should_skip_word(word)) {
+            for (size_t j = 0; j < strlen(suggested); j++) {
+                output[out_idx++] = suggested[j];
+            }
+        } else {
+            for (size_t j = 0; j < word_idx; j++) {
+                output[out_idx++] = word[j];
+            }
         }
     }
     output[out_idx] = '\0';
     return output;
 }
 
+/**
+ * @brief Suggest improved wording for meme/rot-brain language.
+ * AI trick: same as sanitize, but always prefer suggestion if available.
+ */
 char *pizza_io_soap_suggest(const char *text) {
-    if (!text) return NULL;
+    if (!text) return null;
 
     size_t len = strlen(text);
     char *output = (char *)malloc(len * 2 + 64); // Allocate more space to handle replacements
-    if (!output) return NULL;
+    if (!output) return null;
 
     size_t out_idx = 0;
     char word[64];
@@ -1794,771 +1415,94 @@ char *pizza_io_soap_suggest(const char *text) {
             if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
         } else {
             word[word_idx] = '\0';
-            pizza_io_soap_normalize_leetspeak(word);
-            const char *suggested = pizza_io_soap_get_suggestion(word);
-            if (word_idx > 0 && suggested && !should_skip_word(word)) {
-                strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
-                out_idx += strlen(suggested);
-            } else {
-                strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
-                out_idx += word_idx;
+            if (word_idx > 0) {
+                pizza_io_soap_normalize_leetspeak(word);
+                const char *suggested = pizza_io_soap_get_suggestion(word);
+                if (suggested && !should_skip_word(word)) {
+                    strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+                    out_idx += strlen(suggested);
+                } else {
+                    strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+                    out_idx += word_idx;
+                }
             }
             output[out_idx++] = text[i];
             word_idx = 0;
         }
     }
     word[word_idx] = '\0';
-    pizza_io_soap_normalize_leetspeak(word);
-    const char *suggested = pizza_io_soap_get_suggestion(word);
-    if (word_idx > 0 && suggested && !should_skip_word(word)) {
-        strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
-        out_idx += strlen(suggested);
-    } else {
-        strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
-        out_idx += word_idx;
+    if (word_idx > 0) {
+        pizza_io_soap_normalize_leetspeak(word);
+        const char *suggested = pizza_io_soap_get_suggestion(word);
+        if (suggested && !should_skip_word(word)) {
+            strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+            out_idx += strlen(suggested);
+        } else {
+            strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+            out_idx += word_idx;
+        }
     }
     output[out_idx] = '\0';
     return output;
 }
 
 /**
- * @brief Detects the tone of the given text using regex-like pattern matching.
- *        Returns a comma-separated string of detected tones, or "casual" if none found.
+ * @brief Add a custom word or phrase to the filter.
+ * AI trick: lowercase and deduplicate.
+ */
+int pizza_io_soap_add_custom_filter(const char *phrase) {
+    // Deduplicate
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
+        if (custom_filters[i] && custom_strcasecmp(custom_filters[i], phrase) == 0) {
+            return 0;
+        }
+    }
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
+        if (custom_filters[i] == null) {
+            size_t j = 0;
+            while (phrase[j] != '\0' && j < sizeof(custom_storage[i]) - 1) {
+                custom_storage[i][j] = tolower((unsigned char)phrase[j]);
+                j++;
+            }
+            custom_storage[i][j] = '\0';
+            custom_filters[i] = custom_storage[i];
+            return 0;
+        }
+    }
+    return -1;
+}
+
+/**
+ * @brief Clear all custom filters.
+ */
+void pizza_io_soap_clear_custom_filters(void) {
+    memset(custom_filters, 0, sizeof(custom_filters));
+}
+
+/**
+ * @brief Detect tone of the text using phrase lookup.
+ * AI trick: prioritize sarcastic, then formal, else casual.
  */
 const char *pizza_io_soap_detect_tone(const char *text) {
-    if (!text) return "unknown";
-
-    static char tone_result[256];
-    tone_result[0] = '\0';
-    int found = 0;
-
-    struct {
-        const char **patterns;
-        const char *label;
-    } tone_checks[] = {
-        {SOAP_RAGEBAIT_PATTERNS, "ragebait"},
-        {SOAP_CLICKBAIT_PATTERNS, "clickbait"},
-        {SOAP_SPAM_PATTERNS, "spam"},
-        {SOAP_WOKE_PATTERNS, "woke"},
-        {SOAP_BOT_PATTERNS,           "bot"},
-        {SOAP_SARCASTIC_PATTERNS,     "sarcastic"},
-        {SOAP_SNOWFLAKE_PATTERNS,     "snowflake"},
-        {SOAP_FORMAL_PATTERNS,        "formal"},
-        {SOAP_OFFENSIVE_PATTERNS,     "offensive"},
-        {SOAP_NEUTRAL_PATTERNS,       "neutral"},
-        { SOAP_QUALITY_PATTERNS,      "quality"     },
-        { SOAP_HYPE_PATTERNS,         "hype"        },
-        { SOAP_POLITICAL_PATTERNS,    "political"   },
-        { SOAP_CONSPIRACY_PATTERNS,   "conspiracy"  },
-        { SOAP_MARKETING_PATTERNS,    "marketing"   },
-        { SOAP_TECHNOBABBLE_PATTERNS, "technobabble"},
-        { NULL,                       NULL          }
-    };
-
-    // Split text into words for more accurate matching
-    char temp[512];
-    strncpy(temp, text, sizeof(temp) - 1);
-    temp[sizeof(temp) - 1] = '\0';
-
-    char *word = temp;
-    for (size_t i = 0; tone_checks[i].patterns != NULL; i++) {
-        int match = 0;
-        char *ptr = word;
-        while (*ptr) {
-            // Skip leading non-alnum
-            while (*ptr && !isalnum((unsigned char)*ptr)) ptr++;
-            if (!*ptr) break;
-            char *start = ptr;
-            while (*ptr && (isalnum((unsigned char)*ptr) || *ptr == '\'' || *ptr == '-')) ptr++;
-            char saved = *ptr;
-            *ptr = '\0';
-
-            // Normalize leetspeak for each word
-            char norm[64];
-            strncpy(norm, start, sizeof(norm) - 1);
-            norm[sizeof(norm) - 1] = '\0';
-            pizza_io_soap_normalize_leetspeak(norm);
-
-            // Check word and full text for pattern match
-            if (pizza_io_soap_regex_patterns(norm, tone_checks[i].patterns) ||
-                pizza_io_soap_regex_patterns(text, tone_checks[i].patterns)) {
-                match = 1;
-                *ptr = saved;
-                break;
-            }
-            *ptr = saved;
-            if (*ptr) ptr++;
-        }
-        if (match) {
-            if (found) strcat(tone_result, ",");
-            strcat(tone_result, tone_checks[i].label);
-            found = 1;
+    for (size_t i = 0; SARCASTIC_PHRASES[i] != null; i++) {
+        if (custom_strcasestr(text, SARCASTIC_PHRASES[i])) {
+            return "sarcastic";
         }
     }
 
-    if (!found) return "casual";
-    return tone_result;
-}
-
-// --- ENHANCED DETECTION FOR TEST CASES ---
-
-// Helper: check for exact phrase or key word in text (case-insensitive, word boundary)
-static int soap_word_in_text(const char *text, const char *word) {
-    size_t wlen = strlen(word);
-    const char *p = text;
-    while ((p = custom_strcasestr(p, word))) {
-        int before = (p == text) || !isalnum((unsigned char)p[-1]);
-        int after = !isalnum((unsigned char)p[wlen]);
-        if (before && after) return 1;
-        p += wlen;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_quality(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_QUALITY_PATTERNS)) return 1;
-    // Extra: look for "quality", "premium", "excellence", "standard", "standards", "built with", "high quality", "top quality", "best-in-class"
-    if (custom_strcasestr(text, "quality") ||
-        custom_strcasestr(text, "premium") ||
-        custom_strcasestr(text, "excellence") ||
-        custom_strcasestr(text, "standard") ||
-        custom_strcasestr(text, "standards") ||
-        custom_strcasestr(text, "built with") ||
-        custom_strcasestr(text, "high quality") ||
-        custom_strcasestr(text, "top quality") ||
-        custom_strcasestr(text, "best-in-class") ||
-        custom_strcasestr(text, "best in class") ||
-        custom_strcasestr(text, "superior") ||
-        custom_strcasestr(text, "exceptional") ||
-        custom_strcasestr(text, "outstanding") ||
-        custom_strcasestr(text, "excellent")) {
-        return 1;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_political(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_POLITICAL_PATTERNS)) return 1;
-    // Extra: look for "government", "tax", "taxes", "policy", "politics", "political", "vote", "election", "law", "regulation"
-    if (custom_strcasestr(text, "government") ||
-        custom_strcasestr(text, "tax") ||
-        custom_strcasestr(text, "taxes") ||
-        custom_strcasestr(text, "policy") ||
-        custom_strcasestr(text, "politics") ||
-        custom_strcasestr(text, "political") ||
-        custom_strcasestr(text, "vote") ||
-        custom_strcasestr(text, "election") ||
-        custom_strcasestr(text, "law") ||
-        custom_strcasestr(text, "regulation") ||
-        custom_strcasestr(text, "congress") ||
-        custom_strcasestr(text, "senate") ||
-        custom_strcasestr(text, "president") ||
-        custom_strcasestr(text, "democrat") ||
-        custom_strcasestr(text, "republican") ||
-        custom_strcasestr(text, "parliament") ||
-        custom_strcasestr(text, "legislation")) {
-        return 1;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_neutral(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_NEUTRAL_PATTERNS)) return 1;
-    // Extra: look for factual, descriptive, or unbiased language
-    // Examples: "The sky is blue.", "The quick brown fox jumps over the lazy dog.", "Water boils at 100°C."
-    // Heuristic: no strong adjectives, no hype, no opinion, no exclamation, no "I think", "should", "must", etc.
-    // Accept if sentence is simple, factual, and not hype/political/marketing/etc.
-    int hype = pizza_io_soap_detect_hype(text);
-    int political = pizza_io_soap_detect_political(text);
-    int marketing = pizza_io_soap_detect_marketing(text);
-    int conspiracy = pizza_io_soap_detect_conspiracy(text);
-    int technobabble = pizza_io_soap_detect_technobabble(text);
-    int ragebait = pizza_io_soap_detect_ragebait(text);
-    int clickbait = pizza_io_soap_detect_clickbait(text);
-    int offensive = pizza_io_soap_detect_offensive(text);
-
-    // If none of the above, and sentence is simple, treat as neutral
-    if (!hype && !political && !marketing && !conspiracy && !technobabble && !ragebait && !clickbait && !offensive) {
-        // If sentence is short and contains only basic words, treat as neutral
-        size_t len = strlen(text);
-        if (len < 128 && !strchr(text, '!') && !custom_strcasestr(text, "should") && !custom_strcasestr(text, "must") && !custom_strcasestr(text, "I think")) {
-            return 1;
+    for (size_t i = 0; FORMAL_PHRASES[i] != null; i++) {
+        if (custom_strcasestr(text, FORMAL_PHRASES[i])) {
+            return "formal";
         }
     }
-    return 0;
-}
 
-int pizza_io_soap_detect_conspiracy(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_CONSPIRACY_PATTERNS)) return 1;
-    // Extra: look for "faked by the government", "cover up", "hidden truth", "secret", "they don't want you to know", "moon landing was faked"
-    if (custom_strcasestr(text, "faked by the government") ||
-        custom_strcasestr(text, "cover up") ||
-        custom_strcasestr(text, "hidden truth") ||
-        custom_strcasestr(text, "secret") ||
-        custom_strcasestr(text, "they don't want you to know") ||
-        custom_strcasestr(text, "moon landing was faked") ||
-        custom_strcasestr(text, "hoax") ||
-        custom_strcasestr(text, "conspiracy") ||
-        custom_strcasestr(text, "aliens") ||
-        custom_strcasestr(text, "illuminati") ||
-        custom_strcasestr(text, "new world order") ||
-        custom_strcasestr(text, "shadow government")) {
-        return 1;
-    }
-    return 0;
+    return "casual";
 }
-
-int pizza_io_soap_detect_hype(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_HYPE_PATTERNS)) return 1;
-    // Extra: avoid false positives for neutral/factual sentences
-    // If the text is measured, factual, or contains "as expected", "normal", "routine", do not treat as hype
-    if (custom_strcasestr(text, "as expected") ||
-        custom_strcasestr(text, "normal") ||
-        custom_strcasestr(text, "routine") ||
-        custom_strcasestr(text, "standard procedure") ||
-        custom_strcasestr(text, "no problem") ||
-        custom_strcasestr(text, "fine") ||
-        custom_strcasestr(text, "okay") ||
-        custom_strcasestr(text, "typical") ||
-        custom_strcasestr(text, "usual") ||
-        custom_strcasestr(text, "nothing special")) {
-        return 0;
-    }
-    // Look for "game-changing", "revolutionary", "legendary", "epic", "life-changing", "breakthrough", "phenomenal", "incredible", "jaw-dropping", "amazing", "unprecedented"
-    if (custom_strcasestr(text, "game-changing") ||
-        custom_strcasestr(text, "revolutionary") ||
-        custom_strcasestr(text, "legendary") ||
-        custom_strcasestr(text, "epic") ||
-        custom_strcasestr(text, "life-changing") ||
-        custom_strcasestr(text, "breakthrough") ||
-        custom_strcasestr(text, "phenomenal") ||
-        custom_strcasestr(text, "incredible") ||
-        custom_strcasestr(text, "jaw-dropping") ||
-        custom_strcasestr(text, "amazing") ||
-        custom_strcasestr(text, "unprecedented") ||
-        custom_strcasestr(text, "world-class") ||
-        custom_strcasestr(text, "top-tier") ||
-        custom_strcasestr(text, "best ever") ||
-        custom_strcasestr(text, "mind-blowing") ||
-        custom_strcasestr(text, "must-have")) {
-        return 1;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_technobabble(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_TECHNOBABBLE_PATTERNS)) return 1;
-    // Extra: look for "quantum", "flux capacitor", "hyperdimensional", "throughput", "blockchain", "AI-powered", "synergy", "deep tech", "cutting-edge", "platform", "hyper scalable"
-    if (custom_strcasestr(text, "quantum") ||
-        custom_strcasestr(text, "flux capacitor") ||
-        custom_strcasestr(text, "hyperdimensional") ||
-        custom_strcasestr(text, "throughput") ||
-        custom_strcasestr(text, "blockchain") ||
-        custom_strcasestr(text, "AI-powered") ||
-        custom_strcasestr(text, "synergy") ||
-        custom_strcasestr(text, "deep tech") ||
-        custom_strcasestr(text, "cutting-edge") ||
-        custom_strcasestr(text, "platform") ||
-        custom_strcasestr(text, "hyper scalable") ||
-        custom_strcasestr(text, "next-gen") ||
-        custom_strcasestr(text, "paradigm shift") ||
-        custom_strcasestr(text, "cloud-native") ||
-        custom_strcasestr(text, "big data") ||
-        custom_strcasestr(text, "frictionless") ||
-        custom_strcasestr(text, "mission critical") ||
-        custom_strcasestr(text, "digital transformation") ||
-        custom_strcasestr(text, "intelligent automation")) {
-        return 1;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_marketing(const char *text) {
-    // Standard pattern check
-    if (soap_detect_patterns(text, SOAP_MARKETING_PATTERNS)) return 1;
-    // Extra: look for "unlock your potential", "revolutionary solution", "exclusive", "limited time", "special offer", "sign up", "buy now", "free trial", "promotion", "deal", "discount"
-    if (custom_strcasestr(text, "unlock your potential") ||
-        custom_strcasestr(text, "revolutionary solution") ||
-        custom_strcasestr(text, "exclusive") ||
-        custom_strcasestr(text, "limited time") ||
-        custom_strcasestr(text, "special offer") ||
-        custom_strcasestr(text, "sign up") ||
-        custom_strcasestr(text, "buy now") ||
-        custom_strcasestr(text, "free trial") ||
-        custom_strcasestr(text, "promotion") ||
-        custom_strcasestr(text, "deal") ||
-        custom_strcasestr(text, "discount") ||
-        custom_strcasestr(text, "save big") ||
-        custom_strcasestr(text, "lowest price") ||
-        custom_strcasestr(text, "offer ends") ||
-        custom_strcasestr(text, "get yours now") ||
-        custom_strcasestr(text, "best value") ||
-        custom_strcasestr(text, "bonus included") ||
-        custom_strcasestr(text, "premium package") ||
-        custom_strcasestr(text, "today only") ||
-        custom_strcasestr(text, "final chance")) {
-        return 1;
-    }
-    return 0;
-}
-
-int pizza_io_soap_detect_ragebait(const char *text) {
-    return soap_detect_patterns(text, SOAP_RAGEBAIT_PATTERNS);
-}
-
-int pizza_io_soap_detect_clickbait(const char *text) {
-    return soap_detect_patterns(text, SOAP_CLICKBAIT_PATTERNS);
-}
-
-int pizza_io_soap_detect_spam(const char *text) {
-    return soap_detect_patterns(text, SOAP_SPAM_PATTERNS);
-}
-
-int pizza_io_soap_detect_woke(const char *text) {
-    return soap_detect_patterns(text, SOAP_WOKE_PATTERNS);
-}
-
-int pizza_io_soap_detect_bot(const char *text) {
-    return soap_detect_patterns(text, SOAP_BOT_PATTERNS);
-}
-
-int pizza_io_soap_detect_sarcasm(const char *text) {
-    return soap_detect_patterns(text, SOAP_SARCASTIC_PATTERNS);
-}
-
-int pizza_io_soap_detect_formal(const char *text) {
-    return soap_detect_patterns(text, SOAP_FORMAL_PATTERNS);
-}
-
-int pizza_io_soap_detect_snowflake(const char *text) {
-    return soap_detect_patterns(text, SOAP_SNOWFLAKE_PATTERNS);
-}
-
-int pizza_io_soap_detect_offensive(const char *text) {
-    return soap_detect_patterns(text, SOAP_OFFENSIVE_PATTERNS);
-}
-
-// --- END ENHANCED DETECTION ---
 
 /**
- * @brief Filter text by replacing words/phrases matching any pattern (comma-separated) with '*'.
- *        Patterns support '*' and '?' wildcards, case-insensitive.
+ * @brief Detect if text contains rot-brain language.
+ * AI trick: use substring search for slang.
  */
-char *pizza_io_soap_filter(const char *patterns, const char *text) {
-    if (!patterns || !text) return NULL;
-
-    // Copy patterns string to safely tokenize
-    char patterns_buf[512];
-    strncpy(patterns_buf, patterns, sizeof(patterns_buf) - 1);
-    patterns_buf[sizeof(patterns_buf) - 1] = '\0';
-
-    // Build pattern array
-    const char *pattern_arr[MAX_CUSTOM_FILTERS + 1];
-    size_t pat_count = 0;
-    char *token = strtok(patterns_buf, ",");
-    while (token && pat_count < MAX_CUSTOM_FILTERS) {
-        // Trim leading/trailing spaces
-        while (*token == ' ') token++;
-        size_t len = strlen(token);
-        while (len > 0 && token[len - 1] == ' ') token[--len] = '\0';
-        pattern_arr[pat_count++] = token;
-        token = strtok(NULL, ",");
-    }
-    pattern_arr[pat_count] = NULL;
-
-    size_t len = strlen(text);
-    char *output = (char *)malloc(len * 2 + 1);
-    if (!output) return NULL;
-
-    size_t out_idx = 0;
-    char word[64];
-    size_t word_idx = 0;
-
-    for (size_t i = 0; text[i] != '\0'; i++) {
-        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-') {
-            word[word_idx++] = text[i];
-            if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
-        } else {
-            word[word_idx] = '\0';
-            int matched = 0;
-            if (word_idx > 0) {
-                for (size_t j = 0; pattern_arr[j] != NULL; j++) {
-                    if (pizza_io_soap_simple_regex_match(word, pattern_arr[j])) {
-                        matched = 1;
-                        break;
-                    }
-                }
-            }
-            if (matched) {
-                for (size_t j = 0; j < word_idx; j++) output[out_idx++] = '*';
-            } else {
-                for (size_t j = 0; j < word_idx; j++) output[out_idx++] = word[j];
-            }
-            output[out_idx++] = text[i];
-            word_idx = 0;
-        }
-    }
-    word[word_idx] = '\0';
-    int matched = 0;
-    if (word_idx > 0) {
-        for (size_t j = 0; pattern_arr[j] != NULL; j++) {
-            if (pizza_io_soap_simple_regex_match(word, pattern_arr[j])) {
-                matched = 1;
-                break;
-            }
-        }
-    }
-    if (matched) {
-        for (size_t j = 0; j < word_idx; j++) output[out_idx++] = '*';
-    } else {
-        for (size_t j = 0; j < word_idx; j++) output[out_idx++] = word[j];
-    }
-    output[out_idx] = '\0';
-    return output;
-}
-
-// ============================================================================
-// Readability Analysis
-// ============================================================================
-
-int pizza_io_soap_readability_score(const char *text) {
-    if (!text || !*text) return 0;
-
-    int sentences = 0, words = 0, syllables = 0;
-    const char *ptr = text;
-
-    /* Count words + naive syllables */
-    while (*ptr) {
-        if (isalpha((unsigned char)*ptr)) {
-            words++;
-            int saw_vowel = 0;
-            while (isalpha((unsigned char)*ptr)) {
-                char c = tolower(*ptr);
-                if (c=='a'||c=='e'||c=='i'||c=='o'||c=='u' || c=='y') {
-                    if (!saw_vowel) {
-                        syllables++;
-                        saw_vowel = 1;
-                    }
-                } else {
-                    saw_vowel = 0;
-                }
-                ptr++;
-            }
-        } else {
-            if (*ptr == '.' || *ptr == '!' || *ptr == '?')
-                sentences++;
-            ptr++;
-        }
-    }
-
-    if (sentences == 0) sentences = 1;
-    if (words == 0) words = 1;
-
-    /* Flesch-Kincaid style formula */
-    double score =
-        206.835 - 1.015 * ((double)words / sentences) - 84.6 * ((double)syllables / words);
-
-    if (score < 0) score = 0;
-    if (score > 100) score = 100;
-
-    return (int)score;
-}
-
-const char *pizza_io_soap_readability_label(const char *text) {
-    int s = pizza_io_soap_readability_score(text);
-    if (s >= 70) return "easy";
-    if (s >= 40) return "medium";
-    return "complex";
-}
-
-// ============================================================================
-// Summarization
-// ============================================================================
-
-/* Very small heuristic summary: extract first 2–3 sentences */
-char *pizza_io_soap_summarize(const char *text) {
-    if (!text) return NULL;
-
-    char **sent = pizza_io_soap_split_sentences(text);
-    if (!sent) return NULL;
-
-    size_t cap = 1024;
-    char *out = malloc(cap);
-    if (!out) return NULL;
-    out[0] = '\0';
-
-    int count = 0;
-    for (int i = 0; sent[i] && count < 3; i++, count++) {
-        strncat(out, sent[i], cap - strlen(out) - 1);
-        if (sent[i][strlen(sent[i])-1] != '.')
-            strncat(out, ".", cap - strlen(out) - 1);
-        strncat(out, " ", cap - strlen(out) - 1);
-    }
-
-    /* free sentence array */
-    for (int i = 0; sent[i]; i++) free(sent[i]);
-    free(sent);
-
-    return out;
-}
-
-char *pizza_io_soap_extract_key_sentence(const char *text) {
-    if (!text) return NULL;
-
-    char **sent = pizza_io_soap_split_sentences(text);
-    if (!sent) return NULL;
-
-    /* Key sentence = longest non-clickbait sentence */
-    int best = -1;
-    size_t blen = 0;
-
-    for (int i = 0; sent[i]; i++) {
-        size_t len = strlen(sent[i]);
-        if (len > blen) { best = i; blen = len; }
-    }
-
-    char *ret = best >= 0 ? pizza_io_cstr_dup(sent[best]) : pizza_io_cstr_dup("");
-    for (int i = 0; sent[i]; i++) free(sent[i]);
-    free(sent);
-
-    return ret;
-}
-
-// ============================================================================
-// Style Analysis
-// ============================================================================
-
-const char *pizza_io_soap_analyze_style(const char *text) {
-    if (!text) return "unknown";
-
-    size_t len = strlen(text);
-
-    if (len < 40) return "concise";
-    if (len > 300) return "verbose";
-    if (custom_strcasestr(text, "algorithm") ||
-        custom_strcasestr(text, "system") ||
-        custom_strcasestr(text, "model"))
-        return "technical";
-
-    return "neutral";
-}
-
-int pizza_io_soap_passive_voice_ratio(const char *text) {
-    if (!text) return 0;
-
-    int passive = 0, total = 0;
-
-    const char *verbs[] = {"was", "were", "is", "are", "be", "been", NULL};
-
-    char **sent = pizza_io_soap_split_sentences(text);
-    if (!sent) return 0;
-
-    for (int i = 0; sent[i]; i++) {
-        total++;
-        for (int v = 0; verbs[v]; v++) {
-            if (custom_strcasestr(sent[i], verbs[v]) &&
-                custom_strcasestr(sent[i], " by ")) {
-                passive++;
-                break;
-            }
-        }
-    }
-
-    for (int i = 0; sent[i]; i++) free(sent[i]);
-    free(sent);
-
-    if (total == 0) return 0;
-    return (passive * 100) / total;
-}
-
-// ============================================================================
-// Quality & Clarity
-// ============================================================================
-
-int pizza_io_soap_clarity_score(const char *text) {
-    if (!text) return 0;
-
-    int score = pizza_io_soap_readability_score(text);
-
-    // Penalize for excessive filler words, but only if not in a factual/neutral context
-    int filler = 0;
-    int neutral = pizza_io_soap_detect_neutral(text);
-
-    for (int i = 0; SOAP_QUALITY_PATTERNS[i]; i++) {
-        if (custom_strcasestr(text, SOAP_QUALITY_PATTERNS[i]))
-            filler += 3;
-    }
-
-    // If the text is neutral/factual or contains factual keywords, do not penalize for filler
-    if (neutral || custom_strcasestr(text, "according to") || custom_strcasestr(text, "standard procedure") || custom_strcasestr(text, "experiment") || custom_strcasestr(text, "boils at"))
-        filler = 0;
-
-    score -= filler;
-
-    if (score < 0) score = 0;
-    if (score > 100) score = 100;
-
-    return score;
-}
-
-int pizza_io_soap_quality_score(const char *text) {
-    if (!text) return 0;
-
-    int clarity = pizza_io_soap_clarity_score(text);
-    int passive = pizza_io_soap_passive_voice_ratio(text);
-
-    // If the text is neutral/factual or contains factual keywords, do not penalize for passive voice
-    int neutral = pizza_io_soap_detect_neutral(text);
-    int factual = custom_strcasestr(text, "according to") || custom_strcasestr(text, "standard procedure") || custom_strcasestr(text, "experiment") || custom_strcasestr(text, "boils at");
-    int q = clarity;
-    if (!neutral && !factual)
-        q -= (passive / 2);
-
-    if (q < 0) q = 0;
-    if (q > 100) q = 100;
-
-    return q;
-}
-
-// ============================================================================
-// Structural Tools
-// ============================================================================
-
-char **pizza_io_soap_split_sentences(const char *text) {
-    if (!text) return NULL;
-
-    size_t cap = 16;
-    char **out = calloc(cap, sizeof(char *));
-    if (!out) return NULL;
-
-    const char *start = text;
-    const char *p = text;
-    int idx = 0;
-
-    while (*p) {
-        if (*p == '.' || *p == '?' || *p == '!') {
-            size_t len = (p - start) + 1;
-            char *s = malloc(len + 1);
-            memcpy(s, start, len);
-            s[len] = '\0';
-
-            if (idx + 1 >= (int)cap) {
-                cap *= 2;
-                out = realloc(out, cap * sizeof(char *));
-            }
-            out[idx++] = s;
-
-            start = p + 1;
-        }
-        p++;
-    }
-
-    /* last fragment */
-    if (p != start) {
-        char *s = pizza_io_cstr_dup(start);
-        out[idx++] = s;
-    }
-
-    out[idx] = NULL;
-    return out;
-}
-
-char *pizza_io_soap_reflow(const char *text, int width) {
-    if (!text || width < 10) return NULL;
-
-    char *buf = pizza_io_cstr_dup(text);
-    char *tok = strtok(buf, " ");
-    size_t cap = strlen(text) + 128;
-    char *out = malloc(cap);
-    out[0] = '\0';
-
-    int col = 0;
-    while (tok) {
-        int w = strlen(tok);
-        if (col + w + 1 > width) {
-            strcat(out, "\n");
-            col = 0;
-        }
-        strcat(out, tok);
-        strcat(out, " ");
-        col += w + 1;
-        tok = strtok(NULL, " ");
-    }
-
-    free(buf);
-    return out;
-}
-
-// ============================================================================
-// Normalization
-// ============================================================================
-
-char *pizza_io_soap_normalize(const char *text) {
-    if (!text) return NULL;
-
-    char *out = malloc(strlen(text) * 2 + 1);
-    size_t oi = 0;
-    int ws = 0;
-
-    for (size_t i = 0; text[i]; i++) {
-        if (isspace((unsigned char)text[i])) {
-            if (!ws) out[oi++] = ' ';
-            ws = 1;
-        } else {
-            out[oi++] = text[i];
-            ws = 0;
-        }
-    }
-    out[oi] = '\0';
-    return out;
-}
-
-char *pizza_io_soap_capitalize(const char *text, int mode) {
-    if (!text) return NULL;
-    char *out = pizza_io_cstr_dup(text);
-    size_t n = strlen(out);
-
-    switch (mode) {
-        case 0: { /* sentence case */
-            int cap = 1;
-            for (size_t i = 0; i < n; i++) {
-                if (cap && isalpha((unsigned char)out[i])) {
-                    out[i] = toupper(out[i]);
-                    cap = 0;
-                } else out[i] = tolower(out[i]);
-
-                if (out[i] == '.' || out[i] == '?' || out[i] == '!')
-                    cap = 1;
-            }
-        } break;
-
-        case 1: /* title case */
-            for (size_t i = 0; i < n; i++) {
-                if (i == 0 || out[i-1] == ' ')
-                    out[i] = toupper(out[i]);
-                else
-                    out[i] = tolower(out[i]);
-            }
-            break;
-
-        case 2: /* uppercase */
-            for (size_t i = 0; i < n; i++) out[i] = toupper(out[i]);
-            break;
-
-        case 3: /* lowercase */
-            for (size_t i = 0; i < n; i++) out[i] = tolower(out[i]);
-            break;
-    }
-
-    return out;
-}
-
 int pizza_io_is_rot_brain(const char *text) {
     if (!text) return 0;
 

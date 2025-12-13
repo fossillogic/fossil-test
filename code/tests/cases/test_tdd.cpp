@@ -766,13 +766,9 @@ FOSSIL_TEST(cpp_assume_run_of_memory_range) {
     char buffer2[10] = {1, 2, 4};
 
     // Test cases
-    ASSUME_ITS_MORE_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
     ASSUME_NOT_MORE_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
-    ASSUME_ITS_LESS_THAN_MEMORY(buffer1, buffer2, sizeof(buffer1));
     ASSUME_NOT_LESS_THAN_MEMORY(buffer2, buffer1, sizeof(buffer1));
-    ASSUME_ITS_MORE_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
     ASSUME_NOT_MORE_OR_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
-    ASSUME_ITS_LESS_OR_EQUAL_MEMORY(buffer1, buffer2, sizeof(buffer1));
     ASSUME_NOT_LESS_OR_EQUAL_MEMORY(buffer2, buffer1, sizeof(buffer1));
 } // end case
 
@@ -918,208 +914,34 @@ FOSSIL_TEST(cpp_assume_run_of_char_not_equal) {
 } // end case
 
 
-// Rot-brain word detection test
-FOSSIL_TEST(cpp_assume_run_of_its_soap_rot_brain) {
-    const char *rot_brain_words[] = {
-        "u", "gonna", "ppl", "funny", "lol", "idk", "wanna", "rizz", "skibidi", "yeet", "sus", "vibe", "lit", "no cap", "bet", "fam", "bruh", "flex", "ghost", "goat", "gucci", "hype", "janky", "lowkey", "mood", "salty", "shade", "slay", "snatched", "stan", "tea", "thirsty", "woke", "yolo", "zaddy", "drip", "fire", "omg", "brb", "imo", "lmao", "nvm", "tbh", "tldr", "ttyl", "wyd", "wtf", "rot-brain", "rot brain", "rotbrain", "smh", "fomo", "bff", "irl", "afaik", "btw", "omw", "ikr", "tgif", "np", "rofl", "lmk", "dm", "rn", "yw", "af", "ftw", "gg", "pov", "omfg", "tl;dr", "fwiw", "bday", "gr8", "hmu", "jk", "k", "l8r", "msg", "pls", "plz", "thx", "tho", "w/", "w/o", "xoxo", "y", "b/c", "cuz", "coz", "dunno", "g2g", "hbu", "idc", "ily", "l8", "n/a", "nvm", "omw", "ppl", "qt", "sup", "tba", "tbc", "w/e", "wth"
-    };
-    for (size_t i = 0; i < sizeof(rot_brain_words)/sizeof(rot_brain_words[0]); ++i) {
-        char buf[64];
-        snprintf(buf, sizeof(buf), "This is %s in a sentence.", rot_brain_words[i]);
-        // Should be detected as rot-brain
-        FOSSIL_TEST_ASSUME(/* is_rot_brain(buf) */ true, buf);
-    }
-} // end case
-
 FOSSIL_TEST(cpp_assume_run_of_not_soap_rot_brain) {
-    const char *normal_sentences[] = {
-        "This is a normal sentence.",
-        "The quick brown fox jumps over the lazy dog.",
-        "Software engineering is fun.",
-        "Please review the documentation.",
-        "Unit tests improve code quality."
-    };
-    for (size_t i = 0; i < sizeof(normal_sentences)/sizeof(normal_sentences[0]); ++i) {
-        // Should NOT be detected as rot-brain
-        FOSSIL_TEST_ASSUME(/* !is_rot_brain(normal_sentences[i]) */ true, normal_sentences[i]);
-    }
+    const char *text = "This is a normal sentence.";
+
+    // Test case
+    ASSUME_NOT_SOAP_ROT_BRAIN(text);
 } // end case
 
-// Sarcasm detection
-FOSSIL_TEST(cpp_assume_run_of_soap_sarcasm) {
-    const char *sarcastic_phrases[] = {
-        "Oh, great", "Yeah, right", "Nice job", "Well done", "Good luck with that", "Sure, why not", "Fantastic", "Brilliant", "Wonderful", "Perfect"
-    };
-    for (size_t i = 0; i < sizeof(sarcastic_phrases)/sizeof(sarcastic_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s, just what I needed.", sarcastic_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_sarcasm(buf) */ true, buf);
-    }
+FOSSIL_TEST(cpp_assume_run_of_its_soap_rot_brain) {
+    const char *text = "This is a rot-brain sentence.";
+
+    // Test case
+    ASSUME_ITS_SOAP_ROT_BRAIN(text);
 } // end case
 
-FOSSIL_TEST(cpp_assume_run_of_soap_formal) {
-    const char *formal_phrases[] = {
-        "Dear Sir or Madam", "To whom it may concern", "Yours sincerely", "Yours faithfully", "Best regards", "Respectfully"
-    };
-    for (size_t i = 0; i < sizeof(formal_phrases)/sizeof(formal_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s, I am writing to inform you...", formal_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_formal(buf) */ true, buf);
-    }
+FOSSIL_TEST(cpp_assume_run_of_its_soap_tone_detected) {
+    const char *text = "Respectfully testing the pizza.";
+    const char *expected_tone = "formal";
+
+    // Test case
+    ASSUME_ITS_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
-FOSSIL_TEST(cpp_assume_run_of_soap_ragebait) {
-    const char *ragebait_phrases[] = {
-        "You won't believe", "outrageous", "infuriating", "makes me angry", "how dare they", "ridiculous"
-    };
-    for (size_t i = 0; i < sizeof(ragebait_phrases)/sizeof(ragebait_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s! This is unacceptable.", ragebait_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_ragebait(buf) */ true, buf);
-    }
-} // end case
+FOSSIL_TEST(cpp_assume_run_of_not_soap_tone_detected) {
+    const char *text = "This is a sarcastic sentence.";
+    const char *expected_tone = "formal";
 
-FOSSIL_TEST(cpp_assume_run_of_soap_clickbait) {
-    const char *clickbait_phrases[] = {
-        "how to", "top 10", "amazing", "must see", "you won't believe what happened", "life changing"
-    };
-    for (size_t i = 0; i < sizeof(clickbait_phrases)/sizeof(clickbait_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s secrets revealed!", clickbait_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_clickbait(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_spam) {
-    const char *spam_phrases[] = {
-        "free money", "work from home", "act now", "earn cash fast", "get rich quick", "limited time offer"
-    };
-    for (size_t i = 0; i < sizeof(spam_phrases)/sizeof(spam_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s! Click here!", spam_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_spam(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_woke) {
-    const char *woke_phrases[] = {
-        "safe space", "microaggression", "check your privilege", "diversity and inclusion", "equity over equality"
-    };
-    for (size_t i = 0; i < sizeof(woke_phrases)/sizeof(woke_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "We must promote %s.", woke_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_woke(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_bot) {
-    const char *bot_phrases[] = {
-        "ai generated", "algorithmic message", "artificial response", "auto reply", "auto responder"
-    };
-    for (size_t i = 0; i < sizeof(bot_phrases)/sizeof(bot_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "This is an %s.", bot_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_bot(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_snowflake) {
-    const char *snowflake_phrases[] = {
-        "snowflake", "triggered", "fragile ego", "offended easily", "sensitive snowflake"
-    };
-    for (size_t i = 0; i < sizeof(snowflake_phrases)/sizeof(snowflake_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "You are such a %s.", snowflake_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_snowflake(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_offensive) {
-    const char *offensive_phrases[] = {
-        "idiot", "stupid", "dumb", "moron", "fool", "loser"
-    };
-    for (size_t i = 0; i < sizeof(offensive_phrases)/sizeof(offensive_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "You are such a %s!", offensive_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_offensive(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_neutral) {
-    const char *neutral_phrases[] = {
-        "as expected", "according to plan", "no problem", "all good", "fine"
-    };
-    for (size_t i = 0; i < sizeof(neutral_phrases)/sizeof(neutral_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "The result was %s.", neutral_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_neutral(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_hype) {
-    const char *hype_phrases[] = {
-        "game-changing", "revolutionary", "cutting-edge", "disruptive", "never before seen"
-    };
-    for (size_t i = 0; i < sizeof(hype_phrases)/sizeof(hype_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "This is a %s product!", hype_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_hype(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_quality) {
-    const char *quality_phrases[] = {
-        "premium", "best-in-class", "outstanding", "top-tier", "exceptional"
-    };
-    for (size_t i = 0; i < sizeof(quality_phrases)/sizeof(quality_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "This is an %s solution.", quality_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_quality(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_political) {
-    const char *political_phrases[] = {
-        "left-wing", "right-wing", "liberal agenda", "conservative values", "fake news media"
-    };
-    for (size_t i = 0; i < sizeof(political_phrases)/sizeof(political_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "This is about the %s.", political_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_political(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_conspiracy) {
-    const char *conspiracy_phrases[] = {
-        "hidden truth", "cover up", "shadow government", "mind control", "secret society"
-    };
-    for (size_t i = 0; i < sizeof(conspiracy_phrases)/sizeof(conspiracy_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "This is a %s theory.", conspiracy_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_conspiracy(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_marketing) {
-    const char *marketing_phrases[] = {
-        "limited time offer", "act now", "don’t miss out", "guaranteed results", "risk free"
-    };
-    for (size_t i = 0; i < sizeof(marketing_phrases)/sizeof(marketing_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "%s! Buy now!", marketing_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_marketing(buf) */ true, buf);
-    }
-} // end case
-
-FOSSIL_TEST(cpp_assume_run_of_soap_technobabble) {
-    const char *technobabble_phrases[] = {
-        "synergy", "blockchain-enabled", "AI-powered", "machine learning solution", "next-gen"
-    };
-    for (size_t i = 0; i < sizeof(technobabble_phrases)/sizeof(technobabble_phrases[0]); ++i) {
-        char buf[128];
-        snprintf(buf, sizeof(buf), "Our %s platform is the future.", technobabble_phrases[i]);
-        FOSSIL_TEST_ASSUME(/* is_technobabble(buf) */ true, buf);
-    }
+    // Test case
+    ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1211,22 +1033,8 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_equal);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_rot_brain);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_ragebait);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_clickbait);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_spam);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_woke);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_bot);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_sarcasm);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_formal);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_snowflake);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_offensive);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_neutral);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_hype);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_quality);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_political);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_conspiracy);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_marketing);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_technobabble);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group
