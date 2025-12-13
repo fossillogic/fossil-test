@@ -1642,45 +1642,45 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_ACUTEST:
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{white}[ACUTEST]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_MINUNIT:
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{white}[MINUNIT]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CMOCKA:
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{white}[CMOCKA]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_FOSSIL:
@@ -1697,35 +1697,34 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             break;
 
         case PIZZA_THEME_CATCH:
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {black}Stability{reset}: {cyan}%06.2f%%{reset} | {black}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{black}[CATCH]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {black}Risk{reset}     : {cyan}%06.2f%%{reset} | {black}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {white}Stability{reset}: {cyan}%06.2f%%{reset} | {white}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{white}[CATCH]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {white}Risk{reset}     : {cyan}%06.2f%%{reset} | {white}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
-
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{black}Suites run   {reset}: {blue}%zu{reset}\n", engine->count);
-            pizza_io_printf("{black}Tests run    {reset}: {blue}%d{reset}\n", engine->score_possible);
-            pizza_io_printf("{black}Score        {reset}: {blue}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{black}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{black}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{black}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{black}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{black}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{black}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{black}Coverage     {reset}: {cyan}%06.2f%%{reset} | {black}Stability{reset}: {cyan}%06.2f%%{reset} | {black}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{black}Success Rate {reset}: {cyan}%06.2f%%{reset} | {black}Risk{reset}     : {cyan}%06.2f%%{reset} | {black}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{white}Suites run   {reset}: {blue}%zu{reset}\n", engine->count);
+            pizza_io_printf("{white}Tests run    {reset}: {blue}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{white}Score        {reset}: {blue}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{white}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{white}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{white}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{white}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{white}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{white}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{white}Coverage     {reset}: {cyan}%06.2f%%{reset} | {white}Stability{reset}: {cyan}%06.2f%%{reset} | {white}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{white}Success Rate {reset}: {cyan}%06.2f%%{reset} | {white}Risk{reset}     : {cyan}%06.2f%%{reset} | {white}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{black}[TEST SUMMARY]{reset}\n");
+            pizza_io_printf("{white}[TEST SUMMARY]{reset}\n");
             pizza_io_printf("{blue}[SUITES RUN   ]{reset} {cyan}%zu{reset}\n", engine->count);
             pizza_io_printf("{blue}[TESTS RUN    ]{reset} {cyan}%d{reset}\n", engine->score_possible);
             pizza_io_printf("{blue}[SCORE        ]{reset} {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
@@ -1786,7 +1785,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
         default:
             pizza_io_printf("{red}Unknown theme. Unable to display scoreboard.{reset}\n");
             break;
-    }
+        }
 }
 
 void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
@@ -2097,45 +2096,7 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
             root_cause_code = 8; // string
         }
 
-        // --- SOAP/text assumption patterns (new for advanced assumptions) ---
-        else if (
-            strstr(message, "to contain ragebait content") ||
-            strstr(message, "to not contain ragebait content") ||
-            strstr(message, "to contain clickbait content") ||
-            strstr(message, "to not contain clickbait content") ||
-            strstr(message, "to contain spam content") ||
-            strstr(message, "to not contain spam content") ||
-            strstr(message, "to contain woke-related content") ||
-            strstr(message, "to not contain woke-related content") ||
-            strstr(message, "to contain bot/automated content") ||
-            strstr(message, "to not contain bot/automated content") ||
-            strstr(message, "to contain sarcasm") ||
-            strstr(message, "to not contain sarcasm") ||
-            strstr(message, "to contain formal tone") ||
-            strstr(message, "to not contain formal tone") ||
-            strstr(message, "to contain snowflake-related content") ||
-            strstr(message, "to not contain snowflake-related content") ||
-            strstr(message, "to contain offensive content") ||
-            strstr(message, "to not contain offensive content") ||
-            strstr(message, "to contain neutral content") ||
-            strstr(message, "to not contain neutral content") ||
-            strstr(message, "to contain hype-related content") ||
-            strstr(message, "to not contain hype-related content") ||
-            strstr(message, "to contain quality-related content") ||
-            strstr(message, "to not contain quality-related content") ||
-            strstr(message, "to contain political content") ||
-            strstr(message, "to not contain political content") ||
-            strstr(message, "to contain conspiracy-related content") ||
-            strstr(message, "to not contain conspiracy-related content") ||
-            strstr(message, "to contain marketing/jargon-heavy content") ||
-            strstr(message, "to not contain marketing/jargon-heavy content") ||
-            strstr(message, "to contain technobabble or meaningless jargon") ||
-            strstr(message, "to not contain technobabble or meaningless jargon")
-        ) {
-            root_cause_code = 9; // text/SOAP
-        }
-
-        // SOAP/text fallback
+        // SOAP/text assumption patterns
         else if (strstr(message, "rot-brain") || strstr(message, "tone of text")) {
             root_cause_code = 9; // soap/text
         }
@@ -2216,73 +2177,7 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         } else if (strstr(message, "occurrences of substring")) {
             hint_str = "Check substring count. Use a loop or custom count function.";
         }
-        // --- SOAP/text hints for new assumptions ---
-        else if (strstr(message, "to contain ragebait content")) {
-            hint_str = "Review the text for inflammatory or provocative language.";
-        } else if (strstr(message, "to not contain ragebait content")) {
-            hint_str = "Ensure the text does not include inflammatory or provocative language.";
-        } else if (strstr(message, "to contain clickbait content")) {
-            hint_str = "Check for sensational or misleading phrases in the text.";
-        } else if (strstr(message, "to not contain clickbait content")) {
-            hint_str = "Ensure the text avoids sensational or misleading phrases.";
-        } else if (strstr(message, "to contain spam content")) {
-            hint_str = "Look for repetitive, irrelevant, or unsolicited content.";
-        } else if (strstr(message, "to not contain spam content")) {
-            hint_str = "Ensure the text is relevant and not spammy.";
-        } else if (strstr(message, "to contain woke-related content")) {
-            hint_str = "Check for language or topics associated with social awareness.";
-        } else if (strstr(message, "to not contain woke-related content")) {
-            hint_str = "Ensure the text avoids social awareness or activism language.";
-        } else if (strstr(message, "to contain bot/automated content")) {
-            hint_str = "Look for patterns typical of automated or bot-generated text.";
-        } else if (strstr(message, "to not contain bot/automated content")) {
-            hint_str = "Ensure the text appears human-written and not automated.";
-        } else if (strstr(message, "to contain sarcasm")) {
-            hint_str = "Check for ironic or sarcastic expressions in the text.";
-        } else if (strstr(message, "to not contain sarcasm")) {
-            hint_str = "Ensure the text is straightforward and not sarcastic.";
-        } else if (strstr(message, "to contain formal tone")) {
-            hint_str = "Check for professional or formal language style.";
-        } else if (strstr(message, "to not contain formal tone")) {
-            hint_str = "Ensure the text is casual or informal in tone.";
-        } else if (strstr(message, "to contain snowflake-related content")) {
-            hint_str = "Look for language referencing sensitivity or 'snowflake' culture.";
-        } else if (strstr(message, "to not contain snowflake-related content")) {
-            hint_str = "Ensure the text avoids references to sensitivity or 'snowflake' culture.";
-        } else if (strstr(message, "to contain offensive content")) {
-            hint_str = "Check for language that could be considered offensive.";
-        } else if (strstr(message, "to not contain offensive content")) {
-            hint_str = "Ensure the text is respectful and not offensive.";
-        } else if (strstr(message, "to contain neutral content")) {
-            hint_str = "Check for unbiased and neutral language.";
-        } else if (strstr(message, "to not contain neutral content")) {
-            hint_str = "Ensure the text expresses a clear opinion or stance.";
-        } else if (strstr(message, "to contain hype-related content")) {
-            hint_str = "Look for exaggerated or promotional language.";
-        } else if (strstr(message, "to not contain hype-related content")) {
-            hint_str = "Ensure the text is measured and not overly promotional.";
-        } else if (strstr(message, "to contain quality-related content")) {
-            hint_str = "Check for references to quality, standards, or excellence.";
-        } else if (strstr(message, "to not contain quality-related content")) {
-            hint_str = "Ensure the text does not reference quality or standards.";
-        } else if (strstr(message, "to contain political content")) {
-            hint_str = "Look for political topics, opinions, or references.";
-        } else if (strstr(message, "to not contain political content")) {
-            hint_str = "Ensure the text avoids political topics or references.";
-        } else if (strstr(message, "to contain conspiracy-related content")) {
-            hint_str = "Check for conspiracy theories or related language.";
-        } else if (strstr(message, "to not contain conspiracy-related content")) {
-            hint_str = "Ensure the text avoids conspiracy theories or related language.";
-        } else if (strstr(message, "to contain marketing/jargon-heavy content")) {
-            hint_str = "Look for marketing buzzwords or excessive jargon.";
-        } else if (strstr(message, "to not contain marketing/jargon-heavy content")) {
-            hint_str = "Ensure the text is clear and avoids marketing jargon.";
-        } else if (strstr(message, "to contain technobabble or meaningless jargon")) {
-            hint_str = "Check for technical-sounding but meaningless phrases.";
-        } else if (strstr(message, "to not contain technobabble or meaningless jargon")) {
-            hint_str = "Ensure the text is meaningful and avoids technobabble.";
-        }
-        // SOAP/text fallback
+        // SOAP/text hints
         else if (strstr(message, "rot-brain")) {
             hint_str = "Check for inappropriate language or tone in text.";
         } else if (strstr(message, "tone of text")) {
