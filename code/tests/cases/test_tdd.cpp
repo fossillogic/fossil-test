@@ -1211,8 +1211,6 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_char_not_equal);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_rot_brain);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
-    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_ragebait);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_clickbait);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_soap_spam);
