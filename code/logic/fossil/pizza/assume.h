@@ -2573,7 +2573,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_RAGEBAIT(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_ragebait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain ragebait content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_ragebait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain ragebait content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain ragebait content.
@@ -2581,7 +2581,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_RAGEBAIT(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_ragebait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain ragebait content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_ragebait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain ragebait content", (text)))
 
 /**
  * @brief Assumes that the given text contains clickbait content.
@@ -2589,7 +2589,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_CLICKBAIT(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_clickbait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain clickbait content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_clickbait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain clickbait content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain clickbait content.
@@ -2597,7 +2597,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_CLICKBAIT(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_clickbait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain clickbait content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_clickbait((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain clickbait content", (text)))
 
 /**
  * @brief Assumes that the given text contains spam content.
@@ -2605,7 +2605,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_SPAM(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_spam((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain spam content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_spam((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain spam content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain spam content.
@@ -2613,7 +2613,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_SPAM(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_spam((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain spam content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_spam((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain spam content", (text)))
 
 /**
  * @brief Assumes that the given text contains woke-related content.
@@ -2621,7 +2621,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_WOKE(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_woke((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain woke-related content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_woke((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain woke-related content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain woke-related content.
@@ -2629,7 +2629,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_WOKE(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_woke((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain woke-related content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_woke((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain woke-related content", (text)))
 
 /**
  * @brief Assumes that the given text contains bot/automated content.
@@ -2637,7 +2637,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_BOT(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_bot((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain bot/automated content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_bot((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain bot/automated content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain bot/automated content.
@@ -2645,7 +2645,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_BOT(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_bot((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain bot/automated content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_bot((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain bot/automated content", (text)))
 
 /**
  * @brief Assumes that the given text contains sarcasm.
@@ -2653,7 +2653,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_SARCASM(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_sarcasm((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain sarcasm", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_sarcasm((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain sarcasm", (text)))
 
 /**
  * @brief Assumes that the given text does not contain sarcasm.
@@ -2661,7 +2661,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_SARCASM(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_sarcasm((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain sarcasm", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_sarcasm((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain sarcasm", (text)))
 
 /**
  * @brief Assumes that the given text contains formal tone.
@@ -2669,7 +2669,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_FORMAL(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_formal((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain formal tone", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_formal((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain formal tone", (text)))
 
 /**
  * @brief Assumes that the given text does not contain formal tone.
@@ -2677,7 +2677,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_FORMAL(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_formal((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain formal tone", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_formal((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain formal tone", (text)))
 
 /**
  * @brief Assumes that the given text contains snowflake-related content.
@@ -2685,7 +2685,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_SNOWFLAKE(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_snowflake((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain snowflake-related content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_snowflake((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain snowflake-related content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain snowflake-related content.
@@ -2693,7 +2693,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_SNOWFLAKE(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_snowflake((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain snowflake-related content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_snowflake((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain snowflake-related content", (text)))
 
 /**
  * @brief Assumes that the given text contains offensive content.
@@ -2701,7 +2701,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_OFFENSIVE(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_offensive((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain offensive content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_offensive((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain offensive content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain offensive content.
@@ -2709,7 +2709,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_OFFENSIVE(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_offensive((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain offensive content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_offensive((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain offensive content", (text)))
 
 /**
  * @brief Assumes that the given text contains neutral content.
@@ -2717,7 +2717,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_NEUTRAL(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_neutral((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain neutral content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_neutral((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain neutral content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain neutral content.
@@ -2725,7 +2725,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_NEUTRAL(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_neutral((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain neutral content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_neutral((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain neutral content", (text)))
 
 /**
  * @brief Assumes that the given text contains hype-related content.
@@ -2733,7 +2733,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_HYPE(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_hype((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain hype-related content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_hype((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain hype-related content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain hype-related content.
@@ -2741,7 +2741,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_HYPE(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_hype((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain hype-related content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_hype((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain hype-related content", (text)))
 
 /**
  * @brief Assumes that the given text contains quality-related content.
@@ -2749,7 +2749,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_QUALITY(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_quality((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain quality-related content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_quality((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain quality-related content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain quality-related content.
@@ -2757,7 +2757,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_QUALITY(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_quality((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain quality-related content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_quality((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain quality-related content", (text)))
 
 /**
  * @brief Assumes that the given text contains political content.
@@ -2765,7 +2765,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_POLITICAL(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_political((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain political content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_political((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain political content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain political content.
@@ -2773,7 +2773,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_POLITICAL(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_political((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain political content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_political((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain political content", (text)))
 
 /**
  * @brief Assumes that the given text contains conspiracy-related content.
@@ -2781,7 +2781,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_CONSPIRACY(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_conspiracy((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain conspiracy-related content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_conspiracy((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain conspiracy-related content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain conspiracy-related content.
@@ -2789,7 +2789,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_CONSPIRACY(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_conspiracy((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain conspiracy-related content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_conspiracy((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain conspiracy-related content", (text)))
 
 /**
  * @brief Assumes that the given text contains marketing/jargon-heavy content.
@@ -2797,7 +2797,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_MARKETING(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_marketing((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain marketing/jargon-heavy content", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_marketing((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain marketing/jargon-heavy content", (text)))
 
 /**
  * @brief Assumes that the given text does not contain marketing/jargon-heavy content.
@@ -2805,7 +2805,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_MARKETING(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_marketing((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain marketing/jargon-heavy content", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_marketing((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain marketing/jargon-heavy content", (text)))
 
 /**
  * @brief Assumes that the given text contains technobabble or meaningless jargon.
@@ -2813,7 +2813,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_TECHNOBABBLE(text) \
-    FOSSIL_TEST_ASSUME(fossil_io_soap_detect_technobabble((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain technobabble or meaningless jargon", (text)))
+    FOSSIL_TEST_ASSUME(pizza_io_soap_detect_technobabble((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain technobabble or meaningless jargon", (text)))
 
 /**
  * @brief Assumes that the given text does not contain technobabble or meaningless jargon.
@@ -2821,7 +2821,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_TECHNOBABBLE(text) \
-    FOSSIL_TEST_ASSUME(!fossil_io_soap_detect_technobabble((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain technobabble or meaningless jargon", (text)))
+    FOSSIL_TEST_ASSUME(!pizza_io_soap_detect_technobabble((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain technobabble or meaningless jargon", (text)))
 
 #ifdef __cplusplus
 }

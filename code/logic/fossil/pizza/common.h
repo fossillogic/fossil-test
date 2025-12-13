@@ -448,7 +448,7 @@ FOSSIL_PIZZA_API const char *pizza_io_soap_detect_tone(const char *text);
  * @param text The input text to sanitize.
  * @return A dynamically allocated sanitized string (must be freed by the caller).
  */
-char *fossil_io_soap_sanitize(const char *text);
+char *pizza_io_soap_sanitize(const char *text);
 
 /**
  * @brief Suggest proper alternatives for rot-brain words or grammar fixes.
@@ -456,7 +456,7 @@ char *fossil_io_soap_sanitize(const char *text);
  * @param text The input text.
  * @return A dynamically allocated string with suggestions (must be freed by the caller).
  */
-char *fossil_io_soap_suggest(const char *text);
+char *pizza_io_soap_suggest(const char *text);
 
 /**
  * @brief Detect the tone of a sentence.
@@ -464,7 +464,7 @@ char *fossil_io_soap_suggest(const char *text);
  * @param text The input text.
  * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
  */
-const char *fossil_io_soap_detect_tone(const char *text);
+const char *pizza_io_soap_detect_tone(const char *text);
 
 // grammar functions
 
@@ -474,7 +474,7 @@ const char *fossil_io_soap_detect_tone(const char *text);
  * @param text Input string to analyze.
  * @return 0 if grammar is clean, non-zero otherwise.
  */
-int fossil_io_soap_check_grammar(const char *text);
+int pizza_io_soap_check_grammar(const char *text);
 
 /**
  * @brief Apply a grammar correction pass over the input text.
@@ -482,7 +482,7 @@ int fossil_io_soap_check_grammar(const char *text);
  * @param text The input text.
  * @return A dynamically allocated corrected string (must be freed).
  */
-char *fossil_io_soap_correct_grammar(const char *text);
+char *pizza_io_soap_correct_grammar(const char *text);
 
 /**
  * @brief Split input text into individual sentences.
@@ -499,70 +499,70 @@ char **pizza_io_soap_split_sentences(const char *text);
  * @param text Input string to analyze.
  * @return Non-zero if ragebait patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_ragebait(const char *text);
+int pizza_io_soap_detect_ragebait(const char *text);
 
 /** 
  * Detects clickbait content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if clickbait patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_clickbait(const char *text);
+int pizza_io_soap_detect_clickbait(const char *text);
 
 /** 
  * Detects spam content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if spam patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_spam(const char *text);
+int pizza_io_soap_detect_spam(const char *text);
 
 /** 
  * Detects woke-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if woke patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_woke(const char *text);
+int pizza_io_soap_detect_woke(const char *text);
 
 /** 
  * Detects automated/bot content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if bot patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_bot(const char *text);
+int pizza_io_soap_detect_bot(const char *text);
 
 /** 
  * Detects sarcastic tone in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if sarcastic patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_sarcasm(const char *text);
+int pizza_io_soap_detect_sarcasm(const char *text);
 
 /** 
  * Detects formal tone in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if formal patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_formal(const char *text);
+int pizza_io_soap_detect_formal(const char *text);
 
 /** 
  * Detects "snowflake"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if snowflake patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_snowflake(const char *text);
+int pizza_io_soap_detect_snowflake(const char *text);
 
 /** 
  * Detects "offensive"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if offensive patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_offensive(const char *text);
+int pizza_io_soap_detect_offensive(const char *text);
 
 /** 
  * Detects "neutral"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if neutral patterns are found, 0 otherwise.
  */
-int fossil_io_soap_detect_neutral(const char *text);
+int pizza_io_soap_detect_neutral(const char *text);
 
 /**
  * @brief Detect hype-related phrases in text.
@@ -570,7 +570,7 @@ int fossil_io_soap_detect_neutral(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if hype phrases are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_hype(const char *text);
+int pizza_io_soap_detect_hype(const char *text);
 
 /**
  * @brief Detect quality-related phrases in text.
@@ -578,7 +578,7 @@ int fossil_io_soap_detect_hype(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if quality phrases are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_quality(const char *text);
+int pizza_io_soap_detect_quality(const char *text);
 
 /**
  * @brief Detect political content in text.
@@ -586,7 +586,7 @@ int fossil_io_soap_detect_quality(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if political patterns are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_political(const char *text);
+int pizza_io_soap_detect_political(const char *text);
 
 /**
  * @brief Detect conspiracy-related content in text.
@@ -594,7 +594,7 @@ int fossil_io_soap_detect_political(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if conspiracy patterns are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_conspiracy(const char *text);
+int pizza_io_soap_detect_conspiracy(const char *text);
 
 /**
  * @brief Detect marketing/jargon-heavy content in text.
@@ -602,7 +602,7 @@ int fossil_io_soap_detect_conspiracy(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if marketing patterns are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_marketing(const char *text);
+int pizza_io_soap_detect_marketing(const char *text);
 
 /**
  * @brief Detect technobabble or meaningless jargon in text.
@@ -610,7 +610,7 @@ int fossil_io_soap_detect_marketing(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if technobabble patterns are detected, 0 otherwise.
  */
-int fossil_io_soap_detect_technobabble(const char *text);
+int pizza_io_soap_detect_technobabble(const char *text);
 
 // filter functions
 
@@ -620,18 +620,18 @@ int fossil_io_soap_detect_technobabble(const char *text);
  * @param phrase The phrase to add.
  * @return 0 on success, nonzero on failure.
  */
-int fossil_io_soap_add_custom_filter(const char *phrase);
+int pizza_io_soap_add_custom_filter(const char *phrase);
 
 /**
  * @brief Filter text by replacing words/phrases matching any pattern (comma-separated) with '*'.
  *        Patterns support '*' and '?' wildcards, case-insensitive.
  */
-char *fossil_io_soap_filter(const char *patterns, const char *text);
+char *pizza_io_soap_filter(const char *patterns, const char *text);
 
 /**
  * @brief Clear all custom filters.
  */
-void fossil_io_soap_clear_custom_filters(void);
+void pizza_io_soap_clear_custom_filters(void);
 
 /**
  * @brief Compute a readability score for the input text (0–100 scale).
@@ -639,7 +639,7 @@ void fossil_io_soap_clear_custom_filters(void);
  * @param text Input string to analyze.
  * @return Integer readability score; higher = easier to read.
  */
-int fossil_io_soap_readability_score(const char *text);
+int pizza_io_soap_readability_score(const char *text);
 
 /**
  * @brief Provide a label for readability ("easy", "medium", "complex").
@@ -647,7 +647,7 @@ int fossil_io_soap_readability_score(const char *text);
  * @param text Input text.
  * @return A constant string label.
  */
-const char *fossil_io_soap_readability_label(const char *text);
+const char *pizza_io_soap_readability_label(const char *text);
 
 /**
  * @brief Generate a concise summary (1–3 sentences).
@@ -655,7 +655,7 @@ const char *fossil_io_soap_readability_label(const char *text);
  * @param text Input text.
  * @return A dynamically allocated summary string (caller frees).
  */
-char *fossil_io_soap_summarize(const char *text);
+char *pizza_io_soap_summarize(const char *text);
 
 /**
  * @brief Extract the single key sentence (TL;DR).
@@ -663,7 +663,7 @@ char *fossil_io_soap_summarize(const char *text);
  * @param text Input text.
  * @return A dynamically allocated extracted sentence (caller frees).
  */
-char *fossil_io_soap_extract_key_sentence(const char *text);
+char *pizza_io_soap_extract_key_sentence(const char *text);
 
 /**
  * @brief Analyze the writing style ("concise", "verbose", "technical", etc.).
@@ -671,7 +671,7 @@ char *fossil_io_soap_extract_key_sentence(const char *text);
  * @param text Input text.
  * @return A constant string label.
  */
-const char *fossil_io_soap_analyze_style(const char *text);
+const char *pizza_io_soap_analyze_style(const char *text);
 
 /**
  * @brief Estimate passive voice usage (0–100%).
@@ -679,7 +679,7 @@ const char *fossil_io_soap_analyze_style(const char *text);
  * @param text Input string.
  * @return Percentage of passive constructions.
  */
-int fossil_io_soap_passive_voice_ratio(const char *text);
+int pizza_io_soap_passive_voice_ratio(const char *text);
 
 /**
  * @brief Evaluate clarity of writing (0–100).
@@ -687,7 +687,7 @@ int fossil_io_soap_passive_voice_ratio(const char *text);
  * @param text Input.
  * @return Clarity score.
  */
-int fossil_io_soap_clarity_score(const char *text);
+int pizza_io_soap_clarity_score(const char *text);
 
 /**
  * @brief Assess overall writing quality (grammar, concision, structure).
@@ -695,7 +695,7 @@ int fossil_io_soap_clarity_score(const char *text);
  * @param text Input.
  * @return Quality score 0–100.
  */
-int fossil_io_soap_quality_score(const char *text);
+int pizza_io_soap_quality_score(const char *text);
 
 /**
  * @brief Split text into sentences.
@@ -703,7 +703,7 @@ int fossil_io_soap_quality_score(const char *text);
  * @param text Input.
  * @return NULL-terminated array of strdup'd sentences (caller frees array & elements).
  */
-char **fossil_io_soap_split_sentences(const char *text);
+char **pizza_io_soap_split_sentences(const char *text);
 
 /**
  * @brief Reflow text to max line width. Preserves words; inserts line breaks.
@@ -712,7 +712,7 @@ char **fossil_io_soap_split_sentences(const char *text);
  * @param width Maximum allowed characters per line.
  * @return A dynamically allocated reflowed string (caller frees).
  */
-char *fossil_io_soap_reflow(const char *text, int width);
+char *pizza_io_soap_reflow(const char *text, int width);
 
 /**
  * @brief Normalize whitespace, punctuation, spacing, and basic formatting.
@@ -720,7 +720,7 @@ char *fossil_io_soap_reflow(const char *text, int width);
  * @param text Input string.
  * @return A dynamically allocated normalized string (caller frees).
  */
-char *fossil_io_soap_normalize(const char *text);
+char *pizza_io_soap_normalize(const char *text);
 
 /**
  * @brief Apply capitalization rules.
@@ -729,7 +729,7 @@ char *fossil_io_soap_normalize(const char *text);
  * @param mode 0 = sentence case, 1 = title case, 2 = uppercase, 3 = lowercase.
  * @return A dynamically allocated transformed string (caller frees).
  */
-char *fossil_io_soap_capitalize(const char *text, int mode);
+char *pizza_io_soap_capitalize(const char *text, int mode);
 
 /**
  * @brief Checks if the given text contains "rot-brain" language.
