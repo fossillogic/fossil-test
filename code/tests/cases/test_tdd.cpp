@@ -1196,6 +1196,38 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_ragebait);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_ragebait);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_clickbait);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_clickbait);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_spam);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_spam);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_woke);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_woke);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_bot);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_bot);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_sarcasm);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_sarcasm);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_formal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_formal);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_snowflake);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_snowflake);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_offensive);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_offensive);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_neutral);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_neutral);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_hype);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_hype);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_quality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_quality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_political);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_political);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_conspiracy);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_conspiracy);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_marketing);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_marketing);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_technobabble);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_technobabble);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group
