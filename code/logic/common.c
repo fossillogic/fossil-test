@@ -1535,7 +1535,6 @@ static const char *SKIP_WORDS[] = {
     NULL // Sentinel to mark the end
 };
 
-static char custom_storage[MAX_CUSTOM_FILTERS][64];
 static const char *custom_filters[MAX_CUSTOM_FILTERS] = {0};
 
 /**
@@ -1904,7 +1903,7 @@ int pizza_io_soap_check_grammar(const char *text) {
 char *pizza_io_soap_correct_grammar(const char *text) {
     if (!text) return NULL;
 
-    char *corrected = fossil_io_cstring_dup(text); // Create modifiable copy
+    char *corrected = pizza_io_cstr_dup(text); // Create modifiable copy
     if (!corrected) return NULL;
 
     for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect; i++) {
@@ -1938,7 +1937,7 @@ char *pizza_io_soap_correct_grammar(const char *text) {
 char *pizza_io_soap_normalize_slang(const char *text) {
     if (!text) return NULL;
 
-    char *result = fossil_io_cstring_dup(text);
+    char *result = pizza_io_cstr_dup(text);
     if (!result) return NULL;
 
     for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != NULL; i++) {
@@ -2229,7 +2228,7 @@ char *pizza_io_soap_extract_key_sentence(const char *text) {
         if (len > blen) { best = i; blen = len; }
     }
 
-    char *ret = best >= 0 ? fossil_io_cstring_dup(sent[best]) : fossil_io_cstring_dup("");
+    char *ret = best >= 0 ? pizza_io_cstr_dup(sent[best]) : pizza_io_cstr_dup("");
     for (int i = 0; sent[i]; i++) free(sent[i]);
     free(sent);
 
@@ -2367,7 +2366,7 @@ char **pizza_io_soap_split_sentences(const char *text) {
 
     /* last fragment */
     if (p != start) {
-        char *s = fossil_io_cstring_dup(start);
+        char *s = pizza_io_cstr_dup(start);
         out[idx++] = s;
     }
 
@@ -2378,7 +2377,7 @@ char **pizza_io_soap_split_sentences(const char *text) {
 char *pizza_io_soap_reflow(const char *text, int width) {
     if (!text || width < 10) return NULL;
 
-    char *buf = fossil_io_cstring_dup(text);
+    char *buf = pizza_io_cstr_dup(text);
     char *tok = strtok(buf, " ");
     size_t cap = strlen(text) + 128;
     char *out = malloc(cap);
@@ -2427,7 +2426,7 @@ char *pizza_io_soap_normalize(const char *text) {
 
 char *pizza_io_soap_capitalize(const char *text, int mode) {
     if (!text) return NULL;
-    char *out = fossil_io_cstring_dup(text);
+    char *out = pizza_io_cstr_dup(text);
     size_t n = strlen(out);
 
     switch (mode) {

@@ -484,6 +484,14 @@ int fossil_io_soap_check_grammar(const char *text);
  */
 char *fossil_io_soap_correct_grammar(const char *text);
 
+/**
+ * @brief Split input text into individual sentences.
+ *
+ * @param text The input text to split.
+ * @return A dynamically allocated array of strings, each representing a sentence (must be freed by the caller).
+ */
+char **pizza_io_soap_split_sentences(const char *text);
+
 // detect functions
 
 /** 
