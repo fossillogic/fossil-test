@@ -1642,136 +1642,149 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_ACUTEST:
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Passed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Failed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Skipped      :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Timeouts     :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Unexpected   :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Empty        :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Coverage     :{reset} %06.2f%% {blue}|{reset} {cyan}Stability:{reset} %06.2f%% {blue}|{reset} {cyan}Health:{reset} %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{blue}[ACUTEST]{reset} {cyan}Success Rate :{reset} %06.2f%% {blue}|{reset} {cyan}Risk:{reset} %06.2f%% {blue}|{reset} {cyan}Anomaly:{reset} %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{black}[ACUTEST]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_MINUNIT:
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Passed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Failed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Skipped      :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Timeouts     :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Unexpected   :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Empty        :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Coverage     :{reset} %06.2f%% {blue}|{reset} {cyan}Stability:{reset} %06.2f%% {blue}|{reset} {cyan}Health:{reset} %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{blue}[MINUNIT]{reset} {cyan}Success Rate :{reset} %06.2f%% {blue}|{reset} {cyan}Risk:{reset} %06.2f%% {blue}|{reset} {cyan}Anomaly:{reset} %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{black}[MINUNIT]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CMOCKA:
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Passed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Failed       :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Skipped      :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Timeouts     :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Unexpected   :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Empty        :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Coverage     :{reset} %06.2f%% {blue}|{reset} {cyan}Stability:{reset} %06.2f%% {blue}|{reset} {cyan}Health:{reset} %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{blue}[CMOCKA]{reset} {cyan}Success Rate :{reset} %06.2f%% {blue}|{reset} {cyan}Risk:{reset} %06.2f%% {blue}|{reset} {cyan}Anomaly:{reset} %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{black}[CMOCKA]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}Suites run:{cyan} %4zu, {blue}Test run:{cyan} %4d, {blue}Score:{cyan} %d/%d\n{reset}",
+            pizza_io_printf("{blue,bold}Suites run:{reset} {cyan}%4zu{reset}, {blue}Test run:{reset} {cyan}%4d{reset}, {blue}Score:{reset} {cyan}%d{reset}/{white}%d{reset}\n",
             engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}Passed      :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}Failed      :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}Skipped     :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}Timeouts    :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}Unexpected  :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}Empty       :{cyan} %4d {blue}-{cyan}(%06.2f%%){reset}\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}Coverage    :{cyan} %06.2f%% {blue}| Stability:{cyan} %06.2f%% {blue}| Health :{cyan} %06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{blue}Success Rate:{cyan} %06.2f%% {blue}| Risk     :{cyan} %06.2f%% {blue}| Anomaly:{cyan} %06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{blue}Passed      {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}Failed      {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}Skipped     {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}Timeouts    {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}Unexpected  {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}Empty       {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}Coverage    {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CATCH:
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {black}Stability{reset}: {cyan}%06.2f%%{reset} | {black}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{black}[CATCH]{reset} {blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {black}Risk{reset}     : {cyan}%06.2f%%{reset} | {black}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            break;
+
         case PIZZA_THEME_DOCTEST:
-            pizza_io_printf("{magenta}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{magenta}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{magenta}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{magenta}Passed       :{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{magenta}Failed       :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{magenta}Skipped      :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{magenta}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{magenta}Unexpected   :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{magenta}Empty        :{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{magenta}Coverage     :{reset} %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{magenta}Success Rate :{reset} {green}%06.2f%%{reset} | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{black}Suites run   {reset}: {blue}%zu{reset}\n", engine->count);
+            pizza_io_printf("{black}Tests run    {reset}: {blue}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{black}Score        {reset}: {blue}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{black}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{black}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{black}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{black}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{black}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{black}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{black}Coverage     {reset}: {cyan}%06.2f%%{reset} | {black}Stability{reset}: {cyan}%06.2f%%{reset} | {black}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{black}Success Rate {reset}: {cyan}%06.2f%%{reset} | {black}Risk{reset}     : {cyan}%06.2f%%{reset} | {black}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CPPUTEST:
-            pizza_io_printf("{cyan}[TEST SUMMARY]{reset}\n");
-            pizza_io_printf("{cyan}[SUITES RUN   ]{reset} %zu\n", engine->count);
-            pizza_io_printf("{cyan}[TESTS RUN    ]{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{cyan}[SCORE        ]{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{cyan}[  PASSED     ]{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{cyan}[  FAILED     ]{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{cyan}[  SKIPPED    ]{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{cyan}[  TIMEOUTS   ]{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{cyan}[UNEXPECTED   ]{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{cyan}[   EMPTY     ]{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{cyan}[ COVERAGE    ]{reset} %06.2f%% | [STABILITY] %06.2f%% | [HEALTH] %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{cyan}[SUCCESS RATE ]{reset} {green}%06.2f%%{reset} | [RISK] %06.2f%% | [ANOMALY] %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{black}[TEST SUMMARY]{reset}\n");
+            pizza_io_printf("{blue}[SUITES RUN   ]{reset} {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{blue}[TESTS RUN    ]{reset} {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{blue}[SCORE        ]{reset} {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}[  PASSED     ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}[  FAILED     ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}[  SKIPPED    ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}[  TIMEOUTS   ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}[UNEXPECTED   ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}[   EMPTY     ]{reset} {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}[ COVERAGE    ]{reset} {cyan}%06.2f%%{reset} | {blue}[STABILITY]{reset} {cyan}%06.2f%%{reset} | {blue}[HEALTH]{reset}  {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}[SUCCESS RATE ]{reset} {cyan}%06.2f%%{reset} | {blue}[RISK]{reset}      {cyan}%06.2f%%{reset} | {blue}[ANOMALY]{reset} {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_TAP:
             pizza_io_printf("TAP version 13\n");
-            pizza_io_printf("# {yellow}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("# {yellow}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("# {yellow}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("# {green}Passed       :{reset} %d ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("# {red}Failed       :{reset} %d ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("# {yellow}Skipped      :{reset} %d ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("# {yellow}Timeouts     :{reset} %d ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("# {red}Unexpected   :{reset} %d ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("# {cyan}Empty        :{reset} %d ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("# Coverage   : %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("# Success Rate: %06.2f%% | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{blue}# Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{blue}# Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{blue}# Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}# Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}# Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}# Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}# Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}# Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}# Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}# Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}# Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_GOOGLETEST:
-            pizza_io_printf("[==========] {blue}Suites run:{reset} %zu\n", engine->count);
-            pizza_io_printf("[----------] {yellow}Tests run :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("[==========] {green}Score     :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("[  {green}PASSED{reset}  ] {green}%d{reset} tests ({green}%06.2f%%{reset}).\n", engine->score.passed, pass_pct);
-            pizza_io_printf("[  {red}FAILED{reset}  ] {red}%d{reset} tests ({red}%06.2f%%{reset}).\n", engine->score.failed, fail_pct);
-            pizza_io_printf("[  {yellow}SKIPPED{reset} ] {yellow}%d{reset} tests ({yellow}%06.2f%%{reset}).\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("[ {yellow}TIMEOUTS{reset} ] {yellow}%d{reset} tests ({yellow}%06.2f%%{reset}).\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("[{red}UNEXPECTED{reset}] {red}%d{reset} tests ({red}%06.2f%%{reset}).\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("[  {cyan}EMPTY{reset}   ] {cyan}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.empty, empty_pct);
-            pizza_io_printf("[ COVERAGE ] %06.2f%% | [STABILITY] %06.2f%% | [HEALTH] %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("[ {green}SUCCESS{reset}  ] {green}%06.2f%%{reset} | [RISK] %06.2f%% | [ANOMALY] %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{blue}[==========]{reset} {cyan}Suites run{reset}: {white}%zu{reset}\n", engine->count);
+            pizza_io_printf("{blue}[----------]{reset} {cyan}Tests run {reset}: {white}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{blue}[==========]{reset} {cyan}Score     {reset}: {white}%d{reset}/{cyan}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}[  PASSED   ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}[  FAILED   ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}[  SKIPPED  ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}[ TIMEOUTS  ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}[UNEXPECTED ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}[  EMPTY    ]{reset} {white}%d{reset} tests ({cyan}%06.2f%%{reset}).\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}[ COVERAGE ]{reset} {cyan}%06.2f%%{reset} | {blue}[STABILITY]{reset} {cyan}%06.2f%%{reset} | {blue}[HEALTH]{reset}  {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}[ SUCCESS  ]{reset} {cyan}%06.2f%%{reset} | {blue}[RISK]{reset}      {cyan}%06.2f%%{reset} | {blue}[ANOMALY]{reset} {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_UNITY:
-            pizza_io_printf("{green}Unity Test Summary{reset}\n");
-            pizza_io_printf("{green}Suites run   :{reset} %zu\n", engine->count);
-            pizza_io_printf("{green}Tests run    :{reset} %d\n", engine->score_possible);
-            pizza_io_printf("{green}Score        :{reset} %d/%d\n", engine->score_total, engine->score_possible);
-            pizza_io_printf("{green}Passed       :{reset} {green}%d{reset} ({green}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{green}Failed       :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{green}Skipped      :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{green}Timeouts     :{reset} {yellow}%d{reset} ({yellow}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{green}Unexpected   :{reset} {red}%d{reset} ({red}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{green}Empty        :{reset} {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{green}Coverage     :{reset} %06.2f%% | Stability: %06.2f%% | Health: %06.2f%%\n", coverage, stability, health);
-            pizza_io_printf("{green}Success Rate :{reset} {green}%06.2f%%{reset} | Risk: %06.2f%% | Anomaly: %06.2f%%\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{blue}Unity Test Summary{reset}\n");
+            pizza_io_printf("{blue}Suites run   {reset}: {cyan}%zu{reset}\n", engine->count);
+            pizza_io_printf("{blue}Tests run    {reset}: {cyan}%d{reset}\n", engine->score_possible);
+            pizza_io_printf("{blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}Passed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}Failed       {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}Skipped      {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}Timeouts     {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}Unexpected   {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}Empty        {reset}: {white}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         default:
-            pizza_io_printf("Unknown theme. Unable to display scoreboard.\n");
+            pizza_io_printf("{red}Unknown theme. Unable to display scoreboard.{reset}\n");
             break;
     }
 }
