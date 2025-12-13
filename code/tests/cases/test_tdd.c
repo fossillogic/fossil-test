@@ -918,162 +918,218 @@ FOSSIL_TEST(c_assume_run_of_char_not_equal) {
 } // end case
 
 
-FOSSIL_TEST(c_assume_run_of_not_soap_rot_brain) {
-    const char *text = "This is a normal sentence.";
-
-    // Test case
-    ASSUME_NOT_SOAP_ROT_BRAIN(text);
-} // end case
-
+// Test for rot-brain words (should be detected)
 FOSSIL_TEST(c_assume_run_of_its_soap_rot_brain) {
-    const char *text = "This is a rot-brain sentence.";
-
-    // Test case
-    ASSUME_ITS_SOAP_ROT_BRAIN(text);
+    const char *rot_brain_words[] = {
+        "u", "gonna", "ppl", "funny", "lol", "idk", "wanna", "rizz", "skibidi", "yeet", "sus", "vibe", "lit", "no cap", "bet", "fam", "bruh", "flex", "ghost", "goat", "gucci", "hype", "janky", "lowkey", "mood", "salty", "shade", "slay", "snatched", "stan", "tea", "thirsty", "woke", "yolo", "zaddy", "drip", "fire", "omg", "brb", "imo", "lmao", "nvm", "tbh", "tldr", "ttyl", "wyd", "wtf", "rot-brain", "rot brain", "rotbrain", "smh", "fomo", "bff", "irl", "afaik", "btw", "omw", "ikr", "tgif", "np", "rofl", "lmk", "dm", "rn", "yw", "af", "ftw", "gg", "pov", "omfg", "tl;dr", "fwiw", "bday", "gr8", "hmu", "jk", "k", "l8r", "msg", "pls", "plz", "thx", "tho", "w/", "w/o", "xoxo", "y", "b/c", "cuz", "coz", "dunno", "g2g", "hbu", "idc", "ily", "l8", "n/a", "nvm", "omw", "ppl", "qt", "sup", "tba", "tbc", "w/e", "wth"
+    };
+    for (size_t i = 0; i < sizeof(rot_brain_words)/sizeof(rot_brain_words[0]); ++i) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "This is %s.", rot_brain_words[i]);
+        ASSUME_ITS_SOAP_ROT_BRAIN(buf);
+    }
 } // end case
 
-FOSSIL_TEST(c_assume_run_of_its_soap_tone_detected) {
-    const char *text = "Respectfully testing the pizza.";
-    const char *expected_tone = "formal";
+// Test for non-rot-brain (should NOT be detected)
+FOSSIL_TEST(c_assume_run_of_not_soap_rot_brain) {
+    const char *normal_sentences[] = {
+        "This is a normal sentence.",
+        "The quick brown fox jumps over the lazy dog.",
+        "Software engineering is fun.",
+        "I like pizza.",
+        "Let's write some tests."
+    };
+    for (size_t i = 0; i < sizeof(normal_sentences)/sizeof(normal_sentences[0]); ++i) {
+        ASSUME_NOT_SOAP_ROT_BRAIN(normal_sentences[i]);
+    }
+} // end case
 
-    // Test case
+// Test for formal phrases
+FOSSIL_TEST(c_assume_run_of_soap_formal) {
+    const char *formal_phrases[] = {
+        "Dear Sir or Madam", "To whom it may concern", "Yours sincerely", "Yours faithfully", "Best regards", "Respectfully",
+        "I would like to", "I am writing to", "Please find attached", "Thank you for your consideration", "I look forward to your response"
+    };
+    for (size_t i = 0; i < sizeof(formal_phrases)/sizeof(formal_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_FORMAL(formal_phrases[i]);
+    }
+} // end case
+
+// Test for sarcasm phrases
+FOSSIL_TEST(c_assume_run_of_soap_sarcasm) {
+    const char *sarcasm_phrases[] = {
+        "Oh, great", "Yeah, right", "Nice job", "Well done", "Good luck with that", "Sure, why not", "Fantastic", "Brilliant", "Wonderful", "Perfect"
+    };
+    for (size_t i = 0; i < sizeof(sarcasm_phrases)/sizeof(sarcasm_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_SARCASM(sarcasm_phrases[i]);
+    }
+} // end case
+
+// Test for ragebait
+FOSSIL_TEST(c_assume_run_of_soap_ragebait) {
+    const char *ragebait_phrases[] = {
+        "You won't believe what happened next!", "outrageous", "infuriating", "makes me angry", "how dare they", "ridiculous"
+    };
+    for (size_t i = 0; i < sizeof(ragebait_phrases)/sizeof(ragebait_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_RAGEBAIT(ragebait_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_RAGEBAIT("This is a calm and informative statement.");
+} // end case
+
+// Test for clickbait
+FOSSIL_TEST(c_assume_run_of_soap_clickbait) {
+    const char *clickbait_phrases[] = {
+        "10 shocking secrets they don't want you to know!", "top 10", "must see", "life changing", "secret revealed"
+    };
+    for (size_t i = 0; i < sizeof(clickbait_phrases)/sizeof(clickbait_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_CLICKBAIT(clickbait_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_CLICKBAIT("This article provides a summary of the topic.");
+} // end case
+
+// Test for spam
+FOSSIL_TEST(c_assume_run_of_soap_spam) {
+    const char *spam_phrases[] = {
+        "Congratulations! You've won a free iPhone. Click here!", "free money", "work from home", "act now", "earn cash fast"
+    };
+    for (size_t i = 0; i < sizeof(spam_phrases)/sizeof(spam_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_SPAM(spam_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_SPAM("Thank you for your feedback.");
+} // end case
+
+// Test for woke
+FOSSIL_TEST(c_assume_run_of_soap_woke) {
+    const char *woke_phrases[] = {
+        "We must challenge systemic injustice and promote equity.", "safe space", "microaggression", "check your privilege", "diversity and inclusion"
+    };
+    for (size_t i = 0; i < sizeof(woke_phrases)/sizeof(woke_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_WOKE(woke_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_WOKE("This is a technical documentation.");
+} // end case
+
+// Test for bot
+FOSSIL_TEST(c_assume_run_of_soap_bot) {
+    const char *bot_phrases[] = {
+        "Hello, I am an automated assistant. How can I help you?", "ai generated", "auto reply", "automated message", "bot detected"
+    };
+    for (size_t i = 0; i < sizeof(bot_phrases)/sizeof(bot_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_BOT(bot_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_BOT("Hi, this is John from support.");
+} // end case
+
+// Test for snowflake
+FOSSIL_TEST(c_assume_run_of_soap_snowflake) {
+    const char *snowflake_phrases[] = {
+        "I'm offended by your words and need a safe space.", "snowflake", "triggered", "fragile ego", "offended easily"
+    };
+    for (size_t i = 0; i < sizeof(snowflake_phrases)/sizeof(snowflake_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_SNOWFLAKE(snowflake_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_SNOWFLAKE("Let's discuss the facts objectively.");
+} // end case
+
+// Test for offensive
+FOSSIL_TEST(c_assume_run_of_soap_offensive) {
+    const char *offensive_phrases[] = {
+        "You are so stupid!", "idiot", "moron", "loser", "jerk", "trash"
+    };
+    for (size_t i = 0; i < sizeof(offensive_phrases)/sizeof(offensive_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_OFFENSIVE(offensive_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_OFFENSIVE("That was an interesting point.");
+} // end case
+
+// Test for neutral
+FOSSIL_TEST(c_assume_run_of_soap_neutral) {
+    const char *neutral_phrases[] = {
+        "The sky is blue.", "as expected", "no problem", "all good", "fine", "okay"
+    };
+    for (size_t i = 0; i < sizeof(neutral_phrases)/sizeof(neutral_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_NEUTRAL(neutral_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_NEUTRAL("This is the worst product ever!");
+} // end case
+
+// Test for hype
+FOSSIL_TEST(c_assume_run_of_soap_hype) {
+    const char *hype_phrases[] = {
+        "This is the most amazing thing ever!", "game-changing", "revolutionary", "cutting-edge", "disruptive"
+    };
+    for (size_t i = 0; i < sizeof(hype_phrases)/sizeof(hype_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_HYPE(hype_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_HYPE("The results were as expected.");
+} // end case
+
+// Test for quality
+FOSSIL_TEST(c_assume_run_of_soap_quality) {
+    const char *quality_phrases[] = {
+        "This product is built with premium materials.", "premium", "best-in-class", "outstanding", "top-tier"
+    };
+    for (size_t i = 0; i < sizeof(quality_phrases)/sizeof(quality_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_QUALITY(quality_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_QUALITY("The item is available in the store.");
+} // end case
+
+// Test for political
+FOSSIL_TEST(c_assume_run_of_soap_political) {
+    const char *political_phrases[] = {
+        "The government should lower taxes.", "left-wing", "right-wing", "liberal agenda", "conservative values"
+    };
+    for (size_t i = 0; i < sizeof(political_phrases)/sizeof(political_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_POLITICAL(political_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_POLITICAL("This is a recipe for apple pie.");
+} // end case
+
+// Test for conspiracy
+FOSSIL_TEST(c_assume_run_of_soap_conspiracy) {
+    const char *conspiracy_phrases[] = {
+        "The moon landing was faked by the government.", "hidden truth", "cover up", "shadow government", "mind control"
+    };
+    for (size_t i = 0; i < sizeof(conspiracy_phrases)/sizeof(conspiracy_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_CONSPIRACY(conspiracy_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_CONSPIRACY("The earth revolves around the sun.");
+} // end case
+
+// Test for marketing
+FOSSIL_TEST(c_assume_run_of_soap_marketing) {
+    const char *marketing_phrases[] = {
+        "Unlock your potential with our revolutionary solution!", "limited time offer", "act now", "don’t miss out", "guaranteed results"
+    };
+    for (size_t i = 0; i < sizeof(marketing_phrases)/sizeof(marketing_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_MARKETING(marketing_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_MARKETING("The software is open source and free to use.");
+} // end case
+
+// Test for technobabble
+FOSSIL_TEST(c_assume_run_of_soap_technobabble) {
+    const char *technobabble_phrases[] = {
+        "The quantum flux capacitor enables hyperdimensional throughput.", "synergy", "blockchain-enabled", "AI-powered", "machine learning solution"
+    };
+    for (size_t i = 0; i < sizeof(technobabble_phrases)/sizeof(technobabble_phrases[0]); ++i) {
+        ASSUME_ITS_SOAP_TECHNOBABBLE(technobabble_phrases[i]);
+    }
+    ASSUME_NOT_SOAP_TECHNOBABBLE("The CPU executes instructions sequentially.");
+} // end case
+
+// Test for formal tone detection (tone argument)
+FOSSIL_TEST(c_assume_run_of_its_soap_tone_detected) {
+    const char *text = "Respectfully, I am writing to inform you.";
+    const char *expected_tone = "formal";
     ASSUME_ITS_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_not_soap_tone_detected) {
-    const char *text = "This is a sarcastic sentence.";
+    const char *text = "Hey, what's up?";
     const char *expected_tone = "formal";
-
-    // Test case
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_ragebait) {
-    const char *ragebait = "You won't believe what happened next!";
-    const char *not_ragebait = "This is a calm and informative statement.";
-
-    ASSUME_ITS_SOAP_RAGEBAIT(ragebait);
-    ASSUME_NOT_SOAP_RAGEBAIT(not_ragebait);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_clickbait) {
-    const char *clickbait = "10 shocking secrets they don't want you to know!";
-    const char *not_clickbait = "This article provides a summary of the topic.";
-
-    ASSUME_ITS_SOAP_CLICKBAIT(clickbait);
-    ASSUME_NOT_SOAP_CLICKBAIT(not_clickbait);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_spam) {
-    const char *spam = "Congratulations! You've won a free iPhone. Click here!";
-    const char *not_spam = "Thank you for your feedback.";
-
-    ASSUME_ITS_SOAP_SPAM(spam);
-    ASSUME_NOT_SOAP_SPAM(not_spam);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_woke) {
-    const char *woke = "We must challenge systemic injustice and promote equity.";
-    const char *not_woke = "This is a technical documentation.";
-
-    ASSUME_ITS_SOAP_WOKE(woke);
-    ASSUME_NOT_SOAP_WOKE(not_woke);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_bot) {
-    const char *bot = "Hello, I am an automated assistant. How can I help you?";
-    const char *not_bot = "Hi, this is John from support.";
-
-    ASSUME_ITS_SOAP_BOT(bot);
-    ASSUME_NOT_SOAP_BOT(not_bot);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_sarcasm) {
-    const char *sarcasm = "Oh great, another Monday. Just what I needed.";
-    const char *not_sarcasm = "I am looking forward to the meeting.";
-
-    ASSUME_ITS_SOAP_SARCASM(sarcasm);
-    ASSUME_NOT_SOAP_SARCASM(not_sarcasm);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_formal) {
-    const char *formal = "Dear Sir or Madam, I am writing to inform you...";
-    const char *not_formal = "Hey, what's up?";
-
-    ASSUME_ITS_SOAP_FORMAL(formal);
-    ASSUME_NOT_SOAP_FORMAL(not_formal);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_snowflake) {
-    const char *snowflake = "I'm offended by your words and need a safe space.";
-    const char *not_snowflake = "Let's discuss the facts objectively.";
-
-    ASSUME_ITS_SOAP_SNOWFLAKE(snowflake);
-    ASSUME_NOT_SOAP_SNOWFLAKE(not_snowflake);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_offensive) {
-    const char *offensive = "You are so stupid!";
-    const char *not_offensive = "That was an interesting point.";
-
-    ASSUME_ITS_SOAP_OFFENSIVE(offensive);
-    ASSUME_NOT_SOAP_OFFENSIVE(not_offensive);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_neutral) {
-    const char *neutral = "The sky is blue.";
-    const char *not_neutral = "This is the worst product ever!";
-
-    ASSUME_ITS_SOAP_NEUTRAL(neutral);
-    ASSUME_NOT_SOAP_NEUTRAL(not_neutral);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_hype) {
-    const char *hype = "This is the most amazing thing ever!";
-    const char *not_hype = "The results were as expected.";
-
-    ASSUME_ITS_SOAP_HYPE(hype);
-    ASSUME_NOT_SOAP_HYPE(not_hype);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_quality) {
-    const char *quality = "This product is built with premium materials.";
-    const char *not_quality = "The item is available in the store.";
-
-    ASSUME_ITS_SOAP_QUALITY(quality);
-    ASSUME_NOT_SOAP_QUALITY(not_quality);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_political) {
-    const char *political = "The government should lower taxes.";
-    const char *not_political = "This is a recipe for apple pie.";
-
-    ASSUME_ITS_SOAP_POLITICAL(political);
-    ASSUME_NOT_SOAP_POLITICAL(not_political);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_conspiracy) {
-    const char *conspiracy = "The moon landing was faked by the government.";
-    const char *not_conspiracy = "The earth revolves around the sun.";
-
-    ASSUME_ITS_SOAP_CONSPIRACY(conspiracy);
-    ASSUME_NOT_SOAP_CONSPIRACY(not_conspiracy);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_marketing) {
-    const char *marketing = "Unlock your potential with our revolutionary solution!";
-    const char *not_marketing = "The software is open source and free to use.";
-
-    ASSUME_ITS_SOAP_MARKETING(marketing);
-    ASSUME_NOT_SOAP_MARKETING(not_marketing);
-} // end case
-
-FOSSIL_TEST(c_assume_run_of_soap_technobabble) {
-    const char *technobabble = "The quantum flux capacitor enables hyperdimensional throughput.";
-    const char *not_technobabble = "The CPU executes instructions sequentially.";
-
-    ASSUME_ITS_SOAP_TECHNOBABBLE(technobabble);
-    ASSUME_NOT_SOAP_TECHNOBABBLE(not_technobabble);
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
