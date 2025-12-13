@@ -948,6 +948,134 @@ FOSSIL_TEST(c_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
+FOSSIL_TEST(c_assume_run_of_soap_ragebait) {
+    const char *ragebait = "You won't believe what happened next!";
+    const char *not_ragebait = "This is a calm and informative statement.";
+
+    ASSUME_ITS_SOAP_RAGEBAIT(ragebait);
+    ASSUME_NOT_SOAP_RAGEBAIT(not_ragebait);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_clickbait) {
+    const char *clickbait = "10 shocking secrets they don't want you to know!";
+    const char *not_clickbait = "This article provides a summary of the topic.";
+
+    ASSUME_ITS_SOAP_CLICKBAIT(clickbait);
+    ASSUME_NOT_SOAP_CLICKBAIT(not_clickbait);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_spam) {
+    const char *spam = "Congratulations! You've won a free iPhone. Click here!";
+    const char *not_spam = "Thank you for your feedback.";
+
+    ASSUME_ITS_SOAP_SPAM(spam);
+    ASSUME_NOT_SOAP_SPAM(not_spam);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_woke) {
+    const char *woke = "We must challenge systemic injustice and promote equity.";
+    const char *not_woke = "This is a technical documentation.";
+
+    ASSUME_ITS_SOAP_WOKE(woke);
+    ASSUME_NOT_SOAP_WOKE(not_woke);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_bot) {
+    const char *bot = "Hello, I am an automated assistant. How can I help you?";
+    const char *not_bot = "Hi, this is John from support.";
+
+    ASSUME_ITS_SOAP_BOT(bot);
+    ASSUME_NOT_SOAP_BOT(not_bot);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_sarcasm) {
+    const char *sarcasm = "Oh great, another Monday. Just what I needed.";
+    const char *not_sarcasm = "I am looking forward to the meeting.";
+
+    ASSUME_ITS_SOAP_SARCASM(sarcasm);
+    ASSUME_NOT_SOAP_SARCASM(not_sarcasm);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_formal) {
+    const char *formal = "Dear Sir or Madam, I am writing to inform you...";
+    const char *not_formal = "Hey, what's up?";
+
+    ASSUME_ITS_SOAP_FORMAL(formal);
+    ASSUME_NOT_SOAP_FORMAL(not_formal);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_snowflake) {
+    const char *snowflake = "I'm offended by your words and need a safe space.";
+    const char *not_snowflake = "Let's discuss the facts objectively.";
+
+    ASSUME_ITS_SOAP_SNOWFLAKE(snowflake);
+    ASSUME_NOT_SOAP_SNOWFLAKE(not_snowflake);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_offensive) {
+    const char *offensive = "You are so stupid!";
+    const char *not_offensive = "That was an interesting point.";
+
+    ASSUME_ITS_SOAP_OFFENSIVE(offensive);
+    ASSUME_NOT_SOAP_OFFENSIVE(not_offensive);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_neutral) {
+    const char *neutral = "The sky is blue.";
+    const char *not_neutral = "This is the worst product ever!";
+
+    ASSUME_ITS_SOAP_NEUTRAL(neutral);
+    ASSUME_NOT_SOAP_NEUTRAL(not_neutral);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_hype) {
+    const char *hype = "This is the most amazing thing ever!";
+    const char *not_hype = "The results were as expected.";
+
+    ASSUME_ITS_SOAP_HYPE(hype);
+    ASSUME_NOT_SOAP_HYPE(not_hype);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_quality) {
+    const char *quality = "This product is built with premium materials.";
+    const char *not_quality = "The item is available in the store.";
+
+    ASSUME_ITS_SOAP_QUALITY(quality);
+    ASSUME_NOT_SOAP_QUALITY(not_quality);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_political) {
+    const char *political = "The government should lower taxes.";
+    const char *not_political = "This is a recipe for apple pie.";
+
+    ASSUME_ITS_SOAP_POLITICAL(political);
+    ASSUME_NOT_SOAP_POLITICAL(not_political);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_conspiracy) {
+    const char *conspiracy = "The moon landing was faked by the government.";
+    const char *not_conspiracy = "The earth revolves around the sun.";
+
+    ASSUME_ITS_SOAP_CONSPIRACY(conspiracy);
+    ASSUME_NOT_SOAP_CONSPIRACY(not_conspiracy);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_marketing) {
+    const char *marketing = "Unlock your potential with our revolutionary solution!";
+    const char *not_marketing = "The software is open source and free to use.";
+
+    ASSUME_ITS_SOAP_MARKETING(marketing);
+    ASSUME_NOT_SOAP_MARKETING(not_marketing);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_soap_technobabble) {
+    const char *technobabble = "The quantum flux capacitor enables hyperdimensional throughput.";
+    const char *not_technobabble = "The CPU executes instructions sequentially.";
+
+    ASSUME_ITS_SOAP_TECHNOBABBLE(technobabble);
+    ASSUME_NOT_SOAP_TECHNOBABBLE(not_technobabble);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1039,6 +1167,22 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_ragebait);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_clickbait);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_spam);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_woke);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_bot);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_sarcasm);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_formal);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_snowflake);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_offensive);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_neutral);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_hype);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_quality);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_political);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_conspiracy);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_marketing);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_soap_technobabble);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
 } // end of group
