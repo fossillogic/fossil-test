@@ -1800,7 +1800,7 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
 
     // Choose color based on endianness
     const char* endian_str  = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
-    const char* endian_color = endianness_info.is_little_endian ? "{green}" : "{red}";
+    const char* endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_ACUTEST:
