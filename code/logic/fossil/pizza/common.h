@@ -664,6 +664,35 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  * attributes, and positions, making it ideal for developers who want to build visually rich and interactive 
  * command-line interfaces. The markup-based approach is simple to use and can be easily extended to meet the 
  * needs of more complex applications.
+ * 
+ * List of supported color code tags for terminal output formatting.
+ *
+ * The following color tags can be used within curly braces `{}` in format strings
+ * to apply color to terminal output. These tags are mapped to ANSI escape codes.
+ *
+ * Standard colors:
+ *   - "red"
+ *   - "green"
+ *   - "yellow"
+ *   - "blue"
+ *   - "magenta"
+ *   - "cyan"
+ *   - "white"
+ *   - "black"
+ *   - "orange"
+ *   - "gray"
+ *
+ * Bright colors:
+ *   - "bright_red"
+ *   - "bright_green"
+ *   - "bright_yellow"
+ *   - "bright_blue"
+ *   - "bright_magenta"
+ *   - "bright_cyan"
+ *   - "bright_white"
+ *
+ * Example usage in a format string:
+ *   pizza_io_printf("{red}This is red text{reset}\n");
  */
 
 /**
@@ -846,48 +875,62 @@ FOSSIL_PIZZA_API void pizza_io_flush(void);
 // *****************************************************************************
 
 /**
- * @brief Creates a new cstr with the given initial value.
- * 
- * @param init The initial value for the cstr.
- * @return A new cstr initialized with the given value.
+ * @brief Creates a new cstr (heap-allocated C string) with the given initial value.
+ *
+ * Allocates memory for a new string and copies the contents of `init` into it.
+ * Returns null if `init` is null or allocation fails.
+ *
+ * @param init The initial value for the cstr (null-terminated string).
+ * @return A new cstr initialized with the given value, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_create(const char *init);
 
 /**
  * @brief Frees the memory allocated for the given cstr.
- * 
+ *
+ * Safely frees a heap-allocated C string. Does nothing if `str` is null.
+ *
  * @param str The cstr to be freed.
  */
 FOSSIL_PIZZA_API void pizza_io_cstr_free(cstr str);
 
 /**
  * @brief Creates a copy of the given cstr.
- * 
+ *
+ * Allocates a new string and copies the contents of `str` into it.
+ *
  * @param str The cstr to be copied.
- * @return A new cstr that is a copy of the given cstr.
+ * @return A new cstr that is a copy of the given cstr, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_copy(ccstr str);
 
 /**
  * @brief Duplicates the given cstr.
- * 
+ *
+ * Allocates a new string and copies the contents of `str` into it.
+ * Equivalent to pizza_io_cstr_copy.
+ *
  * @param str The cstr to be duplicated.
- * @return A new cstr that is a duplicate of the given cstr.
+ * @return A new cstr that is a duplicate of the given cstr, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_dup(ccstr str);
 
 /**
  * @brief Concatenates two cstrings into a new cstr.
- * 
+ *
+ * Allocates a new string containing the contents of `s1` followed by `s2`.
+ *
  * @param s1 The first cstr.
  * @param s2 The second cstr.
- * @return A new cstr that is the concatenation of s1 and s2.
+ * @return A new cstr that is the concatenation of s1 and s2, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
 
 /**
  * @brief Returns the length of the given cstr.
- * 
+ *
+ * Returns 0 if `str` is null.
+ *
  * @param str The cstr whose length is to be determined.
  * @return The length of the given cstr.
  */
@@ -895,59 +938,77 @@ FOSSIL_PIZZA_API size_t pizza_io_cstr_length(ccstr str);
 
 /**
  * @brief Compares two cstrings.
- * 
+ *
+ * Returns -1 if either string is null, otherwise returns the result of strcmp.
+ *
  * @param s1 The first cstr.
  * @param s2 The second cstr.
- * @return An integer less than, equal to, or greater than zero if s1 is found, respectively, to be less than, to match, or be greater than s2.
+ * @return An integer less than, equal to, or greater than zero if s1 is found,
+ *         respectively, to be less than, to match, or be greater than s2.
  */
 FOSSIL_PIZZA_API int pizza_io_cstr_compare(ccstr s1, ccstr s2);
 
 /**
- * @brief Trims whitespace from the beginning and end of the given cstr.
- * 
+ * @brief Trims whitespace from the beginning and end of the given cstr (in-place).
+ *
+ * Modifies the string to remove leading and trailing whitespace.
+ * Does nothing if `str` is null.
+ *
  * @param str The cstr to be trimmed.
  */
 FOSSIL_PIZZA_API void pizza_io_cstr_trim(cstr str);
 
 /**
  * @brief Splits the given cstr by the specified delimiter.
- * 
+ *
+ * Allocates an array of cstrs, each containing a substring from `str` split by `delimiter`.
+ * The number of substrings is stored in `count`.
+ * Returns null on failure. Caller must free each string and the array.
+ *
  * @param str The cstr to be split.
  * @param delimiter The character to split the cstr by.
  * @param count Pointer to a size_t variable where the number of resulting substrings will be stored.
- * @return An array of cstrings resulting from the split operation.
+ * @return An array of cstrings resulting from the split operation, or null on failure.
  */
 FOSSIL_PIZZA_API cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count);
 
 /**
  * @brief Replaces all occurrences of a substring within a cstr with another substring.
- * 
+ *
+ * Allocates a new string with all occurrences of `old` replaced by `new_str`.
+ *
  * @param str The original cstr.
  * @param old The substring to be replaced.
  * @param new_str The substring to replace with.
- * @return A new cstr with the replacements made.
+ * @return A new cstr with the replacements made, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
 
 /**
  * @brief Converts all characters in the given cstr to uppercase.
- * 
+ *
+ * Allocates a new string with all characters converted to uppercase.
+ *
  * @param str The cstr to be converted.
- * @return The cstr with all characters converted to uppercase.
+ * @return The new cstr with all characters converted to uppercase, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_to_upper(cstr str);
 
 /**
  * @brief Converts all characters in the given cstr to lowercase.
- * 
+ *
+ * Allocates a new string with all characters converted to lowercase.
+ *
  * @param str The cstr to be converted.
- * @return The cstr with all characters converted to lowercase.
+ * @return The new cstr with all characters converted to lowercase, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_to_lower(cstr str);
 
 /**
  * @brief Checks if the given cstr starts with the specified prefix.
- * 
+ *
+ * Returns 1 if `str` starts with `prefix`, 0 otherwise.
+ *
  * @param str The cstr to be checked.
  * @param prefix The prefix to check for.
  * @return 1 if the cstr starts with the prefix, 0 otherwise.
@@ -956,7 +1017,9 @@ FOSSIL_PIZZA_API int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
 
 /**
  * @brief Checks if the given cstr ends with the specified suffix.
- * 
+ *
+ * Returns 1 if `str` ends with `suffix`, 0 otherwise.
+ *
  * @param str The cstr to be checked.
  * @param suffix The suffix to check for.
  * @return 1 if the cstr ends with the suffix, 0 otherwise.
@@ -965,25 +1028,32 @@ FOSSIL_PIZZA_API int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
 
 /**
  * @brief Extracts a substring from the given cstr.
- * 
+ *
+ * Allocates a new string containing `length` characters from `str` starting at `start`.
+ * Returns null if `start` is out of bounds.
+ *
  * @param str The original cstr.
  * @param start The starting index of the substring.
  * @param length The length of the substring.
- * @return A new cstr that is the specified substring of the original cstr.
+ * @return A new cstr that is the specified substring of the original cstr, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length);
 
 /**
  * @brief Reverses the given cstr.
- * 
+ *
+ * Allocates a new string that is the reverse of `str`.
+ *
  * @param str The cstr to be reversed.
- * @return A new cstr that is the reverse of the given cstr.
+ * @return A new cstr that is the reverse of the given cstr, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_reverse(cstr str);
 
 /**
  * @brief Checks if the given cstr contains the specified substring.
- * 
+ *
+ * Returns 1 if `substr` is found in `str`, 0 otherwise.
+ *
  * @param str The cstr to be checked.
  * @param substr The substring to check for.
  * @return 1 if the cstr contains the substring, 0 otherwise.
@@ -992,25 +1062,31 @@ FOSSIL_PIZZA_API int pizza_io_cstr_contains(ccstr str, ccstr substr);
 
 /**
  * @brief Repeats the given cstr the specified number of times.
- * 
+ *
+ * Allocates a new string consisting of `str` repeated `count` times.
+ *
  * @param str The cstr to be repeated.
  * @param count The number of times to repeat the cstr.
- * @return A new cstr that is the original cstr repeated the specified number of times.
+ * @return A new cstr that is the original cstr repeated the specified number of times, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_repeat(ccstr str, size_t count);
 
 /**
  * @brief Strips the given character from the beginning and end of the cstr.
- * 
+ *
+ * Allocates a new string with all leading and trailing occurrences of `ch` removed.
+ *
  * @param str The cstr to be stripped.
  * @param ch The character to strip.
- * @return A new cstr that is the original cstr with the specified character stripped from the beginning and end.
+ * @return A new cstr with the specified character stripped from the beginning and end, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_strip(ccstr str, char ch);
 
 /**
  * @brief Counts the number of occurrences of a substring within the given cstr.
- * 
+ *
+ * Returns the number of non-overlapping occurrences of `substr` in `str`.
+ *
  * @param str The cstr to be searched.
  * @param substr The substring to search for.
  * @return The number of occurrences of the substring within the cstr.
@@ -1019,26 +1095,41 @@ FOSSIL_PIZZA_API size_t pizza_io_cstr_count(ccstr str, ccstr substr);
 
 /**
  * @brief Pads the given cstr with the specified character on the left side.
- * 
+ *
+ * Allocates a new string of length `total_length`, with `str` right-aligned and padded on the left with `pad_char`.
+ * If `str` is longer than or equal to `total_length`, a copy of `str` is returned.
+ *
  * @param str The cstr to be padded.
  * @param total_length The total length of the resulting cstr.
  * @param pad_char The character to pad with.
- * @return A new cstr that is the original cstr padded on the left side.
+ * @return A new cstr padded on the left side, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
 
 /**
  * @brief Pads the given cstr with the specified character on the right side.
- * 
+ *
+ * Allocates a new string of length `total_length`, with `str` left-aligned and padded on the right with `pad_char`.
+ * If `str` is longer than or equal to `total_length`, a copy of `str` is returned.
+ *
  * @param str The cstr to be padded.
  * @param total_length The total length of the resulting cstr.
  * @param pad_char The character to pad with.
- * @return A new cstr that is the original cstr padded on the right side.
+ * @return A new cstr padded on the right side, or null on failure.
  */
 FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
 
-// Append a string to a buffer safely with NUL-termination.
-// Returns true on success, false if buffer would overflow.
+/**
+ * @brief Appends a string to a buffer safely with NUL-termination.
+ *
+ * Copies `src` to the end of `dest` if there is enough space (including null terminator).
+ * Returns true on success, false if buffer would overflow or arguments are invalid.
+ *
+ * @param dest The destination buffer (must be NUL-terminated and at least max_len bytes).
+ * @param max_len The total size of the destination buffer.
+ * @param src The source string to append.
+ * @return true if append succeeded, false otherwise.
+ */
 FOSSIL_PIZZA_API bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
 
 #ifdef __cplusplus

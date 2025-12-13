@@ -1664,23 +1664,26 @@ pizza_fstream_t *PIZZA_STDERR;
 int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 
 // Define color codes for output
-#define FOSSIL_IO_COLOR_RESET       "\033[0m"
-#define FOSSIL_IO_COLOR_RED         "\033[31m"
-#define FOSSIL_IO_COLOR_GREEN       "\033[32m"
-#define FOSSIL_IO_COLOR_YELLOW      "\033[33m"
-#define FOSSIL_IO_COLOR_BLUE        "\033[34m"
-#define FOSSIL_IO_COLOR_MAGENTA     "\033[35m"
-#define FOSSIL_IO_COLOR_CYAN        "\033[36m"
-#define FOSSIL_IO_COLOR_WHITE       "\033[37m"
+#define FOSSIL_IO_COLOR_RESET         "\033[0m"
+#define FOSSIL_IO_COLOR_RED           "\033[31m"
+#define FOSSIL_IO_COLOR_GREEN         "\033[32m"
+#define FOSSIL_IO_COLOR_YELLOW        "\033[33m"
+#define FOSSIL_IO_COLOR_BLUE          "\033[34m"
+#define FOSSIL_IO_COLOR_MAGENTA       "\033[35m"
+#define FOSSIL_IO_COLOR_CYAN          "\033[36m"
+#define FOSSIL_IO_COLOR_WHITE         "\033[37m"
+#define FOSSIL_IO_COLOR_BLACK         "\033[30m"
+#define FOSSIL_IO_COLOR_ORANGE         "\033[38;5;208m"
+#define FOSSIL_IO_COLOR_GRAY           "\033[90m"
 
 // Bright colors
-#define FOSSIL_IO_COLOR_BRIGHT_RED   "\033[91m"
-#define FOSSIL_IO_COLOR_BRIGHT_GREEN "\033[92m"
-#define FOSSIL_IO_COLOR_BRIGHT_YELLOW "\033[93m"
-#define FOSSIL_IO_COLOR_BRIGHT_BLUE  "\033[94m"
+#define FOSSIL_IO_COLOR_BRIGHT_RED     "\033[91m"
+#define FOSSIL_IO_COLOR_BRIGHT_GREEN   "\033[92m"
+#define FOSSIL_IO_COLOR_BRIGHT_YELLOW  "\033[93m"
+#define FOSSIL_IO_COLOR_BRIGHT_BLUE    "\033[94m"
 #define FOSSIL_IO_COLOR_BRIGHT_MAGENTA "\033[95m"
-#define FOSSIL_IO_COLOR_BRIGHT_CYAN  "\033[96m"
-#define FOSSIL_IO_COLOR_BRIGHT_WHITE "\033[97m"
+#define FOSSIL_IO_COLOR_BRIGHT_CYAN    "\033[96m"
+#define FOSSIL_IO_COLOR_BRIGHT_WHITE   "\033[97m"
 
 // Define text attributes
 #define FOSSIL_IO_ATTR_BOLD         "\033[1m"
@@ -1712,6 +1715,12 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_CYAN);
     } else if (pizza_io_cstr_compare(color, "white") == 0) {
         printf(FOSSIL_IO_COLOR_WHITE);
+    } else if (pizza_io_cstr_compare(color, "black") == 0) {
+        printf(FOSSIL_IO_COLOR_BLACK);
+    } else if (pizza_io_cstr_compare(color, "orange") == 0) {
+        printf(FOSSIL_IO_COLOR_ORANGE);
+    } else if (pizza_io_cstr_compare(color, "gray") == 0) {
+        printf(FOSSIL_IO_COLOR_GRAY);
     }
     // Bright colors
     else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
@@ -1983,6 +1992,28 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 // string management
 // *****************************************************************************
+
+#ifndef HAVE_STRNLEN
+size_t strnlen(const char *s, size_t maxlen) {
+    size_t i;
+    for (i = 0; i < maxlen && s[i]; i++);
+    return i;
+}
+#endif
+
+#ifndef HAVE_STRNCASECMP
+int strncasecmp(const char *s1, const char *s2, size_t n) {
+    for (size_t i = 0; i < n && s1[i] && s2[i]; i++) {
+        int diff = tolower((unsigned char)s1[i]) - tolower((unsigned char)s2[i]);
+        if (diff != 0) return diff;
+    }
+    return 0;
+}
+#endif
+
+// ============================================================================
+// C String Functions
+// ============================================================================
 
 cstr pizza_io_cstr_create(const char *init) {
     if (!init) return null;
