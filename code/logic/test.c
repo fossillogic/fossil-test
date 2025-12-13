@@ -1504,7 +1504,7 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}\n=================================================================================={reset}\n");
-            pizza_io_printf("{blue,bold}Elapsed Time:{white} %s (hh:mm:ss.micro,nano)\n{reset}", time_buffer);
+            pizza_io_printf("{blue,bold}Elapsed Time:{white} %s {blue}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
             pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
         case PIZZA_THEME_CATCH:
@@ -1561,9 +1561,9 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t* engine) {
     // Theme-aware average reporting
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+            pizza_io_printf("{blue,bold}Average Time per Suite:{white} %12.2f ns {blue}({cyan}%8.2f us{blue} | {cyan}%8.3f ms{blue}){reset}\n",
                     avg_suite_ns, avg_suite_us, avg_suite_ms);
-            pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns (%8.2f us | %8.3f ms)\n{reset}",
+            pizza_io_printf("{blue,bold}Average Time per Test :{white} %12.2f ns {blue}({cyan}%8.2f us{blue} | {cyan}%8.3f ms{blue}){reset}\n",
                     avg_test_ns, avg_test_us, avg_test_ms);
             pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
@@ -1684,16 +1684,17 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t* engine) {
             break;
 
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("{blue,bold}Suites run:{reset} {cyan}%4zu{reset}, {blue}Test run:{reset} {cyan}%4d{reset}, {blue}Score:{reset} {cyan}%d{reset}/{white}%d{reset}\n",
-            engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-            pizza_io_printf("{blue}Passed      {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-            pizza_io_printf("{blue}Failed      {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-            pizza_io_printf("{blue}Skipped     {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-            pizza_io_printf("{blue}Timeouts    {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-            pizza_io_printf("{blue}Unexpected  {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-            pizza_io_printf("{blue}Empty       {reset}: {white}%4d{reset} -({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-            pizza_io_printf("{blue}Coverage    {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
-            pizza_io_printf("{blue}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
+            pizza_io_printf("{blue,bold}Suites run   {reset}: {white}%4zu{reset}\n", engine->count);
+            pizza_io_printf("{blue,bold}Tests run    {reset}: {white}%4d{reset}\n", engine->score_possible);
+            pizza_io_printf("{blue,bold}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->score_total, engine->score_possible);
+            pizza_io_printf("{blue}Passed       {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+            pizza_io_printf("{blue}Failed       {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+            pizza_io_printf("{blue}Skipped      {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+            pizza_io_printf("{blue}Timeouts     {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+            pizza_io_printf("{blue}Unexpected   {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+            pizza_io_printf("{blue}Empty        {reset}: {cyan}%4d{reset} ({blue}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+            pizza_io_printf("{blue,bold}Coverage     {reset}: {cyan}%06.2f%%{reset} | {blue}Stability{reset}: {cyan}%06.2f%%{reset} | {blue}Health{reset} : {cyan}%06.2f%%{reset}\n", coverage, stability, health);
+            pizza_io_printf("{blue,bold}Success Rate {reset}: {cyan}%06.2f%%{reset} | {blue}Risk{reset}     : {cyan}%06.2f%%{reset} | {blue}Anomaly{reset}: {cyan}%06.2f%%{reset}\n", success_rate, risk, anomaly_rate);
             break;
 
         case PIZZA_THEME_CATCH:
@@ -1818,8 +1819,8 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t* engine) {
             break;
         case PIZZA_THEME_FOSSIL:
             pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
-            pizza_io_printf("{blue}=== {cyan}Pizza Summary{blue} ===: OS {green}%s{blue}, Endianness: %s%s{blue}, Architecture: {green}%s{reset}\n",
-            system_info.os_name, endian_color, endian_str, arch_info.architecture);
+            pizza_io_printf("{blue}=== {white}Pizza Summary{blue} ===: OS {cyan}%s{blue}, Endianness: %s%s{blue}, Architecture: {cyan}%s{reset}\n",
+                system_info.os_name, endian_color, endian_str, arch_info.architecture);
             pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
             break;
 
@@ -1870,7 +1871,7 @@ void fossil_pizza_ai_feedback(const fossil_pizza_engine_t* engine) {
 
     switch (engine->pallet.theme) {
         case PIZZA_THEME_FOSSIL:
-            pizza_io_printf("\n{blue,bold}Feedback:{reset} {cyan}%s{reset}\n", feedback);
+            pizza_io_printf("\n{blue,bold}Feedback:{reset} {white}%s{reset}\n", feedback);
             break;
         case PIZZA_THEME_CATCH:
         case PIZZA_THEME_DOCTEST:
