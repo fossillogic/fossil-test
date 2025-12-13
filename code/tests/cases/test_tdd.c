@@ -920,12 +920,122 @@ FOSSIL_TEST(c_assume_run_of_char_not_equal) {
 
 // Test for rot-brain words (should be detected)
 FOSSIL_TEST(c_assume_run_of_its_soap_rot_brain) {
-    const char *rot_brain_words[] = {
-        "u", "gonna", "ppl", "funny", "lol", "idk", "wanna", "rizz", "skibidi", "yeet", "sus", "vibe", "lit", "no cap", "bet", "fam", "bruh", "flex", "ghost", "goat", "gucci", "hype", "janky", "lowkey", "mood", "salty", "shade", "slay", "snatched", "stan", "tea", "thirsty", "woke", "yolo", "zaddy", "drip", "fire", "omg", "brb", "imo", "lmao", "nvm", "tbh", "tldr", "ttyl", "wyd", "wtf", "rot-brain", "rot brain", "rotbrain", "smh", "fomo", "bff", "irl", "afaik", "btw", "omw", "ikr", "tgif", "np", "rofl", "lmk", "dm", "rn", "yw", "af", "ftw", "gg", "pov", "omfg", "tl;dr", "fwiw", "bday", "gr8", "hmu", "jk", "k", "l8r", "msg", "pls", "plz", "thx", "tho", "w/", "w/o", "xoxo", "y", "b/c", "cuz", "coz", "dunno", "g2g", "hbu", "idc", "ily", "l8", "n/a", "nvm", "omw", "ppl", "qt", "sup", "tba", "tbc", "w/e", "wth"
+    static const struct {
+        const char *bad;
+        const char *suggested;
+    } rot_brain_table[] = {
+        {"u", "you"},
+        {"gonna", "going to"},
+        {"ppl", "people"},
+        {"funny", "laugh out loud"},
+        {"lol", "laugh out loud"},
+        {"idk", "I don't know"},
+        {"wanna", "want to"},
+        {"rizz", "charisma"},
+        {"skibidi", "dance"},
+        {"yeet", "throw"},
+        {"sus", "suspicious"},
+        {"vibe", "atmosphere"},
+        {"lit", "exciting"},
+        {"no cap", "honestly"},
+        {"bet", "okay"},
+        {"fam", "family"},
+        {"bruh", "brother"},
+        {"flex", "show off"},
+        {"ghost", "ignore"},
+        {"goat", "legend"},
+        {"gucci", "good"},
+        {"hype", "exciting"},
+        {"janky", "low-quality"},
+        {"lowkey", "somewhat"},
+        {"mood", "feeling"},
+        {"salty", "bitter"},
+        {"shade", "insult"},
+        {"slay", "impress"},
+        {"snatched", "stylish"},
+        {"stan", "superfan"},
+        {"tea", "gossip"},
+        {"thirsty", "desperate"},
+        {"woke", "aware"},
+        {"yolo", "live once"},
+        {"zaddy", "attractive man"},
+        {"drip", "fashion"},
+        {"fire", "amazing"},
+        {"omg", "surprising"},
+        {"brb", "be right back"},
+        {"imo", "in my opinion"},
+        {"lmao", "laughing"},
+        {"nvm", "never mind"},
+        {"tbh", "to be honest"},
+        {"tldr", "too long; didn't read"},
+        {"ttyl", "talk to you later"},
+        {"wyd", "what are you doing"},
+        {"wtf", "what the heck"},
+        {"yolo", "you only live once"},
+        {"rot-brain", "stupid"},
+        {"rot brain", "stupid"},
+        {"rotbrain", "stupid"},
+        {"smh", "shaking my head"},
+        {"fomo", "fear of missing out"},
+        {"bff", "best friend forever"},
+        {"irl", "in real life"},
+        {"afaik", "as far as I know"},
+        {"btw", "by the way"},
+        {"omw", "on my way"},
+        {"ikr", "I know right"},
+        {"tgif", "thank goodness it's Friday"},
+        {"np", "no problem"},
+        {"rofl", "rolling on the floor laughing"},
+        {"lmk", "let me know"},
+        {"dm", "direct message"},
+        {"rn", "right now"},
+        {"yw", "you're welcome"},
+        {"af", "very"},
+        {"ftw", "for the win"},
+        {"gg", "good game"},
+        {"pov", "point of view"},
+        {"omfg", "oh my goodness"},
+        {"tl;dr", "too long; didn't read"},
+        {"fwiw", "for what it's worth"},
+        {"bday", "birthday"},
+        {"gr8", "great"},
+        {"hmu", "hit me up"},
+        {"jk", "just kidding"},
+        {"k", "okay"},
+        {"l8r", "later"},
+        {"msg", "message"},
+        {"pls", "please"},
+        {"plz", "please"},
+        {"thx", "thanks"},
+        {"tho", "though"},
+        {"w/", "with"},
+        {"w/o", "without"},
+        {"xoxo", "hugs and kisses"},
+        {"y", "why"},
+        {"b/c", "because"},
+        {"cuz", "because"},
+        {"coz", "because"},
+        {"dunno", "don't know"},
+        {"g2g", "got to go"},
+        {"hbu", "how about you"},
+        {"idc", "I don't care"},
+        {"ily", "I love you"},
+        {"l8", "late"},
+        {"n/a", "not applicable"},
+        {"nvm", "never mind"},
+        {"omw", "on my way"},
+        {"ppl", "people"},
+        {"qt", "cutie"},
+        {"sup", "what's up"},
+        {"tba", "to be announced"},
+        {"tbc", "to be continued"},
+        {"w/e", "whatever"},
+        {"wth", "what the heck"},
+        {NULL, NULL}
     };
-    for (size_t i = 0; i < sizeof(rot_brain_words)/sizeof(rot_brain_words[0]); ++i) {
-        char buf[64];
-        snprintf(buf, sizeof(buf), "This is %s.", rot_brain_words[i]);
+    for (size_t i = 0; rot_brain_table[i].bad != NULL; ++i) {
+        char buf[128];
+        snprintf(buf, sizeof(buf), "This is %s.", rot_brain_table[i].bad);
         ASSUME_ITS_SOAP_ROT_BRAIN(buf);
     }
 } // end case
@@ -946,98 +1056,162 @@ FOSSIL_TEST(c_assume_run_of_not_soap_rot_brain) {
 
 // Test for formal phrases
 FOSSIL_TEST(c_assume_run_of_soap_formal) {
-    const char *formal_phrases[] = {
+    static const char *formal_phrases[] = {
         "Dear Sir or Madam", "To whom it may concern", "Yours sincerely", "Yours faithfully", "Best regards", "Respectfully",
-        "I would like to", "I am writing to", "Please find attached", "Thank you for your consideration", "I look forward to your response"
+        "I would like to", "I am writing to", "Please find attached", "Thank you for your consideration", "I look forward to your response",
+        "Kindly note", "Please be advised", "It is my pleasure to", "I would appreciate your assistance", "Should you require any further information",
+        "I remain at your disposal", "With kind regards", "Thank you for your attention", "I am writing on behalf of", "Please accept my apologies",
+        "I wish to inform you", "We would be grateful if", "I hope this message finds you well", "I would be obliged if", "Kindly consider",
+        "I trust this finds you well", "Allow me to express", "With utmost respect", "Permit me to", "I am pleased to inform you",
+        "I would like to request", "I am delighted to", "I am honored to", "I am grateful for", "I am reaching out to",
+        "I am writing regarding", "I am contacting you to", "I am pleased to submit", "I am pleased to provide", "I am pleased to announce",
+        "I am pleased to offer", "I am pleased to confirm", "I am pleased to accept", "I am pleased to acknowledge", "I am pleased to extend",
+        "I am pleased to invite", "I am pleased to welcome", "I am pleased to recommend", "I am pleased to endorse", NULL
     };
-    for (size_t i = 0; i < sizeof(formal_phrases)/sizeof(formal_phrases[0]); ++i) {
+    for (size_t i = 0; formal_phrases[i] != NULL; ++i) {
         ASSUME_ITS_SOAP_FORMAL(formal_phrases[i]);
     }
 } // end case
 
 // Test for sarcasm phrases
 FOSSIL_TEST(c_assume_run_of_soap_sarcasm) {
-    const char *sarcasm_phrases[] = {
-        "Oh, great", "Yeah, right", "Nice job", "Well done", "Good luck with that", "Sure, why not", "Fantastic", "Brilliant", "Wonderful", "Perfect"
+    static const char *sarcasm_phrases[] = {
+        "Oh, great", "Yeah, right", "Nice job", "Well done", "Good luck with that", "Sure, why not", "Fantastic", "Brilliant", "Wonderful", "Perfect",
+        "Oh, just what I needed", "Wow, amazing", "How original", "Incredible", "As if that will work", "Sure, that's smart", "Totally believable", "Oh, really?",
+        "You're a genius", "Thanks a lot", "Couldn't be better", "That's exactly what I wanted", "Well, isn't that special", "Lovely", "Just perfect",
+        "What could go wrong?", "Right, because that makes sense", "Great idea", "Absolutely flawless", "Marvelous", "Just wonderful", "Oh, that's helpful",
+        "Just what I expected", "Couldn't ask for more", "That's not suspicious at all", "Oh, that's convincing", "What a surprise", "How unexpected",
+        "Just my luck", "Of course, why wouldn't it", "That's so typical", "What a coincidence", "Just in time", "Couldn't be happier",
+        "That's exactly what I needed", "Oh, that's rich", "How fortunate", "Just fantastic", "Oh, that's brilliant", "Couldn't be more obvious",
+        "How convenient", NULL
     };
-    for (size_t i = 0; i < sizeof(sarcasm_phrases)/sizeof(sarcasm_phrases[0]); ++i) {
+    for (size_t i = 0; sarcasm_phrases[i] != NULL; ++i) {
         ASSUME_ITS_SOAP_SARCASM(sarcasm_phrases[i]);
     }
 } // end case
 
 // Test for ragebait
 FOSSIL_TEST(c_assume_run_of_soap_ragebait) {
-    const char *ragebait_phrases[] = {
-        "You won't believe what happened next!", "outrageous", "infuriating", "makes me angry", "how dare they", "ridiculous"
+    static const char *ragebait_table[] = {
+        "you won't believe", "outrageous", "infuriating", "makes me angry", "how dare they", "ridiculous", "unbelievable", "trigger warning", "enraging", "shocking injustice",
+        "furious", "disgusting", "outrage", "unacceptable", "appalling", "scandalous", "outraged", "angry reaction", "horrifying", "outrage alert",
+        "infuriated", "rage induced", "madness", "shocking", "unthinkable", "angry outrage", "outrage fest", "provocative", "furious outrage", "triggered",
+        "ragebait", "fuming", "explosive reaction", "heated debate", "controversial", "offensive", "insulting", "hate-filled", "hate speech", "unjust",
+        "unfair", "disrespectful", "call to action", "raging", "storm of anger", "backlash", "public outrage", "viral outrage", "internet rage", "mass outrage",
+        "social media outrage", NULL
     };
-    for (size_t i = 0; i < sizeof(ragebait_phrases)/sizeof(ragebait_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_RAGEBAIT(ragebait_phrases[i]);
+    for (size_t i = 0; ragebait_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_RAGEBAIT(ragebait_table[i]);
     }
     ASSUME_NOT_SOAP_RAGEBAIT("This is a calm and informative statement.");
 } // end case
 
 // Test for clickbait
 FOSSIL_TEST(c_assume_run_of_soap_clickbait) {
-    const char *clickbait_phrases[] = {
-        "10 shocking secrets they don't want you to know!", "top 10", "must see", "life changing", "secret revealed"
+    static const char *clickbait_table[] = {
+        "how to", "top 10", "amazing", "must see", "you won't believe what happened", "life changing", "secret revealed", "uncovered", "incredible", "mind blown",
+        "you won't believe this", "shocking", "insane", "epic", "ultimate guide", "hidden truth", "never knew", "reveal", "best ever", "fantastic", "jaw dropping",
+        "you must see", "exclusive", "surprising", "unreal", "best of", "amazing discovery", "life hack", "can't miss", "insider tips", "what happened next",
+        "this will change your life", "the truth about", "watch until the end", "don't miss this", "the secret to", "revealed", "breakthrough", "the real reason",
+        "you need to know", "must watch", "unbelievable", "game changer", "before and after", "biggest ever", "most shocking", "crazy story", "you won't believe your eyes",
+        "the best kept secret", "what experts don't tell you", "the ultimate list", NULL
     };
-    for (size_t i = 0; i < sizeof(clickbait_phrases)/sizeof(clickbait_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_CLICKBAIT(clickbait_phrases[i]);
+    for (size_t i = 0; clickbait_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_CLICKBAIT(clickbait_table[i]);
     }
     ASSUME_NOT_SOAP_CLICKBAIT("This article provides a summary of the topic.");
 } // end case
 
 // Test for spam
 FOSSIL_TEST(c_assume_run_of_soap_spam) {
-    const char *spam_phrases[] = {
-        "Congratulations! You've won a free iPhone. Click here!", "free money", "work from home", "act now", "earn cash fast"
+    static const char *spam_table[] = {
+        "free money", "work from home", "act now", "earn cash fast", "get rich quick", "limited time offer", "buy now", "exclusive deal",
+        "instant results", "100% free", "click here", "apply now", "offer expires", "make money online", "risk free", "guaranteed",
+        "easy income", "double your money", "urgent", "special promotion", "no investment", "limited offer", "win big", "free trial",
+        "claim prize", "extra cash", "instant payout", "hot deal", "bonus", "cash bonus", "lowest price", "save big", "limited stock",
+        "don't miss out", "order now", "get started today", "exclusive offer", "limited time only", "no obligation", "money back guarantee",
+        "fast cash", "get paid today", "easy steps", "no experience needed", "start earning now", "unbelievable deal", "limited seats",
+        "special discount", "win a prize", "free access", "limited availability", NULL
     };
-    for (size_t i = 0; i < sizeof(spam_phrases)/sizeof(spam_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_SPAM(spam_phrases[i]);
+    for (size_t i = 0; spam_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_SPAM(spam_table[i]);
     }
     ASSUME_NOT_SOAP_SPAM("Thank you for your feedback.");
 } // end case
 
 // Test for woke
 FOSSIL_TEST(c_assume_run_of_soap_woke) {
-    const char *woke_phrases[] = {
-        "We must challenge systemic injustice and promote equity.", "safe space", "microaggression", "check your privilege", "diversity and inclusion"
+    static const char *woke_table[] = {
+        "safe space", "microaggression", "check your privilege", "diversity and inclusion", "equity over equality",
+        "social justice", "systemic oppression", "cultural appropriation", "intersectionality", "allyship",
+        "gender equality", "anti-racism", "inclusive language", "oppression", "privilege check",
+        "marginalized voices", "bias awareness", "equity", "discrimination", "social activism",
+        "representation matters", "critical race theory", "minority rights", "empowerment", "identity politics",
+        "decolonize", "bias training", "social equity", "inclusive policy", "identity awareness",
+        "gender neutral", "pronoun respect", "intersectional feminism", "diversity training", "racial justice",
+        "gender fluidity", "safe environment", "trigger warning", "progressive values", "inclusive spaces",
+        "anti-bias", "restorative justice", "affirmative action", "equitable access", "community empowerment",
+        "inclusive curriculum", "representation equity", "social responsibility", "inclusive leadership",
+        "gender inclusivity", "racial equity", NULL
     };
-    for (size_t i = 0; i < sizeof(woke_phrases)/sizeof(woke_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_WOKE(woke_phrases[i]);
+    for (size_t i = 0; woke_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_WOKE(woke_table[i]);
     }
     ASSUME_NOT_SOAP_WOKE("This is a technical documentation.");
 } // end case
 
 // Test for bot
 FOSSIL_TEST(c_assume_run_of_soap_bot) {
-    const char *bot_phrases[] = {
-        "Hello, I am an automated assistant. How can I help you?", "ai generated", "auto reply", "automated message", "bot detected"
+    static const char *bot_table[] = {
+        "ai generated", "algorithmic message", "artificial response", "auto reply", "auto responder", "auto-generated",
+        "automated comment", "automated message", "automated post", "automated reply", "automation bot", "automation detected",
+        "autonomous post", "bot activity", "bot behavior", "bot comment", "bot detected", "bot follower", "bot interaction",
+        "bot like", "bot moderator", "bot network", "bot retweet", "bot spam", "bot upvote", "bulk message", "copy-paste answer",
+        "fake account", "fake bot", "fake user", "generated content", "generic message", "machine generated", "mass message",
+        "mass posting", "mass produced content", "non-human reply", "predefined response", "programmed answer", "repetitive comment",
+        "robot account", "robot post", "robotic message", "robotic reply", "scripted content", "scripted response", "spam account",
+        "spam bot", "system generated", "synthetic post", "template reply", "unoriginal reply", NULL
     };
-    for (size_t i = 0; i < sizeof(bot_phrases)/sizeof(bot_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_BOT(bot_phrases[i]);
+    for (size_t i = 0; bot_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_BOT(bot_table[i]);
     }
     ASSUME_NOT_SOAP_BOT("Hi, this is John from support.");
 } // end case
 
 // Test for snowflake
 FOSSIL_TEST(c_assume_run_of_soap_snowflake) {
-    const char *snowflake_phrases[] = {
-        "I'm offended by your words and need a safe space.", "snowflake", "triggered", "fragile ego", "offended easily"
+    static const char *snowflake_table[] = {
+        "snowflake", "triggered", "fragile ego", "offended easily", "sensitive snowflake",
+        "microaggression", "safe space", "special snowflake", "delicate", "thin-skinned",
+        "overly sensitive", "crybaby", "tender feelings", "too sensitive", "emotionally fragile",
+        "overreacting", "touchy", "soft-hearted", "extra sensitive", "hyper-sensitive",
+        "prickly", "easily upset", "nervous nellie", "fragile personality", "highly sensitive",
+        "overly emotional", "whiny", "melodramatic", "delicate flower", "fragile soul",
+        "overprotected", "coddled", "pampered", "overly sheltered", "easily offended",
+        "thin skin", "overly dramatic", "sheltered", "overly cautious", "emotionally weak",
+        "overly anxious", "overly reactive", "overly sentimental", "easily disturbed",
+        "overly nurturing", "emotionally unstable", "overly caring", "overly empathetic",
+        "overly worried", "overly fearful", NULL
     };
-    for (size_t i = 0; i < sizeof(snowflake_phrases)/sizeof(snowflake_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_SNOWFLAKE(snowflake_phrases[i]);
+    for (size_t i = 0; snowflake_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_SNOWFLAKE(snowflake_table[i]);
     }
     ASSUME_NOT_SOAP_SNOWFLAKE("Let's discuss the facts objectively.");
 } // end case
 
 // Test for offensive
 FOSSIL_TEST(c_assume_run_of_soap_offensive) {
-    const char *offensive_phrases[] = {
-        "You are so stupid!", "idiot", "moron", "loser", "jerk", "trash"
+    static const char *offensive_table[] = {
+        "idiot", "stupid", "dumb", "moron", "fool", "loser", "jerk", "trash", "garbage",
+        "worthless", "pathetic", "ugly", "disgusting", "nonsense", "ridiculous", "absurd",
+        "hate", "kill", "die", "sucks", "shut up", "dunce", "ignorant", "nasty",
+        "offensive", "freak", "creep", "weirdo", "worthless", "imbecile", "retard",
+        "scum", "vermin", "filth", "vile", "repulsive", "gross", "horrible", "evil",
+        "abomination", "monster", "beast", "brainless", "airhead", "twit", "twat",
+        "douche", "bastard", "maniac", "psycho", "lunatic", "savage", NULL
     };
-    for (size_t i = 0; i < sizeof(offensive_phrases)/sizeof(offensive_phrases[0]); ++i) {
-        ASSUME_ITS_SOAP_OFFENSIVE(offensive_phrases[i]);
+    for (size_t i = 0; offensive_table[i] != NULL; ++i) {
+        ASSUME_ITS_SOAP_OFFENSIVE(offensive_table[i]);
     }
     ASSUME_NOT_SOAP_OFFENSIVE("That was an interesting point.");
 } // end case
