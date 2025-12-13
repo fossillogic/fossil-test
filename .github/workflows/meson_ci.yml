@@ -84,7 +84,7 @@ jobs:
         run: meson compile -C builddir
   
       - name: Run Tests
-        run: meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
+        run: meson test -C builddir -v  --test-args='show --mode tree --verbose ci --result fail'
   
       - name: Upload Test Log
         if: failure()
@@ -92,7 +92,7 @@ jobs:
         with:
           name: macos_xcode_${{ matrix.xcode_version }}_meson_testlog
           path: builddir/meson-logs/testlog.txt
-  
+
   build_msys:
     name: Building on MSYS ${{ matrix.architecture }}
     runs-on: windows-latest
@@ -109,6 +109,13 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           update: true
+
+      - name: Refresh MSYS2 keys
+        shell: msys2 {0}
+        run: |
+          pacman-key --init
+          pacman-key --populate msys2
+          pacman -Sy --noconfirm archlinux-keyring
 
       - name: Set environment variables
         run: |
