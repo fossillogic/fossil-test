@@ -1225,22 +1225,30 @@ static void pizza_io_soap_normalize_leetspeak(char *word) {
 
 /**
  * @brief Fuzzy matching using Levenshtein distance.
+ * Optimized for short words, early exit if distance > 2.
  */
 static int fuzzy_match(const char *str1, const char *str2) {
     size_t len1 = strlen(str1);
     size_t len2 = strlen(str2);
-    size_t dist[len1 + 1][len2 + 1];
+    if (len1 == 0 || len2 == 0) return (int)(len1 + len2);
+    if (abs((int)len1 - (int)len2) > 2) return 3; // AI trick: early exit for big length diff
 
-    for (size_t i = 0; i <= len1; i++) dist[i][0] = i;
-    for (size_t j = 0; j <= len2; j++) dist[0][j] = j;
+    int prev[65], curr[65];
+    if (len2 > 64) return 3; // AI trick: limit for stack buffer
 
+    for (size_t j = 0; j <= len2; j++) prev[j] = (int)j;
     for (size_t i = 1; i <= len1; i++) {
+        curr[0] = (int)i;
+        int min_row = curr[0];
         for (size_t j = 1; j <= len2; j++) {
-            int cost = (str1[i - 1] == str2[j - 1]) ? 0 : 1;
-            dist[i][j] = fmin(fmin(dist[i - 1][j] + 1, dist[i][j - 1] + 1), dist[i - 1][j - 1] + cost);
+            int cost = (tolower((unsigned char)str1[i - 1]) == tolower((unsigned char)str2[j - 1])) ? 0 : 1;
+            curr[j] = fmin(fmin(prev[j] + 1, curr[j - 1] + 1), prev[j - 1] + cost);
+            if (curr[j] < min_row) min_row = curr[j];
         }
+        if (min_row > 2) return 3; // AI trick: early exit if row min > 2
+        memcpy(prev, curr, (len2 + 1) * sizeof(int));
     }
-    return dist[len1][len2];
+    return curr[len2];
 }
 
 /**
@@ -1290,6 +1298,7 @@ static const char *custom_strcasestr(const char *haystack, const char *needle) {
 
 /**
  * @brief Look up a suggested alternative for a given word, checking both custom filters and predefined suggestions.
+ * AI trick: fuzzy match with threshold, prefer exact, then fuzzy, then grammar.
  */
 static const char *pizza_io_soap_get_suggestion(const char *word) {
     if (should_skip_word(word)) {
@@ -1311,6 +1320,10 @@ static const char *pizza_io_soap_get_suggestion(const char *word) {
         if (custom_strcasecmp(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 0) {
             return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
         }
+        // AI trick: fuzzy match for slang, but only if word is at least 4 chars
+        if (strlen(word) >= 4 && fuzzy_match(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 1) {
+            return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
+        }
     }
 
     // Check in grammar suggestions
@@ -1325,7 +1338,9 @@ static const char *pizza_io_soap_get_suggestion(const char *word) {
 
 /**
  * @brief Sanitize input text by removing or replacing "rot-brain" and meme-based language.
- * @param censor_char Character to use for censored words (e.g., "*" or "#").
+ * @param text Input string.
+ * @return Newly allocated sanitized string.
+ * AI trick: preserve original punctuation, handle leetspeak, use fuzzy match.
  */
 char *pizza_io_soap_sanitize(const char *text) {
     if (!text) return null;
@@ -1344,15 +1359,17 @@ char *pizza_io_soap_sanitize(const char *text) {
             if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
         } else {
             word[word_idx] = '\0';
-            pizza_io_soap_normalize_leetspeak(word);
-            const char *suggested = pizza_io_soap_get_suggestion(word);
-            if (word_idx > 0 && suggested && !should_skip_word(word)) {
-                for (size_t j = 0; j < strlen(suggested); j++) {
-                    output[out_idx++] = suggested[j];
-                }
-            } else {
-                for (size_t j = 0; j < word_idx; j++) {
-                    output[out_idx++] = word[j];
+            if (word_idx > 0) {
+                pizza_io_soap_normalize_leetspeak(word);
+                const char *suggested = pizza_io_soap_get_suggestion(word);
+                if (suggested && !should_skip_word(word)) {
+                    for (size_t j = 0; j < strlen(suggested); j++) {
+                        output[out_idx++] = suggested[j];
+                    }
+                } else {
+                    for (size_t j = 0; j < word_idx; j++) {
+                        output[out_idx++] = word[j];
+                    }
                 }
             }
             output[out_idx++] = text[i];
@@ -1360,21 +1377,27 @@ char *pizza_io_soap_sanitize(const char *text) {
         }
     }
     word[word_idx] = '\0';
-    pizza_io_soap_normalize_leetspeak(word);
-    const char *suggested = pizza_io_soap_get_suggestion(word);
-    if (word_idx > 0 && suggested && !should_skip_word(word)) {
-        for (size_t j = 0; j < strlen(suggested); j++) {
-            output[out_idx++] = suggested[j];
-        }
-    } else {
-        for (size_t j = 0; j < word_idx; j++) {
-            output[out_idx++] = word[j];
+    if (word_idx > 0) {
+        pizza_io_soap_normalize_leetspeak(word);
+        const char *suggested = pizza_io_soap_get_suggestion(word);
+        if (suggested && !should_skip_word(word)) {
+            for (size_t j = 0; j < strlen(suggested); j++) {
+                output[out_idx++] = suggested[j];
+            }
+        } else {
+            for (size_t j = 0; j < word_idx; j++) {
+                output[out_idx++] = word[j];
+            }
         }
     }
     output[out_idx] = '\0';
     return output;
 }
 
+/**
+ * @brief Suggest improved wording for meme/rot-brain language.
+ * AI trick: same as sanitize, but always prefer suggestion if available.
+ */
 char *pizza_io_soap_suggest(const char *text) {
     if (!text) return null;
 
@@ -1392,28 +1415,32 @@ char *pizza_io_soap_suggest(const char *text) {
             if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
         } else {
             word[word_idx] = '\0';
-            pizza_io_soap_normalize_leetspeak(word);
-            const char *suggested = pizza_io_soap_get_suggestion(word);
-            if (word_idx > 0 && suggested && !should_skip_word(word)) {
-                strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
-                out_idx += strlen(suggested);
-            } else {
-                strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
-                out_idx += word_idx;
+            if (word_idx > 0) {
+                pizza_io_soap_normalize_leetspeak(word);
+                const char *suggested = pizza_io_soap_get_suggestion(word);
+                if (suggested && !should_skip_word(word)) {
+                    strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+                    out_idx += strlen(suggested);
+                } else {
+                    strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+                    out_idx += word_idx;
+                }
             }
             output[out_idx++] = text[i];
             word_idx = 0;
         }
     }
     word[word_idx] = '\0';
-    pizza_io_soap_normalize_leetspeak(word);
-    const char *suggested = pizza_io_soap_get_suggestion(word);
-    if (word_idx > 0 && suggested && !should_skip_word(word)) {
-        strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
-        out_idx += strlen(suggested);
-    } else {
-        strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
-        out_idx += word_idx;
+    if (word_idx > 0) {
+        pizza_io_soap_normalize_leetspeak(word);
+        const char *suggested = pizza_io_soap_get_suggestion(word);
+        if (suggested && !should_skip_word(word)) {
+            strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
+            out_idx += strlen(suggested);
+        } else {
+            strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
+            out_idx += word_idx;
+        }
     }
     output[out_idx] = '\0';
     return output;
@@ -1421,8 +1448,15 @@ char *pizza_io_soap_suggest(const char *text) {
 
 /**
  * @brief Add a custom word or phrase to the filter.
+ * AI trick: lowercase and deduplicate.
  */
 int pizza_io_soap_add_custom_filter(const char *phrase) {
+    // Deduplicate
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
+        if (custom_filters[i] && custom_strcasecmp(custom_filters[i], phrase) == 0) {
+            return 0;
+        }
+    }
     for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
         if (custom_filters[i] == null) {
             size_t j = 0;
@@ -1445,6 +1479,10 @@ void pizza_io_soap_clear_custom_filters(void) {
     memset(custom_filters, 0, sizeof(custom_filters));
 }
 
+/**
+ * @brief Detect tone of the text using phrase lookup.
+ * AI trick: prioritize sarcastic, then formal, else casual.
+ */
 const char *pizza_io_soap_detect_tone(const char *text) {
     for (size_t i = 0; SARCASTIC_PHRASES[i] != null; i++) {
         if (custom_strcasestr(text, SARCASTIC_PHRASES[i])) {
@@ -1461,6 +1499,10 @@ const char *pizza_io_soap_detect_tone(const char *text) {
     return "casual";
 }
 
+/**
+ * @brief Detect if text contains rot-brain language.
+ * AI trick: use substring search for slang.
+ */
 int pizza_io_is_rot_brain(const char *text) {
     if (!text) return 0;
 
@@ -1664,23 +1706,26 @@ pizza_fstream_t *PIZZA_STDERR;
 int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 
 // Define color codes for output
-#define FOSSIL_IO_COLOR_RESET       "\033[0m"
-#define FOSSIL_IO_COLOR_RED         "\033[31m"
-#define FOSSIL_IO_COLOR_GREEN       "\033[32m"
-#define FOSSIL_IO_COLOR_YELLOW      "\033[33m"
-#define FOSSIL_IO_COLOR_BLUE        "\033[34m"
-#define FOSSIL_IO_COLOR_MAGENTA     "\033[35m"
-#define FOSSIL_IO_COLOR_CYAN        "\033[36m"
-#define FOSSIL_IO_COLOR_WHITE       "\033[37m"
+#define FOSSIL_IO_COLOR_RESET         "\033[0m"
+#define FOSSIL_IO_COLOR_RED           "\033[31m"
+#define FOSSIL_IO_COLOR_GREEN         "\033[32m"
+#define FOSSIL_IO_COLOR_YELLOW        "\033[33m"
+#define FOSSIL_IO_COLOR_BLUE          "\033[34m"
+#define FOSSIL_IO_COLOR_MAGENTA       "\033[35m"
+#define FOSSIL_IO_COLOR_CYAN          "\033[36m"
+#define FOSSIL_IO_COLOR_WHITE         "\033[37m"
+#define FOSSIL_IO_COLOR_BLACK         "\033[30m"
+#define FOSSIL_IO_COLOR_ORANGE         "\033[38;5;208m"
+#define FOSSIL_IO_COLOR_GRAY           "\033[90m"
 
 // Bright colors
-#define FOSSIL_IO_COLOR_BRIGHT_RED   "\033[91m"
-#define FOSSIL_IO_COLOR_BRIGHT_GREEN "\033[92m"
-#define FOSSIL_IO_COLOR_BRIGHT_YELLOW "\033[93m"
-#define FOSSIL_IO_COLOR_BRIGHT_BLUE  "\033[94m"
+#define FOSSIL_IO_COLOR_BRIGHT_RED     "\033[91m"
+#define FOSSIL_IO_COLOR_BRIGHT_GREEN   "\033[92m"
+#define FOSSIL_IO_COLOR_BRIGHT_YELLOW  "\033[93m"
+#define FOSSIL_IO_COLOR_BRIGHT_BLUE    "\033[94m"
 #define FOSSIL_IO_COLOR_BRIGHT_MAGENTA "\033[95m"
-#define FOSSIL_IO_COLOR_BRIGHT_CYAN  "\033[96m"
-#define FOSSIL_IO_COLOR_BRIGHT_WHITE "\033[97m"
+#define FOSSIL_IO_COLOR_BRIGHT_CYAN    "\033[96m"
+#define FOSSIL_IO_COLOR_BRIGHT_WHITE   "\033[97m"
 
 // Define text attributes
 #define FOSSIL_IO_ATTR_BOLD         "\033[1m"
@@ -1712,6 +1757,12 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_CYAN);
     } else if (pizza_io_cstr_compare(color, "white") == 0) {
         printf(FOSSIL_IO_COLOR_WHITE);
+    } else if (pizza_io_cstr_compare(color, "black") == 0) {
+        printf(FOSSIL_IO_COLOR_BLACK);
+    } else if (pizza_io_cstr_compare(color, "orange") == 0) {
+        printf(FOSSIL_IO_COLOR_ORANGE);
+    } else if (pizza_io_cstr_compare(color, "gray") == 0) {
+        printf(FOSSIL_IO_COLOR_GRAY);
     }
     // Bright colors
     else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
@@ -1983,6 +2034,28 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 // string management
 // *****************************************************************************
+
+#ifndef HAVE_STRNLEN
+size_t strnlen(const char *s, size_t maxlen) {
+    size_t i;
+    for (i = 0; i < maxlen && s[i]; i++);
+    return i;
+}
+#endif
+
+#ifndef HAVE_STRNCASECMP
+int strncasecmp(const char *s1, const char *s2, size_t n) {
+    for (size_t i = 0; i < n && s1[i] && s2[i]; i++) {
+        int diff = tolower((unsigned char)s1[i]) - tolower((unsigned char)s2[i]);
+        if (diff != 0) return diff;
+    }
+    return 0;
+}
+#endif
+
+// ============================================================================
+// C String Functions
+// ============================================================================
 
 cstr pizza_io_cstr_create(const char *init) {
     if (!init) return null;
