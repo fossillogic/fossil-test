@@ -2034,7 +2034,7 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 // string management
 // *****************************************************************************
-
+/*
 #ifndef HAVE_STRNLEN
 static size_t strnlen(const char *s, size_t maxlen) {
     size_t i;
@@ -2052,7 +2052,7 @@ static int strncasecmp(const char *s1, const char *s2, size_t n) {
     return 0;
 }
 #endif
-
+*/
 // ============================================================================
 // C String Functions
 // ============================================================================
