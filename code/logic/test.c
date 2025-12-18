@@ -1937,7 +1937,8 @@ static int pizza_test_detect_root_cause(const char *message) {
     if (!message) return 0;
 
     // Context-aware logic error
-    if (strstr(message, ".c:") || strstr(message, ".h:") || strstr(message, ".cpp:") ||
+    if (strstr(message, ".c:") || strstr(message, ".cpp:") ||
+        strstr(message, ".m:") || strstr(message, ".mm:") ||
         strstr(message, " in ") || strstr(message, " at ") ||
         strstr(message, "function ") || strstr(message, "func=")) {
         root_cause |= (1 << 1); // logic
