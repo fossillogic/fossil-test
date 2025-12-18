@@ -411,6 +411,10 @@ FOSSIL_TEST(c_mock_macro_destroy_ai_context) {
     // No assertion, just ensure no crash
 } // end case
 
+FOSSIL_MOCK_FUNC(int, my_func, int a, int b) {
+    return a * b;
+}
+
 FOSSIL_TEST(c_mock_macro_func_struct_alias) {
     // Test FOSSIL_MOCK_FUNC, FOSSIL_MOCK_STRUCT, FOSSIL_MOCK_ALIAS macros
     FOSSIL_MOCK_ALIAS(MyInt, int);
@@ -426,9 +430,6 @@ FOSSIL_TEST(c_mock_macro_func_struct_alias) {
     FOSSIL_TEST_ASSUME(s.x == 11, "FOSSIL_MOCK_STRUCT should create struct with correct member");
     FOSSIL_TEST_ASSUME(s.y == 'z', "FOSSIL_MOCK_STRUCT should create struct with correct char member");
 
-    FOSSIL_MOCK_FUNC(int, my_func, int a, int b) {
-        return a * b;
-    }
     FOSSIL_TEST_ASSUME(fossil_mockup_my_func(2, 4) == 8, "FOSSIL_MOCK_FUNC should create a working function");
 } // end case
 
