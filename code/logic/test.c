@@ -1932,54 +1932,103 @@ extern uint64_t get_pizza_time_microseconds(void); // from common utilities
 static int pizza_test_detect_root_cause(const char *message) {
     if (!message) return 0;
 
+    // --- Advanced: Multiple root cause detection as bitmask ---
+    int root_cause = 0;
+    if (!message) return 0;
+
+    // Context-aware logic error
+    if (strstr(message, ".c:") || strstr(message, ".h:") || strstr(message, ".cpp:") ||
+        strstr(message, " in ") || strstr(message, " at ") ||
+        strstr(message, "function ") || strstr(message, "func=")) {
+        root_cause |= (1 << 1); // logic
+    }
+
     // Memory errors
-    if (strstr(message, "null") || strstr(message, "NULL") || strstr(message, "cnull") || strstr(message, "not cnull") ||
-        strstr(message, "pointer") || strstr(message, "memory") || strstr(message, "buffer") ||
+    if (strstr(message, "null pointer") || strstr(message, "NULL pointer") ||
+        strstr(message, "cnull") || strstr(message, "not cnull") ||
+        strstr(message, "dangling pointer") || strstr(message, "invalid pointer") ||
+        strstr(message, "memory leak") || strstr(message, "buffer overflow") ||
+        strstr(message, "buffer underflow") || strstr(message, "out of bounds") ||
         strstr(message, "valid memory") || strstr(message, "not valid memory") ||
-        strstr(message, "zeroed") || strstr(message, "not zeroed"))
-        return 3; // memory
+        strstr(message, "zeroed memory") || strstr(message, "not zeroed") ||
+        strstr(message, "uninitialized memory") || strstr(message, "double free")) {
+        root_cause |= (1 << 3); // memory
+    }
 
     // Timeout
-    if (strstr(message, "timeout") || strstr(message, "timed out"))
-        return 2; // timeout
+    if (strstr(message, "timeout") || strstr(message, "timed out") ||
+        strstr(message, "exceeded time limit") || strstr(message, "hang detected")) {
+        root_cause |= (1 << 2); // timeout
+    }
 
     // I/O errors
-    if (strstr(message, "file") || strstr(message, "I/O") || strstr(message, "io error"))
-        return 4; // io
+    if (strstr(message, "file not found") || strstr(message, "I/O error") ||
+        strstr(message, "io error") || strstr(message, "read error") ||
+        strstr(message, "write error") || strstr(message, "permission denied") ||
+        strstr(message, "disk full") || strstr(message, "cannot open file")) {
+        root_cause |= (1 << 4); // io
+    }
 
     // Range errors
-    if (strstr(message, "range") || strstr(message, "not within range") || strstr(message, "within range") ||
-        strstr(message, "overflow") || strstr(message, "underflow"))
-        return 6; // range
+    if (strstr(message, "out of range") || strstr(message, "not within range") ||
+        strstr(message, "within range") || strstr(message, "overflow") ||
+        strstr(message, "underflow") || strstr(message, "index out of bounds") ||
+        strstr(message, "exceeds maximum") || strstr(message, "below minimum")) {
+        root_cause |= (1 << 6); // range
+    }
 
-    // Floating-point
+    // Floating-point errors
     if (strstr(message, "float") || strstr(message, "double") ||
         strstr(message, "NaN") || strstr(message, "nan") ||
         strstr(message, "infinity") || strstr(message, "infinite") ||
-        strstr(message, "tolerance"))
-        return 7; // float
+        strstr(message, "tolerance") || strstr(message, "precision error") ||
+        strstr(message, "loss of significance") || strstr(message, "rounding error")) {
+        root_cause |= (1 << 7); // float
+    }
 
-    // String/buffer
+    // String/buffer errors
     if (strstr(message, "string") || strstr(message, "C string") ||
         strstr(message, "strlen") || strstr(message, "cstr") ||
         strstr(message, "starts with") || strstr(message, "ends with") ||
         strstr(message, "contains") || strstr(message, "not contain") ||
-        strstr(message, "length of"))
-        return 8; // string
+        strstr(message, "length of") || strstr(message, "substring") ||
+        strstr(message, "buffer overflow") || strstr(message, "buffer underflow")) {
+        root_cause |= (1 << 8); // string
+    }
 
-    // SOAP/text
-    if (strstr(message, "soap") || strstr(message, "text") || strstr(message, "tone") ||
-        strstr(message, "rot-brain"))
-        return 9; // soap/text
+    // SOAP/text errors
+    if (strstr(message, "soap") || strstr(message, "text") ||
+        strstr(message, "tone") || strstr(message, "rot-brain") ||
+        strstr(message, "sentiment") || strstr(message, "language model")) {
+        root_cause |= (1 << 9); // soap/text
+    }
 
     // Coverage/empty/skipped/not implemented
-    if (strstr(message, "empty") || strstr(message, "skipped") || strstr(message, "not implemented"))
-        return 5; // coverage
+    if (strstr(message, "empty") || strstr(message, "skipped") ||
+        strstr(message, "not implemented") || strstr(message, "unreachable code") ||
+        strstr(message, "not covered") || strstr(message, "todo")) {
+        root_cause |= (1 << 5); // coverage
+    }
 
     // Logic errors (default for assumption failures)
-    if (strstr(message, "Expected") || strstr(message, "not be") || strstr(message, "to be") ||
-        strstr(message, "fail") || strstr(message, "logic") || strstr(message, "assert"))
-        return 1; // logic
+    if (strstr(message, "Expected") || strstr(message, "not be") ||
+        strstr(message, "to be") || strstr(message, "fail") ||
+        strstr(message, "logic") || strstr(message, "assert") ||
+        strstr(message, "incorrect result") || strstr(message, "unexpected value") ||
+        strstr(message, "condition failed") || strstr(message, "mismatch")) {
+        root_cause |= (1 << 1); // logic
+    }
+
+    // If only one bit set, return its code, otherwise return bitmask value
+    int count = 0, last = 0;
+    for (int i = 1; i <= 9; ++i) {
+        if (root_cause & (1 << i)) {
+            count++;
+            last = i;
+        }
+    }
+    if (count == 1) return last;
+    if (count > 1) return root_cause;
 
     return 0; // unknown
 }
@@ -2013,21 +2062,38 @@ char *pizza_test_assert_messagef(const char *message, ...) {
 }
 
 void pizza_test_assert_internal_output(const char *message, const char *file, int line, const char *func, int anomaly_count, int root_cause_code) {
-    // Output assertion failure based on theme, with root cause if detected
-    // Advanced root cause analysis for assumption macros and patterns
+    // Advanced root cause analysis and suggestion hints
 
     // --- Advanced root cause detection ---
-    // If root_cause_code is unknown (0), try to analyze message for assumption patterns
-    if (root_cause_code == 0 && message) {
+    // If root_cause_code is a bitmask (multiple bits set), handle all detected causes
+    char root_cause_buf[128] = {0};
+    int root_cause_mask = root_cause_code;
+    if (root_cause_mask > 9) { // bitmask, not single code
+        int first = 1;
+        if (root_cause_mask & (1 << 3)) { strcat(root_cause_buf, first ? "Memory error" : ", Memory error"); first = 0; }
+        if (root_cause_mask & (1 << 2)) { strcat(root_cause_buf, first ? "Timeout" : ", Timeout"); first = 0; }
+        if (root_cause_mask & (1 << 4)) { strcat(root_cause_buf, first ? "I/O error" : ", I/O error"); first = 0; }
+        if (root_cause_mask & (1 << 6)) { strcat(root_cause_buf, first ? "Range error" : ", Range error"); first = 0; }
+        if (root_cause_mask & (1 << 7)) { strcat(root_cause_buf, first ? "Floating-point" : ", Floating-point"); first = 0; }
+        if (root_cause_mask & (1 << 8)) { strcat(root_cause_buf, first ? "String/buffer" : ", String/buffer"); first = 0; }
+        if (root_cause_mask & (1 << 9)) { strcat(root_cause_buf, first ? "Text/SOAP" : ", Text/SOAP"); first = 0; }
+        if (root_cause_mask & (1 << 5)) { strcat(root_cause_buf, first ? "Coverage/Empty" : ", Coverage/Empty"); first = 0; }
+        if (root_cause_mask & (1 << 1)) { strcat(root_cause_buf, first ? "Logic error" : ", Logic error"); first = 0; }
+    }
+
+    if ((root_cause_code == 0 || root_cause_mask > 9) && message) {
+        // Context-aware: check for file/func/line context in message
+        if (file && func && strstr(message, file) && strstr(message, func)) {
+            root_cause_code = 1; // logic (context matches source location)
+        }
         // Boolean assumption patterns
-        if (strstr(message, "Expected") && strstr(message, "to be true")) {
+        else if (strstr(message, "Expected") && strstr(message, "to be true")) {
             root_cause_code = 1; // logic
         } else if (strstr(message, "Expected") && strstr(message, "to be false")) {
             root_cause_code = 1; // logic
         } else if (strstr(message, "to not be true") || strstr(message, "to not be false")) {
             root_cause_code = 1; // logic
         }
-
         // Floating point assumption patterns
         else if (strstr(message, "within tolerance") || strstr(message, "to be equal") || strstr(message, "to not be equal")) {
             if (strstr(message, "value %f") || strstr(message, "value %lf")) {
@@ -2043,12 +2109,10 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         } else if (strstr(message, "to be NaN") || strstr(message, "to be infinity")) {
             root_cause_code = 7; // float
         }
-
         // Numeric/range assumption patterns
         else if (strstr(message, "is not within range") || strstr(message, "is within range")) {
             root_cause_code = 6; // range
         }
-
         // Memory assumption patterns
         else if (strstr(message, "to be zeroed") || strstr(message, "to not be zeroed") ||
                  strstr(message, "to be equal") || strstr(message, "to not be equal") ||
@@ -2061,12 +2125,10 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
                 root_cause_code = 3; // memory
             }
         }
-
         // Null pointer assumption patterns
         else if (strstr(message, "to be cnull") || strstr(message, "to not be cnull")) {
             root_cause_code = 3; // memory (null pointer)
         }
-
         // String assumption patterns
         else if (strstr(message, "C string") || strstr(message, "cstr") ||
                  strstr(message, "to be equal") || strstr(message, "to not be equal") ||
@@ -2076,7 +2138,6 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
                  strstr(message, "to not contain") || strstr(message, "occurrences of substring")) {
             root_cause_code = 8; // string
         }
-
         // SOAP/text assumption patterns
         else if (strstr(message, "rot-brain") || strstr(message, "tone of text")) {
             root_cause_code = 9; // soap/text
@@ -2086,8 +2147,12 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     // --- Suggestion hints for assumption failures ---
     const char *hint_str = NULL;
     if (message) {
+        // Context-aware: suggest checking source location if message includes file/func/line
+        if (file && func && strstr(message, file) && strstr(message, func)) {
+            hint_str = "Check the logic at the reported source location for possible errors.";
+        }
         // Boolean hints
-        if (strstr(message, "to be true")) {
+        else if (strstr(message, "to be true")) {
             hint_str = "Check your logic or expected condition. Ensure the value is true.";
         } else if (strstr(message, "to be false")) {
             hint_str = "Check your logic or expected condition. Ensure the value is false.";
@@ -2167,17 +2232,21 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
     }
 
     const char *root_cause_str = NULL;
-    switch (root_cause_code) {
-        case 1: root_cause_str = "Logic error"; break;
-        case 2: root_cause_str = "Timeout"; break;
-        case 3: root_cause_str = "Memory error"; break;
-        case 4: root_cause_str = "I/O error"; break;
-        case 5: root_cause_str = "Coverage/Empty"; break;
-        case 6: root_cause_str = "Range error"; break;
-        case 7: root_cause_str = "Floating-point"; break;
-        case 8: root_cause_str = "String/buffer"; break;
-        case 9: root_cause_str = "Text/SOAP"; break;
-        default: root_cause_str = NULL; break;
+    if (root_cause_mask > 9 && root_cause_buf[0]) {
+        root_cause_str = root_cause_buf;
+    } else {
+        switch (root_cause_code) {
+            case 1: root_cause_str = "Logic error"; break;
+            case 2: root_cause_str = "Timeout"; break;
+            case 3: root_cause_str = "Memory error"; break;
+            case 4: root_cause_str = "I/O error"; break;
+            case 5: root_cause_str = "Coverage/Empty"; break;
+            case 6: root_cause_str = "Range error"; break;
+            case 7: root_cause_str = "Floating-point"; break;
+            case 8: root_cause_str = "String/buffer"; break;
+            case 9: root_cause_str = "Text/SOAP"; break;
+            default: root_cause_str = NULL; break;
+        }
     }
 
     switch (G_PIZZA_THEME) {
