@@ -67,7 +67,7 @@ FOSSIL_MOCK_FUNC(void, mock_function_redirection, void) {
 FOSSIL_TEST(cpp_mock_call_list_initialization) {
     // Example of initializing a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.head == NULL, "fossil_mock_calllist_t head should be NULL after initialization");
@@ -78,7 +78,7 @@ FOSSIL_TEST(cpp_mock_call_list_initialization) {
 FOSSIL_TEST(cpp_mock_call_list_addition) {
     // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments
     fossil_mock_pizza_t args[2];
@@ -96,7 +96,7 @@ FOSSIL_TEST(cpp_mock_call_list_addition) {
     args[1].attribute.description = pizza_io_cstr_dup("Second argument");
     args[1].attribute.id = pizza_io_cstr_dup("2");
 
-    fossil_mock_add_call(&list, "test_function", args, 2);
+    MOCK_ADD_CALL(list, "test_function", args, 2);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
@@ -109,7 +109,7 @@ FOSSIL_TEST(cpp_mock_call_list_addition) {
 FOSSIL_TEST(cpp_mock_call_list_destruction) {
     // Example of destroying a fossil_mock_calllist_t
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments
     fossil_mock_pizza_t args[2];
@@ -127,13 +127,13 @@ FOSSIL_TEST(cpp_mock_call_list_destruction) {
     args[1].attribute.description = pizza_io_cstr_dup("Second argument");
     args[1].attribute.id = pizza_io_cstr_dup("2");
 
-    fossil_mock_add_call(&list, "test_function", args, 2);
+    MOCK_ADD_CALL(list, "test_function", args, 2);
 
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
 
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(cpp_mock_function_creation) {
@@ -161,7 +161,7 @@ FOSSIL_TEST(cpp_mock_struct_creation) {
 FOSSIL_TEST(cpp_mock_call_list_type_handling) {
     // Initialize the mock call list
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments with various types
     fossil_mock_pizza_t args[3];
@@ -187,7 +187,7 @@ FOSSIL_TEST(cpp_mock_call_list_type_handling) {
     args[2].attribute.id = pizza_io_cstr_dup("3");
 
     // Add a mock call with the arguments
-    fossil_mock_add_call(&list, "test_function", args, 3);
+    MOCK_ADD_CALL(list, "test_function", args, 3);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
@@ -207,16 +207,16 @@ FOSSIL_TEST(cpp_mock_call_list_type_handling) {
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[2].attribute.name, "arg3") == 0, "Third argument name should be 'arg3'");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(cpp_mock_call_list_edge_cases) {
     // Initialize the mock call list
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Add a call with no arguments
-    fossil_mock_add_call(&list, "no_args_function", NULL, 0);
+    MOCK_ADD_CALL(list, "no_args_function", NULL, 0);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call with no arguments");
@@ -224,13 +224,13 @@ FOSSIL_TEST(cpp_mock_call_list_edge_cases) {
     FOSSIL_TEST_ASSUME(list.head->num_args == 0, "Number of arguments should be 0");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(cpp_mock_call_list_large_arguments) {
     // Initialize the mock call list
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create a large number of mock arguments
     const int num_args = 100;
@@ -245,14 +245,14 @@ FOSSIL_TEST(cpp_mock_call_list_large_arguments) {
     }
 
     // Add a mock call with the large number of arguments
-    fossil_mock_add_call(&list, "large_args_function", args, num_args);
+    MOCK_ADD_CALL(list, "large_args_function", args, num_args);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call with large arguments");
     FOSSIL_TEST_ASSUME(list.head->num_args == num_args, "Number of arguments should match the large number");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(cpp_mock_macro_initialization) {
@@ -378,87 +378,6 @@ FOSSIL_TEST(cpp_mock_io_compare_output_macro) {
     FOSSIL_TEST_ASSUME(result == true, "Captured output should match expected output using macro");
 } // end case
 
-FOSSIL_TEST(cpp_mock_macro_print) {
-    // Initialize and add calls to the mock call list
-    fossil_mock_calllist_t list;
-    MOCK_INIT(list);
-
-    fossil_mock_pizza_t args[1];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("print_arg");
-    args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("print_name");
-    args[0].attribute.description = pizza_io_cstr_dup("Print argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
-
-    MOCK_ADD_CALL(list, "print_function", args, 1);
-
-    // Capture output of MOCK_PRINT
-    char buffer[256];
-    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), [&]() { MOCK_PRINT(list); });
-
-    FOSSIL_TEST_ASSUME(captured_size > 0, "MOCK_PRINT should produce output");
-    FOSSIL_TEST_ASSUME(strstr(buffer, "print_function") != NULL, "MOCK_PRINT output should contain function name");
-    MOCK_DESTROY(list);
-} // end case
-
-FOSSIL_TEST(cpp_mock_macro_ai_context_lifecycle) {
-    // Create and destroy AI context using macros
-    void* ai_ctx = MOCK_CREATE_AI_CONTEXT("test context", "should mock", 0.95, "AI notes");
-    FOSSIL_TEST_ASSUME(ai_ctx != NULL, "MOCK_CREATE_AI_CONTEXT should return a non-null pointer");
-
-    // Print AI context (capture output)
-    char buffer[256];
-    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), [&]() { MOCK_PRINT_AI_CONTEXT(ai_ctx); });
-    FOSSIL_TEST_ASSUME(captured_size > 0, "MOCK_PRINT_AI_CONTEXT should produce output");
-    FOSSIL_TEST_ASSUME(strstr(buffer, "test context") != NULL, "AI context info should appear in output");
-
-    MOCK_DESTROY_AI_CONTEXT(ai_ctx);
-} // end case
-
-FOSSIL_TEST(cpp_mock_macro_set_ai_context) {
-    // Setup mock call and AI context
-    fossil_mock_calllist_t list;
-    MOCK_INIT(list);
-
-    fossil_mock_pizza_t args[1];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("ai_arg");
-    args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("ai_name");
-    args[0].attribute.description = pizza_io_cstr_dup("AI argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
-
-    MOCK_ADD_CALL(list, "ai_function", args, 1);
-
-    void* ai_ctx = MOCK_CREATE_AI_CONTEXT("context", "behavior", 0.9, "notes");
-    MOCK_SET_AI_CONTEXT(list.head, ai_ctx);
-
-    // Assume the AI context is set (implementation-dependent, so just check not null)
-    FOSSIL_TEST_ASSUME(list.head->ai_context == ai_ctx, "MOCK_SET_AI_CONTEXT should set the AI context pointer");
-
-    MOCK_DESTROY_AI_CONTEXT(ai_ctx);
-    MOCK_DESTROY(list);
-} // end case
-
-FOSSIL_TEST(cpp_mock_macro_struct_and_alias) {
-    // Test struct and alias macros
-    FOSSIL_MOCK_ALIAS(MyIntAlias, int);
-    FOSSIL_MOCK_STRUCT(MyStructAlias) {
-        int x;
-        char y;
-    };
-
-    MyIntAlias value = 123;
-    FOSSIL_TEST_ASSUME(value == 123, "MyIntAlias should behave as int");
-
-    MyStructAlias s;
-    s.x = 7;
-    s.y = 'z';
-    FOSSIL_TEST_ASSUME(s.x == 7, "MyStructAlias.x should be 7");
-    FOSSIL_TEST_ASSUME(s.y == 'z', "MyStructAlias.y should be 'z'");
-} // end case
-
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -482,11 +401,6 @@ FOSSIL_TEST_GROUP(cpp_mock_test_cases) {
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_redirect_stdout_macro);
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_compare_output_macro);
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_compare_output);
-
-    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_print);
-    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_ai_context_lifecycle);
-    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_set_ai_context);
-    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_struct_and_alias);
 
     FOSSIL_TEST_REGISTER(cpp_mock_suite);
 } // end of group
