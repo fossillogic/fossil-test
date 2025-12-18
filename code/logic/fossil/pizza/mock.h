@@ -31,8 +31,6 @@
 extern "C" {
 #endif
 
-// TODO: Upgrade to have Truthful Intelligent Mocking (TIM) capabilities
-
 // *****************************************************************************
 // Type declarations
 // *****************************************************************************
@@ -81,10 +79,18 @@ typedef struct {
 // Mock call structure
 // *****************************************************************************
 
+typedef struct fossil_mock_ai_context_t {
+    char *context_info;      // Additional context for AI reasoning (e.g., scenario, test intent)
+    char *expected_behavior; // Description of expected behavior for the call
+    double confidence;       // Confidence score for AI-generated suggestions or verifications
+    char *ai_notes;          // AI-generated notes, explanations, or recommendations
+} fossil_mock_ai_context_t;
+
 typedef struct fossil_mock_call_t {
     char *function_name;
     fossil_mock_pizza_t *arguments; // Use pizza type for arguments
     int num_args;
+    fossil_mock_ai_context_t *ai_context; // Pointer to AI context for this call
     struct fossil_mock_call_t *next;
 } fossil_mock_call_t;
 
@@ -92,6 +98,7 @@ typedef struct {
     fossil_mock_call_t *head;
     fossil_mock_call_t *tail;
     int size;
+    fossil_mock_ai_context_t *global_ai_context; // Optional: global AI context for the call list
 } fossil_mock_calllist_t;
 
 // *****************************************************************************
@@ -380,4 +387,3 @@ FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const cha
     _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected)
 
 #endif // FOSSIL_MOCK_FRAMEWORK_H
-
