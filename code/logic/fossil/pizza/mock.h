@@ -137,6 +137,39 @@ FOSSIL_PIZZA_API void fossil_mock_add_call(fossil_mock_calllist_t *list, const c
 FOSSIL_PIZZA_API void fossil_mock_print(fossil_mock_calllist_t *list);
 
 /**
+ * Sets the AI context for a specific mock call.
+ *
+ * @param call The mock call to set the AI context for.
+ * @param ai_context The AI context to associate with the call.
+ */
+FOSSIL_PIZZA_API void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossil_mock_ai_context_t *ai_context);
+
+/**
+ * Creates a new AI context for mocking.
+ *
+ * @param context_info Additional context information.
+ * @param expected_behavior Description of expected behavior.
+ * @param confidence Confidence score for AI suggestions.
+ * @param ai_notes AI-generated notes or recommendations.
+ * @return Pointer to the newly created AI context.
+ */
+FOSSIL_PIZZA_API fossil_mock_ai_context_t *fossil_mock_create_ai_context(const char *context_info, const char *expected_behavior, double confidence, const char *ai_notes);
+
+/**
+ * Destroys an AI context and frees associated memory.
+ *
+ * @param ai_context The AI context to destroy.
+ */
+FOSSIL_PIZZA_API void fossil_mock_destroy_ai_context(fossil_mock_ai_context_t *ai_context);
+
+/**
+ * Prints the AI context information for a mock call.
+ *
+ * @param ai_context The AI context to print.
+ */
+FOSSIL_PIZZA_API void fossil_mock_print_ai_context(const fossil_mock_ai_context_t *ai_context);
+
+/**
  * Captures the output of a function to a buffer for testing purposes.
  *
  * @param buffer The buffer to store the captured output.
@@ -250,6 +283,55 @@ FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const cha
 #endif
 
 /**
+ * @brief Macro for setting the AI context for a specific mock call.
+ *
+ * This macro sets the AI context for a given mock call by calling the
+ * fossil_mock_set_ai_context function.
+ *
+ * @param call The mock call to set the AI context for.
+ * @param ai_context The AI context to associate with the call.
+ */
+#define _MOCK_SET_AI_CONTEXT(call, ai_context) \
+    fossil_mock_set_ai_context(call, ai_context)
+
+/**
+ * @brief Macro for creating a new AI context for mocking.
+ *
+ * This macro creates a new AI context by calling the
+ * fossil_mock_create_ai_context function.
+ *
+ * @param context_info Additional context information.
+ * @param expected_behavior Description of expected behavior.
+ * @param confidence Confidence score for AI suggestions.
+ * @param ai_notes AI-generated notes or recommendations.
+ * @return Pointer to the newly created AI context.
+ */
+#define _MOCK_CREATE_AI_CONTEXT(context_info, expected_behavior, confidence, ai_notes) \
+    fossil_mock_create_ai_context(context_info, expected_behavior, confidence, ai_notes)
+
+/**
+ * @brief Macro for destroying an AI context and freeing associated memory.
+ *
+ * This macro destroys an AI context by calling the
+ * fossil_mock_destroy_ai_context function.
+ *
+ * @param ai_context The AI context to destroy.
+ */
+#define _MOCK_DESTROY_AI_CONTEXT(ai_context) \
+    fossil_mock_destroy_ai_context(ai_context)
+
+/**
+ * @brief Macro for printing the AI context information for a mock call.
+ *
+ * This macro prints the AI context by calling the
+ * fossil_mock_print_ai_context function.
+ *
+ * @param ai_context The AI context to print.
+ */
+#define _MOCK_PRINT_AI_CONTEXT(ai_context) \
+    fossil_mock_print_ai_context(ai_context)
+
+/**
  * @def _FOSSIL_MOCK_REDIRECT_STDOUT
  * @brief Macro for redirecting stdout to a buffer.
  *
@@ -360,6 +442,55 @@ FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const cha
  */
 #define FOSSIL_MOCK_STRUCT(name) \
     _FOSSIL_MOCK_STRUCT(name)
+
+/**
+ * @brief Macro for setting the AI context for a specific mock call (public version).
+ *
+ * This macro sets the AI context for a given mock call by calling the
+ * fossil_mock_set_ai_context function.
+ *
+ * @param call The mock call to set the AI context for.
+ * @param ai_context The AI context to associate with the call.
+ */
+#define MOCK_SET_AI_CONTEXT(call, ai_context) \
+    _MOCK_SET_AI_CONTEXT(call, ai_context)
+
+/**
+ * @brief Macro for creating a new AI context for mocking (public version).
+ *
+ * This macro creates a new AI context by calling the
+ * fossil_mock_create_ai_context function.
+ *
+ * @param context_info Additional context information.
+ * @param expected_behavior Description of expected behavior.
+ * @param confidence Confidence score for AI suggestions.
+ * @param ai_notes AI-generated notes or recommendations.
+ * @return Pointer to the newly created AI context.
+ */
+#define MOCK_CREATE_AI_CONTEXT(context_info, expected_behavior, confidence, ai_notes) \
+    _MOCK_CREATE_AI_CONTEXT(context_info, expected_behavior, confidence, ai_notes)
+
+/**
+ * @brief Macro for destroying an AI context and freeing associated memory (public version).
+ *
+ * This macro destroys an AI context by calling the
+ * fossil_mock_destroy_ai_context function.
+ *
+ * @param ai_context The AI context to destroy.
+ */
+#define MOCK_DESTROY_AI_CONTEXT(ai_context) \
+    _MOCK_DESTROY_AI_CONTEXT(ai_context)
+
+/**
+ * @brief Macro for printing the AI context information for a mock call (public version).
+ *
+ * This macro prints the AI context by calling the
+ * fossil_mock_print_ai_context function.
+ *
+ * @param ai_context The AI context to print.
+ */
+#define MOCK_PRINT_AI_CONTEXT(ai_context) \
+    _MOCK_PRINT_AI_CONTEXT(ai_context)
 
 /**
  * @def FOSSIL_MOCK_REDIRECT_STDOUT
