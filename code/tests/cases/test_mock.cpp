@@ -378,6 +378,87 @@ FOSSIL_TEST(cpp_mock_io_compare_output_macro) {
     FOSSIL_TEST_ASSUME(result == true, "Captured output should match expected output using macro");
 } // end case
 
+FOSSIL_TEST(cpp_mock_macro_print) {
+    // Initialize and add calls to the mock call list
+    fossil_mock_calllist_t list;
+    MOCK_INIT(list);
+
+    fossil_mock_pizza_t args[1];
+    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
+    args[0].value.data = pizza_io_cstr_dup("print_arg");
+    args[0].value.mutable_flag = false;
+    args[0].attribute.name = pizza_io_cstr_dup("print_name");
+    args[0].attribute.description = pizza_io_cstr_dup("Print argument");
+    args[0].attribute.id = pizza_io_cstr_dup("1");
+
+    MOCK_ADD_CALL(list, "print_function", args, 1);
+
+    // Capture output of MOCK_PRINT
+    char buffer[256];
+    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), [&]() { MOCK_PRINT(list); });
+
+    FOSSIL_TEST_ASSUME(captured_size > 0, "MOCK_PRINT should produce output");
+    FOSSIL_TEST_ASSUME(strstr(buffer, "print_function") != NULL, "MOCK_PRINT output should contain function name");
+    MOCK_DESTROY(list);
+} // end case
+
+FOSSIL_TEST(cpp_mock_macro_ai_context_lifecycle) {
+    // Create and destroy AI context using macros
+    void* ai_ctx = MOCK_CREATE_AI_CONTEXT("test context", "should mock", 0.95, "AI notes");
+    FOSSIL_TEST_ASSUME(ai_ctx != NULL, "MOCK_CREATE_AI_CONTEXT should return a non-null pointer");
+
+    // Print AI context (capture output)
+    char buffer[256];
+    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), [&]() { MOCK_PRINT_AI_CONTEXT(ai_ctx); });
+    FOSSIL_TEST_ASSUME(captured_size > 0, "MOCK_PRINT_AI_CONTEXT should produce output");
+    FOSSIL_TEST_ASSUME(strstr(buffer, "test context") != NULL, "AI context info should appear in output");
+
+    MOCK_DESTROY_AI_CONTEXT(ai_ctx);
+} // end case
+
+FOSSIL_TEST(cpp_mock_macro_set_ai_context) {
+    // Setup mock call and AI context
+    fossil_mock_calllist_t list;
+    MOCK_INIT(list);
+
+    fossil_mock_pizza_t args[1];
+    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
+    args[0].value.data = pizza_io_cstr_dup("ai_arg");
+    args[0].value.mutable_flag = false;
+    args[0].attribute.name = pizza_io_cstr_dup("ai_name");
+    args[0].attribute.description = pizza_io_cstr_dup("AI argument");
+    args[0].attribute.id = pizza_io_cstr_dup("1");
+
+    MOCK_ADD_CALL(list, "ai_function", args, 1);
+
+    void* ai_ctx = MOCK_CREATE_AI_CONTEXT("context", "behavior", 0.9, "notes");
+    MOCK_SET_AI_CONTEXT(list.head, ai_ctx);
+
+    // Assume the AI context is set (implementation-dependent, so just check not null)
+    FOSSIL_TEST_ASSUME(list.head->ai_context == ai_ctx, "MOCK_SET_AI_CONTEXT should set the AI context pointer");
+
+    MOCK_DESTROY_AI_CONTEXT(ai_ctx);
+    MOCK_DESTROY(list);
+} // end case
+
+FOSSIL_TEST(cpp_mock_macro_struct_and_alias) {
+    // Test struct and alias macros
+    FOSSIL_MOCK_ALIAS(MyIntAlias, int);
+    FOSSIL_MOCK_STRUCT(MyStructAlias) {
+        int x;
+        char y;
+    };
+
+    MyIntAlias value = 123;
+    FOSSIL_TEST_ASSUME(value == 123, "MyIntAlias should behave as int");
+
+    MyStructAlias s;
+    s.x = 7;
+    s.y = 'z';
+    FOSSIL_TEST_ASSUME(s.x == 7, "MyStructAlias.x should be 7");
+    FOSSIL_TEST_ASSUME(s.y == 'z', "MyStructAlias.y should be 'z'");
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -401,6 +482,11 @@ FOSSIL_TEST_GROUP(cpp_mock_test_cases) {
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_redirect_stdout_macro);
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_compare_output_macro);
     FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_io_compare_output);
+
+    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_print);
+    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_ai_context_lifecycle);
+    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_set_ai_context);
+    FOSSIL_TEST_ADD(cpp_mock_suite, cpp_mock_macro_struct_and_alias);
 
     FOSSIL_TEST_REGISTER(cpp_mock_suite);
 } // end of group

@@ -378,6 +378,60 @@ FOSSIL_TEST(c_mock_io_compare_output_macro) {
     FOSSIL_TEST_ASSUME(result == true, "Captured output should match expected output using macro");
 } // end case
 
+FOSSIL_TEST(c_mock_macro_set_ai_context) {
+    fossil_mock_calllist_t list;
+    MOCK_INIT(list);
+
+    fossil_mock_add_call(&list, "ai_func", NULL, 0);
+
+    // Create AI context using macro
+    fossil_mock_ai_context_t *ctx = MOCK_CREATE_AI_CONTEXT("AI Info", "Do something", 0.8, "AI notes");
+    MOCK_SET_AI_CONTEXT(list.head, ctx);
+
+    FOSSIL_TEST_ASSUME(list.head->ai_context != NULL, "AI context should be set via macro");
+    FOSSIL_TEST_ASSUME(strcmp(list.head->ai_context->context_info, "AI Info") == 0, "AI context info should match");
+    FOSSIL_TEST_ASSUME(strcmp(list.head->ai_context->expected_behavior, "Do something") == 0, "AI expected behavior should match");
+    FOSSIL_TEST_ASSUME(list.head->ai_context->confidence == 0.8, "AI confidence should match");
+    FOSSIL_TEST_ASSUME(strcmp(list.head->ai_context->ai_notes, "AI notes") == 0, "AI notes should match");
+
+    MOCK_DESTROY_AI_CONTEXT(ctx);
+    MOCK_DESTROY(list);
+} // end case
+
+FOSSIL_TEST(c_mock_macro_print_ai_context) {
+    fossil_mock_ai_context_t *ctx = MOCK_CREATE_AI_CONTEXT("CTX", "Behavior", 0.3, NULL);
+    // Just ensure macro does not crash (output not captured here)
+    MOCK_PRINT_AI_CONTEXT(ctx);
+    MOCK_DESTROY_AI_CONTEXT(ctx);
+} // end case
+
+FOSSIL_TEST(c_mock_macro_destroy_ai_context) {
+    fossil_mock_ai_context_t *ctx = MOCK_CREATE_AI_CONTEXT("CTX", "Behavior", 0.5, "Notes");
+    MOCK_DESTROY_AI_CONTEXT(ctx);
+    // No assertion, just ensure no crash
+} // end case
+
+FOSSIL_TEST(c_mock_macro_func_struct_alias) {
+    // Test FOSSIL_MOCK_FUNC, FOSSIL_MOCK_STRUCT, FOSSIL_MOCK_ALIAS macros
+    FOSSIL_MOCK_ALIAS(MyInt, int);
+    MyInt v = 7;
+    FOSSIL_TEST_ASSUME(v == 7, "FOSSIL_MOCK_ALIAS should create a working alias");
+
+    FOSSIL_MOCK_STRUCT(MyStruct) {
+        int x;
+        char y;
+    } MyStruct;
+    MyStruct s;
+    s.x = 11; s.y = 'z';
+    FOSSIL_TEST_ASSUME(s.x == 11, "FOSSIL_MOCK_STRUCT should create struct with correct member");
+    FOSSIL_TEST_ASSUME(s.y == 'z', "FOSSIL_MOCK_STRUCT should create struct with correct char member");
+
+    FOSSIL_MOCK_FUNC(int, my_func, int a, int b) {
+        return a * b;
+    }
+    FOSSIL_TEST_ASSUME(fossil_mockup_my_func(2, 4) == 8, "FOSSIL_MOCK_FUNC should create a working function");
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -401,6 +455,11 @@ FOSSIL_TEST_GROUP(c_mock_test_cases) {
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_redirect_stdout_macro);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_compare_output_macro);
     FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_compare_output);
+
+    FOSSIL_TEST(c_mock_macro_set_ai_context);
+    FOSSIL_TEST(c_mock_macro_print_ai_context);
+    FOSSIL_TEST(c_mock_macro_destroy_ai_context);
+    FOSSIL_TEST(c_mock_macro_func_struct_alias);
 
     FOSSIL_TEST_REGISTER(c_mock_suite);
 } // end of group
