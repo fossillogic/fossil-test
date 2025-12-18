@@ -338,8 +338,8 @@ FOSSIL_TEST(c_mock_io_capture_output) {
     // Buffer to capture output
     char buffer[256];
 
-    // Capture the output of the mock function using macro
-    int captured_size = _FOSSIL_MOCK_CAPTURE_OUTPUT(buffer, sizeof(buffer), fossil_mockup_c_mock_function_with_output);
+    // Capture the output of the mock function
+    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), fossil_mockup_c_mock_function_with_output);
 
     // Test cases
     FOSSIL_TEST_ASSUME(captured_size > 0, "Captured size should be greater than 0");
@@ -351,8 +351,8 @@ FOSSIL_TEST(c_mock_io_compare_output) {
     const char *captured = "Hello, Fossil Logic!";
     const char *expected = "Hello, Fossil Logic!";
 
-    // Compare the outputs using macro
-    bool result = _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected);
+    // Compare the outputs
+    bool result = fossil_mock_compare_output(captured, expected);
 
     // Test cases
     FOSSIL_TEST_ASSUME(result == true, "Captured output should match expected output");
