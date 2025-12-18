@@ -2036,7 +2036,7 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 
 #ifndef HAVE_STRNLEN
-size_t strnlen(const char *s, size_t maxlen) {
+static size_t strnlen(const char *s, size_t maxlen) {
     size_t i;
     for (i = 0; i < maxlen && s[i]; i++);
     return i;
@@ -2044,7 +2044,7 @@ size_t strnlen(const char *s, size_t maxlen) {
 #endif
 
 #ifndef HAVE_STRNCASECMP
-int strncasecmp(const char *s1, const char *s2, size_t n) {
+static int strncasecmp(const char *s1, const char *s2, size_t n) {
     for (size_t i = 0; i < n && s1[i] && s2[i]; i++) {
         int diff = tolower((unsigned char)s1[i]) - tolower((unsigned char)s2[i]);
         if (diff != 0) return diff;
