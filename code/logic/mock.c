@@ -35,6 +35,7 @@ void fossil_mock_init(fossil_mock_calllist_t *list) {
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
+    list->global_ai_context = NULL;
 }
 
 void fossil_mock_destroy(fossil_mock_calllist_t *list) {
@@ -53,16 +54,33 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
             pizza_sys_memory_free(current->arguments[i].attribute.id);
         }
         pizza_sys_memory_free(current->arguments);
+
+        if (current->ai_context) {
+            pizza_sys_memory_free(current->ai_context->context_info);
+            pizza_sys_memory_free(current->ai_context->expected_behavior);
+            pizza_sys_memory_free(current->ai_context->ai_notes);
+            pizza_sys_memory_free(current->ai_context);
+        }
+
         pizza_sys_memory_free(current);
         current = next;
     }
+
+    if (list->global_ai_context) {
+        pizza_sys_memory_free(list->global_ai_context->context_info);
+        pizza_sys_memory_free(list->global_ai_context->expected_behavior);
+        pizza_sys_memory_free(list->global_ai_context->ai_notes);
+        pizza_sys_memory_free(list->global_ai_context);
+        list->global_ai_context = NULL;
+    }
+
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
 }
 
 void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args) {
-    if (!list || !function_name || (!arguments && num_args > 0)) {
+    if (!list || !function_name || (num_args > 0 && !arguments)) {
         return;
     }
 
@@ -87,14 +105,23 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
 
         for (int i = 0; i < num_args; ++i) {
             call->arguments[i].type = arguments[i].type;
-            call->arguments[i].value.data = pizza_io_cstr_dup(arguments[i].value.data);
+            call->arguments[i].value.data = arguments[i].value.data ? pizza_io_cstr_dup(arguments[i].value.data) : NULL;
             call->arguments[i].value.mutable_flag = arguments[i].value.mutable_flag;
-            call->arguments[i].attribute.name = pizza_io_cstr_dup(arguments[i].attribute.name);
-            call->arguments[i].attribute.description = pizza_io_cstr_dup(arguments[i].attribute.description);
-            call->arguments[i].attribute.id = pizza_io_cstr_dup(arguments[i].attribute.id);
+            call->arguments[i].attribute.name = arguments[i].attribute.name ? pizza_io_cstr_dup(arguments[i].attribute.name) : NULL;
+            call->arguments[i].attribute.description = arguments[i].attribute.description ? pizza_io_cstr_dup(arguments[i].attribute.description) : NULL;
+            call->arguments[i].attribute.id = arguments[i].attribute.id ? pizza_io_cstr_dup(arguments[i].attribute.id) : NULL;
 
-            if (!call->arguments[i].value.data || !call->arguments[i].attribute.name ||
-                !call->arguments[i].attribute.description || !call->arguments[i].attribute.id) {
+            // AI trick: If argument type is string and value is NULL, auto-fill with "AI_NULL"
+            if ((call->arguments[i].type == FOSSIL_MOCK_PIZZA_TYPE_CSTR ||
+                 call->arguments[i].type == FOSSIL_MOCK_PIZZA_TYPE_WSTR) &&
+                !call->arguments[i].value.data) {
+                call->arguments[i].value.data = pizza_io_cstr_dup("AI_NULL");
+            }
+
+            if ((arguments[i].value.data && !call->arguments[i].value.data) ||
+                (arguments[i].attribute.name && !call->arguments[i].attribute.name) ||
+                (arguments[i].attribute.description && !call->arguments[i].attribute.description) ||
+                (arguments[i].attribute.id && !call->arguments[i].attribute.id)) {
                 for (int j = 0; j <= i; ++j) {
                     pizza_sys_memory_free(call->arguments[j].value.data);
                     pizza_sys_memory_free(call->arguments[j].attribute.name);
@@ -112,6 +139,18 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     call->num_args = num_args;
+    call->ai_context = NULL;
+
+    // AI trick: If global_ai_context exists, auto-attach to call if not set
+    if (list->global_ai_context) {
+        call->ai_context = (fossil_mock_ai_context_t *)pizza_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
+        if (call->ai_context) {
+            call->ai_context->context_info = list->global_ai_context->context_info ? pizza_io_cstr_dup(list->global_ai_context->context_info) : NULL;
+            call->ai_context->expected_behavior = list->global_ai_context->expected_behavior ? pizza_io_cstr_dup(list->global_ai_context->expected_behavior) : NULL;
+            call->ai_context->ai_notes = list->global_ai_context->ai_notes ? pizza_io_cstr_dup(list->global_ai_context->ai_notes) : NULL;
+        }
+    }
+
     call->next = NULL;
 
     if (list->tail) {
@@ -129,17 +168,69 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     }
 
     fossil_mock_call_t *current = list->head;
+    int call_index = 0;
     while (current) {
-        pizza_io_printf("{cyan,bold}Function:{normal} {yellow}%s{reset}\n", current->function_name);
+        pizza_io_printf("{cyan,bold}[%d] Function:{normal} {yellow}%s{reset}\n", call_index, current->function_name);
+
+        // If AI context is present, print AI context info
+        if (current->ai_context) {
+            pizza_io_printf("  {green}AI Context:{reset}\n");
+            pizza_io_printf("    {blue}Info:{reset} %s\n", current->ai_context->context_info ? current->ai_context->context_info : "NULL");
+            pizza_io_printf("    {blue}Expected:{reset} %s\n", current->ai_context->expected_behavior ? current->ai_context->expected_behavior : "NULL");
+            pizza_io_printf("    {blue}Notes:{reset} %s\n", current->ai_context->ai_notes ? current->ai_context->ai_notes : "NULL");
+        } else if (list->global_ai_context) {
+            pizza_io_printf("  {green}Global AI Context:{reset}\n");
+            pizza_io_printf("    {blue}Info:{reset} %s\n", list->global_ai_context->context_info ? list->global_ai_context->context_info : "NULL");
+            pizza_io_printf("    {blue}Expected:{reset} %s\n", list->global_ai_context->expected_behavior ? list->global_ai_context->expected_behavior : "NULL");
+            pizza_io_printf("    {blue}Notes:{reset} %s\n", list->global_ai_context->ai_notes ? list->global_ai_context->ai_notes : "NULL");
+        }
+
         pizza_io_printf("{magenta}Arguments:{reset}\n");
         for (int i = 0; i < current->num_args; ++i) {
             pizza_io_printf("  {blue}Type:{reset} %d\n", current->arguments[i].type);
-            pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data);
+
+            // Print value based on type
+            switch (current->arguments[i].type) {
+                case FOSSIL_MOCK_PIZZA_TYPE_I8:
+                case FOSSIL_MOCK_PIZZA_TYPE_I16:
+                case FOSSIL_MOCK_PIZZA_TYPE_I32:
+                case FOSSIL_MOCK_PIZZA_TYPE_I64:
+                case FOSSIL_MOCK_PIZZA_TYPE_U8:
+                case FOSSIL_MOCK_PIZZA_TYPE_U16:
+                case FOSSIL_MOCK_PIZZA_TYPE_U32:
+                case FOSSIL_MOCK_PIZZA_TYPE_U64:
+                case FOSSIL_MOCK_PIZZA_TYPE_HEX:
+                case FOSSIL_MOCK_PIZZA_TYPE_OCTAL:
+                case FOSSIL_MOCK_PIZZA_TYPE_SIZE:
+                    pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+                case FOSSIL_MOCK_PIZZA_TYPE_FLOAT:
+                case FOSSIL_MOCK_PIZZA_TYPE_DOUBLE:
+                    pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+                case FOSSIL_MOCK_PIZZA_TYPE_WSTR:
+                case FOSSIL_MOCK_PIZZA_TYPE_CSTR:
+                    pizza_io_printf("  {blue}Value:{reset} \"%s\"\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+                case FOSSIL_MOCK_PIZZA_TYPE_CCHAR:
+                case FOSSIL_MOCK_PIZZA_TYPE_WCHAR:
+                    pizza_io_printf("  {blue}Value:{reset} '%s'\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+                case FOSSIL_MOCK_PIZZA_TYPE_BOOL:
+                    pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+                case FOSSIL_MOCK_PIZZA_TYPE_ANY:
+                default:
+                    pizza_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    break;
+            }
+
             pizza_io_printf("  {red}Mutable:{reset} %s\n", current->arguments[i].value.mutable_flag ? "{green}true{reset}" : "{yellow}false{reset}");
-            pizza_io_printf("  {cyan}Attribute Name:{reset} %s\n", current->arguments[i].attribute.name);
-            pizza_io_printf("  {cyan}Attribute Description:{reset} %s\n", current->arguments[i].attribute.description);
-            pizza_io_printf("  {cyan}Attribute ID:{reset} %s\n", current->arguments[i].attribute.id);
+            pizza_io_printf("  {cyan}Attribute Name:{reset} %s\n", current->arguments[i].attribute.name ? current->arguments[i].attribute.name : "NULL");
+            pizza_io_printf("  {cyan}Attribute Description:{reset} %s\n", current->arguments[i].attribute.description ? current->arguments[i].attribute.description : "NULL");
+            pizza_io_printf("  {cyan}Attribute ID:{reset} %s\n", current->arguments[i].attribute.id ? current->arguments[i].attribute.id : "NULL");
         }
+        ++call_index;
         current = current->next;
     }
 }
