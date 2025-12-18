@@ -235,6 +235,75 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     }
 }
 
+void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossil_mock_ai_context_t *ai_context) {
+    if (!call) return;
+    if (call->ai_context) {
+        fossil_mock_destroy_ai_context(call->ai_context);
+    }
+    call->ai_context = NULL;
+    if (ai_context) {
+        call->ai_context = (fossil_mock_ai_context_t *)pizza_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
+        if (call->ai_context) {
+            call->ai_context->context_info = ai_context->context_info ? pizza_io_cstr_dup(ai_context->context_info) : NULL;
+            call->ai_context->expected_behavior = ai_context->expected_behavior ? pizza_io_cstr_dup(ai_context->expected_behavior) : NULL;
+            // AI trick: Clamp confidence to [0.0, 1.0] and print a warning if out of range
+            if (ai_context->confidence < 0.0) {
+                pizza_io_printf("{yellow}AI Trick:{reset} Confidence below 0.0, clamped to 0.0\n");
+                call->ai_context->confidence = 0.0;
+            } else if (ai_context->confidence > 1.0) {
+                pizza_io_printf("{yellow}AI Trick:{reset} Confidence above 1.0, clamped to 1.0\n");
+                call->ai_context->confidence = 1.0;
+            } else {
+                call->ai_context->confidence = ai_context->confidence;
+            }
+            // AI trick: If ai_notes is NULL, auto-fill with "No notes provided"
+            call->ai_context->ai_notes = ai_context->ai_notes ? pizza_io_cstr_dup(ai_context->ai_notes) : pizza_io_cstr_dup("No notes provided");
+        }
+    }
+}
+
+// AI trick: If confidence is not in [0.0, 1.0], clamp it and print a warning.
+fossil_mock_ai_context_t *fossil_mock_create_ai_context(const char *context_info, const char *expected_behavior, double confidence, const char *ai_notes) {
+    fossil_mock_ai_context_t *ctx = (fossil_mock_ai_context_t *)pizza_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
+    if (!ctx) return NULL;
+    ctx->context_info = context_info ? pizza_io_cstr_dup(context_info) : NULL;
+    ctx->expected_behavior = expected_behavior ? pizza_io_cstr_dup(expected_behavior) : NULL;
+    // Clamp confidence to [0.0, 1.0]
+    if (confidence < 0.0) {
+        pizza_io_printf("{yellow}AI Trick:{reset} Confidence below 0.0, clamped to 0.0\n");
+        ctx->confidence = 0.0;
+    } else if (confidence > 1.0) {
+        pizza_io_printf("{yellow}AI Trick:{reset} Confidence above 1.0, clamped to 1.0\n");
+        ctx->confidence = 1.0;
+    } else {
+        ctx->confidence = confidence;
+    }
+    // AI trick: If ai_notes is NULL, auto-fill with "No notes provided"
+    ctx->ai_notes = ai_notes ? pizza_io_cstr_dup(ai_notes) : pizza_io_cstr_dup("No notes provided");
+    return ctx;
+}
+
+void fossil_mock_destroy_ai_context(fossil_mock_ai_context_t *ai_context) {
+    if (!ai_context) return;
+    pizza_sys_memory_free(ai_context->context_info);
+    pizza_sys_memory_free(ai_context->expected_behavior);
+    pizza_sys_memory_free(ai_context->ai_notes);
+    pizza_sys_memory_free(ai_context);
+}
+
+// AI trick: Print a warning if confidence is below a threshold (e.g., 0.5)
+void fossil_mock_print_ai_context(const fossil_mock_ai_context_t *ai_context) {
+    if (!ai_context) return;
+    pizza_io_printf("  {green}AI Context:{reset}\n");
+    pizza_io_printf("    {blue}Info:{reset} %s\n", ai_context->context_info ? ai_context->context_info : "NULL");
+    pizza_io_printf("    {blue}Expected:{reset} %s\n", ai_context->expected_behavior ? ai_context->expected_behavior : "NULL");
+    pizza_io_printf("    {blue}Confidence:{reset} %.2f\n", ai_context->confidence);
+    if (ai_context->confidence < 0.5) {
+        pizza_io_printf("    {red,bold}Warning:{reset} Confidence is low!\n");
+    }
+    pizza_io_printf("    {blue}Notes:{reset} %s\n", ai_context->ai_notes ? ai_context->ai_notes : "NULL");
+}
+
 int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)) {
     if (!buffer || size == 0 || !function) {
         return -1;
