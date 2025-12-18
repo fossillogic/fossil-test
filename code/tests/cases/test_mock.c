@@ -65,9 +65,9 @@ FOSSIL_MOCK_FUNC(void, mock_function_redirection, void) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST(c_mock_call_list_initialization) {
-    // Example of initializing a fossil_mock_calllist_t
+    // Example of initializing a fossil_mock_calllist_t using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.head == NULL, "fossil_mock_calllist_t head should be NULL after initialization");
@@ -76,9 +76,9 @@ FOSSIL_TEST(c_mock_call_list_initialization) {
 } // end case
 
 FOSSIL_TEST(c_mock_call_list_addition) {
-    // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t
+    // Example of adding a fossil_mock_call_t to a fossil_mock_calllist_t using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments
     fossil_mock_pizza_t args[2];
@@ -96,7 +96,7 @@ FOSSIL_TEST(c_mock_call_list_addition) {
     args[1].attribute.description = pizza_io_cstr_dup("Second argument");
     args[1].attribute.id = pizza_io_cstr_dup("2");
 
-    fossil_mock_add_call(&list, "test_function", args, 2);
+    MOCK_ADD_CALL(list, "test_function", args, 2);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
@@ -107,9 +107,9 @@ FOSSIL_TEST(c_mock_call_list_addition) {
 } // end case
 
 FOSSIL_TEST(c_mock_call_list_destruction) {
-    // Example of destroying a fossil_mock_calllist_t
+    // Example of destroying a fossil_mock_calllist_t using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments
     fossil_mock_pizza_t args[2];
@@ -127,13 +127,16 @@ FOSSIL_TEST(c_mock_call_list_destruction) {
     args[1].attribute.description = pizza_io_cstr_dup("Second argument");
     args[1].attribute.id = pizza_io_cstr_dup("2");
 
-    fossil_mock_add_call(&list, "test_function", args, 2);
+    MOCK_ADD_CALL(list, "test_function", args, 2);
 
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 2, "Number of arguments should be 2");
 
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
+    FOSSIL_TEST_ASSUME(list.head == NULL, "fossil_mock_calllist_t head should be NULL after destruction");
+    FOSSIL_TEST_ASSUME(list.tail == NULL, "fossil_mock_calllist_t tail should be NULL after destruction");
+    FOSSIL_TEST_ASSUME(list.size == 0, "fossil_mock_calllist_t size should be 0 after destruction");
 } // end case
 
 FOSSIL_TEST(c_mock_function_creation) {
@@ -159,9 +162,9 @@ FOSSIL_TEST(c_mock_struct_creation) {
 } // end case
 
 FOSSIL_TEST(c_mock_call_list_type_handling) {
-    // Initialize the mock call list
+    // Initialize the mock call list using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create mock arguments with various types
     fossil_mock_pizza_t args[3];
@@ -186,8 +189,8 @@ FOSSIL_TEST(c_mock_call_list_type_handling) {
     args[2].attribute.description = pizza_io_cstr_dup("Boolean argument");
     args[2].attribute.id = pizza_io_cstr_dup("3");
 
-    // Add a mock call with the arguments
-    fossil_mock_add_call(&list, "test_function", args, 3);
+    // Add a mock call with the arguments using macro
+    MOCK_ADD_CALL(list, "test_function", args, 3);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call");
@@ -207,16 +210,16 @@ FOSSIL_TEST(c_mock_call_list_type_handling) {
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[2].attribute.name, "arg3") == 0, "Third argument name should be 'arg3'");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(c_mock_call_list_edge_cases) {
-    // Initialize the mock call list
+    // Initialize the mock call list using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
-    // Add a call with no arguments
-    fossil_mock_add_call(&list, "no_args_function", NULL, 0);
+    // Add a call with no arguments using macro
+    MOCK_ADD_CALL(list, "no_args_function", NULL, 0);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call with no arguments");
@@ -224,13 +227,13 @@ FOSSIL_TEST(c_mock_call_list_edge_cases) {
     FOSSIL_TEST_ASSUME(list.head->num_args == 0, "Number of arguments should be 0");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(c_mock_call_list_large_arguments) {
-    // Initialize the mock call list
+    // Initialize the mock call list using macro
     fossil_mock_calllist_t list;
-    fossil_mock_init(&list);
+    MOCK_INIT(list);
 
     // Create a large number of mock arguments
     const int num_args = 100;
@@ -244,15 +247,15 @@ FOSSIL_TEST(c_mock_call_list_large_arguments) {
         args[i].attribute.id = pizza_io_cstr_dup("id");
     }
 
-    // Add a mock call with the large number of arguments
-    fossil_mock_add_call(&list, "large_args_function", args, num_args);
+    // Add a mock call with the large number of arguments using macro
+    MOCK_ADD_CALL(list, "large_args_function", args, num_args);
 
     // Test cases
     FOSSIL_TEST_ASSUME(list.size == 1, "fossil_mock_calllist_t size should be 1 after adding a call with large arguments");
     FOSSIL_TEST_ASSUME(list.head->num_args == num_args, "Number of arguments should match the large number");
 
     // Clean up
-    fossil_mock_destroy(&list);
+    MOCK_DESTROY(list);
 } // end case
 
 FOSSIL_TEST(c_mock_macro_initialization) {
