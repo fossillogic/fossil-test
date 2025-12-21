@@ -251,7 +251,6 @@ typedef struct {
         int only_has_wildcard;     // 1 if any test case contains '*', 0 otherwise
         const char* skip;          // Value for --skip
         int repeat;                // Value for --repeat
-        int threaded;              // Flag to enable threaded test execution
     } run;                         // Run command flags
 
     struct {
