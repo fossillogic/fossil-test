@@ -251,45 +251,57 @@ typedef struct {
         int only_has_wildcard;     // 1 if any test case contains '*', 0 otherwise
         const char* skip;          // Value for --skip
         int repeat;                // Value for --repeat
+        unsigned int random_seed;  // Optional random seed for reproducible runs
+        int until_fail;            // Flag for --until-fail stress testing
     } run;                         // Run command flags
 
     struct {
-        const char* test_name;     // Value for --test-name
-        cstr *test_name_list;      // Array of test names (split by ',')
-        size_t test_name_count;    // Number of test names
-        int test_name_has_wildcard;// 1 if any test name contains '*', 0 otherwise
+        const char* test_name;          // Value for --test-name
+        cstr *test_name_list;           // Array of test names (split by ',')
+        size_t test_name_count;         // Number of test names
+        int test_name_has_wildcard;     // 1 if any test name contains '*', 0 otherwise
+        int test_name_inverted;         // 1 if --not-test-name is used
 
-        const char* suite_name;    // Value for --suite-name
-        cstr *suite_name_list;     // Array of suite names (split by ',')
-        size_t suite_name_count;   // Number of suite names
-        int suite_name_has_wildcard;// 1 if any suite name contains '*', 0 otherwise
+        const char* suite_name;         // Value for --suite-name
+        cstr *suite_name_list;          // Array of suite names (split by ',')
+        size_t suite_name_count;        // Number of suite names
+        int suite_name_has_wildcard;    // 1 if any suite name contains '*', 0 otherwise
 
-        const char* tag;           // Value for --tag
-        cstr *tag_list;            // Array of tags (split by ',')
-        size_t tag_count;          // Number of tags
-        int tag_has_wildcard;      // 1 if any tag contains '*', 0 otherwise
+        const char* tag;                // Value for --tag
+        cstr *tag_list;                 // Array of tags (split by ',')
+        size_t tag_count;               // Number of tags
+        int tag_has_wildcard;           // 1 if any tag contains '*', 0 otherwise
     } filter;                      // Filter command flags
 
     struct {
-        const char* by;            // Value for --by
-        const char* order;         // Value for --order
+        const char* by;                // Value for --by
+        const char* order;             // Value for --order
+        const char* then_by;           // Secondary sort criterion
     } sort;                        // Sort command flags
 
     struct {
-        const char* seed;          // Value for --seed
-        int count;                 // Value for --count
-        const char* by;            // Value for --by
+        const char* seed;              // Value for --seed
+        int count;                     // Value for --count
+        const char* by;                // Value for --by
+        const char* mode;              // Shuffle mode: uniform/weighted
     } shuffle;                     // Shuffle command flags
 
     struct {
-        const char* test_name;     // Name of the test case to show
-        const char* suite_name;    // Name of the suite to show
-        const char* tag;           // Tag to filter which test cases to show
-        const char* result;        // Result to filter which test cases to show
-        const char* mode;          // Mode to filter which test cases to show (e.g., tree, list, graph)
-        const char* verbose;       // Verbosity level (plain, ci, doge)
-        int enabled;               // Flag to enable showing test cases
+        const char* test_name;         // Name of the test case to show
+        const char* suite_name;        // Name of the suite to show
+        const char* tag;               // Tag to filter which test cases to show
+        const char* result;            // Result to filter which test cases to show
+        const char* mode;              // Mode to filter which test cases to show (list/tree/graph)
+        const char* verbose;           // Verbosity level (plain/ci/doge)
+        int enabled;                   // Flag to enable showing test cases
+        int summary;                   // Flag to enable condensed summary output
+        const char* output_format;     // Optional output format: json/yaml/markdown
     } show;                        // Show command flags
+
+    struct {
+        const char* format;            // Output format: json/fson/yaml/csv
+        const char* destination;       // Output destination (file path or stdout)
+    } report;                       // Report command flags
 
     fossil_pizza_cli_theme_t theme; // Theme option
 } fossil_pizza_pallet_t;
