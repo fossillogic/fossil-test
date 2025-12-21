@@ -31,6 +31,27 @@
 #include <time.h>
 #include <sys/time.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+typedef HANDLE fossil_pizza_thread_t;
+static DWORD WINAPI thread_func(LPVOID param) {
+    fossil_pizza_case_t* test_case = ((fossil_pizza_case_t**)param)[0];
+    fossil_pizza_suite_t* suite    = ((fossil_pizza_case_t**)param)[1];
+    const fossil_pizza_engine_t* engine = ((fossil_pizza_case_t**)param)[2];
+    fossil_pizza_run_test(engine, test_case, suite);
+    return 0;
+}
+#else
+#include <pthread.h>
+typedef pthread_t fossil_pizza_thread_t;
+static void* thread_func(void* arg) {
+    fossil_pizza_case_t* test_case = ((fossil_pizza_case_t**)arg)[0];
+    fossil_pizza_suite_t* suite    = ((fossil_pizza_case_t**)arg)[1];
+    const fossil_pizza_engine_t* engine = ((fossil_pizza_case_t**)arg)[2];
+    fossil_pizza_run_test(engine, test_case, suite);
+    return NULL;
+}
+#endif
 
 jmp_buf test_jump_buffer; // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
@@ -777,6 +798,36 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds) {
 // from sanity, should be implemented and placed in common.c
 extern uint64_t get_pizza_time_microseconds(void);
 
+void fossil_pizza_run_tests_threaded(fossil_pizza_case_t** cases, size_t count,
+                                     fossil_pizza_suite_t* suite,
+                                     const fossil_pizza_engine_t* engine) {
+    if (!cases || count == 0) return;
+
+    fossil_pizza_thread_t threads[count];
+    void* args[count][3]; // array of pointers for each thread
+
+    for (size_t i = 0; i < count; ++i) {
+        args[i][0] = cases[i];
+        args[i][1] = suite;
+        args[i][2] = (void*)engine;
+
+        #if defined(_WIN32) || defined(_WIN64)
+        threads[i] = CreateThread(NULL, 0, thread_func, args[i], 0, NULL);
+        #else
+        pthread_create(&threads[i], NULL, thread_func, args[i]);
+        #endif
+    }
+
+    // Wait for all threads
+    for (size_t i = 0; i < count; ++i) {
+        #if defined(_WIN32) || defined(_WIN64)
+        WaitForSingleObject(threads[i], INFINITE);
+        CloseHandle(threads[i]);
+        #else
+        pthread_join(threads[i], NULL);
+        #endif
+    }
+}
 
 void fossil_pizza_run_test(const fossil_pizza_engine_t* engine,
                            fossil_pizza_case_t* test_case,
@@ -999,9 +1050,14 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t* engine, fossil_pizza_sui
         fossil_pizza_sort_cases(suite, engine);
         fossil_pizza_shuffle_cases(suite, engine);
 
-        for (size_t i = 0; i < filtered_count; ++i) {
-            fossil_pizza_case_t* test_case = filtered_cases[i];
-            fossil_pizza_run_test(engine, test_case, suite);
+        if (engine->pallet.run.threaded) {
+            // --- Threaded execution ---
+            fossil_pizza_run_tests_threaded(filtered_cases, filtered_count, suite, engine);
+        } else {
+            // --- Classic sequential execution ---
+            for (size_t i = 0; i < filtered_count; ++i) {
+                fossil_pizza_run_test(engine, filtered_cases[i], suite);
+            }
         }
     }
 
