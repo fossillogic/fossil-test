@@ -43,6 +43,24 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 
 > **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
+| Section | Key                   | Description                                                      | Notes / Valid Values                                                                 |
+|---------|----------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| general | theme                 | Set the theme for output.                                        | Options: `fossil`, `catch`, `doctest`, `cpputest`, `tap`, `gtest`, `unity`.        |
+| test    | run.fail_fast         | Enable or disable fail-fast mode.                                | `0` = disabled, `1` = enabled.                                                     |
+| test    | run.only              | Specify which tests to run.                                      | Comma-separated list of test names; wildcards supported.                            |
+| test    | run.repeat            | Repeat test execution multiple times.                             | Integer value, e.g., `1` (default).                                               |
+| test    | filter.test_name      | Filter tests by name.                                            | Comma-separated list; wildcards supported.                                         |
+| test    | filter.suite_name     | Filter tests by suite name.                                      | Comma-separated list; wildcards supported.                                         |
+| test    | filter.tag            | Filter tests by tag.                                             | Must match `VALID_TAGS` or contain wildcard `*`.                                   |
+| test    | sort.by               | Sort tests by specified criteria.                                | Must match `VALID_CRITERIA`.                                                      |
+| test    | sort.order            | Set sort order.                                                  | Options: `asc`, `desc`.                                                           |
+| test    | shuffle.seed          | Seed for shuffling tests.                                        | Any string accepted as seed.                                                      |
+| test    | shuffle.count         | Number of tests to shuffle.                                      | Integer value.                                                                    |
+| test    | shuffle.by            | Criteria to shuffle by.                                          | Must match `VALID_CRITERIA`.                                                      |
+| mock    | …                     | Placeholder for future mock-related INI options.                 | Currently unimplemented.                                                          |
+| mark    | …                     | Placeholder for future mark-related INI options.                 | Currently unimplemented.                                                          |
+| sanity  | …                     | Placeholder for future sanity-related INI options.               | Currently unimplemented.                                                          |
+
 ---
 
 ## ***Prerequisites***
