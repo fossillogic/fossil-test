@@ -28,20 +28,20 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | Command          | Description                                                                                   | Notes                                                                                         |
 |-----------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | `--version`      | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
-| `--dry-run`      | Perform a dry run without executing commands.                                                | Sets internal dry-run mechanism to simulate test execution.                                         |
-| `--host`         | Show information about the current host.                                                     | Print system info.                                                    |
-| `--help`         | Show this help message.                                                                      | Display global usage.                                                |
+| `--dry-run`      | Perform a dry run without executing commands.                                                | Sets an internal dry-run flag to simulate test execution.                                     |
+| `--host`         | Show information about the current host.                                                     | Prints system information.                                                                   |
+| `--help`         | Show this help message.                                                                      | Displays global usage instructions.                                                          |
 | `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
 | `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.     |
-| `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against the builtin criterias.   |
+| `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against built-in criteria.      |
 | `shuffle`        | Shuffle tests with optional parameters.                                                     | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                 |
 | `show`           | Show test cases with optional parameters.                                                   | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
-| `color=<mode>`   | Set color mode (`enable`, `disable`, `auto`).                                                | `auto` enables color only if stdout is a terminal.                                           |
-| `config=<file>`  | Specify a configuration file.                                                                | Must be `pizza_test.ini`; other names produce an error.                                      |
-| `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil`, `catch`, `doctest`, `cpputest`, `tap`, `gtest`, `unity`.                 |
-| `timeout=<sec>`  | Set the timeout for commands (default: 60 seconds).                                          | Sets internal timeout mechanism for all command execution.                                           |
-| `report`         | Export test results for CI integration.                                                     | Supported formats: `json`, `fson`, `yaml`, `csv`.                                         |
-| `watch`          | Continuously run tests on file changes.                                                     | Monitors file system changes and reruns tests automatically.                        |
+| `color=<mode>`   | Set color mode.                                                                               | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).         |
+| `config=<file>`  | Specify a configuration file.                                                                | Must be named `pizza_test.ini`; other filenames produce an error.                             |
+| `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil/catch/doctest/cpputest/tap/gtest/unity`.                                   |
+| `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                   |
+| `report`         | Export test results for CI integration.                                                     | Supported formats: `json/fson/yaml/csv`.                                                    |
+| `watch`          | Continuously run tests on file changes.                                                     | Monitors file system changes and reruns tests automatically.                                 |
 
 > **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
