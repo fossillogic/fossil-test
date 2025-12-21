@@ -40,6 +40,8 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `config=<file>`  | Specify a configuration file.                                                                | Must be `pizza_test.ini`; other names produce an error.                                      |
 | `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil`, `catch`, `doctest`, `cpputest`, `tap`, `gtest`, `unity`.                 |
 | `timeout=<sec>`  | Set the timeout for commands (default: 60 seconds).                                          | Sets internal timeout mechanism for all command execution.                                           |
+| `report`         | Export test results for CI integration.                                                     | Supported formats: `json`, `fson`, `yaml`, `csv`.                                         |
+| `watch`          | Continuously run tests on file changes.                                                     | Monitors file system changes and reruns tests automatically.                        |
 
 > **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
