@@ -25,21 +25,21 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 
 ### Commands and Options
 
-| Command                          | Description                                                                                   | Notes                                                                                         |
-|-----------------------------------|----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`                      | Show version information.                                                                    | Useful for verifying the version of the tool in use.                                          |
-| `--dry-run`                      | Perform a dry run without executing commands.                                                | Ideal for verifying test selection criteria before actual execution.                          |
-| `--host`                         | Show information about the current host.                                                     | Useful for looking up the system you are running tests on.                                    |
-| `--help`                         | Show this help message.                                                                      | Provides a quick reference for all available commands.                                        |
-| `run`                            | Execute tests with optional parameters.                                                      | Supports additional options like `--fail-fast` and `--repeat`.                                |
-| `filter`                         | Filter tests based on criteria.                                                              | Options include filtering by test name, suite name, or tags.                                  |
-| `sort`                           | Sort tests by specified criteria.                                                            | Allows sorting in ascending or descending order.                                              |
-| `shuffle`                        | Shuffle tests with optional parameters.                                                      | Includes options for specifying a seed or shuffle criteria.                                   |
-| `show`                           | Show test cases with optional parameters.                                                    | Useful for listing and inspecting available test cases.                                       |
-| `color=<mode>`                   | Set color mode (`enable`, `disable`, `auto`).                                                | Enhances readability in supported terminals.                                                  |
-| `config=<file>`                  | Specify a configuration file (must be `pizza_test.ini`).                                     | Allows loading custom settings for test execution.                                            |
-| `theme=<name>`                   | Set the theme (`fossil`, `catch`, `doctest`, etc.).                                         | Customizes the appearance of test output.                                                     |
-| `timeout=<seconds>`              | Set the timeout for commands (default: 60 seconds).                                          | Ensures commands do not exceed the specified duration, helping to identify long-running tests.|
+| Command          | Description                                                                                   | Notes                                                                                         |
+|-----------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `--version`      | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
+| `--dry-run`      | Perform a dry run without executing commands.                                                | Sets `G_PIZZA_DRY_RUN=1` to simulate test execution.                                         |
+| `--host`         | Show information about the current host.                                                     | Calls `_show_host()` to print system info.                                                    |
+| `--help`         | Show this help message.                                                                      | Calls `_show_help()` to display global usage.                                                |
+| `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
+| `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.     |
+| `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc|desc>`; validated against `VALID_CRITERIA`.       |
+| `shuffle`        | Shuffle tests with optional parameters.                                                     | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                 |
+| `show`           | Show test cases with optional parameters.                                                   | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail|pass|all>`, `--mode <list|tree|graph>`, `--verbose <plain|ci|doge>`. Default mode is `list` and verbose is `plain`. |
+| `color=<mode>`   | Set color mode (`enable`, `disable`, `auto`).                                                | `auto` enables color only if stdout is a terminal.                                           |
+| `config=<file>`  | Specify a configuration file.                                                                | Must be `pizza_test.ini`; other names produce an error.                                      |
+| `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil`, `catch`, `doctest`, `cpputest`, `tap`, `gtest`, `unity`.                 |
+| `timeout=<sec>`  | Set the timeout for commands (default: 60 seconds).                                          | Sets `G_PIZZA_TIMEOUT` for all command execution.                                           |
 
 > **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
