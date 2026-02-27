@@ -948,6 +948,87 @@ FOSSIL_TEST(c_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
+FOSSIL_TEST(c_assume_run_of_hash_equality) {
+    uint64_t hash1 = 0x123456789abcdef0;
+    uint64_t hash2 = 0x123456789abcdef0;
+    uint64_t hash3 = 0xfedcba9876543210;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH(hash1, hash2);
+    ASSUME_NOT_EQUAL_HASH(hash1, hash3);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_validity) {
+    uint64_t valid_hash = 0x123456789abcdef0;
+    uint64_t invalid_hash = 0;
+
+    // Test cases
+    ASSUME_ITS_VALID_HASH(valid_hash);
+    ASSUME_NOT_VALID_HASH(invalid_hash);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_bytes_equality) {
+    uint8_t hash1[8] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
+    uint8_t hash2[8] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
+    uint8_t hash3[8] = {0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash1, hash2, 8);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash1, hash3, 8);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_deterministic) {
+    uint64_t hash1 = 0xabcdef0123456789;
+    uint64_t hash2 = 0xabcdef0123456789;
+    uint64_t hash3 = 0x123456789abcdef0;
+
+    // Test cases
+    ASSUME_ITS_DETERMINISTIC_HASH(hash1, hash2);
+    ASSUME_NOT_EQUAL_HASH(hash1, hash3);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_collision_resistant) {
+    uint64_t hash_input1 = 0x111111111111111;
+    uint64_t hash_input2 = 0x222222222222222;
+    uint64_t hash_input3 = 0x333333333333333;
+
+    // Test cases
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input2);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input2, hash_input3);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input3);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_distributed) {
+    uint64_t good_hash1 = 0x123456789abcdef0;
+    uint64_t good_hash2 = 0xfedcba9876543210;
+    uint64_t bad_hash_zero = 0;
+
+    // Test cases
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash1);
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash2);
+    ASSUME_NOT_VALID_HASH(bad_hash_zero);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_bytes_distributed) {
+    uint8_t distributed_hash[16] = {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
+    uint8_t zero_hash[16] = {0};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(distributed_hash, distributed_hash, 16);
+    ASSUME_NOT_EQUAL_HASH_BYTES(distributed_hash, zero_hash, 16);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
+    uint8_t hash_16[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00};
+    uint8_t hash_32[32] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00,
+                           0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00};
+    uint8_t hash_dup_16[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 16);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1039,6 +1120,14 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_equality);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_validity);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_bytes_equality);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_deterministic);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_collision_resistant);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_distributed);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_bytes_distributed);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_multi_byte_sizes);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
 } // end of group

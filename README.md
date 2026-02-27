@@ -25,23 +25,42 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 
 ### Commands and Options
 
-| Command                          | Description                                                                                   | Notes                                                                                         |
-|-----------------------------------|----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`                      | Show version information.                                                                    | Useful for verifying the version of the tool in use.                                          |
-| `--dry-run`                      | Perform a dry run without executing commands.                                                | Ideal for verifying test selection criteria before actual execution.                          |
-| `--host`                         | Show information about the current host.                                                     | Useful for looking up the system you are running tests on.                                    |
-| `--help`                         | Show this help message.                                                                      | Provides a quick reference for all available commands.                                        |
-| `run`                            | Execute tests with optional parameters.                                                      | Supports additional options like `--fail-fast` and `--repeat`.                                |
-| `filter`                         | Filter tests based on criteria.                                                              | Options include filtering by test name, suite name, or tags.                                  |
-| `sort`                           | Sort tests by specified criteria.                                                            | Allows sorting in ascending or descending order.                                              |
-| `shuffle`                        | Shuffle tests with optional parameters.                                                      | Includes options for specifying a seed or shuffle criteria.                                   |
-| `show`                           | Show test cases with optional parameters.                                                    | Useful for listing and inspecting available test cases.                                       |
-| `color=<mode>`                   | Set color mode (`enable`, `disable`, `auto`).                                                | Enhances readability in supported terminals.                                                  |
-| `config=<file>`                  | Specify a configuration file (must be `pizza_test.ini`).                                     | Allows loading custom settings for test execution.                                            |
-| `theme=<name>`                   | Set the theme (`fossil`, `catch`, `doctest`, etc.).                                         | Customizes the appearance of test output.                                                     |
-| `timeout=<seconds>`              | Set the timeout for commands (default: 60 seconds).                                          | Ensures commands do not exceed the specified duration, helping to identify long-running tests.|
+| Command          | Description                                                                                   | Notes                                                                                         |
+|-----------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `--version`      | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
+| `--dry-run`      | Perform a dry run without executing commands.                                                | Sets an internal dry-run flag to simulate test execution.                                     |
+| `--host`         | Show information about the current host.                                                     | Prints system information.                                                                   |
+| `--help`         | Show this help message.                                                                      | Displays global usage instructions.                                                          |
+| `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
+| `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.     |
+| `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against built-in criteria.      |
+| `shuffle`        | Shuffle tests with optional parameters.                                                     | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                 |
+| `show`           | Show test cases with optional parameters.                                                   | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
+| `color=<mode>`   | Set color mode.                                                                               | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).         |
+| `config=<file>`  | Specify a configuration file.                                                                | Must be named `pizza_test.ini`; other filenames produce an error.                             |
+| `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil/catch/doctest/cpputest/tap/gtest/unity`.                                   |
+| `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                   |
+| `report`         | Export test results for CI integration.                                                     | Supported formats: `json/fson/yaml/csv`.                                                    |
 
 > **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
+
+| Section | Key                   | Description                                                      | Notes / Valid Values                                                                 |
+|---------|----------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| general | theme                 | Set the theme for output.                                        | Options: `fossil`, `catch`, `doctest`, `cpputest`, `tap`, `gtest`, `unity`.        |
+| test    | run.fail_fast         | Enable or disable fail-fast mode.                                | `0` = disabled, `1` = enabled.                                                     |
+| test    | run.only              | Specify which tests to run.                                      | Comma-separated list of test names; wildcards supported.                            |
+| test    | run.repeat            | Repeat test execution multiple times.                             | Integer value, e.g., `1` (default).                                               |
+| test    | filter.test_name      | Filter tests by name.                                            | Comma-separated list; wildcards supported.                                         |
+| test    | filter.suite_name     | Filter tests by suite name.                                      | Comma-separated list; wildcards supported.                                         |
+| test    | filter.tag            | Filter tests by tag.                                             | Must match `VALID_TAGS` or contain wildcard `*`.                                   |
+| test    | sort.by               | Sort tests by specified criteria.                                | Must match `VALID_CRITERIA`.                                                      |
+| test    | sort.order            | Set sort order.                                                  | Options: `asc`, `desc`.                                                           |
+| test    | shuffle.seed          | Seed for shuffling tests.                                        | Any string accepted as seed.                                                      |
+| test    | shuffle.count         | Number of tests to shuffle.                                      | Integer value.                                                                    |
+| test    | shuffle.by            | Criteria to shuffle by.                                          | Must match `VALID_CRITERIA`.                                                      |
+| mock    | …                     | Placeholder for future mock-related INI options.                 | Currently unimplemented.                                                          |
+| mark    | …                     | Placeholder for future mark-related INI options.                 | Currently unimplemented.                                                          |
+| sanity  | …                     | Placeholder for future sanity-related INI options.               | Currently unimplemented.                                                          |
 
 ---
 
