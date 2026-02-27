@@ -944,6 +944,109 @@ FOSSIL_TEST(cpp_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
+FOSSIL_TEST(cpp_assume_run_of_hash_equality) {
+    uint64_t hash1 = 0x123456789ABCDEF0;
+    uint64_t hash2 = 0x123456789ABCDEF0;
+    uint64_t hash3 = 0xFEDCBA9876543210;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH(hash1, hash2);
+    ASSUME_NOT_EQUAL_HASH(hash1, hash3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_validity) {
+    uint64_t valid_hash = 0x123456789ABCDEF0;
+    uint64_t invalid_hash = 0;
+
+    // Test cases
+    ASSUME_ITS_VALID_HASH(valid_hash);
+    ASSUME_NOT_VALID_HASH(invalid_hash);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_bytes_equality) {
+    uint8_t hash1[32] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+                         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+                         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
+                         0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+    uint8_t hash2[32] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+                         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+                         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
+                         0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+    uint8_t hash3[32] = {0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10,
+                         0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88,
+                         0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
+                         0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, 0x77};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash1, hash2, 32);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash1, hash3, 32);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_deterministic) {
+    uint64_t hash_compute1 = 0xABCDEF1234567890;
+    uint64_t hash_compute2 = 0xABCDEF1234567890;
+    uint64_t hash_compute3 = 0x1111111111111111;
+
+    // Test cases
+    ASSUME_ITS_DETERMINISTIC_HASH(hash_compute1, hash_compute2);
+    ASSUME_NOT_EQUAL_HASH(hash_compute1, hash_compute3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_collision_resistance) {
+    uint64_t hash_input1 = 0x0123456789ABCDEF;
+    uint64_t hash_input2 = 0x0123456789ABCDF0;
+    uint64_t hash_input3 = 0xFEDCBA9876543210;
+
+    // Test cases
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input2);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_distributed) {
+    uint64_t good_hash1 = 0x123456789ABCDEF0;
+    uint64_t good_hash2 = 0xFEDCBA9876543210;
+    uint64_t zero_hash = 0;
+    uint64_t max_hash = UINT64_MAX;
+
+    // Test cases
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash1);
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash2);
+    ASSUME_NOT_VALID_HASH(zero_hash);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_bytes_equality_small) {
+    uint8_t hash1[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+    uint8_t hash2[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash1, hash2, 16);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_collision_resistance_multiple) {
+    uint64_t hash_a = 0x1234567890ABCDEF;
+    uint64_t hash_b = 0x1234567890ABCDE0;
+    uint64_t hash_c = 0x1234567890ABCDE1;
+    uint64_t hash_d = 0x1234567890ABCDE2;
+
+    // Test cases
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_a, hash_b);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_b, hash_c);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_c, hash_d);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_distributed_variety) {
+    uint64_t hash_low = 0x0000000000000001;
+    uint64_t hash_mid = 0x8000000000000000;
+    uint64_t hash_high = 0xFFFFFFFFFFFFFFFE;
+
+    // Test cases
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_low);
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_mid);
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_high);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1035,6 +1138,15 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_validity);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_bytes_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_deterministic);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_collision_resistance);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_distributed);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_bytes_equality_small);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_collision_resistance_multiple);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_distributed_variety);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group
