@@ -2567,6 +2567,102 @@ extern "C" {
 #define ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone) \
     FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to not be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
 
+// **************************************************
+// Hash assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given hash values are equal.
+ *
+ * @param actual The actual hash value.
+ * @param expected The expected hash value.
+ */
+#define ASSUME_ITS_EQUAL_HASH(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #actual " of value %llu to be equal to " #expected " of value %llu", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that the given hash values are not equal.
+ *
+ * @param actual The actual hash value.
+ * @param expected The expected hash value.
+ */
+#define ASSUME_NOT_EQUAL_HASH(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) != (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #actual " of value %llu to not be equal to " #expected " of value %llu", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that the given hash value is valid (non-zero).
+ *
+ * @param hash The hash value to check.
+ */
+#define ASSUME_ITS_VALID_HASH(hash) \
+    FOSSIL_TEST_ASSUME((hash) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value %llu to be valid (non-zero)", (uint64_t)(hash)))
+
+/**
+ * @brief Assumes that the given hash value is not valid (zero).
+ *
+ * @param hash The hash value to check.
+ */
+#define ASSUME_NOT_VALID_HASH(hash) \
+    FOSSIL_TEST_ASSUME((hash) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value %llu to not be valid (zero)", (uint64_t)(hash)))
+
+/**
+ * @brief Assumes that the given hash values are equal using byte array comparison.
+ * 
+ * This macro is safer for comparing hash digests that may have different
+ * representations across platforms (e.g., SHA, MD5 hashes stored as byte arrays).
+ *
+ * @param actual The actual hash byte array.
+ * @param expected The expected hash byte array.
+ * @param size The size of the hash in bytes.
+ */
+#define ASSUME_ITS_EQUAL_HASH_BYTES(actual, expected, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to be equal to " #expected " for size %zu bytes", (size)))
+
+/**
+ * @brief Assumes that the given hash byte arrays are not equal.
+ *
+ * @param actual The actual hash byte array.
+ * @param expected The expected hash byte array.
+ * @param size The size of the hash in bytes.
+ */
+#define ASSUME_NOT_EQUAL_HASH_BYTES(actual, expected, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to not be equal to " #expected " for size %zu bytes", (size)))
+
+/**
+ * @brief Assumes that the given hash is deterministic by comparing two computations.
+ * 
+ * This macro verifies that hash generation is deterministic across multiple calls
+ * on the same input, which is critical for reproducible testing.
+ *
+ * @param hash1 The first hash computation result.
+ * @param hash2 The second hash computation result (from identical input).
+ */
+#define ASSUME_ITS_DETERMINISTIC_HASH(hash1, hash2) \
+    FOSSIL_TEST_ASSUME((hash1) == (hash2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash computations to be deterministic: " #hash1 " (0x%llx) == " #hash2 " (0x%llx)", (uint64_t)(hash1), (uint64_t)(hash2)))
+
+/**
+ * @brief Assumes that hash collision resistance by verifying two different inputs produce different hashes.
+ * 
+ * Note: This is a probabilistic check. Collisions may still occur in hash functions,
+ * but two known different inputs should produce different hash values with high probability.
+ *
+ * @param hash1 Hash of first input.
+ * @param hash2 Hash of second (different) input.
+ */
+#define ASSUME_ITS_HASH_COLLISION_RESISTANT(hash1, hash2) \
+    FOSSIL_TEST_ASSUME((hash1) != (hash2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected different inputs to produce different hashes: hash1 (0x%llx) != hash2 (0x%llx)", (uint64_t)(hash1), (uint64_t)(hash2)))
+
+/**
+ * @brief Assumes that the given hash is within the expected entropy distribution.
+ * 
+ * Performs a basic sanity check that hash output is not pathologically degenerate.
+ * Checks that the hash is not all zeros or all ones (0xFFFFFFFFFFFFFFFF for 64-bit).
+ *
+ * @param hash The hash value to validate.
+ */
+#define ASSUME_ITS_HASH_DISTRIBUTED(hash) \
+    FOSSIL_TEST_ASSUME((hash) != 0 && (hash) != UINT64_MAX, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value 0x%llx to have reasonable entropy distribution", (uint64_t)(hash)))
+
 #ifdef __cplusplus
 }
 #endif
