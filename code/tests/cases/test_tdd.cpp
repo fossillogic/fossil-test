@@ -1006,7 +1006,6 @@ FOSSIL_TEST(cpp_assume_run_of_hash_distributed) {
     uint64_t good_hash1 = 0x123456789ABCDEF0;
     uint64_t good_hash2 = 0xFEDCBA9876543210;
     uint64_t zero_hash = 0;
-    uint64_t max_hash = UINT64_MAX;
 
     // Test cases
     ASSUME_ITS_HASH_DISTRIBUTED(good_hash1);
