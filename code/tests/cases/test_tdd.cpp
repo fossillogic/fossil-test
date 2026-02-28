@@ -1189,8 +1189,6 @@ FOSSIL_TEST(cpp_assume_run_of_power_of_two_variants) {
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_operations_chained) {
-    uint32_t value = 0xFF;
-
     // Test cases
     ASSUME_ITS_BITWISE_OR_EQUAL(0x0F, 0xF0, 0xFF);
     ASSUME_ITS_BITWISE_AND_EQUAL(0xFF, 0x0F, 0x0F);
