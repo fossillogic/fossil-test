@@ -1026,7 +1026,7 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
 
     // Test cases
     ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
-    ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 16);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_set) {
@@ -1044,15 +1044,15 @@ FOSSIL_TEST(c_assume_run_of_bitmask_set) {
 
     // Test cases
     ASSUME_ITS_BITMASK_SET(value, mask);
-    ASSUME_NOT_BITMASK_SET(value, 0x0000FFFF);
+    ASSUME_NOT_BITMASK_SET(value, 0x00FF0000);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_position_set) {
     uint16_t value = 0xAAAA;
 
     // Test cases
-    ASSUME_ITS_BIT_POSITION_SET(value, 0);
-    ASSUME_NOT_BIT_POSITION_SET(value, 1);
+    ASSUME_ITS_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 0);
     ASSUME_ITS_BIT_POSITION_SET(value, 15);
 } // end case
 
@@ -1146,7 +1146,7 @@ FOSSIL_TEST(c_assume_run_of_rotate_left) {
 
 FOSSIL_TEST(c_assume_run_of_rotate_right) {
     uint64_t value = 0x0123456789ABCDEF;
-    uint64_t expected = 0xF0123456789ABCDE;
+    uint64_t expected = 0xEF0123456789ABCD;
 
     // Test cases
     ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 8, expected);

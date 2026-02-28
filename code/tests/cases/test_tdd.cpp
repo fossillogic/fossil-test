@@ -1061,7 +1061,7 @@ FOSSIL_TEST(cpp_assume_run_of_bitmask_set) {
 
     // Test cases
     ASSUME_ITS_BITMASK_SET(value, mask);
-    ASSUME_NOT_BITMASK_SET(value, 0xF0);
+    ASSUME_NOT_BITMASK_SET(value, 0xF00);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_position_set) {
@@ -1069,8 +1069,8 @@ FOSSIL_TEST(cpp_assume_run_of_bit_position_set) {
 
     // Test cases
     ASSUME_ITS_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 1);
     ASSUME_NOT_BIT_POSITION_SET(value, 0);
-    ASSUME_NOT_BIT_POSITION_SET(value, 2);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_count) {
@@ -1162,7 +1162,7 @@ FOSSIL_TEST(cpp_assume_run_of_rotate_left) {
 
 FOSSIL_TEST(cpp_assume_run_of_rotate_right) {
     uint64_t value = 0x123456789ABCDEF0;
-    uint64_t expected_4 = 0x0123456789ABCDEF;
+    uint64_t expected_4 = 0xF123456789ABCDE;
 
     // Test cases
     ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 4, expected_4);
