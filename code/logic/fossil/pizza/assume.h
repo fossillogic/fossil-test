@@ -2810,7 +2810,7 @@ extern "C" {
  * @param expected The expected result.
  */
 #define ASSUME_ITS_BITWISE_NOT_EQUAL(value, expected) \
-    FOSSIL_TEST_ASSUME(((uint64_t)(~(value)) == (uint64_t)(expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected ~(value " #value ") to equal " #expected ", got 0x%llx", (uint64_t)(~(value))))
+    FOSSIL_TEST_ASSUME((~(uint64_t)(value)) == (uint64_t)(expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected ~(value " #value ") to equal " #expected ", got 0x%llx", ~(uint64_t)(value)))
 
 /**
  * @brief Assumes that a left shift operation produces the expected result.
