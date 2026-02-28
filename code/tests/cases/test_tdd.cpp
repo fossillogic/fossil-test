@@ -1046,6 +1046,156 @@ FOSSIL_TEST(cpp_assume_run_of_hash_distributed_variety) {
     ASSUME_ITS_HASH_DISTRIBUTED(hash_high);
 } // end case
 
+FOSSIL_TEST(cpp_assume_run_of_bit_set) {
+    uint8_t value = 0xAA;
+    uint8_t flag = 0x80;
+
+    // Test cases
+    ASSUME_ITS_BIT_SET(value, flag);
+    ASSUME_NOT_BIT_SET(value, 0x01);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitmask_set) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+
+    // Test cases
+    ASSUME_ITS_BITMASK_SET(value, mask);
+    ASSUME_NOT_BITMASK_SET(value, 0xF00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_position_set) {
+    uint16_t value = 0xAAAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 0);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_count) {
+    uint8_t value = 0xF0;
+    uint8_t value2 = 0xAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_COUNT(value, 4);
+    ASSUME_ITS_BIT_COUNT(value2, 4);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_power_of_two) {
+    uint32_t power_of_two = 16;
+    uint32_t not_power_of_two = 15;
+
+    // Test cases
+    ASSUME_ITS_POWER_OF_TWO(power_of_two);
+    ASSUME_NOT_POWER_OF_TWO(not_power_of_two);
+    ASSUME_NOT_POWER_OF_TWO(0);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_equal_bits) {
+    uint32_t actual = 0xABCD;
+    uint32_t expected = 0xABCD;
+    uint32_t different = 0x1234;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_BITS(actual, expected);
+    ASSUME_NOT_EQUAL_BITS(actual, different);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_and) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0x0F;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_AND_EQUAL(0xF0, 0x0F, 0x00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_or) {
+    uint32_t value = 0xF0;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0xFF;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_OR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_OR_EQUAL(0x00, 0xFF, 0xFF);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_xor) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0xF0;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_XOR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_XOR_EQUAL(0xFF, 0xFF, 0x00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_shift_left) {
+    uint32_t value = 0x01;
+    uint32_t shift = 4;
+    uint32_t expected = 0x10;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(value, shift, expected);
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(0x02, 3, 0x10);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_shift_right) {
+    uint32_t value = 0x10;
+    uint32_t shift = 2;
+    uint32_t expected = 0x04;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(value, shift, expected);
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(0xFF, 4, 0x0F);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_rotate_left) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0x23456789ABCDEF01;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(0x8000000000000000ULL, 1, 0x0000000000000001ULL);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_rotate_right) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0xEF0123456789ABCD;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(0x0000000000000001ULL, 1, 0x8000000000000000ULL);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_multiple_bit_operations) {
+    uint32_t value = 0xAAAA; // alternating bits
+    uint32_t mask = 0x0F0F;
+
+    // Test cases
+    ASSUME_ITS_BIT_SET(value, 0x8000);
+    ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, 0x0A0A);
+    ASSUME_ITS_BIT_COUNT(value, 8);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_power_of_two_variants) {
+    // Test various powers of two
+    ASSUME_ITS_POWER_OF_TWO(1);
+    ASSUME_ITS_POWER_OF_TWO(2);
+    ASSUME_ITS_POWER_OF_TWO(4);
+    ASSUME_ITS_POWER_OF_TWO(8);
+    ASSUME_ITS_POWER_OF_TWO(256);
+    ASSUME_ITS_POWER_OF_TWO(65536);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_operations_chained) {
+    // Test cases
+    ASSUME_ITS_BITWISE_OR_EQUAL(0x0F, 0xF0, 0xFF);
+    ASSUME_ITS_BITWISE_AND_EQUAL(0xFF, 0x0F, 0x0F);
+    ASSUME_ITS_BITWISE_XOR_EQUAL(0xAA, 0x55, 0xFF);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1146,6 +1296,22 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_bytes_equality_small);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_collision_resistance_multiple);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_distributed_variety);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitmask_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_position_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_count);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_power_of_two);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_equal_bits);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_and);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_or);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_xor);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_shift_left);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_shift_right);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_rotate_left);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_rotate_right);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_multiple_bit_operations);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_power_of_two_variants);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_operations_chained);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group

@@ -1026,7 +1026,131 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
 
     // Test cases
     ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
-    ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 16);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bit_set) {
+    uint8_t value = 0xAA;
+    uint8_t flag = 0x80;
+
+    // Test cases
+    ASSUME_ITS_BIT_SET(value, flag);
+    ASSUME_NOT_BIT_SET(value, 0x01);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bitmask_set) {
+    uint32_t value = 0xFFFF0000;
+    uint32_t mask = 0xF0F00000;
+
+    // Test cases
+    ASSUME_ITS_BITMASK_SET(value, mask);
+    ASSUME_NOT_BITMASK_SET(value, 0x0000FFFF);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bit_position_set) {
+    uint16_t value = 0xAAAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 0);
+    ASSUME_ITS_BIT_POSITION_SET(value, 15);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bit_count) {
+    uint8_t value = 0xF0;
+    uint8_t value2 = 0xAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_COUNT(value, 4);
+    ASSUME_NOT_BIT_COUNT(value, 5);
+    ASSUME_ITS_BIT_COUNT(value2, 4);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_power_of_two) {
+    uint32_t power_val = 256;
+    uint32_t non_power = 255;
+
+    // Test cases
+    ASSUME_ITS_POWER_OF_TWO(power_val);
+    ASSUME_NOT_POWER_OF_TWO(non_power);
+    ASSUME_ITS_POWER_OF_TWO(1);
+    ASSUME_ITS_POWER_OF_TWO(512);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_equal_bits) {
+    uint64_t actual = 0xABCDEF0123456789;
+    uint64_t expected = 0xABCDEF0123456789;
+    uint64_t different = 0x123456789ABCDEF0;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_BITS(actual, expected);
+    ASSUME_NOT_EQUAL_BITS(actual, different);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bitwise_and) {
+    uint32_t value = 0xF3F3F3F3;
+    uint32_t mask = 0xFF00FF00;
+    uint32_t expected = 0xF300F300;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_AND_EQUAL(0xFF, 0x0F, 0x0F);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bitwise_or) {
+    uint32_t value = 0xF3F3F3F3;
+    uint32_t mask = 0x0C0C0C0C;
+    uint32_t expected = 0xFFFFFFFF;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_OR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_OR_EQUAL(0xF0, 0x0F, 0xFF);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bitwise_xor) {
+    uint32_t value = 0xFFFF0000;
+    uint32_t mask = 0x0000FFFF;
+    uint32_t expected = 0xFFFFFFFF;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_XOR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_XOR_EQUAL(0xAA, 0x55, 0xFF);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_shift_left) {
+    uint32_t value = 0x00000001;
+    uint32_t expected = 0x00000100;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(value, 8, expected);
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(0xFF, 4, 0xFF0);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_shift_right) {
+    uint32_t value = 0x0000FF00;
+    uint32_t expected = 0x000000FF;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(value, 8, expected);
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(0xFF00, 4, 0x0FF0);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_rotate_left) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0x23456789ABCDEF01;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(0x8000000000000000ULL, 1, 0x0000000000000001ULL);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_rotate_right) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0xEF0123456789ABCD;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(0x0000000000000001ULL, 1, 0x8000000000000000ULL);
 } // end case
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1128,6 +1252,19 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_distributed);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_bytes_distributed);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_hash_multi_byte_sizes);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bit_set);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitmask_set);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bit_position_set);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bit_count);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_power_of_two);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_equal_bits);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_and);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_or);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_xor);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_shift_left);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_shift_right);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_rotate_left);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_rotate_right);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
 } // end of group
