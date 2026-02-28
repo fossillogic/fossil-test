@@ -1161,7 +1161,7 @@ FOSSIL_TEST(cpp_assume_run_of_rotate_left) {
 
 FOSSIL_TEST(cpp_assume_run_of_rotate_right) {
     uint64_t value = 0x123456789ABCDEF0;
-    uint64_t expected_4 = 0x0F123456789ABCDE;
+    uint64_t expected_4 = 0xF123456789ABCDE;
 
     // Test cases
     ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 4, expected_4);
