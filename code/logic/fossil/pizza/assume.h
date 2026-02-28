@@ -2568,6 +2568,103 @@ extern "C" {
     FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to not be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
 
 // **************************************************
+// Time assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given elapsed time is within an acceptable tolerance.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param expected_ns The expected time in nanoseconds.
+ * @param tolerance_ns The tolerance in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns, expected_ns, tolerance_ns) \
+    FOSSIL_TEST_ASSUME(llabs((int64_t)(elapsed_ns) - (int64_t)(expected_ns)) <= (int64_t)(tolerance_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be within %lld ns of expected %lld ns", (int64_t)(elapsed_ns), (int64_t)(tolerance_ns), (int64_t)(expected_ns)))
+
+/**
+ * @brief Assumes that the given elapsed time exceeds a minimum threshold.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param min_ns The minimum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_AT_LEAST(elapsed_ns, min_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) >= (int64_t)(min_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be at least %lld ns", (int64_t)(elapsed_ns), (int64_t)(min_ns)))
+
+/**
+ * @brief Assumes that the given elapsed time does not exceed a maximum threshold.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param max_ns The maximum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_AT_MOST(elapsed_ns, max_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) <= (int64_t)(max_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be at most %lld ns", (int64_t)(elapsed_ns), (int64_t)(max_ns)))
+
+/**
+ * @brief Assumes that elapsed time falls within a range (min to max inclusive).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param min_ns The minimum expected time in nanoseconds.
+ * @param max_ns The maximum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_WITHIN_RANGE(elapsed_ns, min_ns, max_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) >= (int64_t)(min_ns) && (int64_t)(elapsed_ns) <= (int64_t)(max_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be within range [%lld ns, %lld ns]", (int64_t)(elapsed_ns), (int64_t)(min_ns), (int64_t)(max_ns)))
+
+/**
+ * @brief Assumes that the first elapsed time is faster than the second (relative performance).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_FASTER_THAN(elapsed_ns_1, elapsed_ns_2) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns_1) < (int64_t)(elapsed_ns_2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be faster than %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2)))
+
+/**
+ * @brief Assumes that the first elapsed time is slower than the second (relative performance).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_SLOWER_THAN(elapsed_ns_1, elapsed_ns_2) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns_1) > (int64_t)(elapsed_ns_2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be slower than %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2)))
+
+/**
+ * @brief Assumes that elapsed times are equivalent within a tolerance (for benchmarking).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ * @param tolerance_ns The tolerance in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_2, tolerance_ns) \
+    FOSSIL_TEST_ASSUME(llabs((int64_t)(elapsed_ns_1) - (int64_t)(elapsed_ns_2)) <= (int64_t)(tolerance_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed times %lld ns and %lld ns to be equivalent within tolerance %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2), (int64_t)(tolerance_ns)))
+
+/**
+ * @brief Assumes that monotonic time is advancing (sanity check).
+ *
+ * @param time_before_ns The time captured before an operation.
+ * @param time_after_ns The time captured after the operation.
+ */
+#define ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_after_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(time_after_ns) >= (int64_t)(time_before_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected monotonic time: after (%lld ns) >= before (%lld ns)", (int64_t)(time_after_ns), (int64_t)(time_before_ns)))
+
+/**
+ * @brief Assumes that a deadline has been met (elapsed time <= deadline).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param deadline_ns The deadline in nanoseconds.
+ */
+#define ASSUME_ITS_DEADLINE_MET(elapsed_ns, deadline_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) <= (int64_t)(deadline_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to meet deadline of %lld ns", (int64_t)(elapsed_ns), (int64_t)(deadline_ns)))
+
+/**
+ * @brief Assumes that a deadline has been missed (elapsed time > deadline).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param deadline_ns The deadline in nanoseconds.
+ */
+#define ASSUME_ITS_DEADLINE_MISSED(elapsed_ns, deadline_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) > (int64_t)(deadline_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to exceed deadline of %lld ns", (int64_t)(elapsed_ns), (int64_t)(deadline_ns)))
+
+// **************************************************
 // Hash assumptions
 // ************************************************
 
