@@ -42,6 +42,98 @@ FOSSIL_TEARDOWN(c_tdd_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
+FOSSIL_TEST(c_assume_run_of_time_within_tolerance) {
+    int64_t elapsed_ns = 1000000;
+    int64_t expected_ns = 1000000;
+    int64_t tolerance_ns = 50000;
+
+    // Test cases
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns, expected_ns, tolerance_ns);
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns + 30000, expected_ns, tolerance_ns);
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns - 30000, expected_ns, tolerance_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_at_least) {
+    int64_t elapsed_ns = 5000000;
+    int64_t min_ns = 1000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_AT_LEAST(elapsed_ns, min_ns);
+    ASSUME_ITS_TIME_AT_LEAST(min_ns, min_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_at_most) {
+    int64_t elapsed_ns = 5000000;
+    int64_t max_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_AT_MOST(elapsed_ns, max_ns);
+    ASSUME_ITS_TIME_AT_MOST(max_ns, max_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_within_range) {
+    int64_t elapsed_ns = 5000000;
+    int64_t min_ns = 1000000;
+    int64_t max_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_WITHIN_RANGE(elapsed_ns, min_ns, max_ns);
+    ASSUME_ITS_TIME_WITHIN_RANGE(min_ns, min_ns, max_ns);
+    ASSUME_ITS_TIME_WITHIN_RANGE(max_ns, min_ns, max_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_faster_than) {
+    int64_t elapsed_ns_1 = 1000000;
+    int64_t elapsed_ns_2 = 5000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_FASTER_THAN(elapsed_ns_1, elapsed_ns_2);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_slower_than) {
+    int64_t elapsed_ns_1 = 5000000;
+    int64_t elapsed_ns_2 = 1000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_SLOWER_THAN(elapsed_ns_1, elapsed_ns_2);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_equivalent) {
+    int64_t elapsed_ns_1 = 1000000;
+    int64_t elapsed_ns_2 = 1020000;
+    int64_t tolerance_ns = 50000;
+
+    // Test cases
+    ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_2, tolerance_ns);
+    ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_1, tolerance_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_time_monotonic) {
+    int64_t time_before_ns = 1000000;
+    int64_t time_after_ns = 5000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_after_ns);
+    ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_before_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_deadline_met) {
+    int64_t elapsed_ns = 8000000;
+    int64_t deadline_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_DEADLINE_MET(elapsed_ns, deadline_ns);
+    ASSUME_ITS_DEADLINE_MET(deadline_ns, deadline_ns);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_deadline_missed) {
+    int64_t elapsed_ns = 12000000;
+    int64_t deadline_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_DEADLINE_MISSED(elapsed_ns, deadline_ns);
+} // end case
+
 FOSSIL_TEST(c_assume_run_of_int) {
     int x = 42;
     int y = 20;
@@ -1157,6 +1249,16 @@ FOSSIL_TEST(c_assume_run_of_rotate_right) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_tdd_test_cases) {
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_within_tolerance);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_at_least);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_at_most);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_within_range);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_faster_than);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_slower_than);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_equivalent);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_time_monotonic);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_deadline_met);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_deadline_missed);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_int);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_int8);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_int16);
