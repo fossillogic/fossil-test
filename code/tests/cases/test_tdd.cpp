@@ -1153,15 +1153,16 @@ FOSSIL_TEST(cpp_assume_run_of_shift_right) {
 
 FOSSIL_TEST(cpp_assume_run_of_rotate_left) {
     uint64_t value = 0x0123456789ABCDEF;
-    uint64_t expected_4 = 0x123456789ABCDEF0;
+    uint64_t expected = 0x23456789ABCDEF01;
 
     // Test cases
-    ASSUME_ITS_ROTATE_LEFT_EQUAL(value, 4, expected_4);
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(0x8000000000000000ULL, 1, 0x0000000000000001ULL);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_rotate_right) {
     uint64_t value = 0x123456789ABCDEF0;
-    uint64_t expected_4 = 0xF123456789ABCDE;
+    uint64_t expected_4 = 0x0F123456789ABCDE;
 
     // Test cases
     ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 4, expected_4);
