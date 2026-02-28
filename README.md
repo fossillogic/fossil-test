@@ -2,6 +2,8 @@
 
 **Pizza Test** is a smart unit testing framework developed by **Fossil Logic** for C and C++ projects. It offers advanced features designed for systems that demand high traceability, behavioral insight, and truth validation. Pizza Test is particularly well-suited for testing components where deterministic logic, memory integrity, and reasoning transparency are critical.
 
+With Pizza Test, you can write expressive, maintainable tests that integrate seamlessly into your development workflow. Whether you're validating core algorithms, testing system-level code, or ensuring API reliability, Pizza Test provides the tools and clarity you need.
+
 ---
 
 ## Key Features
