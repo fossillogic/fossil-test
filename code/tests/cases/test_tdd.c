@@ -1030,12 +1030,12 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_set) {
-    uint8_t value = 0b10101010;
-    uint8_t flag = 0b10000000;
+    uint8_t value = 0xAA;
+    uint8_t flag = 0x80;
 
     // Test cases
     ASSUME_ITS_BIT_SET(value, flag);
-    ASSUME_NOT_BIT_SET(value, 0b00000001);
+    ASSUME_NOT_BIT_SET(value, 0x01);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bitmask_set) {
@@ -1048,7 +1048,7 @@ FOSSIL_TEST(c_assume_run_of_bitmask_set) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_position_set) {
-    uint16_t value = 0b1010101010101010;
+    uint16_t value = 0xAAAA;
 
     // Test cases
     ASSUME_ITS_BIT_POSITION_SET(value, 0);
@@ -1057,8 +1057,8 @@ FOSSIL_TEST(c_assume_run_of_bit_position_set) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_count) {
-    uint8_t value = 0b11110000;
-    uint8_t value2 = 0b10101010;
+    uint8_t value = 0xF0;
+    uint8_t value2 = 0xAA;
 
     // Test cases
     ASSUME_ITS_BIT_COUNT(value, 4);
@@ -1122,7 +1122,7 @@ FOSSIL_TEST(c_assume_run_of_bitwise_not_u8) {
     uint8_t expected = 0xFF;
 
     // Test cases
-    ASSUME_ITS_BITWISE_NOT_EQUAL(value, expected);
+    ASSUME_ITS_BITWISE_NOT_EQUAL((uint8_t)value, expected);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_shift_left) {

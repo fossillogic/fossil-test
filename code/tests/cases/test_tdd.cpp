@@ -1047,12 +1047,12 @@ FOSSIL_TEST(cpp_assume_run_of_hash_distributed_variety) {
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_set) {
-    uint32_t value = 0x0F;
-    uint32_t flag = 0x01;
+    uint8_t value = 0xAA;
+    uint8_t flag = 0x80;
 
     // Test cases
     ASSUME_ITS_BIT_SET(value, flag);
-    ASSUME_NOT_BIT_SET(value, 0x10);
+    ASSUME_NOT_BIT_SET(value, 0x01);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bitmask_set) {
@@ -1065,20 +1065,21 @@ FOSSIL_TEST(cpp_assume_run_of_bitmask_set) {
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_position_set) {
-    uint32_t value = 0x08; // bit 3 is set
+    uint16_t value = 0xAAAA;
 
     // Test cases
-    ASSUME_ITS_BIT_POSITION_SET(value, 3);
+    ASSUME_ITS_BIT_POSITION_SET(value, 1);
     ASSUME_NOT_BIT_POSITION_SET(value, 0);
-    ASSUME_NOT_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 2);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_bit_count) {
-    uint32_t value = 0x0F; // 4 bits set
+    uint8_t value = 0xF0;
+    uint8_t value2 = 0xAA;
 
     // Test cases
     ASSUME_ITS_BIT_COUNT(value, 4);
-    ASSUME_NOT_BIT_COUNT(value, 3);
+    ASSUME_ITS_BIT_COUNT(value2, 4);
 } // end case
 
 FOSSIL_TEST(cpp_assume_run_of_power_of_two) {
