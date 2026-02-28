@@ -29,7 +29,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.3.1"
+#define FOSSIL_PIZZA_VERSION "1.3.2"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
@@ -2066,9 +2066,9 @@ void pizza_io_flush(void) {
 // *****************************************************************************
 // string management
 // *****************************************************************************
-
+/*
 #ifndef HAVE_STRNLEN
-size_t strnlen(const char *s, size_t maxlen) {
+static size_t strnlen(const char *s, size_t maxlen) {
     size_t i;
     for (i = 0; i < maxlen && s[i]; i++);
     return i;
@@ -2076,7 +2076,7 @@ size_t strnlen(const char *s, size_t maxlen) {
 #endif
 
 #ifndef HAVE_STRNCASECMP
-int strncasecmp(const char *s1, const char *s2, size_t n) {
+static int strncasecmp(const char *s1, const char *s2, size_t n) {
     for (size_t i = 0; i < n && s1[i] && s2[i]; i++) {
         int diff = tolower((unsigned char)s1[i]) - tolower((unsigned char)s2[i]);
         if (diff != 0) return diff;
@@ -2084,7 +2084,7 @@ int strncasecmp(const char *s1, const char *s2, size_t n) {
     return 0;
 }
 #endif
-
+*/
 // ============================================================================
 // C String Functions
 // ============================================================================
