@@ -1044,7 +1044,7 @@ FOSSIL_TEST(c_assume_run_of_bitmask_set) {
 
     // Test cases
     ASSUME_ITS_BITMASK_SET(value, mask);
-    ASSUME_NOT_BITMASK_SET(value, 0x00FF0000);
+    ASSUME_NOT_BITMASK_SET(value, 0x0000FFFF);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_position_set) {
