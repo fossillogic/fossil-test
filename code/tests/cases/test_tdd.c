@@ -1122,7 +1122,7 @@ FOSSIL_TEST(c_assume_run_of_bitwise_not_u8) {
     uint8_t expected = 0xFF;
 
     // Test cases
-    ASSUME_ITS_BITWISE_NOT_EQUAL((uint8_t)(~value), expected);
+    ASSUME_ITS_BITWISE_NOT_EQUAL((uint8_t) ~value, expected);
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_shift_left) {
