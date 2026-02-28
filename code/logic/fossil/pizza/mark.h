@@ -41,13 +41,20 @@ extern "C" {
  */
 typedef struct {
     const char* name;
-    clock_t start_time;
-    clock_t end_time;
-    int num_samples;
+    uint64_t start_time;
+    uint64_t end_time;
+    uint64_t* iteration_times;
+    size_t num_iterations;
+    size_t num_warmup;
+    size_t capacity;
     double total_duration;
     double min_duration;
     double max_duration;
+    double mean_duration;
+    double median_duration;
+    double std_dev;
     int running;
+    uint32_t num_samples;
 } fossil_mark_t;
 
 /**

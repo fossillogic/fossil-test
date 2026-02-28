@@ -2567,6 +2567,387 @@ extern "C" {
 #define ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone) \
     FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to not be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
 
+// **************************************************
+// Time assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given elapsed time is within an acceptable tolerance.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param expected_ns The expected time in nanoseconds.
+ * @param tolerance_ns The tolerance in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns, expected_ns, tolerance_ns) \
+    FOSSIL_TEST_ASSUME(llabs((int64_t)(elapsed_ns) - (int64_t)(expected_ns)) <= (int64_t)(tolerance_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be within %lld ns of expected %lld ns", (int64_t)(elapsed_ns), (int64_t)(tolerance_ns), (int64_t)(expected_ns)))
+
+/**
+ * @brief Assumes that the given elapsed time exceeds a minimum threshold.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param min_ns The minimum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_AT_LEAST(elapsed_ns, min_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) >= (int64_t)(min_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be at least %lld ns", (int64_t)(elapsed_ns), (int64_t)(min_ns)))
+
+/**
+ * @brief Assumes that the given elapsed time does not exceed a maximum threshold.
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param max_ns The maximum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_AT_MOST(elapsed_ns, max_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) <= (int64_t)(max_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be at most %lld ns", (int64_t)(elapsed_ns), (int64_t)(max_ns)))
+
+/**
+ * @brief Assumes that elapsed time falls within a range (min to max inclusive).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param min_ns The minimum expected time in nanoseconds.
+ * @param max_ns The maximum expected time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_WITHIN_RANGE(elapsed_ns, min_ns, max_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) >= (int64_t)(min_ns) && (int64_t)(elapsed_ns) <= (int64_t)(max_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be within range [%lld ns, %lld ns]", (int64_t)(elapsed_ns), (int64_t)(min_ns), (int64_t)(max_ns)))
+
+/**
+ * @brief Assumes that the first elapsed time is faster than the second (relative performance).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_FASTER_THAN(elapsed_ns_1, elapsed_ns_2) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns_1) < (int64_t)(elapsed_ns_2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be faster than %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2)))
+
+/**
+ * @brief Assumes that the first elapsed time is slower than the second (relative performance).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_SLOWER_THAN(elapsed_ns_1, elapsed_ns_2) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns_1) > (int64_t)(elapsed_ns_2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to be slower than %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2)))
+
+/**
+ * @brief Assumes that elapsed times are equivalent within a tolerance (for benchmarking).
+ *
+ * @param elapsed_ns_1 The first elapsed time in nanoseconds.
+ * @param elapsed_ns_2 The second elapsed time in nanoseconds.
+ * @param tolerance_ns The tolerance in nanoseconds.
+ */
+#define ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_2, tolerance_ns) \
+    FOSSIL_TEST_ASSUME(llabs((int64_t)(elapsed_ns_1) - (int64_t)(elapsed_ns_2)) <= (int64_t)(tolerance_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed times %lld ns and %lld ns to be equivalent within tolerance %lld ns", (int64_t)(elapsed_ns_1), (int64_t)(elapsed_ns_2), (int64_t)(tolerance_ns)))
+
+/**
+ * @brief Assumes that monotonic time is advancing (sanity check).
+ *
+ * @param time_before_ns The time captured before an operation.
+ * @param time_after_ns The time captured after the operation.
+ */
+#define ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_after_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(time_after_ns) >= (int64_t)(time_before_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected monotonic time: after (%lld ns) >= before (%lld ns)", (int64_t)(time_after_ns), (int64_t)(time_before_ns)))
+
+/**
+ * @brief Assumes that a deadline has been met (elapsed time <= deadline).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param deadline_ns The deadline in nanoseconds.
+ */
+#define ASSUME_ITS_DEADLINE_MET(elapsed_ns, deadline_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) <= (int64_t)(deadline_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to meet deadline of %lld ns", (int64_t)(elapsed_ns), (int64_t)(deadline_ns)))
+
+/**
+ * @brief Assumes that a deadline has been missed (elapsed time > deadline).
+ *
+ * @param elapsed_ns The elapsed time in nanoseconds.
+ * @param deadline_ns The deadline in nanoseconds.
+ */
+#define ASSUME_ITS_DEADLINE_MISSED(elapsed_ns, deadline_ns) \
+    FOSSIL_TEST_ASSUME((int64_t)(elapsed_ns) > (int64_t)(deadline_ns), _FOSSIL_TEST_ASSUME_MESSAGE("Expected elapsed time %lld ns to exceed deadline of %lld ns", (int64_t)(elapsed_ns), (int64_t)(deadline_ns)))
+
+// **************************************************
+// Hash assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given hash values are equal.
+ *
+ * @param actual The actual hash value.
+ * @param expected The expected hash value.
+ */
+#define ASSUME_ITS_EQUAL_HASH(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #actual " of value %llu to be equal to " #expected " of value %llu", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that the given hash values are not equal.
+ *
+ * @param actual The actual hash value.
+ * @param expected The expected hash value.
+ */
+#define ASSUME_NOT_EQUAL_HASH(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) != (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #actual " of value %llu to not be equal to " #expected " of value %llu", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that the given hash value is valid (non-zero).
+ *
+ * @param hash The hash value to check.
+ */
+#define ASSUME_ITS_VALID_HASH(hash) \
+    FOSSIL_TEST_ASSUME((hash) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value %llu to be valid (non-zero)", (uint64_t)(hash)))
+
+/**
+ * @brief Assumes that the given hash value is not valid (zero).
+ *
+ * @param hash The hash value to check.
+ */
+#define ASSUME_NOT_VALID_HASH(hash) \
+    FOSSIL_TEST_ASSUME((hash) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value %llu to not be valid (zero)", (uint64_t)(hash)))
+
+/**
+ * @brief Assumes that the given hash values are equal using byte array comparison.
+ * 
+ * This macro is safer for comparing hash digests that may have different
+ * representations across platforms (e.g., SHA, MD5 hashes stored as byte arrays).
+ *
+ * @param actual The actual hash byte array.
+ * @param expected The expected hash byte array.
+ * @param size The size of the hash in bytes.
+ */
+#define ASSUME_ITS_EQUAL_HASH_BYTES(actual, expected, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to be equal to " #expected " for size %zu bytes", (size)))
+
+/**
+ * @brief Assumes that the given hash byte arrays are not equal.
+ *
+ * @param actual The actual hash byte array.
+ * @param expected The expected hash byte array.
+ * @param size The size of the hash in bytes.
+ */
+#define ASSUME_NOT_EQUAL_HASH_BYTES(actual, expected, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to not be equal to " #expected " for size %zu bytes", (size)))
+
+/**
+ * @brief Assumes that the given hash is deterministic by comparing two computations.
+ * 
+ * This macro verifies that hash generation is deterministic across multiple calls
+ * on the same input, which is critical for reproducible testing.
+ *
+ * @param hash1 The first hash computation result.
+ * @param hash2 The second hash computation result (from identical input).
+ */
+#define ASSUME_ITS_DETERMINISTIC_HASH(hash1, hash2) \
+    FOSSIL_TEST_ASSUME((hash1) == (hash2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash computations to be deterministic: " #hash1 " (0x%llx) == " #hash2 " (0x%llx)", (uint64_t)(hash1), (uint64_t)(hash2)))
+
+/**
+ * @brief Assumes that hash collision resistance by verifying two different inputs produce different hashes.
+ * 
+ * Note: This is a probabilistic check. Collisions may still occur in hash functions,
+ * but two known different inputs should produce different hash values with high probability.
+ *
+ * @param hash1 Hash of first input.
+ * @param hash2 Hash of second (different) input.
+ */
+#define ASSUME_ITS_HASH_COLLISION_RESISTANT(hash1, hash2) \
+    FOSSIL_TEST_ASSUME((hash1) != (hash2), _FOSSIL_TEST_ASSUME_MESSAGE("Expected different inputs to produce different hashes: hash1 (0x%llx) != hash2 (0x%llx)", (uint64_t)(hash1), (uint64_t)(hash2)))
+
+/**
+ * @brief Assumes that the given hash is within the expected entropy distribution.
+ * 
+ * Performs a basic sanity check that hash output is not pathologically degenerate.
+ * Checks that the hash is not all zeros or all ones (0xFFFFFFFFFFFFFFFF for 64-bit).
+ *
+ * @param hash The hash value to validate.
+ */
+#define ASSUME_ITS_HASH_DISTRIBUTED(hash) \
+    FOSSIL_TEST_ASSUME((hash) != 0 && (hash) != UINT64_MAX, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash " #hash " of value 0x%llx to have reasonable entropy distribution", (uint64_t)(hash)))
+
+// **************************************************
+// Bitwise assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given bit flag is set in the value.
+ *
+ * @param value The value to check.
+ * @param flag The bit flag to check for.
+ */
+#define ASSUME_ITS_BIT_SET(value, flag) \
+    FOSSIL_TEST_ASSUME(((value) & (flag)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit flag " #flag " to be set in value " #value " of value 0x%llx", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that the given bit flag is not set in the value.
+ *
+ * @param value The value to check.
+ * @param flag The bit flag to check for.
+ */
+#define ASSUME_NOT_BIT_SET(value, flag) \
+    FOSSIL_TEST_ASSUME(((value) & (flag)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit flag " #flag " to not be set in value " #value " of value 0x%llx", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that all bits in the mask are set in the value.
+ *
+ * @param value The value to check.
+ * @param mask The bitmask to check for.
+ */
+#define ASSUME_ITS_BITMASK_SET(value, mask) \
+    FOSSIL_TEST_ASSUME((((value) & (mask)) == (mask)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bitmask " #mask " of value 0x%llx to be fully set in value " #value " of value 0x%llx", (uint64_t)(mask), (uint64_t)(value)))
+
+/**
+ * @brief Assumes that all bits in the mask are not set in the value.
+ *
+ * @param value The value to check.
+ * @param mask The bitmask to check for.
+ */
+#define ASSUME_NOT_BITMASK_SET(value, mask) \
+    FOSSIL_TEST_ASSUME((((value) & (mask)) == 0), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bitmask " #mask " of value 0x%llx to not be set in value " #value " of value 0x%llx", (uint64_t)(mask), (uint64_t)(value)))
+
+/**
+ * @brief Assumes that the given bit position is set in the value.
+ *
+ * @param value The value to check.
+ * @param bit The bit position (0-based) to check.
+ */
+#define ASSUME_ITS_BIT_POSITION_SET(value, bit) \
+    FOSSIL_TEST_ASSUME((((value) >> (bit)) & 1U) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit at position " #bit " to be set in value " #value " of value 0x%llx", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that the given bit position is not set in the value.
+ *
+ * @param value The value to check.
+ * @param bit The bit position (0-based) to check.
+ */
+#define ASSUME_NOT_BIT_POSITION_SET(value, bit) \
+    FOSSIL_TEST_ASSUME((((value) >> (bit)) & 1U) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit at position " #bit " to not be set in value " #value " of value 0x%llx", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that the bit count in the value equals the expected count.
+ *
+ * @param value The value to check.
+ * @param expected_count The expected number of set bits.
+ */
+#define ASSUME_ITS_BIT_COUNT(value, expected_count) \
+    FOSSIL_TEST_ASSUME(__builtin_popcountll((uint64_t)(value)) == (expected_count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit count in value " #value " to be " #expected_count ", but got %d", __builtin_popcountll((uint64_t)(value))))
+
+/**
+ * @brief Assumes that the bit count in the value does not equal the expected count.
+ *
+ * @param value The value to check.
+ * @param expected_count The expected number of set bits.
+ */
+#define ASSUME_NOT_BIT_COUNT(value, expected_count) \
+    FOSSIL_TEST_ASSUME(__builtin_popcountll((uint64_t)(value)) != (expected_count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit count in value " #value " to not be " #expected_count ", but got %d", __builtin_popcountll((uint64_t)(value))))
+
+/**
+ * @brief Assumes that the given value is a power of two.
+ *
+ * @param value The value to check (must be unsigned and non-zero).
+ */
+#define ASSUME_ITS_POWER_OF_TWO(value) \
+    FOSSIL_TEST_ASSUME(((value) != 0) && (((value) & ((value) - 1)) == 0), _FOSSIL_TEST_ASSUME_MESSAGE("Expected value " #value " of value 0x%llx to be a power of two", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that the given value is not a power of two.
+ *
+ * @param value The value to check (must be unsigned).
+ */
+#define ASSUME_NOT_POWER_OF_TWO(value) \
+    FOSSIL_TEST_ASSUME(((value) == 0) || (((value) & ((value) - 1)) != 0), _FOSSIL_TEST_ASSUME_MESSAGE("Expected value " #value " of value 0x%llx to not be a power of two", (uint64_t)(value)))
+
+/**
+ * @brief Assumes that two values have the same bit pattern.
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_ITS_EQUAL_BITS(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit pattern " #actual " of value 0x%llx to equal " #expected " of value 0x%llx", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that two values have different bit patterns.
+ *
+ * @param actual The actual value.
+ * @param expected The expected value.
+ */
+#define ASSUME_NOT_EQUAL_BITS(actual, expected) \
+    FOSSIL_TEST_ASSUME((actual) != (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected bit pattern " #actual " of value 0x%llx to not equal " #expected " of value 0x%llx", (uint64_t)(actual), (uint64_t)(expected)))
+
+/**
+ * @brief Assumes that a bitwise AND operation produces the expected result.
+ *
+ * @param value The value to AND.
+ * @param mask The mask to AND with.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, expected) \
+    FOSSIL_TEST_ASSUME((((value) & (mask)) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected ((value " #value " & mask " #mask ") to equal " #expected ", got 0x%llx", (uint64_t)((value) & (mask))))
+
+/**
+ * @brief Assumes that a bitwise OR operation produces the expected result.
+ *
+ * @param value The value to OR.
+ * @param mask The mask to OR with.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_BITWISE_OR_EQUAL(value, mask, expected) \
+    FOSSIL_TEST_ASSUME((((value) | (mask)) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected (value " #value " | mask " #mask ") to equal " #expected ", got 0x%llx", (uint64_t)((value) | (mask))))
+
+/**
+ * @brief Assumes that a bitwise XOR operation produces the expected result.
+ *
+ * @param value The value to XOR.
+ * @param mask The mask to XOR with.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_BITWISE_XOR_EQUAL(value, mask, expected) \
+    FOSSIL_TEST_ASSUME((((value) ^ (mask)) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected (value " #value " ^ mask " #mask ") to equal " #expected ", got 0x%llx", (uint64_t)((value) ^ (mask))))
+
+/**
+ * @brief Assumes that a left shift operation produces the expected result.
+ *
+ * Only works with unsigned types to avoid undefined behavior.
+ *
+ * @param value The unsigned value to shift (must be unsigned type).
+ * @param shift The number of positions to shift left.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_SHIFT_LEFT_EQUAL(value, shift, expected) \
+    FOSSIL_TEST_ASSUME(((value) << (shift)) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected (value " #value " << " #shift ") to equal " #expected ", got 0x%llx", (uint64_t)((value) << (shift))))
+
+/**
+ * @brief Assumes that a right shift operation produces the expected result.
+ *
+ * Only works with unsigned types to avoid implementation-defined behavior.
+ *
+ * @param value The unsigned value to shift (must be unsigned type).
+ * @param shift The number of positions to shift right.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_SHIFT_RIGHT_EQUAL(value, shift, expected) \
+    FOSSIL_TEST_ASSUME(((value) >> (shift)) == (expected), _FOSSIL_TEST_ASSUME_MESSAGE("Expected (value " #value " >> " #shift ") to equal " #expected ", got 0x%llx", (uint64_t)((value) >> (shift))))
+
+/**
+ * @brief Assumes that rotating left produces the expected result.
+ *
+ * Performs a left rotate on unsigned 64-bit values.
+ *
+ * @param value The unsigned value to rotate.
+ * @param n The number of positions to rotate.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_ROTATE_LEFT_EQUAL(value, n, expected) \
+    FOSSIL_TEST_ASSUME(((((uint64_t)(value) << ((uint64_t)(n) & 63)) | ((uint64_t)(value) >> (64 - ((uint64_t)(n) & 63)))) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected rotate_left(value " #value ", " #n ") to equal " #expected ", got 0x%llx", (((uint64_t)(value) << ((uint64_t)(n) & 63)) | ((uint64_t)(value) >> (64 - ((uint64_t)(n) & 63))))))
+
+/**
+ * @brief Assumes that rotating right produces the expected result.
+ *
+ * Performs a right rotate on unsigned 64-bit values.
+ *
+ * @param value The unsigned value to rotate.
+ * @param n The number of positions to rotate.
+ * @param expected The expected result.
+ */
+#define ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, n, expected) \
+    FOSSIL_TEST_ASSUME(((((uint64_t)(value) >> ((uint64_t)(n) & 63)) | ((uint64_t)(value) << (64 - ((uint64_t)(n) & 63)))) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected rotate_right(value " #value ", " #n ") to equal " #expected ", got 0x%llx", (((uint64_t)(value) >> ((uint64_t)(n) & 63)) | ((uint64_t)(value) << (64 - ((uint64_t)(n) & 63))))))
+
 #ifdef __cplusplus
 }
 #endif

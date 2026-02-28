@@ -220,6 +220,14 @@ static void _show_subhelp_filter(void) {
     exit(EXIT_SUCCESS);
 }
 
+static void _show_subhelp_report(void) {
+    pizza_io_printf("{blue}Report command options:{reset}\n");
+    pizza_io_printf("{cyan}  --format <json/fson/yaml/csv>       Set the output format{reset}\n");
+    pizza_io_printf("{cyan}  --destination <file/stdout>        Set the output destination (default: stdout){reset}\n");
+    pizza_io_printf("{cyan}  --help                              Show help for report command{reset}\n");
+    exit(EXIT_SUCCESS);
+}
+
 static void _show_subhelp_sort(void) {
     pizza_io_printf("{blue}Sort command options:{reset}\n");
     pizza_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
@@ -467,6 +475,30 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                         pizza_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
                     }
                     exit(EXIT_SUCCESS);
+                } else {
+                    is_command = 0;
+                }
+            }
+        } else if (pizza_io_cstr_compare(argv[i], "report") == 0) {
+            is_command = 1;
+            pallet.report.format = "json";       // default format
+            pallet.report.destination = "stdout"; // default destination
+
+            for (int j = i + 1; j < argc; j++) {
+                if (!is_command) break;
+                if (pizza_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc) {
+                    pallet.report.format = argv[++j];
+                    if (pizza_io_cstr_compare(pallet.report.format, "json") != 0 &&
+                        pizza_io_cstr_compare(pallet.report.format, "fson") != 0 &&
+                        pizza_io_cstr_compare(pallet.report.format, "yaml") != 0 &&
+                        pizza_io_cstr_compare(pallet.report.format, "csv") != 0) {
+                        pizza_io_printf("{red}Error: Invalid report format '%s'. Valid formats: json, fson, yaml, csv.{reset}\n", pallet.report.format);
+                        exit(EXIT_FAILURE);
+                    }
+                } else if (pizza_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc) {
+                    pallet.report.destination = argv[++j];
+                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                    _show_subhelp_report();
                 } else {
                     is_command = 0;
                 }

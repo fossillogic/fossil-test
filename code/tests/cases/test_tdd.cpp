@@ -42,6 +42,143 @@ FOSSIL_TEARDOWN(cpp_tdd_suite) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
+FOSSIL_TEST(cpp_assume_run_of_time_within_tolerance) {
+    int64_t elapsed_ns = 1000000;
+    int64_t expected_ns = 1000000;
+    int64_t tolerance_ns = 10000;
+
+    // Test cases
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns, expected_ns, tolerance_ns);
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns + 5000, expected_ns, tolerance_ns);
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns - 5000, expected_ns, tolerance_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_at_least) {
+    int64_t elapsed_ns = 5000000;
+    int64_t min_ns = 1000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_AT_LEAST(elapsed_ns, min_ns);
+    ASSUME_ITS_TIME_AT_LEAST(min_ns, min_ns);
+    ASSUME_ITS_TIME_AT_LEAST(elapsed_ns + 1000000, min_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_at_most) {
+    int64_t elapsed_ns = 5000000;
+    int64_t max_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_AT_MOST(elapsed_ns, max_ns);
+    ASSUME_ITS_TIME_AT_MOST(max_ns, max_ns);
+    ASSUME_ITS_TIME_AT_MOST(elapsed_ns - 1000000, max_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_within_range) {
+    int64_t elapsed_ns = 5000000;
+    int64_t min_ns = 1000000;
+    int64_t max_ns = 10000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_WITHIN_RANGE(elapsed_ns, min_ns, max_ns);
+    ASSUME_ITS_TIME_WITHIN_RANGE(min_ns, min_ns, max_ns);
+    ASSUME_ITS_TIME_WITHIN_RANGE(max_ns, min_ns, max_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_faster_than) {
+    int64_t elapsed_ns_1 = 2000000;
+    int64_t elapsed_ns_2 = 5000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_FASTER_THAN(elapsed_ns_1, elapsed_ns_2);
+    ASSUME_ITS_TIME_FASTER_THAN(1000000, 10000000);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_slower_than) {
+    int64_t elapsed_ns_1 = 8000000;
+    int64_t elapsed_ns_2 = 3000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_SLOWER_THAN(elapsed_ns_1, elapsed_ns_2);
+    ASSUME_ITS_TIME_SLOWER_THAN(10000000, 1000000);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_equivalent) {
+    int64_t elapsed_ns_1 = 5000000;
+    int64_t elapsed_ns_2 = 5100000;
+    int64_t tolerance_ns = 200000;
+
+    // Test cases
+    ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_2, tolerance_ns);
+    ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_1, elapsed_ns_1, tolerance_ns);
+    ASSUME_ITS_TIME_EQUIVALENT(elapsed_ns_2, elapsed_ns_1, tolerance_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_monotonic) {
+    int64_t time_before_ns = 1000000;
+    int64_t time_after_ns = 2000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_after_ns);
+    ASSUME_ITS_TIME_MONOTONIC(time_before_ns, time_before_ns);
+    ASSUME_ITS_TIME_MONOTONIC(1000000, 5000000);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_deadline_met) {
+    int64_t elapsed_ns = 3000000;
+    int64_t deadline_ns = 5000000;
+
+    // Test cases
+    ASSUME_ITS_DEADLINE_MET(elapsed_ns, deadline_ns);
+    ASSUME_ITS_DEADLINE_MET(deadline_ns, deadline_ns);
+    ASSUME_ITS_DEADLINE_MET(1000000, 10000000);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_deadline_missed) {
+    int64_t elapsed_ns = 8000000;
+    int64_t deadline_ns = 5000000;
+
+    // Test cases
+    ASSUME_ITS_DEADLINE_MISSED(elapsed_ns, deadline_ns);
+    ASSUME_ITS_DEADLINE_MISSED(10000000, 1000000);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_stress) {
+    int64_t elapsed_ns = 50000000;
+    int64_t expected_ns = 50000000;
+    int64_t tolerance_ns = 5000000;
+    int64_t min_ns = 40000000;
+    int64_t max_ns = 60000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_WITHIN_TOLERANCE(elapsed_ns, expected_ns, tolerance_ns);
+    ASSUME_ITS_TIME_WITHIN_RANGE(elapsed_ns, min_ns, max_ns);
+    ASSUME_ITS_TIME_AT_LEAST(elapsed_ns, min_ns);
+    ASSUME_ITS_TIME_AT_MOST(elapsed_ns, max_ns);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_comparison_performance) {
+    int64_t fast_operation = 500000;
+    int64_t slow_operation = 2000000;
+    int64_t medium_operation = 1000000;
+
+    // Test cases
+    ASSUME_ITS_TIME_FASTER_THAN(fast_operation, slow_operation);
+    ASSUME_ITS_TIME_SLOWER_THAN(slow_operation, fast_operation);
+    ASSUME_ITS_TIME_FASTER_THAN(fast_operation, medium_operation);
+    ASSUME_ITS_TIME_SLOWER_THAN(slow_operation, medium_operation);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_time_deadline_boundary) {
+    int64_t just_met = 4999999;
+    int64_t just_missed = 5000001;
+    int64_t deadline = 5000000;
+
+    // Test cases
+    ASSUME_ITS_DEADLINE_MET(just_met, deadline);
+    ASSUME_ITS_DEADLINE_MISSED(just_missed, deadline);
+    ASSUME_ITS_DEADLINE_MET(deadline, deadline);
+} // end case
+
 FOSSIL_TEST(cpp_assume_run_of_int) {
     int x = 42;
     int y = 20;
@@ -944,10 +1081,275 @@ FOSSIL_TEST(cpp_assume_run_of_not_soap_tone_detected) {
     ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone);
 } // end case
 
+FOSSIL_TEST(cpp_assume_run_of_hash_equality) {
+    uint64_t hash1 = 0x123456789ABCDEF0;
+    uint64_t hash2 = 0x123456789ABCDEF0;
+    uint64_t hash3 = 0xFEDCBA9876543210;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH(hash1, hash2);
+    ASSUME_NOT_EQUAL_HASH(hash1, hash3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_validity) {
+    uint64_t valid_hash = 0x123456789ABCDEF0;
+    uint64_t invalid_hash = 0;
+
+    // Test cases
+    ASSUME_ITS_VALID_HASH(valid_hash);
+    ASSUME_NOT_VALID_HASH(invalid_hash);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_bytes_equality) {
+    uint8_t hash1[32] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+                         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+                         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
+                         0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+    uint8_t hash2[32] = {0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
+                         0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+                         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x11,
+                         0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99};
+    uint8_t hash3[32] = {0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10,
+                         0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88,
+                         0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
+                         0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, 0x77};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash1, hash2, 32);
+    ASSUME_NOT_EQUAL_HASH_BYTES(hash1, hash3, 32);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_deterministic) {
+    uint64_t hash_compute1 = 0xABCDEF1234567890;
+    uint64_t hash_compute2 = 0xABCDEF1234567890;
+    uint64_t hash_compute3 = 0x1111111111111111;
+
+    // Test cases
+    ASSUME_ITS_DETERMINISTIC_HASH(hash_compute1, hash_compute2);
+    ASSUME_NOT_EQUAL_HASH(hash_compute1, hash_compute3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_collision_resistance) {
+    uint64_t hash_input1 = 0x0123456789ABCDEF;
+    uint64_t hash_input2 = 0x0123456789ABCDF0;
+    uint64_t hash_input3 = 0xFEDCBA9876543210;
+
+    // Test cases
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input2);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_input1, hash_input3);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_distributed) {
+    uint64_t good_hash1 = 0x123456789ABCDEF0;
+    uint64_t good_hash2 = 0xFEDCBA9876543210;
+    uint64_t zero_hash = 0;
+
+    // Test cases
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash1);
+    ASSUME_ITS_HASH_DISTRIBUTED(good_hash2);
+    ASSUME_NOT_VALID_HASH(zero_hash);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_bytes_equality_small) {
+    uint8_t hash1[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+    uint8_t hash2[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+
+    // Test cases
+    ASSUME_ITS_EQUAL_HASH_BYTES(hash1, hash2, 16);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_collision_resistance_multiple) {
+    uint64_t hash_a = 0x1234567890ABCDEF;
+    uint64_t hash_b = 0x1234567890ABCDE0;
+    uint64_t hash_c = 0x1234567890ABCDE1;
+    uint64_t hash_d = 0x1234567890ABCDE2;
+
+    // Test cases
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_a, hash_b);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_b, hash_c);
+    ASSUME_ITS_HASH_COLLISION_RESISTANT(hash_c, hash_d);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_hash_distributed_variety) {
+    uint64_t hash_low = 0x0000000000000001;
+    uint64_t hash_mid = 0x8000000000000000;
+    uint64_t hash_high = 0xFFFFFFFFFFFFFFFE;
+
+    // Test cases
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_low);
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_mid);
+    ASSUME_ITS_HASH_DISTRIBUTED(hash_high);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_set) {
+    uint8_t value = 0xAA;
+    uint8_t flag = 0x80;
+
+    // Test cases
+    ASSUME_ITS_BIT_SET(value, flag);
+    ASSUME_NOT_BIT_SET(value, 0x01);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitmask_set) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+
+    // Test cases
+    ASSUME_ITS_BITMASK_SET(value, mask);
+    ASSUME_NOT_BITMASK_SET(value, 0xF00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_position_set) {
+    uint16_t value = 0xAAAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_POSITION_SET(value, 1);
+    ASSUME_NOT_BIT_POSITION_SET(value, 0);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_count) {
+    uint8_t value = 0xF0;
+    uint8_t value2 = 0xAA;
+
+    // Test cases
+    ASSUME_ITS_BIT_COUNT(value, 4);
+    ASSUME_ITS_BIT_COUNT(value2, 4);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_power_of_two) {
+    uint32_t power_of_two = 16;
+    uint32_t not_power_of_two = 15;
+
+    // Test cases
+    ASSUME_ITS_POWER_OF_TWO(power_of_two);
+    ASSUME_NOT_POWER_OF_TWO(not_power_of_two);
+    ASSUME_NOT_POWER_OF_TWO(0);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_equal_bits) {
+    uint32_t actual = 0xABCD;
+    uint32_t expected = 0xABCD;
+    uint32_t different = 0x1234;
+
+    // Test cases
+    ASSUME_ITS_EQUAL_BITS(actual, expected);
+    ASSUME_NOT_EQUAL_BITS(actual, different);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_and) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0x0F;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_AND_EQUAL(0xF0, 0x0F, 0x00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_or) {
+    uint32_t value = 0xF0;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0xFF;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_OR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_OR_EQUAL(0x00, 0xFF, 0xFF);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bitwise_xor) {
+    uint32_t value = 0xFF;
+    uint32_t mask = 0x0F;
+    uint32_t expected = 0xF0;
+
+    // Test cases
+    ASSUME_ITS_BITWISE_XOR_EQUAL(value, mask, expected);
+    ASSUME_ITS_BITWISE_XOR_EQUAL(0xFF, 0xFF, 0x00);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_shift_left) {
+    uint32_t value = 0x01;
+    uint32_t shift = 4;
+    uint32_t expected = 0x10;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(value, shift, expected);
+    ASSUME_ITS_SHIFT_LEFT_EQUAL(0x02, 3, 0x10);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_shift_right) {
+    uint32_t value = 0x10;
+    uint32_t shift = 2;
+    uint32_t expected = 0x04;
+
+    // Test cases
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(value, shift, expected);
+    ASSUME_ITS_SHIFT_RIGHT_EQUAL(0xFF, 4, 0x0F);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_rotate_left) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0x23456789ABCDEF01;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_LEFT_EQUAL(0x8000000000000000ULL, 1, 0x0000000000000001ULL);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_rotate_right) {
+    uint64_t value = 0x0123456789ABCDEF;
+    uint64_t expected = 0xEF0123456789ABCD;
+
+    // Test cases
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, 8, expected);
+    ASSUME_ITS_ROTATE_RIGHT_EQUAL(0x0000000000000001ULL, 1, 0x8000000000000000ULL);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_multiple_bit_operations) {
+    uint32_t value = 0xAAAA; // alternating bits
+    uint32_t mask = 0x0F0F;
+
+    // Test cases
+    ASSUME_ITS_BIT_SET(value, 0x8000);
+    ASSUME_ITS_BITWISE_AND_EQUAL(value, mask, 0x0A0A);
+    ASSUME_ITS_BIT_COUNT(value, 8);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_power_of_two_variants) {
+    // Test various powers of two
+    ASSUME_ITS_POWER_OF_TWO(1);
+    ASSUME_ITS_POWER_OF_TWO(2);
+    ASSUME_ITS_POWER_OF_TWO(4);
+    ASSUME_ITS_POWER_OF_TWO(8);
+    ASSUME_ITS_POWER_OF_TWO(256);
+    ASSUME_ITS_POWER_OF_TWO(65536);
+} // end case
+
+FOSSIL_TEST(cpp_assume_run_of_bit_operations_chained) {
+    // Test cases
+    ASSUME_ITS_BITWISE_OR_EQUAL(0x0F, 0xF0, 0xFF);
+    ASSUME_ITS_BITWISE_AND_EQUAL(0xFF, 0x0F, 0x0F);
+    ASSUME_ITS_BITWISE_XOR_EQUAL(0xAA, 0x55, 0xFF);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_within_tolerance);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_at_least);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_at_most);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_within_range);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_faster_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_slower_than);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_equivalent);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_monotonic);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_deadline_met);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_deadline_missed);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_stress);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_comparison_performance);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_time_deadline_boundary);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_int);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_int8);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_int16);
@@ -1035,6 +1437,31 @@ FOSSIL_TEST_GROUP(cpp_tdd_test_cases) {
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_rot_brain);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_its_soap_tone_detected);
     FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_not_soap_tone_detected);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_validity);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_bytes_equality);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_deterministic);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_collision_resistance);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_distributed);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_bytes_equality_small);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_collision_resistance_multiple);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_hash_distributed_variety);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitmask_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_position_set);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_count);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_power_of_two);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_equal_bits);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_and);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_or);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bitwise_xor);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_shift_left);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_shift_right);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_rotate_left);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_rotate_right);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_multiple_bit_operations);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_power_of_two_variants);
+    FOSSIL_TEST_ADD(cpp_tdd_suite, cpp_assume_run_of_bit_operations_chained);
 
     FOSSIL_TEST_REGISTER(cpp_tdd_suite);
 } // end of group
