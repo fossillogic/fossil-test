@@ -123,9 +123,16 @@ void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name) {
 
     benchmark->name = name;
     benchmark->num_samples = 0;
+    benchmark->num_iterations = 0;
+    benchmark->num_warmup = 0;
     benchmark->total_duration = 0.0;
     benchmark->min_duration = DBL_MAX;
     benchmark->max_duration = 0.0;
+    benchmark->mean_duration = 0.0;
+    benchmark->median_duration = 0.0;
+    benchmark->std_dev = 0.0;
+    benchmark->capacity = 100;
+    benchmark->iteration_times = (uint64_t*)malloc(benchmark->capacity * sizeof(uint64_t));
     benchmark->running = 0;
 }
 
@@ -136,7 +143,7 @@ void fossil_benchmark_start(fossil_mark_t* benchmark) {
     }
 
     if (!benchmark->running) {
-        benchmark->start_time = clock();
+        fossil_test_start_benchmark();
         benchmark->running = 1;
     }
 }
@@ -148,18 +155,51 @@ void fossil_benchmark_stop(fossil_mark_t* benchmark) {
     }
 
     if (benchmark->running) {
-        benchmark->end_time = clock();
-        double elapsed = ((double)(benchmark->end_time - benchmark->start_time)) / CLOCKS_PER_SEC;
-        benchmark->total_duration += elapsed;
-        if (elapsed < benchmark->min_duration) {
-            benchmark->min_duration = elapsed;
+        uint64_t elapsed = fossil_test_stop_benchmark();
+        
+        if (benchmark->num_iterations >= benchmark->num_warmup) {
+            if (benchmark->num_iterations >= benchmark->capacity) {
+                benchmark->capacity *= 2;
+                benchmark->iteration_times = (uint64_t*)realloc(benchmark->iteration_times, 
+                                                                  benchmark->capacity * sizeof(uint64_t));
+            }
+            benchmark->iteration_times[benchmark->num_iterations - benchmark->num_warmup] = elapsed;
+            benchmark->total_duration += elapsed / 1e9;
+            benchmark->min_duration = (elapsed / 1e9 < benchmark->min_duration) ? (elapsed / 1e9) : benchmark->min_duration;
+            benchmark->max_duration = (elapsed / 1e9 > benchmark->max_duration) ? (elapsed / 1e9) : benchmark->max_duration;
+            benchmark->num_samples++;
         }
-        if (elapsed > benchmark->max_duration) {
-            benchmark->max_duration = elapsed;
-        }
-        benchmark->num_samples++;
+        benchmark->num_iterations++;
         benchmark->running = 0;
     }
+}
+
+static int compare_uint64(const void* a, const void* b) {
+    return (*((uint64_t*)a) > *((uint64_t*)b)) - (*((uint64_t*)a) < *((uint64_t*)b));
+}
+
+void fossil_benchmark_calculate_stats(fossil_mark_t* benchmark) {
+    if (benchmark == null || benchmark->num_samples == 0) {
+        return;
+    }
+
+    benchmark->mean_duration = benchmark->total_duration / benchmark->num_samples;
+    
+    qsort(benchmark->iteration_times, benchmark->num_samples, sizeof(uint64_t), compare_uint64);
+    
+    if (benchmark->num_samples % 2 == 0) {
+        benchmark->median_duration = ((benchmark->iteration_times[benchmark->num_samples / 2 - 1] + 
+                                       benchmark->iteration_times[benchmark->num_samples / 2]) / 2.0) / 1e9;
+    } else {
+        benchmark->median_duration = (benchmark->iteration_times[benchmark->num_samples / 2] / 1e9);
+    }
+    
+    double variance = 0.0;
+    for (size_t i = 0; i < benchmark->num_samples; i++) {
+        double diff = (benchmark->iteration_times[i] / 1e9) - benchmark->mean_duration;
+        variance += diff * diff;
+    }
+    benchmark->std_dev = sqrt(variance / benchmark->num_samples);
 }
 
 double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark) {
@@ -191,7 +231,23 @@ double fossil_benchmark_avg_time(const fossil_mark_t* benchmark) {
         pizza_io_printf("Error: benchmark is null\n");
         return 0.0;
     }
-    return benchmark->num_samples > 0 ? benchmark->total_duration / benchmark->num_samples : 0.0;
+    return benchmark->num_samples > 0 ? benchmark->mean_duration : 0.0;
+}
+
+double fossil_benchmark_median_time(const fossil_mark_t* benchmark) {
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
+        return 0.0;
+    }
+    return benchmark->median_duration;
+}
+
+double fossil_benchmark_std_dev(const fossil_mark_t* benchmark) {
+    if (benchmark == null) {
+        pizza_io_printf("Error: benchmark is null\n");
+        return 0.0;
+    }
+    return benchmark->std_dev;
 }
 
 void fossil_benchmark_reset(fossil_mark_t* benchmark) {
@@ -200,9 +256,13 @@ void fossil_benchmark_reset(fossil_mark_t* benchmark) {
         return;
     }
     benchmark->num_samples = 0;
+    benchmark->num_iterations = 0;
     benchmark->total_duration = 0.0;
     benchmark->min_duration = DBL_MAX;
     benchmark->max_duration = 0.0;
+    benchmark->mean_duration = 0.0;
+    benchmark->median_duration = 0.0;
+    benchmark->std_dev = 0.0;
 }
 
 void fossil_benchmark_report(const fossil_mark_t* benchmark) {
@@ -211,10 +271,25 @@ void fossil_benchmark_report(const fossil_mark_t* benchmark) {
         return;
     }
     pizza_io_printf("{blue,bold}Benchmark : %s{reset}\n", benchmark->name);
+    pizza_io_printf("{cyan}Iterations: %zu (warmup: %zu){reset}\n", benchmark->num_samples, benchmark->num_warmup);
     pizza_io_printf("{cyan}Total Time: %.6f seconds{reset}\n", fossil_benchmark_elapsed_seconds(benchmark));
+    pizza_io_printf("{cyan}Mean Time : %.6f seconds{reset}\n", fossil_benchmark_avg_time(benchmark));
+    pizza_io_printf("{cyan}Median Time: %.6f seconds{reset}\n", fossil_benchmark_median_time(benchmark));
     pizza_io_printf("{cyan}Min Time  : %.6f seconds{reset}\n", fossil_benchmark_min_time(benchmark));
     pizza_io_printf("{cyan}Max Time  : %.6f seconds{reset}\n", fossil_benchmark_max_time(benchmark));
-    pizza_io_printf("{cyan}Avg Time  : %.6f seconds{reset}\n", fossil_benchmark_avg_time(benchmark));
+    pizza_io_printf("{cyan}Std Dev   : %.6f seconds (±%.2f%%){reset}\n", 
+                    fossil_benchmark_std_dev(benchmark),
+                    (fossil_benchmark_std_dev(benchmark) / fossil_benchmark_avg_time(benchmark)) * 100.0);
+}
+
+void fossil_benchmark_destroy(fossil_mark_t* benchmark) {
+    if (benchmark == null) {
+        return;
+    }
+    if (benchmark->iteration_times != null) {
+        free(benchmark->iteration_times);
+        benchmark->iteration_times = null;
+    }
 }
 
 void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark) {
