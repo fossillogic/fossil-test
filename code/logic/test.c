@@ -311,14 +311,33 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t* suite, const fossil_piz
                 (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}" : "{white}unknown{reset}";
 
     // Filtering logic
-    if (engine && engine->pallet.show.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
-        return;
-    if (engine && engine->pallet.show.suite_name && pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
-        return;
-    if (engine && engine->pallet.show.tag && (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag)))
-        return;
+    // Apply filters only if they are set (not NULL)
+    if (engine && engine->pallet.show.test_name) {
+        if (pizza_io_cstr_compare(test_case->name, engine->pallet.show.test_name) != 0)
+            return;
+    }
+    
+    if (engine && engine->pallet.show.suite_name) {
+        if (pizza_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
+            return;
+    }
+    
+    if (engine && engine->pallet.show.tag) {
+        if (!test_case->tags || !strstr(test_case->tags, engine->pallet.show.tag))
+            return;
+    }
+    
+    // Result filtering: extract plain result value for comparison
     if (engine && engine->pallet.show.result) {
-        if (pizza_io_cstr_compare(result_str, engine->pallet.show.result) != 0)
+        const char* result_plain = NULL;
+        if (test_case->result == FOSSIL_PIZZA_CASE_EMPTY)      result_plain = "empty";
+        else if (test_case->result == FOSSIL_PIZZA_CASE_PASS)  result_plain = "pass";
+        else if (test_case->result == FOSSIL_PIZZA_CASE_FAIL)  result_plain = "fail";
+        else if (test_case->result == FOSSIL_PIZZA_CASE_TIMEOUT)    result_plain = "timeout";
+        else if (test_case->result == FOSSIL_PIZZA_CASE_SKIPPED)    result_plain = "skipped";
+        else if (test_case->result == FOSSIL_PIZZA_CASE_UNEXPECTED) result_plain = "unexpected";
+        
+        if (!result_plain || pizza_io_cstr_compare(result_plain, engine->pallet.show.result) != 0)
             return;
     }
 

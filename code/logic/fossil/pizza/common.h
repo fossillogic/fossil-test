@@ -293,9 +293,7 @@ typedef struct {
         const char* result;            // Result to filter which test cases to show
         const char* mode;              // Mode to filter which test cases to show (list/tree/graph)
         const char* verbose;           // Verbosity level (plain/ci/doge)
-        int enabled;                   // Flag to enable showing test cases
-        int summary;                   // Flag to enable condensed summary output
-        const char* output_format;     // Optional output format: json/yaml/markdown
+        int enabled;                   // Flag to indicate if show command is enabled
     } show;                        // Show command flags
 
     struct {
