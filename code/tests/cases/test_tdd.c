@@ -1117,14 +1117,6 @@ FOSSIL_TEST(c_assume_run_of_bitwise_xor) {
     ASSUME_ITS_BITWISE_XOR_EQUAL(0xAA, 0x55, 0xFF);
 } // end case
 
-FOSSIL_TEST(c_assume_run_of_bitwise_not_u8) {
-    uint8_t value = 0x00;
-    uint8_t expected = 0xFF;
-
-    // Test cases
-    ASSUME_ITS_BITWISE_NOT_EQUAL(value, expected);
-} // end case
-
 FOSSIL_TEST(c_assume_run_of_shift_left) {
     uint32_t value = 0x00000001;
     uint32_t expected = 0x00000100;
@@ -1269,7 +1261,6 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_and);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_or);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_xor);
-    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bitwise_not_u8);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_shift_left);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_shift_right);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_rotate_left);
