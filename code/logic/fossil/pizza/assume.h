@@ -3068,7 +3068,7 @@ extern "C" {
  * @param array_size The size of the array.
  */
 #define ASSUME_ITS_BOUNDS_CHECKED(index, array_size) \
-    FOSSIL_TEST_ASSUME((index) >= 0 && (index) < (array_size), _FOSSIL_TEST_ASSUME_MESSAGE("Expected array index %lld to be within bounds [0, %zu)", (int64_t)(index), (size_t)(array_size)))
+    FOSSIL_TEST_ASSUME((index) < (array_size), _FOSSIL_TEST_ASSUME_MESSAGE("Expected array index %zu to be within bounds [0, %zu)", (size_t)(index), (size_t)(array_size)))
 
 #ifdef __cplusplus
 }
