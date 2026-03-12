@@ -1245,6 +1245,209 @@ FOSSIL_TEST(c_assume_run_of_rotate_right) {
     ASSUME_ITS_ROTATE_RIGHT_EQUAL(0x0000000000000001ULL, 1, 0x8000000000000000ULL);
 } // end case
 
+FOSSIL_TEST(c_assume_run_of_buffer_overflow_safe) {
+    size_t buffer_size = 256;
+    size_t required_size = 128;
+
+    // Test cases
+    ASSUME_ITS_BUFFER_OVERFLOW_SAFE(buffer_size, required_size);
+    ASSUME_ITS_BUFFER_OVERFLOW_SAFE(buffer_size, buffer_size);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_aligned_ptr) {
+    uint64_t data = 0x123456789ABCDEF0;
+    uint64_t *aligned_ptr = &data;
+    uintptr_t addr = (uintptr_t)aligned_ptr;
+
+    // Test cases
+    ASSUME_ITS_ALIGNED_PTR(aligned_ptr, 8);
+    ASSUME_ITS_ALIGNED_PTR((void *)((addr / 8) * 8), 8);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_input_validated) {
+    int32_t value1 = 50;
+    int32_t value2 = 100;
+    int32_t value3 = 0;
+
+    // Test cases
+    ASSUME_ITS_INPUT_VALIDATED(value1, 0, 100);
+    ASSUME_ITS_INPUT_VALIDATED(value2, 0, 100);
+    ASSUME_ITS_INPUT_VALIDATED(value3, 0, 100);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_input_validated_boundary) {
+    int32_t min_val = -50;
+    int32_t max_val = 50;
+
+    // Test cases
+    ASSUME_ITS_INPUT_VALIDATED(min_val, -50, 50);
+    ASSUME_ITS_INPUT_VALIDATED(max_val, -50, 50);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_safe_cstr) {
+    const char *str1 = "Hello";
+    const char *str2 = "Test String";
+
+    // Test cases
+    ASSUME_ITS_SAFE_CSTR(str1, 256);
+    ASSUME_ITS_SAFE_CSTR(str2, 256);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_safe_cstr_long) {
+    const char *long_str = "This is a longer test string for validation";
+
+    // Test cases
+    ASSUME_ITS_SAFE_CSTR(long_str, 256);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_integer_overflow_add) {
+    int64_t a = 1000;
+    int64_t b = 2000;
+    int64_t result = a + b;
+
+    // Test cases
+    ASSUME_NO_INTEGER_OVERFLOW_ADD(a, b, result);
+    ASSUME_NO_INTEGER_OVERFLOW_ADD(100, 200, 300);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_integer_overflow_add_large) {
+    int64_t a = 9223372036854775000LL;
+    int64_t b = 100LL;
+    int64_t result = a + b;
+
+    // Test cases
+    ASSUME_NO_INTEGER_OVERFLOW_ADD(a, b, result);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_integer_underflow_sub) {
+    int64_t a = 5000;
+    int64_t b = 2000;
+    int64_t result = a - b;
+
+    // Test cases
+    ASSUME_NO_INTEGER_UNDERFLOW_SUB(a, b, result);
+    ASSUME_NO_INTEGER_UNDERFLOW_SUB(100, 50, 50);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_integer_underflow_sub_equal) {
+    int64_t a = 1000;
+    int64_t b = 1000;
+    int64_t result = a - b;
+
+    // Test cases
+    ASSUME_NO_INTEGER_UNDERFLOW_SUB(a, b, result);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_multiplication_overflow) {
+    size_t a = 100;
+    size_t b = 50;
+
+    // Test cases
+    ASSUME_NO_MULTIPLICATION_OVERFLOW(a, b);
+    ASSUME_NO_MULTIPLICATION_OVERFLOW(1000, 1000);
+    ASSUME_NO_MULTIPLICATION_OVERFLOW(0, 999999);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_no_multiplication_overflow_zero) {
+    size_t a = 0;
+    size_t b = 99999;
+
+    // Test cases
+    ASSUME_NO_MULTIPLICATION_OVERFLOW(a, b);
+    ASSUME_NO_MULTIPLICATION_OVERFLOW(b, a);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_random_entropy) {
+    uint64_t random1 = 0x123456789ABCDEF0;
+    uint64_t random2 = 0xFEDCBA9876543210;
+
+    // Test cases
+    ASSUME_ITS_RANDOM_ENTROPY(random1);
+    ASSUME_ITS_RANDOM_ENTROPY(random2);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_random_entropy_odd) {
+    uint64_t random_odd = 0x8000000000000001;
+
+    // Test cases
+    ASSUME_ITS_RANDOM_ENTROPY(random_odd);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_valid_fd) {
+    int fd1 = 0;
+    int fd2 = 3;
+    int fd3 = 100;
+
+    // Test cases
+    ASSUME_ITS_VALID_FD(fd1);
+    ASSUME_ITS_VALID_FD(fd2);
+    ASSUME_ITS_VALID_FD(fd3);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_valid_fd_stdin) {
+    int stdin_fd = 0;
+    int stdout_fd = 1;
+    int stderr_fd = 2;
+
+    // Test cases
+    ASSUME_ITS_VALID_FD(stdin_fd);
+    ASSUME_ITS_VALID_FD(stdout_fd);
+    ASSUME_ITS_VALID_FD(stderr_fd);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_valid_key_length) {
+    size_t key_len_128 = 16;
+    size_t key_len_256 = 32;
+
+    // Test cases
+    ASSUME_ITS_VALID_KEY_LENGTH(key_len_128, 16);
+    ASSUME_ITS_VALID_KEY_LENGTH(key_len_256, 32);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_valid_key_length_crypto) {
+    size_t key_len = 64;
+
+    // Test cases
+    ASSUME_ITS_VALID_KEY_LENGTH(key_len, 64);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_session_valid) {
+    int64_t current_time = 1000000;
+    int64_t expiry_time = 2000000;
+
+    // Test cases
+    ASSUME_ITS_SESSION_VALID(current_time, expiry_time);
+    ASSUME_ITS_SESSION_VALID(expiry_time, expiry_time);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_session_valid_future) {
+    int64_t current = 5000000;
+    int64_t expiry = 10000000;
+
+    // Test cases
+    ASSUME_ITS_SESSION_VALID(current, expiry);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bounds_checked) {
+    size_t index1 = 0;
+    size_t index2 = 50;
+    size_t array_size = 100;
+
+    // Test cases
+    ASSUME_ITS_BOUNDS_CHECKED(index1, array_size);
+    ASSUME_ITS_BOUNDS_CHECKED(index2, array_size);
+} // end case
+
+FOSSIL_TEST(c_assume_run_of_bounds_checked_boundary) {
+    size_t index_first = 0;
+    size_t index_last = 99;
+    size_t array_size = 100;
+
+    // Test cases
+    ASSUME_ITS_BOUNDS_CHECKED(index_first, array_size);
+    ASSUME_ITS_BOUNDS_CHECKED(index_last, array_size);
+} // end case
+
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1367,6 +1570,28 @@ FOSSIL_TEST_GROUP(c_tdd_test_cases) {
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_shift_right);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_rotate_left);
     FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_rotate_right);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_buffer_overflow_safe);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_aligned_ptr);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_input_validated);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_input_validated_boundary);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_safe_cstr);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_safe_cstr_long);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_integer_overflow_add);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_integer_overflow_add_large);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_integer_underflow_sub);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_integer_underflow_sub_equal);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_multiplication_overflow);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_no_multiplication_overflow_zero);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_random_entropy);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_random_entropy_odd);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_valid_fd);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_valid_fd_stdin);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_valid_key_length);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_valid_key_length_crypto);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_session_valid);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_session_valid_future);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bounds_checked);
+    FOSSIL_TEST_ADD(c_tdd_suite, c_assume_run_of_bounds_checked_boundary);
 
     FOSSIL_TEST_REGISTER(c_tdd_suite);
 } // end of group
