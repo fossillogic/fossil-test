@@ -2948,6 +2948,128 @@ extern "C" {
 #define ASSUME_ITS_ROTATE_RIGHT_EQUAL(value, n, expected) \
     FOSSIL_TEST_ASSUME(((((uint64_t)(value) >> ((uint64_t)(n) & 63)) | ((uint64_t)(value) << (64 - ((uint64_t)(n) & 63)))) == (expected)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected rotate_right(value " #value ", " #n ") to equal " #expected ", got 0x%llx", (((uint64_t)(value) >> ((uint64_t)(n) & 63)) | ((uint64_t)(value) << (64 - ((uint64_t)(n) & 63))))))
 
+// **************************************************
+// Security assumptions
+// ************************************************
+
+/**
+ * @brief Assumes that the given buffer is adequately sized for the operation.
+ *
+ * @param buffer_size The size of the buffer.
+ * @param required_size The required size for the operation.
+ */
+#define ASSUME_ITS_BUFFER_OVERFLOW_SAFE(buffer_size, required_size) \
+    FOSSIL_TEST_ASSUME((buffer_size) >= (required_size), _FOSSIL_TEST_ASSUME_MESSAGE("Expected buffer size %zu to be at least %zu to prevent overflow", (size_t)(buffer_size), (size_t)(required_size)))
+
+/**
+ * @brief Assumes that a pointer is properly aligned for its type.
+ *
+ * @param ptr The pointer to check.
+ * @param alignment The required alignment in bytes.
+ */
+#define ASSUME_ITS_ALIGNED_PTR(ptr, alignment) \
+    FOSSIL_TEST_ASSUME(((uintptr_t)(ptr) % (alignment)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected pointer %p to be aligned to %zu bytes", (ptr), (size_t)(alignment)))
+
+/**
+ * @brief Assumes that the given value is properly range-validated.
+ *
+ * @param value The value to validate.
+ * @param min The minimum allowed value.
+ * @param max The maximum allowed value.
+ */
+#define ASSUME_ITS_INPUT_VALIDATED(value, min, max) \
+    FOSSIL_TEST_ASSUME((value) >= (min) && (value) <= (max), _FOSSIL_TEST_ASSUME_MESSAGE("Expected input value %lld to be within valid range [%lld, %lld]", (int64_t)(value), (int64_t)(min), (int64_t)(max)))
+
+/**
+ * @brief Assumes that the given string is null-terminated and safe to use.
+ *
+ * @param str The string pointer to check.
+ * @param max_len The maximum expected length including null terminator.
+ */
+#define ASSUME_ITS_SAFE_CSTR(str, max_len) \
+    FOSSIL_TEST_ASSUME((str) != null && strlen((str)) < (max_len), _FOSSIL_TEST_ASSUME_MESSAGE("Expected string %p to be null-terminated and shorter than %zu", (str), (size_t)(max_len)))
+
+/**
+ * @brief Assumes that integer arithmetic will not overflow.
+ *
+ * @param a The first operand.
+ * @param b The second operand.
+ * @param result The result of addition.
+ */
+#define ASSUME_NO_INTEGER_OVERFLOW_ADD(a, b, result) \
+    FOSSIL_TEST_ASSUME((result) >= (a) && (result) >= (b), _FOSSIL_TEST_ASSUME_MESSAGE("Expected addition of %lld + %lld = %lld to not overflow", (int64_t)(a), (int64_t)(b), (int64_t)(result)))
+
+/**
+ * @brief Assumes that integer arithmetic will not underflow.
+ *
+ * @param a The first operand.
+ * @param b The second operand.
+ * @param result The result of subtraction.
+ */
+#define ASSUME_NO_INTEGER_UNDERFLOW_SUB(a, b, result) \
+    FOSSIL_TEST_ASSUME(((a) >= (b)) == ((result) >= 0), _FOSSIL_TEST_ASSUME_MESSAGE("Expected subtraction of %lld - %lld = %lld to not underflow", (int64_t)(a), (int64_t)(b), (int64_t)(result)))
+
+/**
+ * @brief Assumes that multiplication will not overflow.
+ *
+ * @param a The first operand.
+ * @param b The second operand.
+ */
+#define ASSUME_NO_MULTIPLICATION_OVERFLOW(a, b) \
+    FOSSIL_TEST_ASSUME((a) == 0 || (b) == 0 || ((SIZE_MAX / (a)) >= (b)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected multiplication of %zu * %zu to not overflow", (size_t)(a), (size_t)(b)))
+
+/**
+ * @brief Assumes that a random value has sufficient entropy.
+ *
+ * @param random_value The random value to check.
+ */
+#define ASSUME_ITS_RANDOM_ENTROPY(random_value) \
+    FOSSIL_TEST_ASSUME((random_value) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected random value 0x%llx to have non-zero entropy", (uint64_t)(random_value)))
+
+/**
+ * @brief Assumes that sensitive data is properly cleared from memory.
+ *
+ * @param ptr The pointer to check.
+ * @param size The size of the memory to verify.
+ */
+#define ASSUME_ITS_SECURE_CLEARED(ptr, size) \
+    FOSSIL_TEST_ASSUME(pizza_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected sensitive memory at %p (%zu bytes) to be securely cleared", (ptr), (size_t)(size)))
+
+/**
+ * @brief Assumes that a file descriptor is valid and open.
+ *
+ * @param fd The file descriptor to check.
+ */
+#define ASSUME_ITS_VALID_FD(fd) \
+    FOSSIL_TEST_ASSUME((fd) >= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected file descriptor %d to be valid", (int)(fd)))
+
+/**
+ * @brief Assumes that a cryptographic key has the expected length.
+ *
+ * @param key_len The actual key length.
+ * @param expected_len The expected key length.
+ */
+#define ASSUME_ITS_VALID_KEY_LENGTH(key_len, expected_len) \
+    FOSSIL_TEST_ASSUME((key_len) == (expected_len), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cryptographic key length %zu to match expected length %zu", (size_t)(key_len), (size_t)(expected_len)))
+
+/**
+ * @brief Assumes that a session token is not expired.
+ *
+ * @param current_time The current time.
+ * @param expiry_time The expiration time.
+ */
+#define ASSUME_ITS_SESSION_VALID(current_time, expiry_time) \
+    FOSSIL_TEST_ASSUME((current_time) <= (expiry_time), _FOSSIL_TEST_ASSUME_MESSAGE("Expected session expiry time %lld to be after current time %lld", (int64_t)(expiry_time), (int64_t)(current_time)))
+
+/**
+ * @brief Assumes that bounds checking prevents out-of-bounds access.
+ *
+ * @param index The array index.
+ * @param array_size The size of the array.
+ */
+#define ASSUME_ITS_BOUNDS_CHECKED(index, array_size) \
+    FOSSIL_TEST_ASSUME((index) >= 0 && (index) < (array_size), _FOSSIL_TEST_ASSUME_MESSAGE("Expected array index %lld to be within bounds [0, %zu)", (int64_t)(index), (size_t)(array_size)))
+
 #ifdef __cplusplus
 }
 #endif
