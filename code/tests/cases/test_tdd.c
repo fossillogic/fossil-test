@@ -1429,8 +1429,8 @@ FOSSIL_TEST(c_assume_run_of_session_valid_future) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bounds_checked) {
-    int64_t index1 = 0;
-    int64_t index2 = 50;
+    size_t index1 = 0;
+    size_t index2 = 50;
     size_t array_size = 100;
 
     // Test cases
@@ -1439,8 +1439,8 @@ FOSSIL_TEST(c_assume_run_of_bounds_checked) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bounds_checked_boundary) {
-    int64_t index_first = 0;
-    int64_t index_last = 99;
+    size_t index_first = 0;
+    size_t index_last = 99;
     size_t array_size = 100;
 
     // Test cases
