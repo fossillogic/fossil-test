@@ -1953,26 +1953,88 @@ static int pizza_test_detect_root_cause(const char *message) {
 
     // --- Advanced: Multiple root cause detection as bitmask ---
     int root_cause = 0;
-    if (!message) return 0;
 
-    // Context-aware logic error
-    if (strstr(message, ".c:") || strstr(message, ".cpp:") ||
-        strstr(message, ".m:") || strstr(message, ".mm:") ||
-        strstr(message, " in ") || strstr(message, " at ") ||
-        strstr(message, "function ") || strstr(message, "func=")) {
+    // Boolean assumptions (true/false, not true/not false)
+    if (strstr(message, "Expected") && strstr(message, "to be true")) {
+        root_cause |= (1 << 1); // logic
+    }
+    if (strstr(message, "Expected") && strstr(message, "to be false")) {
+        root_cause |= (1 << 1); // logic
+    }
+    if (strstr(message, "to not be true")) {
+        root_cause |= (1 << 1); // logic
+    }
+    if (strstr(message, "to not be false")) {
         root_cause |= (1 << 1); // logic
     }
 
-    // Memory errors
-    if (strstr(message, "null pointer") || strstr(message, "NULL pointer") ||
-        strstr(message, "cnull") || strstr(message, "not cnull") ||
-        strstr(message, "dangling pointer") || strstr(message, "invalid pointer") ||
-        strstr(message, "memory leak") || strstr(message, "buffer overflow") ||
-        strstr(message, "buffer underflow") || strstr(message, "out of bounds") ||
-        strstr(message, "valid memory") || strstr(message, "not valid memory") ||
-        strstr(message, "zeroed memory") || strstr(message, "not zeroed") ||
-        strstr(message, "uninitialized memory") || strstr(message, "double free")) {
+    // Floating point assumptions (equal, not equal, less, more, tolerance, NaN, infinity)
+    if ((strstr(message, "within tolerance") || strstr(message, "to be equal") || strstr(message, "to not be equal")) &&
+        (strstr(message, "value %f") || strstr(message, "value %lf"))) {
+        root_cause |= (1 << 7); // float
+    }
+    if ((strstr(message, "to be less than") || strstr(message, "to be more than") ||
+         strstr(message, "to be less than or equal to") || strstr(message, "to be more than or equal to") ||
+         strstr(message, "to not be less than") || strstr(message, "to not be more than") ||
+         strstr(message, "to not be less than or equal to") || strstr(message, "to not be more than or equal to")) &&
+        (strstr(message, "value %f") || strstr(message, "value %lf"))) {
+        root_cause |= (1 << 7); // float
+    }
+    if (strstr(message, "to be NaN")) {
+        root_cause |= (1 << 7); // float
+    }
+    if (strstr(message, "to be infinity")) {
+        root_cause |= (1 << 7); // float
+    }
+
+    // Numeric/range assumptions (within range, not within range)
+    if (strstr(message, "is not within range")) {
+        root_cause |= (1 << 6); // range
+    }
+    if (strstr(message, "is within range")) {
+        root_cause |= (1 << 6); // range
+    }
+
+    // Memory allocation assumptions (zeroed, not zeroed, equal memory, not equal memory, valid, not valid)
+    if ((strstr(message, "to be zeroed") || strstr(message, "to not be zeroed") ||
+         strstr(message, "to be equal") || strstr(message, "to not be equal") ||
+         strstr(message, "to be more than") || strstr(message, "to be less than") ||
+         strstr(message, "to be more than or equal to") || strstr(message, "to be less than or equal to") ||
+         strstr(message, "to not be more than") || strstr(message, "to not be less than") ||
+         strstr(message, "to not be more than or equal to") || strstr(message, "to not be less than or equal to") ||
+         strstr(message, "to be valid") || strstr(message, "to not be valid")) &&
+        (strstr(message, "memory") || strstr(message, "pointer"))) {
         root_cause |= (1 << 3); // memory
+    }
+
+    // Null pointer assumptions (_CNULL, _CNULLABLE, _CNONNULL)
+    if (strstr(message, "to be cnull") || strstr(message, "to not be cnull")) {
+        root_cause |= (1 << 3); // memory (null pointer)
+    }
+
+    // String assumptions (C string, cstr, equal, not equal, length, prefix, suffix, contains, occurrences)
+    if (strstr(message, "C string") || strstr(message, "cstr") ||
+        strstr(message, "to be equal") || strstr(message, "to not be equal") ||
+        strstr(message, "length of") || strstr(message, "to start with prefix") ||
+        strstr(message, "to end with suffix") || strstr(message, "to contain substring") ||
+        strstr(message, "to not contain substring") || strstr(message, "to contain") ||
+        strstr(message, "to not contain") || strstr(message, "occurrences of substring")) {
+        root_cause |= (1 << 8); // string
+    }
+
+    // SOAP/text assumptions (rot-brain, tone of text)
+    if (strstr(message, "rot-brain")) {
+        root_cause |= (1 << 9); // soap/text
+    }
+    if (strstr(message, "tone of text")) {
+        root_cause |= (1 << 9); // soap/text
+    }
+
+    // Range/coverage/empty/skipped/not implemented
+    if (strstr(message, "empty") || strstr(message, "skipped") ||
+        strstr(message, "not implemented") || strstr(message, "unreachable code") ||
+        strstr(message, "not covered") || strstr(message, "todo")) {
+        root_cause |= (1 << 5); // coverage
     }
 
     // Timeout
@@ -1989,48 +2051,17 @@ static int pizza_test_detect_root_cause(const char *message) {
         root_cause |= (1 << 4); // io
     }
 
-    // Range errors
-    if (strstr(message, "out of range") || strstr(message, "not within range") ||
-        strstr(message, "within range") || strstr(message, "overflow") ||
-        strstr(message, "underflow") || strstr(message, "index out of bounds") ||
-        strstr(message, "exceeds maximum") || strstr(message, "below minimum")) {
-        root_cause |= (1 << 6); // range
+    // Bitwise, hash, security, time, etc. (optional: can add more patterns as needed)
+
+    // Context-aware logic error (file:line:func or function/at/in)
+    if (strstr(message, ".c:") || strstr(message, ".cpp:") ||
+        strstr(message, ".m:") || strstr(message, ".mm:") ||
+        strstr(message, " in ") || strstr(message, " at ") ||
+        strstr(message, "function ") || strstr(message, "func=")) {
+        root_cause |= (1 << 1); // logic
     }
 
-    // Floating-point errors
-    if (strstr(message, "float") || strstr(message, "double") ||
-        strstr(message, "NaN") || strstr(message, "nan") ||
-        strstr(message, "infinity") || strstr(message, "infinite") ||
-        strstr(message, "tolerance") || strstr(message, "precision error") ||
-        strstr(message, "loss of significance") || strstr(message, "rounding error")) {
-        root_cause |= (1 << 7); // float
-    }
-
-    // String/buffer errors
-    if (strstr(message, "string") || strstr(message, "C string") ||
-        strstr(message, "strlen") || strstr(message, "cstr") ||
-        strstr(message, "starts with") || strstr(message, "ends with") ||
-        strstr(message, "contains") || strstr(message, "not contain") ||
-        strstr(message, "length of") || strstr(message, "substring") ||
-        strstr(message, "buffer overflow") || strstr(message, "buffer underflow")) {
-        root_cause |= (1 << 8); // string
-    }
-
-    // SOAP/text errors
-    if (strstr(message, "soap") || strstr(message, "text") ||
-        strstr(message, "tone") || strstr(message, "rot-brain") ||
-        strstr(message, "sentiment") || strstr(message, "language model")) {
-        root_cause |= (1 << 9); // soap/text
-    }
-
-    // Coverage/empty/skipped/not implemented
-    if (strstr(message, "empty") || strstr(message, "skipped") ||
-        strstr(message, "not implemented") || strstr(message, "unreachable code") ||
-        strstr(message, "not covered") || strstr(message, "todo")) {
-        root_cause |= (1 << 5); // coverage
-    }
-
-    // Logic errors (default for assumption failures)
+    // Fallback: generic logic error for assumption macros
     if (strstr(message, "Expected") || strstr(message, "not be") ||
         strstr(message, "to be") || strstr(message, "fail") ||
         strstr(message, "logic") || strstr(message, "assert") ||
