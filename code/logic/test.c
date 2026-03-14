@@ -2094,24 +2094,22 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         if (root_cause_mask & (1 << 2)) { strcat(root_cause_buf, first ? "Timeout" : ", Timeout"); first = 0; }
         if (root_cause_mask & (1 << 4)) { strcat(root_cause_buf, first ? "I/O error" : ", I/O error"); first = 0; }
         if (root_cause_mask & (1 << 6)) { strcat(root_cause_buf, first ? "Range error" : ", Range error"); first = 0; }
-        if (root_cause_mask & (1 << 7)) { strcat(root_cause_buf, first ? "Floating-point" : ", Floating-point"); first = 0; }
-        if (root_cause_mask & (1 << 8)) { strcat(root_cause_buf, first ? "String/buffer" : ", String/buffer"); first = 0; }
-        if (root_cause_mask & (1 << 9)) { strcat(root_cause_buf, first ? "Text/SOAP" : ", Text/SOAP"); first = 0; }
+        if (root_cause_mask & (1 << 7)) { strcat(root_cause_buf, first ? "Floating-point error" : ", Floating-point error"); first = 0; }
+        if (root_cause_mask & (1 << 8)) { strcat(root_cause_buf, first ? "String/buffer error" : ", String/buffer error"); first = 0; }
+        if (root_cause_mask & (1 << 9)) { strcat(root_cause_buf, first ? "Text/SOAP error" : ", Text/SOAP error"); first = 0; }
         if (root_cause_mask & (1 << 5)) { strcat(root_cause_buf, first ? "Coverage/Empty" : ", Coverage/Empty"); first = 0; }
         if (root_cause_mask & (1 << 1)) { strcat(root_cause_buf, first ? "Logic error" : ", Logic error"); first = 0; }
     }
 
     if ((root_cause_code == 0 || root_cause_mask > 9) && message) {
-        // Context-aware: check for file/func/line context in message
-        if (file && func && strstr(message, file) && strstr(message, func)) {
-            root_cause_code = 1; // logic (context matches source location)
-        }
         // Boolean assumption patterns
-        else if (strstr(message, "Expected") && strstr(message, "to be true")) {
+        if (strstr(message, "Expected") && strstr(message, "to be true")) {
             root_cause_code = 1; // logic
         } else if (strstr(message, "Expected") && strstr(message, "to be false")) {
             root_cause_code = 1; // logic
-        } else if (strstr(message, "to not be true") || strstr(message, "to not be false")) {
+        } else if (strstr(message, "to not be true")) {
+            root_cause_code = 1; // logic
+        } else if (strstr(message, "to not be false")) {
             root_cause_code = 1; // logic
         }
         // Floating point assumption patterns
@@ -2126,11 +2124,15 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
             if (strstr(message, "value %f") || strstr(message, "value %lf")) {
                 root_cause_code = 7; // float
             }
-        } else if (strstr(message, "to be NaN") || strstr(message, "to be infinity")) {
+        } else if (strstr(message, "to be NaN")) {
+            root_cause_code = 7; // float
+        } else if (strstr(message, "to be infinity")) {
             root_cause_code = 7; // float
         }
         // Numeric/range assumption patterns
-        else if (strstr(message, "is not within range") || strstr(message, "is within range")) {
+        else if (strstr(message, "is not within range")) {
+            root_cause_code = 6; // range
+        } else if (strstr(message, "is within range")) {
             root_cause_code = 6; // range
         }
         // Memory assumption patterns
@@ -2159,20 +2161,28 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
             root_cause_code = 8; // string
         }
         // SOAP/text assumption patterns
-        else if (strstr(message, "rot-brain") || strstr(message, "tone of text")) {
+        else if (strstr(message, "rot-brain")) {
             root_cause_code = 9; // soap/text
+        } else if (strstr(message, "tone of text")) {
+            root_cause_code = 9; // soap/text
+        }
+        // Range/coverage/empty/skipped
+        else if (strstr(message, "empty") || strstr(message, "skipped") ||
+                 strstr(message, "not implemented") || strstr(message, "unreachable code") ||
+                 strstr(message, "not covered") || strstr(message, "todo")) {
+            root_cause_code = 5; // coverage
+        }
+        // Fallback: context-aware logic error
+        else if (file && func && strstr(message, file) && strstr(message, func)) {
+            root_cause_code = 1; // logic (context matches source location)
         }
     }
 
     // --- Suggestion hints for assumption failures ---
     const char *hint_str = NULL;
     if (message) {
-        // Context-aware: suggest checking source location if message includes file/func/line
-        if (file && func && strstr(message, file) && strstr(message, func)) {
-            hint_str = "Check the logic at the reported source location for possible errors.";
-        }
         // Boolean hints
-        else if (strstr(message, "to be true")) {
+        if (strstr(message, "to be true")) {
             hint_str = "Check your logic or expected condition. Ensure the value is true.";
         } else if (strstr(message, "to be false")) {
             hint_str = "Check your logic or expected condition. Ensure the value is false.";
@@ -2249,6 +2259,16 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
         } else if (strstr(message, "tone of text")) {
             hint_str = "Check tone detection logic and expected tone value.";
         }
+        // Coverage/empty/skipped
+        else if (strstr(message, "empty") || strstr(message, "skipped") ||
+                 strstr(message, "not implemented") || strstr(message, "unreachable code") ||
+                 strstr(message, "not covered") || strstr(message, "todo")) {
+            hint_str = "Check test coverage and ensure all cases are implemented.";
+        }
+        // Fallback: context-aware logic error
+        else if (file && func && strstr(message, file) && strstr(message, func)) {
+            hint_str = "Check the logic at the reported source location for possible errors.";
+        }
     }
 
     const char *root_cause_str = NULL;
@@ -2262,9 +2282,9 @@ void pizza_test_assert_internal_output(const char *message, const char *file, in
             case 4: root_cause_str = "I/O error"; break;
             case 5: root_cause_str = "Coverage/Empty"; break;
             case 6: root_cause_str = "Range error"; break;
-            case 7: root_cause_str = "Floating-point"; break;
-            case 8: root_cause_str = "String/buffer"; break;
-            case 9: root_cause_str = "Text/SOAP"; break;
+            case 7: root_cause_str = "Floating-point error"; break;
+            case 8: root_cause_str = "String/buffer error"; break;
+            case 9: root_cause_str = "Text/SOAP error"; break;
             default: root_cause_str = NULL; break;
         }
     }
