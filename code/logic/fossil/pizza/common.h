@@ -55,7 +55,7 @@
     #include <windows.h>
     #include <sys/stat.h>
 #elif defined(__APPLE__)
-    #define _DARWIN_cpp_SOURCE
+    #define _DARWIN_C_SOURCE
     #include <sys/utsname.h>
     #include <sys/types.h>   // Before sysctl.h
     #include <sys/sysctl.h>
