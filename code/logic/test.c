@@ -467,6 +467,32 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {gray}%s{reset}\n", result_str);
             }
             break;
+        case PIZZA_THEME_MAGA:
+            if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                pizza_io_printf("  {blue}├─{reset} {white}%s{reset} {red}[test case]{reset}\n", test_case->name);
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Tags    {reset}: {blue}%s{reset} {white}[with tag]{reset}\n", test_case->tags);
+                pizza_io_printf("  {blue}│   ├─{reset} {red}Criteria{reset}: {blue}%s{reset} {red}[given criteria]{reset}\n", test_case->criteria);
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset} {white}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   └─{reset} {red}Result  {reset}: {blue}%s{reset} {red}[the result]{reset}\n", result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                pizza_io_printf("  {blue}::TEST       :: %s{reset}\n", test_case->name);
+                pizza_io_printf("    {blue}::TAGS     :: {white}%s{reset}\n", test_case->tags);
+                pizza_io_printf("    {blue}::CRITERIA :: {red}%s{reset}\n", test_case->criteria);
+                pizza_io_printf("    {blue}::TIME     :: {white}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("    {blue}::RESULT   :: {red}%s{reset}\n", result_str);
+            }
+            else
+            { // plain or default
+                pizza_io_printf("  {blue}├─{reset} {white}%s{reset}\n", test_case->name);
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Tags    {reset}: {blue}%s{reset}\n", test_case->tags);
+                pizza_io_printf("  {blue}│   ├─{reset} {red}Criteria{reset}: {blue}%s{reset}\n", test_case->criteria);
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   └─{reset} {red}Result  {reset}: {blue}%s{reset}\n", result_str);
+            }
+            break;
         default:
             pizza_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
                             test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
@@ -525,6 +551,23 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
             else
             { // plain or default
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            break;
+         PIZZA_THEME_MAGA:
+            if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} --[{red}tags:{reset}{white}%s{reset} {red}[with tag]{reset},{red}criteria:{reset}{white}%s{reset} {red}[given criteria]{reset},{red}time:{reset}{white}%s{reset} {red}[the time]{reset},{red}result:{reset}%s {red}[the result]{reset}]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                pizza_io_printf("{red}::CASE::{reset} {white}%s{reset} --[{red}::TAGS::{reset}{white} %s{reset},{red}::CRITERIA::{reset}{white} %s{reset},{red}::TIME::{reset}{white} %s{reset},{red}::RESULT::{reset} %s]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else
+            { // plain or default
+                pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} --[{red}tags:{reset}{white}%s{reset},{red}criteria:{reset}{white}%s{reset},{red}time:{reset}{white}%s{reset},{red}result:{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
