@@ -632,6 +632,23 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                                 test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
+        case PIZZA_THEME_MAGA:
+            if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} ({red}Tags:{reset} {white}%s{reset} {red}[with tag]{reset}, {red}Criteria:{reset} {white}%s{reset} {red}[given criteria]{reset}, {red}Time:{reset} {white}%s{reset} {red}[the time]{reset}, {red}Result:{reset} %s {red}[the result]{reset})\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                pizza_io_printf("{red}::CASE::{reset} {white}%s{reset} ( {red}::TAGS::{reset} {white}%s{reset}, {red}::CRITERIA::{reset} {white}%s{reset}, {red}::TIME::{reset} {white}%s{reset}, {red}::RESULT::{reset} %s )\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else
+            { // plain or default
+                pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} ({red}Tags:{reset} {white}%s{reset}, {red}Criteria:{reset} {white}%s{reset}, {red}Time:{reset} {white}%s{reset}, {red}Result:{reset} %s)\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+            }
+            break;
         default:
             pizza_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
                             test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
