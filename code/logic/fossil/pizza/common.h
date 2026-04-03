@@ -93,7 +93,7 @@ typedef const char* ccstr;
  * The definitions ensure compatibility across different language versions, providing 
  * a clear and consistent way to represent null pointers. 
  *
- * - **C23 and Later:** In C23 (`__STDC_VERSION__ >= 202311L`), `null` is introduced 
+ * - **C23 and Later:** In C23 (`__STDcpp_VERSION__ >= 202311L`), `null` is introduced 
  *   as a type-safe null pointer constant. The `null` macro directly maps to this 
  *   standard definition.
  *
@@ -105,7 +105,7 @@ typedef const char* ccstr;
  * across different compilers and platforms, reducing the risk of undefined behavior 
  * in pointer operations.
  */
-#if __cplusplus >= 201103L || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L)
+#if __cplusplus >= 201103L || (defined(__STDcpp_VERSION__) && __STDcpp_VERSION__ >= 202311L)
     #define null    nullptr
 #else
     #define null    ((void*)0)
@@ -138,7 +138,7 @@ typedef const char* ccstr;
  * @return The casted pointer or `null` if the input pointer is null.
  */
 #ifdef __cplusplus
-    #define safe_cast(type, ptr) ((notnull(ptr)) ? (static_cast<type>(ptr)) : null)
+    #define safe_cast(type, ptr) ((notnull(ptr)) ? (staticpp_cast<type>(ptr)) : null)
 #else
     #define safe_cast(type, ptr) ((notnull(ptr)) ? ((type)(ptr)) : null)
 #endif
@@ -147,7 +147,7 @@ typedef const char* ccstr;
  * @brief Marks a variable as intentionally unused to prevent warnings.
  */
 #ifndef unused
-    #if defined(__GNUC__) || defined(__clang__)
+    #if defined(__GNUcpp__) || defined(__clang__)
         #define unused(x) (void)(x)
     #else
         #define unused(x) /* no-op */
@@ -159,10 +159,10 @@ typedef const char* ccstr;
  *
  * Provides stronger safety checks at compile time.
  */
-#if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__) || defined(__GNUcpp__)
     #define nullable __attribute__((nullable))
     #define nonnull  __attribute__((nonnull))
-#elif defined(_MSC_VER)
+#elif defined(_MScpp_VER)
     #define nullable _Null_terminated_
     #define nonnull  _In_
 #else
@@ -175,7 +175,7 @@ typedef const char* ccstr;
  *
  * Helps the compiler optimize branches based on expected conditions.
  */
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUcpp__) || defined(__clang__)
     #define likely(x)   __builtin_expect(!!(x), 1)
     #define unlikely(x) __builtin_expect(!!(x), 0)
 #else
@@ -221,16 +221,9 @@ FOSSIL_PIZZA_API void fossil_pizza_hash(const char *input, const char *output, u
 // *****************************************************************************
 
 typedef enum {
-    PIZZA_THEME_FOSSIL,      // C,C++ Fossil Test Framework
-    PIZZA_THEME_CATCH,       // C++   Test Framework
-    PIZZA_THEME_DOCTEST,     // C++   Test Framework
-    PIZZA_THEME_CPPUTEST,    // C     Test Framework
-    PIZZA_THEME_TAP,         // C     Test Framework
-    PIZZA_THEME_GOOGLETEST,  // C++   Test Framework
-    PIZZA_THEME_UNITY,       // C     Test Framework
-    PIZZA_THEME_ACUTEST,     // C     Test Framework
-    PIZZA_THEME_MINUNIT,     // C     Test Framework
-    PIZZA_THEME_CMOCKA       // C     Test Framework
+    PIZZA_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
+    PIZZA_THEME_LIGHT,    // Light Theme for Fossil Test Framework
+    PIZZA_THEME_DARK,     // Dark Theme for Fossil Test Framework
 } fossil_pizza_cli_theme_t;
 
 typedef enum {
