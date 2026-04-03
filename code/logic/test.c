@@ -554,7 +554,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                                 test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
-         PIZZA_THEME_MAGA:
+        case PIZZA_THEME_MAGA:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} --[{red}tags:{reset}{white}%s{reset} {red}[with tag]{reset},{red}criteria:{reset}{white}%s{reset} {red}[given criteria]{reset},{red}time:{reset}{white}%s{reset} {red}[the time]{reset},{red}result:{reset}%s {red}[the result]{reset}]\n",
