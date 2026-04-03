@@ -224,6 +224,7 @@ typedef enum {
     PIZZA_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
     PIZZA_THEME_LIGHT,    // Light Theme for Fossil Test Framework
     PIZZA_THEME_DARK,     // Dark Theme for Fossil Test Framework
+    PIZZA_THEME_MAGA      // Maga Theme make unit testing great again!
 } fossil_pizza_cli_theme_t;
 
 typedef enum {
