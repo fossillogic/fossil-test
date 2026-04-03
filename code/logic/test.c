@@ -1655,28 +1655,28 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t *engine)
     {
     case PIZZA_THEME_FOSSIL:
         pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
-        pizza_io_printf("{blue}[::] {black}Test Summary{blue} [::] OS {cyan}%s{blue}, Endianness: %s%s{blue}, Architecture: {cyan}%s{reset}\n",
+        pizza_io_printf("{black}[{cyan}::{black}] Test Summary [{cyan}::{black}] OS {cyan}%s{black}, Endianness: %s%s{black}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
         pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
         break;
 
     case PIZZA_THEME_LIGHT:
         pizza_io_printf("{bright_blue,bold}=================================================================================={reset}\n");
-        pizza_io_printf("{bright_blue}[::] {white}Test Summary{bright_blue} [::] OS {cyan}%s{bright_blue}, Endianness: %s%s{bright_blue}, Architecture: {cyan}%s{reset}\n",
+        pizza_io_printf("{white}[{cyan}::{white}] Test Summary [{cyan}::{white}] OS {cyan}%s{white}, Endianness: %s%s{white}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
         pizza_io_printf("{bright_blue,bold}=================================================================================={reset}\n");
         break;
 
     case PIZZA_THEME_DARK:
         pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
-        pizza_io_printf("{blue}[::] {black}Test Summary{blue} [::] OS {cyan}%s{blue}, Endianness: %s%s{blue}, Architecture: {cyan}%s{reset}\n",
+        pizza_io_printf("{black}[{cyan}::{black}] Test Summary [{cyan}::{black}] OS {cyan}%s{black}, Endianness: %s%s{black}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
         pizza_io_printf("{blue,bold}=================================================================================={reset}\n");
         break;
     
     case PIZZA_THEME_MAGA:
         pizza_io_printf("{red,bold}=================================================================================={reset}\n");
-        pizza_io_printf("{red}[::] {white}Test Summary{red} [::] OS {white}%s{red}, Endianness: %s%s{red}, Architecture: {white}%s{reset}\n",
+        pizza_io_printf("{red}[{cyan}::{red}] {white}Test Summary{red} {red}[{cyan}::{red}] OS {white}%s{red}, Endianness: %s%s{red}, Architecture: {white}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
         pizza_io_printf("{red,bold}=================================================================================={reset}\n");
         break;
