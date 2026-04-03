@@ -260,6 +260,7 @@ static void _show_subhelp_theme(void) {
     pizza_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
     pizza_io_printf("{cyan}  light             Light theme{reset}\n");
     pizza_io_printf("{cyan}  dark              Dark theme{reset}\n");
+    pizza_io_printf("{cyan}  maga              MAGA theme{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
