@@ -29,7 +29,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.3.4"
+#define FOSSIL_PIZZA_VERSION "1.3.2"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
@@ -605,24 +605,12 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             if (pizza_io_cstr_compare(theme_str, "fossil") == 0) {
                 pallet.theme = PIZZA_THEME_FOSSIL;
                 G_PIZZA_THEME = PIZZA_THEME_FOSSIL;
-            } else if (pizza_io_cstr_compare(theme_str, "catch") == 0) {
-                pallet.theme = PIZZA_THEME_CATCH;
-                G_PIZZA_THEME = PIZZA_THEME_CATCH;
-            } else if (pizza_io_cstr_compare(theme_str, "doctest") == 0) {
-                pallet.theme = PIZZA_THEME_DOCTEST;
-                G_PIZZA_THEME = PIZZA_THEME_DOCTEST;
-            } else if (pizza_io_cstr_compare(theme_str, "cpputest") == 0) {
-                pallet.theme = PIZZA_THEME_CPPUTEST;
-                G_PIZZA_THEME = PIZZA_THEME_CPPUTEST;
-            } else if (pizza_io_cstr_compare(theme_str, "tap") == 0) {
-                pallet.theme = PIZZA_THEME_TAP;
-                G_PIZZA_THEME = PIZZA_THEME_TAP;
-            } else if (pizza_io_cstr_compare(theme_str, "gtest") == 0) {
-                pallet.theme = PIZZA_THEME_GOOGLETEST;
-                G_PIZZA_THEME = PIZZA_THEME_GOOGLETEST;
-            } else if (pizza_io_cstr_compare(theme_str, "unity") == 0) {
-                pallet.theme = PIZZA_THEME_UNITY;
-                G_PIZZA_THEME = PIZZA_THEME_UNITY;
+            } else if (pizza_io_cstr_compare(theme_str, "dark") == 0) {
+                pallet.theme = PIZZA_THEME_DARK;
+                G_PIZZA_THEME = PIZZA_THEME_DARK;
+            } else if (pizza_io_cstr_compare(theme_str, "light") == 0) {
+                pallet.theme = PIZZA_THEME_LIGHT;
+                G_PIZZA_THEME = PIZZA_THEME_LIGHT;
             }
         } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
@@ -762,18 +750,10 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
                 if (pizza_io_cstr_compare(key, "theme") == 0) {
                     if (pizza_io_cstr_compare(value, "fossil") == 0) {
                         pallet->theme = PIZZA_THEME_FOSSIL;
-                    } else if (pizza_io_cstr_compare(value, "catch") == 0) {
-                        pallet->theme = PIZZA_THEME_CATCH;
-                    } else if (pizza_io_cstr_compare(value, "doctest") == 0) {
-                        pallet->theme = PIZZA_THEME_DOCTEST;
-                    } else if (pizza_io_cstr_compare(value, "cpputest") == 0) {
-                        pallet->theme = PIZZA_THEME_CPPUTEST;
-                    } else if (pizza_io_cstr_compare(value, "tap") == 0) {
-                        pallet->theme = PIZZA_THEME_TAP;
-                    } else if (pizza_io_cstr_compare(value, "gtest") == 0) {
-                        pallet->theme = PIZZA_THEME_GOOGLETEST;
-                    } else if (pizza_io_cstr_compare(value, "unity") == 0) {
-                        pallet->theme = PIZZA_THEME_UNITY;
+                    } else if (pizza_io_cstr_compare(value, "dark") == 0) {
+                        pallet->theme = PIZZA_THEME_DARK;
+                    } else if (pizza_io_cstr_compare(value, "light") == 0) {
+                        pallet->theme = PIZZA_THEME_LIGHT;
                     }
                 }
             } else if (pizza_io_cstr_compare(section, "test") == 0) {
@@ -1199,7 +1179,7 @@ static const struct {
 };
 
 /** Lookup table for sarcastic phrases */
-static const char *SARCASTIC_PHRASES[] = {
+static const char *SARCASTIcpp_PHRASES[] = {
     "Oh, great",
     "Yeah, right",
     "Nice job",
@@ -1516,8 +1496,8 @@ void pizza_io_soap_clear_custom_filters(void) {
  * AI trick: prioritize sarcastic, then formal, else casual.
  */
 const char *pizza_io_soap_detect_tone(const char *text) {
-    for (size_t i = 0; SARCASTIC_PHRASES[i] != null; i++) {
-        if (custom_strcasestr(text, SARCASTIC_PHRASES[i])) {
+    for (size_t i = 0; SARCASTIcpp_PHRASES[i] != null; i++) {
+        if (custom_strcasestr(text, SARCASTIcpp_PHRASES[i])) {
             return "sarcastic";
         }
     }
@@ -2416,13 +2396,13 @@ bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
     // If no null-terminator found in range, dest is not safe
     if (dest_len == max_len) return false;
 
-    size_t src_len = strlen(src);
+    size_t srcpp_len = strlen(src);
 
     // Make sure there's enough space (including null terminator)
-    if (dest_len + src_len >= max_len) return false;
+    if (dest_len + srcpp_len >= max_len) return false;
 
-    memcpy(dest + dest_len, src, src_len);
-    dest[dest_len + src_len] = '\0';
+    memcpy(dest + dest_len, src, srcpp_len);
+    dest[dest_len + srcpp_len] = '\0';
 
     return true;
 }
