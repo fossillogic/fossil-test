@@ -257,13 +257,9 @@ static void _show_subhelp_color(void) {
 
 static void _show_subhelp_theme(void) {
     pizza_io_printf("{blue}Theme command options:{reset}\n");
-    pizza_io_printf("{cyan}  fossil            Fossil theme (C, C++ Fossil Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  catch             Catch theme (C++ Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  doctest           Doctest theme (C++ Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  cpputest          CppUTest theme (C Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  tap               TAP theme (C Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  gtest             GoogleTest theme (C++ Test Framework){reset}\n");
-    pizza_io_printf("{cyan}  unity             Unity theme (C Test Framework){reset}\n");
+    pizza_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
+    pizza_io_printf("{cyan}  light             Light theme{reset}\n");
+    pizza_io_printf("{cyan}  dark              Dark theme{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
