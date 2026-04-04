@@ -1,8 +1,8 @@
 # ***Pizza Test by Fossil Logic***
 
-**Pizza Test** is a smart unit testing framework developed by **Fossil Logic** for C and C++ projects. It offers advanced features designed for systems that demand high traceability, behavioral insight, and truth validation. Pizza Test is particularly well-suited for testing components where deterministic logic, memory integrity, and reasoning transparency are critical.
+**Pizza Test** is a unit testing framework from **Fossil Logic** designed for C and C++ projects that require precision, clarity, and control. It focuses on producing reliable, easy-to-understand test results while supporting detailed verification of logic, memory behavior, and system correctness. The framework is well-suited for low-level components, performance-critical code, and environments where predictable behavior matters.
 
-With Pizza Test, you can write expressive, maintainable tests that integrate seamlessly into your development workflow. Whether you're validating core algorithms, testing system-level code, or ensuring API reliability, Pizza Test provides the tools and clarity you need.
+With Pizza Test, developers can build clean, structured tests that fit naturally into existing workflows. Whether you're validating core algorithms, exercising system interfaces, or ensuring API stability, Pizza Test provides a straightforward and dependable approach to testing.
 
 ---
 
@@ -87,7 +87,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.3.3
+revision = v1.4.0
 
 [provide]
 dependency_names = fossil-test
