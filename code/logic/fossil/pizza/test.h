@@ -60,20 +60,6 @@ extern "C"
         int empty;
     } fossil_pizza_score_t;
 
-    // --- Test Meta ---
-    typedef struct
-    {
-        char *hash;             // Hash of input/output/test logic
-        char *prev_hash;        // Link to previous block (optional)
-        time_t timestamp;       // When the test was run
-        char *origin_device_id; // Where it was run
-        char *author;           // Who defined the test
-        double trust_score;     // TI trust score (0.0 - 1.0)
-        double confidence;      // Result confidence
-        bool immutable;         // If true, cannot be changed
-        char *signature;        // Digital signature of test result
-    } fossil_pizza_meta_t;
-
     // --- Test Case ---
     typedef struct
     {
@@ -88,9 +74,6 @@ extern "C"
         uint64_t elapsed_ns;               // Timing in nanoseconds
         int64_t priority;                  // Priority level (lower = higher priority)
         fossil_pizza_case_result_t result; // Outcome
-
-        // TI Extensions:
-        fossil_pizza_meta_t meta; // Metadata for TI auditing
     } fossil_pizza_case_t;
 
     // In fossil_pizza_suite_t
@@ -109,9 +92,6 @@ extern "C"
         int total_possible;
 
         fossil_pizza_score_t score;
-
-        // TI Extensions:
-        fossil_pizza_meta_t meta; // Metadata for suite-level auditing
     } fossil_pizza_suite_t;
 
     // In fossil_pizza_engine_t
@@ -127,9 +107,6 @@ extern "C"
         fossil_pizza_score_t score;
 
         fossil_pizza_pallet_t pallet; // CLI + config
-
-        // TI Extensions:
-        fossil_pizza_meta_t meta; // Global engine metadata (hash of all runs)
     } fossil_pizza_engine_t;
 
     // --- Initialization ---
@@ -282,16 +259,7 @@ extern "C"
         test_name##_run,                                 \
         0,                                               \
         0,                                               \
-        FOSSIL_PIZZA_CASE_EMPTY,                         \
-        {nullptr,                                        \
-         nullptr,                                        \
-         0,                                              \
-         (char *)"unknown",                              \
-         (char *)"anonymous",                            \
-         0.0,                                            \
-         0.0,                                            \
-         false,                                          \
-         nullptr}};                                      \
+        FOSSIL_PIZZA_CASE_EMPTY};                        \
     extern "C" void test_name##_run(void)
 #else
 #define _FOSSIL_TEST(test_name)                          \
@@ -305,17 +273,7 @@ extern "C"
         .run = test_name##_run,                          \
         .elapsed_ns = 0,                                 \
         .priority = 0,                                   \
-        .result = FOSSIL_PIZZA_CASE_EMPTY,               \
-        .meta = {                                        \
-            .hash = NULL,                                \
-            .prev_hash = NULL,                           \
-            .timestamp = 0,                              \
-            .origin_device_id = "unknown",               \
-            .author = "anonymous",                       \
-            .trust_score = 0.0,                          \
-            .confidence = 0.0,                           \
-            .immutable = false,                          \
-            .signature = NULL}};                         \
+        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
     void test_name##_run(void)
 #endif
 
@@ -403,19 +361,7 @@ extern "C"
             0,                                              \
             0,                                              \
             0,                                              \
-            {0, 0, 0, 0, 0, 0},                             \
-        {                                                   \
-            nullptr,                 /* hash */             \
-                nullptr,             /* prev_hash */        \
-                0,                   /* timestamp */        \
-                (char *)"unknown",   /* origin_device_id */ \
-                (char *)"anonymous", /* author */           \
-                0.0,                 /* trust_score */      \
-                0.0,                 /* confidence */       \
-                false,               /* immutable */        \
-                nullptr              /* signature */        \
-        }                                                   \
-    }
+            {0, 0, 0, 0, 0, 0}}
 #else
 #define _FOSSIL_SUITE(suite)                      \
     void setup_##suite(void);                     \
@@ -430,17 +376,7 @@ extern "C"
         .time_elapsed_ns = 0,                     \
         .total_score = 0,                         \
         .total_possible = 0,                      \
-        .score = {0, 0, 0, 0, 0, 0},              \
-        .meta = {                                 \
-            .hash = NULL,                         \
-            .prev_hash = NULL,                    \
-            .timestamp = 0,                       \
-            .origin_device_id = "unknown",        \
-            .author = "anonymous",                \
-            .trust_score = 0.0,                   \
-            .confidence = 0.0,                    \
-            .immutable = false,                   \
-            .signature = NULL}}
+        .score = {0, 0, 0, 0, 0, 0}}
 #endif
 
 /** @brief Macro to define a test setup function.
