@@ -698,12 +698,12 @@ extern "C"
 /** @brief Define a scoped edge case block inside a test case.
  *
  * Usage:
- * FOSSIL_TEST_EDGE("edge case description") {
+ * FOSSIL_EDGE("edge case description") {
  *     int x = 1;
  *     FOSSIL_TEST_ASSERT(x == 1, "x should be 1");
  * }
  */
-#define _FOSSIL_TEST_EDGE(description) \
+#define _FOSSIL_EDGE(description) \
     if (true)                          \
         for (const char *__edge_desc = description; __edge_desc; __edge_desc = NULL)
 
@@ -1004,12 +1004,12 @@ extern "C"
 /** @brief Define a scoped edge case block inside a test case.
  *
  * Usage:
- * FOSSIL_TEST_EDGE("edge case description") {
+ * FOSSIL_EDGE("edge case description") {
  *     int x = 1;
  *     FOSSIL_TEST_ASSERT(x == 1, "x should be 1");
  * }
  */
-#define FOSSIL_TEST_EDGE(description) \
-    _FOSSIL_TEST_EDGE(description)
+#define FOSSIL_EDGE(description) \
+    _FOSSIL_EDGE(description)
 
 #endif
