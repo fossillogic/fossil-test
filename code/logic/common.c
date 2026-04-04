@@ -29,7 +29,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.3.2"
+#define FOSSIL_PIZZA_VERSION "1.4.0"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
@@ -260,6 +260,7 @@ static void _show_subhelp_theme(void) {
     pizza_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
     pizza_io_printf("{cyan}  light             Light theme{reset}\n");
     pizza_io_printf("{cyan}  dark              Dark theme{reset}\n");
+    pizza_io_printf("{cyan}  maga              MAGA theme{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -607,6 +608,9 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
             } else if (pizza_io_cstr_compare(theme_str, "light") == 0) {
                 pallet.theme = PIZZA_THEME_LIGHT;
                 G_PIZZA_THEME = PIZZA_THEME_LIGHT;
+            } else if (pizza_io_cstr_compare(theme_str, "maga") == 0) {
+                pallet.theme = PIZZA_THEME_MAGA;
+                G_PIZZA_THEME = PIZZA_THEME_MAGA;
             }
         } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
             if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
@@ -750,6 +754,8 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
                         pallet->theme = PIZZA_THEME_DARK;
                     } else if (pizza_io_cstr_compare(value, "light") == 0) {
                         pallet->theme = PIZZA_THEME_LIGHT;
+                    } else if (pizza_io_cstr_compare(value, "maga") == 0) {
+                        pallet->theme = PIZZA_THEME_MAGA;
                     }
                 }
             } else if (pizza_io_cstr_compare(section, "test") == 0) {
