@@ -643,18 +643,6 @@ extern "C"
     if (true)                          \
         for (const char *__edge_desc = description; __edge_desc; __edge_desc = NULL)
 
-/**
- * @brief Internal: Run a function for each parameter in a variadic list.
- * Usage: _FOSSIL_PARAM_SCOPE("description", int, my_var, 1, 2, 3);
- */
-#define _FOSSIL_PARAM_SCOPE(desc, type, var, ...)                          \
-    {                                                                       \
-        const char *__param_scope_desc = desc;                               \
-        type __param_values[] = {__VA_ARGS__};                               \
-        size_t __param_count = sizeof(__param_values) / sizeof(type);       \
-        for (size_t __param_idx = 0; __param_idx < __param_count; __param_idx++) \
-            for (type var = __param_values[__param_idx]; var || true; var = 0)
-
 // *****************************************************************************
 // Public API Macros
 // *****************************************************************************
@@ -959,15 +947,5 @@ extern "C"
  */
 #define FOSSIL_EDGE(description) \
     _FOSSIL_EDGE(description)
-
-/** @brief Define a parameterized scope.
- *
- * Usage:
- * FOSSIL_PARAM("test integers", int, x, 0, 1, -1, 100) {
- *     FOSSIL_TEST_ASSERT(x != 42, "x cannot be 42");
- * }
- */
-#define FOSSIL_PARAM(description, type, var, ...) \
-    _FOSSIL_PARAM_SCOPE(description, type, var, __VA_ARGS__)
 
 #endif
