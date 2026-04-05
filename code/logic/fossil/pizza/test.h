@@ -631,7 +631,27 @@ extern "C"
         _then(description); \
     }
 
+/** @brief Macro to define a scoped test case block.
+ *
+ * This macro is used to define a scoped block of code within a test case. It can
+ * be used to group related assertions or steps together, and the description will
+ * be printed when the block is executed.
+ *
+ * Usage:
+ * FOSSIL_SCOPE("scope description") {
+ *     // Code for this scope
+ * }
+ */
+#define _FOSSIL_SCOPE(description) \
+    if (true)                          \
+        for (const char *__scope_desc = description; __scope_desc; __scope_desc = NULL)
+
 /** @brief Define a scoped edge case block inside a test case.
+ *
+ * This macro is used to define a scoped block of code within a test case that
+ * represents an edge case. The edge case block can be used to group related
+ * assertions or steps together, and the description will be printed when the
+ * block is executed.
  *
  * Usage:
  * FOSSIL_EDGE("edge case description") {
@@ -947,5 +967,19 @@ extern "C"
  */
 #define FOSSIL_EDGE(description) \
     _FOSSIL_EDGE(description)
+
+/** @brief Macro to define a scoped test case block.
+ *
+ * This macro is used to define a scoped block of code within a test case. It can
+ * be used to group related assertions or steps together, and the description will
+ * be printed when the block is executed.
+ *
+ * Usage:
+ * FOSSIL_SCOPE("scope description") {
+ *     // Code for this scope
+ * }
+ */
+#define FOSSIL_SCOPE(description) \
+    _FOSSIL_SCOPE(description)
 
 #endif
