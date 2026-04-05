@@ -85,13 +85,6 @@ jobs:
   
       - name: Run Tests
         run: meson test -C builddir -v  --test-args='show --mode tree --verbose ci --result fail'
-  
-      - name: Upload Test Log
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: macos_xcode_${{ matrix.xcode_version }}_meson_testlog
-          path: builddir/meson-logs/testlog.txt
 
   build_posix:
     name: Build on Linux ${{ matrix.distro }}
