@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        msvc_version: [2019, 2022, 2025]
+        msvc_version: [2019, 2022]
         libtype: [shared, static]
 
     steps:
@@ -43,8 +43,6 @@ jobs:
             choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
           } elseif ("${{ matrix.msvc_version }}" -eq "2022") {
             choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
-          } elseif ("${{ matrix.msvc_version }}" -eq "2025") {
-            choco install visualstudio2025buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
           }
 
           $env:CC="cl.exe"
