@@ -4,19 +4,24 @@ on:
   schedule:
     - cron: '15 21 * * *'
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
+# =========================================================
+# Windows (MSVC)
+# =========================================================
 jobs:
   build_msvc:
-    name: Building on Microslop ${{ matrix.msvc_version }}
+    name: Microslop ${{ matrix.msvc_version }} (${{ matrix.libtype }})
     runs-on: windows-latest
+
     strategy:
+      fail-fast: false
       matrix:
         msvc_version: [2019, 2022, 2025]
+        libtype: [shared, static]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -28,71 +33,110 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Meson and Ninja
+      - name: Install Meson + Ninja + MSVC
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           python -m pip install meson ninja
-          if ($env:msvc_version -eq "2019") {
-            choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
-          } elseif ($env:msvc_version -eq "2022") {
-            choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
-          } elseif ($env:msvc_version -eq "2025") {
-            choco install visualstudio2025buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
+
+          if ("${{ matrix.msvc_version }}" -eq "2019") {
+            choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          } elseif ("${{ matrix.msvc_version }}" -eq "2022") {
+            choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          } elseif ("${{ matrix.msvc_version }}" -eq "2025") {
+            choco install visualstudio2025buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
           }
+
           $env:CC="cl.exe"
           $env:CXX="cl.exe"
 
       - name: Configure
-        run: meson setup builddir_msvc_${{ matrix.msvc_version }} --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
+        run: >
+          meson setup builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+          --fatal-meson-warnings
+          -Dwerror=true
+          -Dwith_test=enabled
+          -Dwarning_level=3
+          -Db_lundef=true
+          --default-library=${{ matrix.libtype }}
 
-      - name: Run Tests
-        run: meson test -C builddir_msvc_${{ matrix.msvc_version }} -v --test-args='show --mode tree --verbose ci --result fail'
+      - name: Build
+        run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
 
-  build_macosx:
-    name: Building on MacOSX
+      - name: Test
+        run: >
+          meson test
+          -C builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+          -v
+          --test-args="show --mode tree --verbose ci --result fail"
+
+# =========================================================
+# macOS
+# =========================================================
+  build_macos:
+    name: macOS (${{ matrix.libtype }})
     runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        libtype: [shared, static]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-  
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-  
-      - name: Install Xcode Command Line Tools
+
+      - name: Install Xcode tools
         run: |
           if ! xcode-select -p &>/dev/null; then
             sudo xcode-select --install
             until xcode-select -p &>/dev/null; do sleep 5; done
           fi
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
-      - name: Install Xcode
-        run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-
-      - name: Install Meson, Ninja
-        run: |
-          python -m pip install meson ninja
+      - name: Install Meson + Ninja
+        run: python -m pip install meson ninja
 
       - name: Configure
-        run: OBJC=clang OBJCXX=clang++ meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
+        run: >
+          OBJC=clang OBJCXX=clang++
+          meson setup builddir_${{ matrix.libtype }}
+          --fatal-meson-warnings
+          -Dwerror=true
+          -Dwith_test=enabled
+          -Dwarning_level=3
+          -Db_lundef=true
+          --default-library=${{ matrix.libtype }}
 
-      - name: Compile
-        run: meson compile -C builddir
-  
-      - name: Run Tests
-        run: meson test -C builddir -v  --test-args='show --mode tree --verbose ci --result fail'
+      - name: Build
+        run: meson compile -C builddir_${{ matrix.libtype }}
 
-  build_posix:
-    name: Build on Linux ${{ matrix.distro }}
+      - name: Test
+        run: >
+          meson test
+          -C builddir_${{ matrix.libtype }}
+          -v
+          --test-args="show --mode tree --verbose ci --result fail"
+
+# =========================================================
+# Linux (Docker matrix)
+# =========================================================
+  build_linux:
+    name: Linux ${{ matrix.distro }} (${{ matrix.libtype }})
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        distro: [ubuntu, fedora, archlinux, debian] # in a new experiment add alpine and opensuse
+        distro: [ubuntu, fedora, archlinux, debian]
+        libtype: [shared, static]
 
     steps:
       - name: Checkout code
@@ -111,19 +155,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx
 
-      - name: Build Docker Image
+      - name: Build Docker image
         run: |
           docker build \
             --file .github/ciimage/Dockerfile.${{ matrix.distro }} \
-            --tag ${GITHUB_REPOSITORY}:${{ matrix.distro }} .
+            --tag meson-ci:${{ matrix.distro }} .
 
-      - name: Run Meson Build in Docker Container
+      - name: Run Meson inside container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            ${GITHUB_REPOSITORY}:${{ matrix.distro }} \
+            meson-ci:${{ matrix.distro }} \
             /bin/bash -c "
-              sudo apt update
-              meson setup builddir --fatal-meson-warnings -Dwerror=true -Dwith_test=enabled -Dwarning_level=3
-              meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'"
+              meson setup builddir_${{ matrix.libtype }} \
+                --fatal-meson-warnings \
+                -Dwerror=true \
+                -Dwith_test=enabled \
+                -Dwarning_level=3 \
+                -Db_lundef=true \
+                --default-library=${{ matrix.libtype }} && \
+              meson compile -C builddir_${{ matrix.libtype }} && \
+              meson test -C builddir_${{ matrix.libtype }} -v \
+                --test-args='show --mode tree --verbose ci --result fail'
+            "
