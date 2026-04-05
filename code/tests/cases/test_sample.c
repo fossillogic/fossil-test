@@ -115,6 +115,31 @@ FOSSIL_TEST(edge_cases) {
     }
 }
 
+FOSSIL_TEST(math_addition_scopes)
+{
+    // General behavior grouping
+    FOSSIL_SCOPE("Basic addition behavior") {
+        int result = 2 + 3;
+        FOSSIL_TEST_ASSERT(result == 5, "2 + 3 should equal 5");
+    }
+
+    // Edge cases
+    FOSSIL_EDGE("Zero addition") {
+        int result = 0 + 0;
+        FOSSIL_TEST_ASSERT(result == 0, "0 + 0 should equal 0");
+    }
+
+    FOSSIL_EDGE("Negative numbers") {
+        int result = -2 + -3;
+        FOSSIL_TEST_ASSERT(result == -5, "-2 + -3 should equal -5");
+    }
+
+    FOSSIL_EDGE("Mixed sign addition") {
+        int result = -2 + 3;
+        FOSSIL_TEST_ASSERT(result == 1, "-2 + 3 should equal 1");
+    }
+}
+
 // FOSSIL_TEST(test_empty_case) {
 //     // test the absence of an assumption .
 // }
@@ -128,6 +153,7 @@ FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_square);
     FOSSIL_TEST_ADD(sample_suite, test_input_equal);
     FOSSIL_TEST_ADD(sample_suite, edge_cases);
+    FOSSIL_TEST_ADD(sample_suite, math_addition_scopes);
     //FOSSIL_TEST_ADD(sample_suite, test_empty_case);
 
     FOSSIL_TEST_REGISTER(sample_suite);
