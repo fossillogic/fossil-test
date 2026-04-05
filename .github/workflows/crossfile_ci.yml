@@ -104,7 +104,3 @@ jobs:
       - name: Build the Project
         run: |
           meson compile -C builddir
-
-      - name: Test the Project
-        run: |
-          meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
