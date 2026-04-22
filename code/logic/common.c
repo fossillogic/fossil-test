@@ -1719,35 +1719,105 @@ pizza_fstream_t *PIZZA_STDERR;
 
 int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 
-// Define color codes for output
-#define FOSSIL_IO_COLOR_RESET         "\033[0m"
-#define FOSSIL_IO_COLOR_RED           "\033[31m"
-#define FOSSIL_IO_COLOR_GREEN         "\033[32m"
-#define FOSSIL_IO_COLOR_YELLOW        "\033[33m"
-#define FOSSIL_IO_COLOR_BLUE          "\033[34m"
-#define FOSSIL_IO_COLOR_MAGENTA       "\033[35m"
-#define FOSSIL_IO_COLOR_CYAN          "\033[36m"
-#define FOSSIL_IO_COLOR_WHITE         "\033[37m"
-#define FOSSIL_IO_COLOR_BLACK         "\033[30m"
-#define FOSSIL_IO_COLOR_ORANGE         "\033[38;5;208m"
-#define FOSSIL_IO_COLOR_GRAY           "\033[90m"
+// ================================================================
+// RESET
+// ================================================================
+#define FOSSIL_IO_COLOR_RESET "\033[0m"
 
-// Bright colors
-#define FOSSIL_IO_COLOR_BRIGHT_RED     "\033[91m"
-#define FOSSIL_IO_COLOR_BRIGHT_GREEN   "\033[92m"
-#define FOSSIL_IO_COLOR_BRIGHT_YELLOW  "\033[93m"
-#define FOSSIL_IO_COLOR_BRIGHT_BLUE    "\033[94m"
+// ================================================================
+// DARK (STANDARD) COLORS
+// ================================================================
+#define FOSSIL_IO_COLOR_BLACK "\033[30m"
+#define FOSSIL_IO_COLOR_RED "\033[31m"
+#define FOSSIL_IO_COLOR_GREEN "\033[32m"
+#define FOSSIL_IO_COLOR_YELLOW "\033[33m"
+#define FOSSIL_IO_COLOR_BLUE "\033[34m"
+#define FOSSIL_IO_COLOR_MAGENTA "\033[35m"
+#define FOSSIL_IO_COLOR_CYAN "\033[36m"
+#define FOSSIL_IO_COLOR_WHITE "\033[37m"
+#define FOSSIL_IO_COLOR_GRAY "\033[90m"
+#define FOSSIL_IO_COLOR_ORANGE "\033[38;5;208m"
+#define FOSSIL_IO_COLOR_PINK "\033[38;5;205m"
+#define FOSSIL_IO_COLOR_PURPLE "\033[38;5;93m"
+#define FOSSIL_IO_COLOR_BROWN "\033[38;5;94m"
+#define FOSSIL_IO_COLOR_TEAL "\033[38;5;30m"
+#define FOSSIL_IO_COLOR_SILVER "\033[38;5;7m"
+
+// ================================================================
+// BRIGHT COLORS
+// ================================================================
+#define FOSSIL_IO_COLOR_BRIGHT_BLACK "\033[90m"
+#define FOSSIL_IO_COLOR_BRIGHT_RED "\033[91m"
+#define FOSSIL_IO_COLOR_BRIGHT_GREEN "\033[92m"
+#define FOSSIL_IO_COLOR_BRIGHT_YELLOW "\033[93m"
+#define FOSSIL_IO_COLOR_BRIGHT_BLUE "\033[94m"
 #define FOSSIL_IO_COLOR_BRIGHT_MAGENTA "\033[95m"
-#define FOSSIL_IO_COLOR_BRIGHT_CYAN    "\033[96m"
-#define FOSSIL_IO_COLOR_BRIGHT_WHITE   "\033[97m"
+#define FOSSIL_IO_COLOR_BRIGHT_CYAN "\033[96m"
+#define FOSSIL_IO_COLOR_BRIGHT_WHITE "\033[97m"
 
-// Define text attributes
-#define FOSSIL_IO_ATTR_BOLD         "\033[1m"
-#define FOSSIL_IO_ATTR_UNDERLINE    "\033[4m"
-#define FOSSIL_IO_ATTR_REVERSED     "\033[7m"
-#define FOSSIL_IO_ATTR_BLINK        "\033[5m"
-#define FOSSIL_IO_ATTR_HIDDEN       "\033[8m"
-#define FOSSIL_IO_ATTR_NORMAL       "\033[22m" // For reverting to normal text
+// ================================================================
+// BACKGROUND COLORS
+// ================================================================
+#define FOSSIL_IO_BG_BLACK "\033[40m"
+#define FOSSIL_IO_BG_RED "\033[41m"
+#define FOSSIL_IO_BG_GREEN "\033[42m"
+#define FOSSIL_IO_BG_YELLOW "\033[43m"
+#define FOSSIL_IO_BG_BLUE "\033[44m"
+#define FOSSIL_IO_BG_MAGENTA "\033[45m"
+#define FOSSIL_IO_BG_CYAN "\033[46m"
+#define FOSSIL_IO_BG_WHITE "\033[47m"
+#define FOSSIL_IO_BG_GRAY "\033[100m"
+#define FOSSIL_IO_BG_ORANGE "\033[48;5;208m"
+#define FOSSIL_IO_BG_PINK "\033[48;5;205m"
+#define FOSSIL_IO_BG_PURPLE "\033[48;5;93m"
+#define FOSSIL_IO_BG_BROWN "\033[48;5;94m"
+#define FOSSIL_IO_BG_TEAL "\033[48;5;30m"
+#define FOSSIL_IO_BG_SILVER "\033[48;5;7m"
+
+// Bright background colors
+#define FOSSIL_IO_BG_BRIGHT_BLACK "\033[100m"
+#define FOSSIL_IO_BG_BRIGHT_RED "\033[101m"
+#define FOSSIL_IO_BG_BRIGHT_GREEN "\033[102m"
+#define FOSSIL_IO_BG_BRIGHT_YELLOW "\033[103m"
+#define FOSSIL_IO_BG_BRIGHT_BLUE "\033[104m"
+#define FOSSIL_IO_BG_BRIGHT_MAGENTA "\033[105m"
+#define FOSSIL_IO_BG_BRIGHT_CYAN "\033[106m"
+#define FOSSIL_IO_BG_BRIGHT_WHITE "\033[107m"
+
+// ================================================================
+// TEXT ATTRIBUTES
+// ================================================================
+// Standard attributes
+#define FOSSIL_IO_ATTR_BOLD "\033[1m"
+#define FOSSIL_IO_ATTR_DIM "\033[2m"
+#define FOSSIL_IO_ATTR_ITALIC "\033[3m"
+#define FOSSIL_IO_ATTR_UNDERLINE "\033[4m"
+#define FOSSIL_IO_ATTR_BLINK "\033[5m"
+#define FOSSIL_IO_ATTR_REVERSE "\033[7m"
+#define FOSSIL_IO_ATTR_HIDDEN "\033[8m"
+#define FOSSIL_IO_ATTR_STRIKETHROUGH "\033[9m"
+#define FOSSIL_IO_ATTR_NORMAL "\033[22;23;24;25;27;28m" // Reset all attributes
+#define FOSSIL_IO_ATTR_REVERSED "\033[7m"
+
+// Bright background colors
+#define FOSSIL_IO_BG_BRIGHT_BLACK "\033[100m"
+#define FOSSIL_IO_BG_BRIGHT_RED "\033[101m"
+#define FOSSIL_IO_BG_BRIGHT_GREEN "\033[102m"
+#define FOSSIL_IO_BG_BRIGHT_YELLOW "\033[103m"
+#define FOSSIL_IO_BG_BRIGHT_BLUE "\033[104m"
+#define FOSSIL_IO_BG_BRIGHT_MAGENTA "\033[105m"
+#define FOSSIL_IO_BG_BRIGHT_CYAN "\033[106m"
+#define FOSSIL_IO_BG_BRIGHT_WHITE "\033[107m"
+
+// Reset specific attributes
+#define FOSSIL_IO_ATTR_RESET_BOLD "\033[22m"
+#define FOSSIL_IO_ATTR_RESET_DIM "\033[22m"
+#define FOSSIL_IO_ATTR_RESET_ITALIC "\033[23m"
+#define FOSSIL_IO_ATTR_RESET_UNDERLINE "\033[24m"
+#define FOSSIL_IO_ATTR_RESET_BLINK "\033[25m"
+#define FOSSIL_IO_ATTR_RESET_REVERSE "\033[27m"
+#define FOSSIL_IO_ATTR_RESET_HIDDEN "\033[28m"
+#define FOSSIL_IO_ATTR_RESET_STRIKE "\033[29m"
 
 // Additional attributes
 #define FOSSIL_IO_ATTR_ITALIC       "\033[3m"
@@ -1777,7 +1847,18 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_ORANGE);
     } else if (pizza_io_cstr_compare(color, "gray") == 0) {
         printf(FOSSIL_IO_COLOR_GRAY);
+    } else if (pizza_io_cstr_compare(color, "pink") == 0) {
+        printf(FOSSIL_IO_COLOR_PINK);
+    } else if (pizza_io_cstr_compare(color, "purple") == 0) {
+        printf(FOSSIL_IO_COLOR_PURPLE);
+    } else if (pizza_io_cstr_compare(color, "brown") == 0) {
+        printf(FOSSIL_IO_COLOR_BROWN);
+    } else if (pizza_io_cstr_compare(color, "teal") == 0) {
+        printf(FOSSIL_IO_COLOR_TEAL);
+    } else if (pizza_io_cstr_compare(color, "silver") == 0) {
+        printf(FOSSIL_IO_COLOR_SILVER);
     }
+
     // Bright colors
     else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_RED);
@@ -1793,6 +1874,8 @@ void pizza_io_apply_color(const char *color) {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
     } else if (pizza_io_cstr_compare(color, "bright_white") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
+    } else if (pizza_io_cstr_compare(color, "bright_black") == 0) {
+        printf(FOSSIL_IO_COLOR_BRIGHT_BLACK);
     } else {
         printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
     }
@@ -1816,7 +1899,9 @@ void pizza_io_apply_attribute(const char *attribute) {
         printf(FOSSIL_IO_ATTR_ITALIC);
     } else if (pizza_io_cstr_compare(attribute, "strikethrough") == 0) {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
-    } else {
+    } else if (pizza_io_cstr_compare(attribute, "dim") == 0) {
+        printf(FOSSIL_IO_ATTR_DIM);
+    } else if (pizza_io_cstr_compare(attribute, "reset") == 0) {
         printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
     }
 }
@@ -1835,8 +1920,10 @@ void pizza_io_apply_position(const char *pos) {
     } else if (pizza_io_cstr_compare(pos, "right") == 0) {
         // Apply position logic for right
         printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
+    } else if (pizza_io_cstr_compare(pos, "center") == 0) {
+        // Apply position logic for center
+        printf("\033[12;40H"); // Move cursor to the center (example within reasonable bounds)
     }
-    // Add more positions if needed
 }
 
 // Function to print text with attributes, colors, positions, and format specifiers
