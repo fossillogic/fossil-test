@@ -144,6 +144,25 @@ FOSSIL_TEST(math_addition_scopes)
 //     // test the absence of an assumption .
 // }
 
+
+FOSSIL_SETUP(second_suite) {
+    // Setup code for the second suite
+}
+
+FOSSIL_TEARDOWN(second_suite) {
+    // Teardown code for the second suite
+}
+
+FOSSIL_SUITE(second_suite);
+
+TEST_CASE(second_test_case) {
+    int a = 10;
+    int b = 20;
+    int sum = a + b;
+
+    FOSSIL_TEST_ASSUME(sum == 30, "Sum of 10 and 20 should be 30");
+}
+
 FOSSIL_TEST_GROUP(c_sample_test_cases) {
     FOSSIL_TEST_ADD(sample_suite, test_input_increment);
     FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
@@ -157,4 +176,10 @@ FOSSIL_TEST_GROUP(c_sample_test_cases) {
     //FOSSIL_TEST_ADD(sample_suite, test_empty_case);
 
     FOSSIL_TEST_REGISTER(sample_suite);
+}
+
+FOSSIL_TEST_GROUP(c_second_test_cases) {
+    FOSSIL_TEST_ADD(second_suite, second_test_case);
+
+    FOSSIL_TEST_REGISTER(second_suite);
 }
