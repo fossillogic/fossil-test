@@ -29,7 +29,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.4.0"
+#define FOSSIL_PIZZA_VERSION "1.4.2"
 #define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
 #define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
 
@@ -276,7 +276,7 @@ static void _show_subhelp_show(void) {
 }
 
 static void _show_version(void) {
-    pizza_io_printf("{blue}Pizza Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
+    pizza_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
     exit(EXIT_SUCCESS);
 }
 

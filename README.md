@@ -1,8 +1,8 @@
-# ***Pizza Test by Fossil Logic***
+# ***Fossil Test by Fossil Logic***
 
-**Pizza Test** is a unit testing framework from **Fossil Logic** designed for C and C++ projects that require precision, clarity, and control. It focuses on producing reliable, easy-to-understand test results while supporting detailed verification of logic, memory behavior, and system correctness. The framework is well-suited for low-level components, performance-critical code, and environments where predictable behavior matters.
+**Fossil Test** is a unit testing framework from **Fossil Logic** designed for C and C++ projects that require precision, clarity, and control. It focuses on producing reliable, easy-to-understand test results while supporting detailed verification of logic, memory behavior, and system correctness. The framework is well-suited for low-level components, performance-critical code, and environments where predictable behavior matters.
 
-With Pizza Test, developers can build clean, structured tests that fit naturally into existing workflows. Whether you're validating core algorithms, exercising system interfaces, or ensuring API stability, Pizza Test provides a straightforward and dependable approach to testing.
+With Fossil Test, developers can build clean, structured tests that fit naturally into existing workflows. Whether you're validating core algorithms, exercising system interfaces, or ensuring API stability, Fossil Test provides a straightforward and dependable approach to testing.
 
 ---
 
@@ -23,7 +23,7 @@ With Pizza Test, developers can build clean, structured tests that fit naturally
 
 ## Command-Line
 
-The Pizza Test CLI provides an efficient way to run and manage tests directly from the terminal. Here are the available commands and options:
+The Fossil Test CLI provides an efficient way to run and manage tests directly from the terminal. Here are the available commands and options:
 
 ### Commands and Options
 
@@ -44,7 +44,7 @@ The Pizza Test CLI provides an efficient way to run and manage tests directly fr
 | `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                   |
 | `report`         | Export test results for CI integration.                                                     | Supported formats: `json/fson/yaml/csv`.                                                    |
 
-> **Note:** In addition to the `--help` option, Pizza Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
+> **Note:** In addition to the `--help` option, Fossil Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
 
 | Section | Key                   | Description                                                      | Notes / Valid Values                                                                 |
 |---------|----------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
@@ -87,13 +87,13 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.4.1
+revision = v1.4.2
 
 [provide]
 dependency_names = fossil-test
 ```
 
-**Note**: For the best experience, always use the latest release of Pizza Test. Visit the [Pizza Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
+**Note**: For the best experience, always use the latest release of Fossil Test. Visit the [Fossil Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
 
 ## Configure Build Options
 
@@ -132,4 +132,4 @@ If you would like to contribute, have questions, or need help, feel free
 
 ## ***Conclusion***
 
-Pizza Test is a powerful and flexible framework for C and C++ developers, designed to support a wide range of testing methodologies such as BDD, DDD, and TDD. With features like mocking, detailed reporting, and performance tracking, Pizza Test empowers developers to create high-quality software and maintainable test suites. Combined with Pizza Mark and Pizza Mock, it provides a complete suite for testing, optimization, and dependency management. Whether you're building small projects or large-scale applications, Pizza Test is an essential tool to ensure the reliability and performance of your code.
+Fossil Test is a powerful and flexible framework for C and C++ developers, designed to support a wide range of testing methodologies such as BDD, DDD, and TDD. With features like mocking, detailed reporting, and performance tracking, Fossil Test empowers developers to create high-quality software and maintainable test suites. Combined with Pizza Mark and Pizza Mock, it provides a complete suite for testing, optimization, and dependency management. Whether you're building small projects or large-scale applications, Fossil Test is an essential tool to ensure the reliability and performance of your code.

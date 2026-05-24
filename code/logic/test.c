@@ -1343,33 +1343,33 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t *engine)
     {
     case PIZZA_THEME_FOSSIL:
         pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Suites run   {reset}: {cyan}%zu{reset}  {blue}Tests run    {reset}: {cyan}%d{reset}  {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Passed       {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Failed       {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Skipped      {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Timeouts     {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Unexpected   {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Empty        {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue}Health: {cyan}%06.2f%%{reset} | {blue}Success Rate: {cyan}%06.2f%%{reset} | {blue}Risk: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Passed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Failed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Skipped      {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Timeouts     {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Unexpected   {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Empty        {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue}Health{reset}: {cyan}%06.2f%%{reset} | {blue}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
         break;
 
     case PIZZA_THEME_LIGHT:
         pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Suites run   {reset}: {bright_cyan}%zu{reset}  {blue}Tests run    {reset}: {cyan}%d{reset}  {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Passed       {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Failed       {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Skipped      {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Timeouts     {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Unexpected   {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Empty        {reset}: {gray}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Passed       {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Failed       {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Skipped      {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Timeouts     {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Unexpected   {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+        pizza_io_printf("{white}[{cyan}::{white}] {bright_blue}Empty        {reset}: {cyan}%d{reset} ({bright_cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
         pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue}Health{reset}: {cyan}%06.2f%%{reset} | {blue}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
         break;
     case PIZZA_THEME_DARK:
         pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Suites run   {reset}: {cyan}%zu{reset}  {blue}Tests run    {reset}: {cyan}%d{reset}  {blue}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Passed       {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Failed       {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Skipped      {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Timeouts     {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Unexpected   {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Empty        {reset}: {gray}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Passed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Failed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Skipped      {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Timeouts     {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Unexpected   {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+        pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Empty        {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
         pizza_io_printf("{bright_black}[{cyan}::{bright_black}] {blue}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue}Health{reset}: {cyan}%06.2f%%{reset} | {blue}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
         break;
     case PIZZA_THEME_MAGA:
