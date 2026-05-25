@@ -60,6 +60,16 @@ extern "C"
         int empty;
     } fossil_pizza_score_t;
 
+    // --- Subtest Case ---
+    typedef struct
+    {
+        const char *name;
+        const char *description;
+
+        uint64_t elapsed_ns;
+        fossil_pizza_case_result_t result;
+    } fossil_pizza_subcase_t;
+
     // --- Test Case ---
     typedef struct
     {
@@ -73,10 +83,12 @@ extern "C"
 
         uint64_t elapsed_ns;               // Timing in nanoseconds
         int64_t priority;                  // Priority level (lower = higher priority)
-        fossil_pizza_case_result_t result; // Outcome
+        fossil_pizza_case_result_t result; // Outcome of the test case
+        fossil_pizza_subcase_t *subcases;  // Subcases for granular testing
+        int64_t subcase_weight;            // Weighting for subcases
     } fossil_pizza_case_t;
 
-    // In fossil_pizza_suite_t
+    // --- Test Suite ---
     typedef struct
     {
         char *suite_name;
@@ -259,7 +271,9 @@ extern "C"
         test_name##_run,                                 \
         0,                                               \
         0,                                               \
-        FOSSIL_PIZZA_CASE_EMPTY};                        \
+        FOSSIL_PIZZA_CASE_EMPTY,                         \
+        nullptr,                                         \
+        0};                                              \
     extern "C" void test_name##_run(void)
 #else
 #define _FOSSIL_TEST(test_name)                          \
@@ -273,9 +287,29 @@ extern "C"
         .run = test_name##_run,                          \
         .elapsed_ns = 0,                                 \
         .priority = 0,                                   \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
+        .result = FOSSIL_PIZZA_CASE_EMPTY,               \
+        .subcases = NULL,                                \
+        .subcase_weight = 0};                            \
     void test_name##_run(void)
 #endif
+
+/** @brief Macro to define a subcase for a test case.
+ *
+ * This macro is used to define a subcase for a test case, which allows for
+ * more granular testing within a single test case. The subcase can be executed
+ * independently or as part of the parent test case.
+ *
+ * @param name The name of the subcase to define.
+ * @param description The description of the subcase.
+ */
+#define FOSSIL_SUBCASE(name, description) \
+    static fossil_pizza_subcase_t subcase_##name = {     \
+        .name = #name,                                   \
+        .description = description,                      \
+        .elapsed_ns = 0,                                 \
+        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
+    test_case_##test_name.subcases = &subcase_##name;    \
+    test_case_##test_name.subcase_weight = 1
 
 /** @brief Macro to set a test case's tags.
  *
