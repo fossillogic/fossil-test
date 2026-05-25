@@ -124,32 +124,69 @@ void fossil_pizza_update_score(fossil_pizza_case_t *test_case, fossil_pizza_suit
         return;
 
     // --- Update individual suite score ---
-    switch (test_case->result)
+    if (test_case->subcases && test_case->subcase_weight > 0)
     {
-    case FOSSIL_PIZZA_CASE_PASS:
-        suite->score.passed++;
-        break;
-    case FOSSIL_PIZZA_CASE_FAIL:
-        suite->score.failed++;
-        break;
-    case FOSSIL_PIZZA_CASE_TIMEOUT:
-        suite->score.timeout++;
-        break;
-    case FOSSIL_PIZZA_CASE_SKIPPED:
-        suite->score.skipped++;
-        break;
-    case FOSSIL_PIZZA_CASE_UNEXPECTED:
-        suite->score.unexpected++;
-        break;
-    case FOSSIL_PIZZA_CASE_EMPTY:
-    default:
-        suite->score.empty++;
-        break;
+        for (int64_t i = 0; i < test_case->subcase_weight; ++i)
+        {
+            fossil_pizza_subcase_t *subcase = &test_case->subcases[i];
+            switch (subcase->result)
+            {
+            case FOSSIL_PIZZA_CASE_PASS:
+                suite->score.passed++;
+                break;
+            case FOSSIL_PIZZA_CASE_FAIL:
+                suite->score.failed++;
+                break;
+            case FOSSIL_PIZZA_CASE_TIMEOUT:
+                suite->score.timeout++;
+                break;
+            case FOSSIL_PIZZA_CASE_SKIPPED:
+                suite->score.skipped++;
+                break;
+            case FOSSIL_PIZZA_CASE_UNEXPECTED:
+                suite->score.unexpected++;
+                break;
+            case FOSSIL_PIZZA_CASE_EMPTY:
+            default:
+                suite->score.empty++;
+                break;
+            }
+        }
+    }
+    else
+    {
+        switch (test_case->result)
+        {
+        case FOSSIL_PIZZA_CASE_PASS:
+            suite->score.passed++;
+            break;
+        case FOSSIL_PIZZA_CASE_FAIL:
+            suite->score.failed++;
+            break;
+        case FOSSIL_PIZZA_CASE_TIMEOUT:
+            suite->score.timeout++;
+            break;
+        case FOSSIL_PIZZA_CASE_SKIPPED:
+            suite->score.skipped++;
+            break;
+        case FOSSIL_PIZZA_CASE_UNEXPECTED:
+            suite->score.unexpected++;
+            break;
+        case FOSSIL_PIZZA_CASE_EMPTY:
+        default:
+            suite->score.empty++;
+            break;
+        }
     }
 
     // --- Recompute suite totals for safety ---
     suite->total_score = suite->score.passed;
-    suite->total_possible = suite->count;
+    suite->total_possible = suite->score.passed +
+                            suite->score.failed +
+                            suite->score.timeout +
+                            suite->score.skipped +
+                            suite->score.unexpected +
+                            suite->score.empty;
 }
 
 // --- Show Test Cases ---
@@ -571,6 +608,56 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
                 else
                 {
                     test_case->result = FOSSIL_PIZZA_CASE_PASS;
+                }
+                
+                // --- Handle subcases if present ---
+                if (test_case->subcases && test_case->subcase_weight > 0)
+                {
+                    fossil_pizza_case_result_t aggregate_result = test_case->result;
+                    for (int64_t s = 0; s < test_case->subcase_weight; ++s)
+                    {
+                        fossil_pizza_subcase_t *subcase = &test_case->subcases[s];
+
+                        if (subcase->result == FOSSIL_PIZZA_CASE_FAIL)
+                        {
+                            aggregate_result = FOSSIL_PIZZA_CASE_FAIL;
+                            break;
+                        }
+                        else if (subcase->result == FOSSIL_PIZZA_CASE_TIMEOUT)
+                        {
+                            if (aggregate_result != FOSSIL_PIZZA_CASE_FAIL)
+                                aggregate_result = FOSSIL_PIZZA_CASE_TIMEOUT;
+                        }
+                        else if (subcase->result == FOSSIL_PIZZA_CASE_UNEXPECTED)
+                        {
+                            if (aggregate_result != FOSSIL_PIZZA_CASE_FAIL &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_TIMEOUT)
+                            {
+                                aggregate_result = FOSSIL_PIZZA_CASE_UNEXPECTED;
+                            }
+                        }
+                        else if (subcase->result == FOSSIL_PIZZA_CASE_SKIPPED)
+                        {
+                            if (aggregate_result != FOSSIL_PIZZA_CASE_FAIL &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_TIMEOUT &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_UNEXPECTED)
+                            {
+                                aggregate_result = FOSSIL_PIZZA_CASE_SKIPPED;
+                            }
+                        }
+                        else if (subcase->result == FOSSIL_PIZZA_CASE_EMPTY)
+                        {
+                            if (aggregate_result != FOSSIL_PIZZA_CASE_FAIL &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_TIMEOUT &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_UNEXPECTED &&
+                                aggregate_result != FOSSIL_PIZZA_CASE_SKIPPED)
+                            {
+                                aggregate_result = FOSSIL_PIZZA_CASE_EMPTY;
+                            }
+                        }
+                    }
+
+                    test_case->result = aggregate_result;
                 }
             }
             else
