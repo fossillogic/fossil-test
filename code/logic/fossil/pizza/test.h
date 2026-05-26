@@ -302,14 +302,16 @@ extern "C"
  * @param name The name of the subcase to define.
  * @param description The description of the subcase.
  */
-#define FOSSIL_SUBCASE(name, description) \
-    static fossil_pizza_subcase_t subcase_##name = {     \
-        .name = #name,                                   \
-        .description = description,                      \
-        .elapsed_ns = 0,                                 \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
-    test_case_##test_name.subcases = &subcase_##name;    \
-    test_case_##test_name.subcase_weight = 1
+#define _FOSSIL_SUBCASE(name, description) \
+    static fossil_pizza_subcase_t subcase_##name = { \
+        .name = #name,                                \
+        .description = description,                   \
+        .elapsed_ns = 0,                              \
+        .result = FOSSIL_PIZZA_CASE_EMPTY};           \
+    subcase_##name.result = FOSSIL_PIZZA_CASE_PASS;  \
+    subcase_##name.elapsed_ns = 0;                   \
+    subcase_##name.name = #name;                     \
+    subcase_##name.description = description
 
 /** @brief Macro to set a test case's tags.
  *
@@ -712,6 +714,18 @@ extern "C"
 
 #define FOSSIL_TEST(test_name) \
     _FOSSIL_TEST(test_name)
+
+/** @brief Macro to define a subcase for a test case.
+ *
+ * This macro is used to define a subcase for a test case, which allows for
+ * more granular testing within a single test case. The subcase can be executed
+ * independently or as part of the parent test case.
+ *
+ * @param name The name of the subcase to define.
+ * @param description The description of the subcase.
+ */
+#define FOSSIL_SUBCASE(name, description) \
+    _FOSSIL_SUBCASE(name, description)
 
 /** @brief Macro to set a test case's tags.
  *
