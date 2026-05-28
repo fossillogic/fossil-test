@@ -178,7 +178,6 @@ FOSSIL_TEST(second_test_case)
 {
     int a = 10;
     int b = 20;
-    int c = -5;
     int sum = a + b;
 
     FOSSIL_TEST_ASSUME(sum == 30, "Sum of 10 and 20 should be 30");
