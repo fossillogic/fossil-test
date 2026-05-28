@@ -1119,6 +1119,15 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
     // Test cases
     ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
     ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
+
+    FOSSIL_SUBCASE("Hash 16 vs Hash 32") {
+        ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 16);
+    } // end subcase
+
+    FOSSIL_SUBCASE("Hash 32 vs Hash 16") {
+        ASSUME_NOT_EQUAL_HASH_BYTES(hash_32, hash_16, 16);
+    } // end subcase
+
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_set) {
