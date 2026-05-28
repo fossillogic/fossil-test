@@ -1110,28 +1110,6 @@ FOSSIL_TEST(c_assume_run_of_hash_bytes_distributed) {
     ASSUME_NOT_EQUAL_HASH_BYTES(distributed_hash, zero_hash, 16);
 } // end case
 
-
-
-/** @brief Macro to define a subcase for a test case.
- *
- * This macro is used to define a subcase for a test case, which allows for
- * more granular testing within a single test case. The subcase can be executed
- * independently or as part of the parent test case.
- *
- * @param test The name of the test case.
- * @param description The description of the subcase.
- */
- 
-#define _FOSSIL_SUBCASE(test, description)                      \
-    fossil_maip_subcase_t subcase_##test = {                   \
-        .name = #test,                                          \
-        .description = description,                             \
-        .elapsed_ns = 0,                                        \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};                     \
-    fossil_maip_add_subcase(&test_case_##test, subcase_##test);\
-    if (true)                                                   \
-        for (int _subcase_run_once = 1; _subcase_run_once; _subcase_run_once = 0)
-
 FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
     uint8_t hash_16[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00};
     uint8_t hash_32[32] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00,
@@ -1141,18 +1119,6 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
     // Test cases
     ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
     ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
-
-    FOSSIL_SUBCASE(c_assume_run_of_hash_multi_byte_sizes, "Subcase: Hash 16 vs Hash 32") {
-        ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
-    }
-
-    FOSSIL_SUBCASE(c_assume_run_of_hash_multi_byte_sizes, "Subcase: Hash 16 vs Hash Dup 16") {
-        ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
-    }
-
-    FOSSIL_SUBCASE(c_assume_run_of_hash_multi_byte_sizes, "Subcase: Hash 32 vs Hash Dup 16") {
-        ASSUME_NOT_EQUAL_HASH_BYTES(hash_32, hash_dup_16, 32);
-    }
 
 } // end case
 

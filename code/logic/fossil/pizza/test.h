@@ -60,16 +60,6 @@ extern "C"
         int empty;
     } fossil_maip_score_t;
 
-    // --- Subtest Case ---
-    typedef struct
-    {
-        const char *name;
-        const char *description;
-
-        uint64_t elapsed_ns;
-        fossil_maip_case_result_t result;
-    } fossil_maip_subcase_t;
-
     // --- Test Case ---
     typedef struct
     {
@@ -84,8 +74,6 @@ extern "C"
         uint64_t elapsed_ns;               // Timing in nanoseconds
         int64_t priority;                  // Priority level (lower = higher priority)
         fossil_maip_case_result_t result; // Outcome of the test case
-        fossil_maip_subcase_t *subcases;  // Subcases for granular testing
-        int64_t total_subcases;            // Total number of subcases
     } fossil_maip_case_t;
 
     // --- Test Suite ---
@@ -146,13 +134,6 @@ extern "C"
      * @return 0 on success, -1 on failure.
      */
     FOSSIL_PIZZA_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
-
-    /** Adds a subcase to a test case.
-     * @param test_case Pointer to the test case instance.
-     * @param subcase The subcase to add.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_PIZZA_API int fossil_maip_add_subcase(fossil_maip_case_t *test_case, fossil_maip_subcase_t subcase);
 
     // --- Execution ---
 
@@ -278,9 +259,7 @@ extern "C"
         test_name##_run,                                 \
         0,                                               \
         0,                                               \
-        FOSSIL_PIZZA_CASE_EMPTY,                         \
-        nullptr,                                         \
-        0};                                              \
+        FOSSIL_PIZZA_CASE_EMPTY};                        \
     extern "C" void test_name##_run(void)
 #else
 #define _FOSSIL_TEST(test_name)                          \
@@ -294,31 +273,9 @@ extern "C"
         .run = test_name##_run,                          \
         .elapsed_ns = 0,                                 \
         .priority = 0,                                   \
-        .result = FOSSIL_PIZZA_CASE_EMPTY,               \
-        .subcases = NULL,                                \
-        .total_subcases = 0};                            \
+        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
     void test_name##_run(void)
 #endif
-
-/** @brief Macro to define a subcase for a test case.
- *
- * This macro is used to define a subcase for a test case, which allows for
- * more granular testing within a single test case. The subcase can be executed
- * independently or as part of the parent test case.
- *
- * @param test The name of the test case.
- * @param description The description of the subcase.
- */
- 
-#define _FOSSIL_SUBCASE(test, description)                      \
-    fossil_maip_subcase_t subcase_##test = {                   \
-        .name = #test,                                          \
-        .description = description,                             \
-        .elapsed_ns = 0,                                        \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};                     \
-    fossil_maip_add_subcase(&test_case_##test, subcase_##test);\
-    if (true)                                                   \
-        for (int _subcase_run_once = 1; _subcase_run_once; _subcase_run_once = 0)
 
 /** @brief Macro to set a test case's tags.
  *
@@ -721,18 +678,6 @@ extern "C"
 
 #define FOSSIL_TEST(test_name) \
     _FOSSIL_TEST(test_name)
-
-/** @brief Macro to define a subcase for a test case.
- *
- * This macro is used to define a subcase for a test case, which allows for
- * more granular testing within a single test case. The subcase can be executed
- * independently or as part of the parent test case.
- *
- * @param test The name of the test case.
- * @param description The description of the subcase.
- */
-#define FOSSIL_SUBCASE(test, description) \
-    _FOSSIL_SUBCASE(test, description)
 
 /** @brief Macro to set a test case's tags.
  *

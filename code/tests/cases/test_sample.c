@@ -181,22 +181,6 @@ FOSSIL_TEST(second_test_case)
     int c = -5;
     int sum = a + b;
 
-    FOSSIL_SUBCASE("Testing the addition of two positive integers")
-    {
-        FOSSIL_TEST_ASSERT(sum == 30, "Sum of 10 and 20 should be 30");
-    }
-    FOSSIL_SUBCASE("Testing the addition of a positive and a negative integer")
-    {
-        int result = a + c;
-        FOSSIL_TEST_ASSERT(result == 5, "Sum of 10 and -5 should be 5");
-    }
-    FOSSIL_SUBCASE("Testing the addition of two negative integers")
-    {
-        int d = -15;
-        int result = c + d;
-        FOSSIL_TEST_ASSERT(result == -20, "Sum of -5 and -15 should be -20");
-    }
-
     FOSSIL_TEST_ASSUME(sum == 30, "Sum of 10 and 20 should be 30");
 }
 
