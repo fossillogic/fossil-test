@@ -272,7 +272,6 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Tags    {reset}: {gray}%s{reset} {orange}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Criteria{reset}: {gray}%s{reset} {orange}[given criteria]{reset}\n", test_case->criteria);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
-                pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Subcases{reset}: {gray}%lld{reset} {orange}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {bright_blue}│   └─{reset} {bright_cyan}Result  {reset}: {gray}%s{reset} {orange}[the result]{reset}\n", result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
