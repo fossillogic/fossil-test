@@ -35,7 +35,7 @@ jmp_buf test_jump_buffer;     // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
 
 // --- Internal helper for timing ---
-static uint64_t fossil_pizza_now_ns(void)
+static uint64_t fossil_maip_now_ns(void)
 {
     struct timeval tv;
     gettimeofday(&tv, null);
@@ -43,7 +43,7 @@ static uint64_t fossil_pizza_now_ns(void)
 }
 
 // --- Start ---
-int fossil_pizza_start(fossil_pizza_engine_t *engine, int argc, char **argv)
+int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv)
 {
     if (!engine || !argv)
         return FOSSIL_PIZZA_FAILURE;
@@ -58,11 +58,11 @@ int fossil_pizza_start(fossil_pizza_engine_t *engine, int argc, char **argv)
 
     pizza_sys_memory_set(&engine->score, 0, sizeof(engine->score));
 
-    engine->pallet = fossil_pizza_pallet_create(argc, argv);
+    engine->pallet = fossil_maip_pallet_create(argc, argv);
 
     // Parse configuration file if specified
     const char *config_file = engine->pallet.config_file;
-    if (config_file && fossil_pizza_ini_parse(config_file, &engine->pallet) != FOSSIL_PIZZA_SUCCESS)
+    if (config_file && fossil_maip_ini_parse(config_file, &engine->pallet) != FOSSIL_PIZZA_SUCCESS)
     {
         pizza_io_printf("Error: Failed to parse configuration file: %s\n", config_file);
         return FOSSIL_PIZZA_FAILURE;
@@ -72,7 +72,7 @@ int fossil_pizza_start(fossil_pizza_engine_t *engine, int argc, char **argv)
 }
 
 // --- Add Suite ---
-int fossil_pizza_add_suite(fossil_pizza_engine_t *engine, fossil_pizza_suite_t suite)
+int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite)
 {
     if (!engine)
         return FOSSIL_PIZZA_FAILURE;
@@ -81,7 +81,7 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t *engine, fossil_pizza_suite_t s
     if (engine->count >= engine->capacity)
     {
         size_t new_cap = engine->capacity ? engine->capacity * 2 : 4;
-        fossil_pizza_suite_t *resized = pizza_sys_memory_realloc(engine->suites, new_cap * sizeof(*engine->suites));
+        fossil_maip_suite_t *resized = pizza_sys_memory_realloc(engine->suites, new_cap * sizeof(*engine->suites));
         if (!resized)
             return FOSSIL_PIZZA_FAILURE;
         engine->suites = resized;
@@ -93,10 +93,33 @@ int fossil_pizza_add_suite(fossil_pizza_engine_t *engine, fossil_pizza_suite_t s
     return FOSSIL_PIZZA_SUCCESS;
 }
 
+// --- Add Subcase ---
+
+int fossil_maip_add_subcase(fossil_maip_case_t *test_case, fossil_maip_subcase_t subcase)
+{
+    if (!test_case)
+        return FOSSIL_PIZZA_FAILURE;
+
+    // Resize subcase array if needed
+    if (test_case->total_subcases >= test_case->total_subcases)
+    {
+        size_t new_cap = test_case->total_subcases ? test_case->total_subcases * 2 : 4;
+        fossil_maip_subcase_t *resized = pizza_sys_memory_realloc(test_case->subcases, new_cap * sizeof(*test_case->subcases));
+        if (!resized)
+            return FOSSIL_PIZZA_FAILURE;
+        test_case->subcases = resized;
+        test_case->total_subcases = new_cap;
+    }
+
+    // Add subcase to test case
+    test_case->subcases[test_case->total_subcases++] = subcase;
+    return FOSSIL_PIZZA_SUCCESS;
+}
+
 // --- Add Case ---
 #define FOSSIL_PIZZA_HASH_HEX_LEN 65
 
-int fossil_pizza_add_case(fossil_pizza_suite_t *suite, fossil_pizza_case_t test_case)
+int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case)
 {
     if (!suite)
         return FOSSIL_PIZZA_FAILURE;
@@ -105,7 +128,7 @@ int fossil_pizza_add_case(fossil_pizza_suite_t *suite, fossil_pizza_case_t test_
     if (suite->count >= suite->capacity)
     {
         size_t new_cap = suite->capacity ? suite->capacity * 2 : 4;
-        fossil_pizza_case_t *resized = pizza_sys_memory_realloc(suite->cases, new_cap * sizeof(*suite->cases));
+        fossil_maip_case_t *resized = pizza_sys_memory_realloc(suite->cases, new_cap * sizeof(*suite->cases));
         if (!resized)
             return FOSSIL_PIZZA_FAILURE;
         suite->cases = resized;
@@ -118,7 +141,7 @@ int fossil_pizza_add_case(fossil_pizza_suite_t *suite, fossil_pizza_case_t test_
 }
 
 // --- Update Score ---
-void fossil_pizza_update_score(fossil_pizza_case_t *test_case, fossil_pizza_suite_t *suite)
+void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t *suite)
 {
     if (!test_case || !suite)
         return;
@@ -128,7 +151,7 @@ void fossil_pizza_update_score(fossil_pizza_case_t *test_case, fossil_pizza_suit
     {
         for (int64_t i = 0; i < test_case->total_subcases; ++i)
         {
-            fossil_pizza_subcase_t *subcase = &test_case->subcases[i];
+            fossil_maip_subcase_t *subcase = &test_case->subcases[i];
             switch (subcase->result)
             {
             case FOSSIL_PIZZA_CASE_PASS:
@@ -192,7 +215,7 @@ void fossil_pizza_update_score(fossil_pizza_case_t *test_case, fossil_pizza_suit
 // --- Show Test Cases ---
 
 // Formats nanoseconds into a string: "Xs Yus Zns" and returns a heap-allocated string
-char *fossil_pizza_format_ns(uint64_t ns)
+char *fossil_maip_format_ns(uint64_t ns)
 {
     uint64_t sec = ns / 1000000000ULL;
     uint64_t usec = (ns % 1000000000ULL) / 1000ULL;
@@ -207,7 +230,7 @@ char *fossil_pizza_format_ns(uint64_t ns)
     return buffer;
 }
 
-void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_pizza_case_t *test_case, const fossil_pizza_engine_t *engine)
+void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_case_t *test_case, const fossil_maip_engine_t *engine)
 {
     if (!test_case)
         return;
@@ -275,7 +298,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {cyan}%s{reset} {blue}[test case]{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {gray}%s{reset} {orange}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {gray}%s{reset} {orange}[given criteria]{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Subcases{reset}: {gray}%lld{reset} {orange}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {gray}%s{reset} {orange}[the result]{reset}\n", result_str);
             }
@@ -284,7 +307,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}::TEST       :: %s{reset}\n", test_case->name);
                 pizza_io_printf("    {blue}::TAGS     :: %s{reset}\n", test_case->tags);
                 pizza_io_printf("    {blue}::CRITERIA :: %s{reset}\n", test_case->criteria);
-                pizza_io_printf("    {blue}::TIME     :: %s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("    {blue}::TIME     :: %s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("    {blue}::SUBCASES :: %lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("    {blue}::RESULT   :: %s{reset}\n", result_str);
             }
@@ -293,7 +316,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {cyan}%s{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {gray}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {gray}%s{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Subcases{reset}: {gray}%lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {gray}%s{reset}\n", result_str);
             }
@@ -304,7 +327,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {bright_blue}├─{reset} {bright_cyan}%s{reset} {bright_blue}[test case]{reset}\n", test_case->name);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Tags    {reset}: {gray}%s{reset} {orange}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Criteria{reset}: {gray}%s{reset} {orange}[given criteria]{reset}\n", test_case->criteria);
-                pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Subcases{reset}: {gray}%lld{reset} {orange}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {bright_blue}│   └─{reset} {bright_cyan}Result  {reset}: {gray}%s{reset} {orange}[the result]{reset}\n", result_str);
             }
@@ -313,7 +336,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {bright_blue}::TEST       :: %s{reset}\n", test_case->name);
                 pizza_io_printf("    {bright_blue}::TAGS     :: %s{reset}\n", test_case->tags);
                 pizza_io_printf("    {bright_blue}::CRITERIA :: %s{reset}\n", test_case->criteria);
-                pizza_io_printf("    {bright_blue}::TIME     :: %s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("    {bright_blue}::TIME     :: %s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("    {bright_blue}::SUBCASES :: %lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("    {bright_blue}::RESULT   :: %s{reset}\n", result_str);
             }
@@ -322,7 +345,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {bright_blue}├─{reset} {bright_cyan}%s{reset}\n", test_case->name);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Tags    {reset}: {gray}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Criteria{reset}: {gray}%s{reset}\n", test_case->criteria);
-                pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {bright_blue}│   ├─{reset} {bright_cyan}Subcases{reset}: {gray}%lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {bright_blue}│   └─{reset} {bright_cyan}Result  {reset}: {gray}%s{reset}\n", result_str);
             }
@@ -333,7 +356,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {cyan}%s{reset} {blue}[test case]{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {gray}%s{reset} {orange}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {gray}%s{reset} {orange}[given criteria]{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Subcases{reset}: {gray}%lld{reset} {orange}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {gray}%s{reset} {orange}[the result]{reset}\n", result_str);
             }
@@ -342,7 +365,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}::TEST       :: %s{reset}\n", test_case->name);
                 pizza_io_printf("    {blue}::TAGS     :: %s{reset}\n", test_case->tags);
                 pizza_io_printf("    {blue}::CRITERIA :: %s{reset}\n", test_case->criteria);
-                pizza_io_printf("    {blue}::TIME     :: %s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("    {blue}::TIME     :: %s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("    {blue}::SUBCASES :: %lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("    {blue}::RESULT   :: %s{reset}\n", result_str);
             }
@@ -351,7 +374,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {cyan}%s{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Tags    {reset}: {gray}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Criteria{reset}: {gray}%s{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {cyan}Time    {reset}: {gray}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {cyan}Subcases{reset}: {gray}%lld{reset} {orange}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {cyan}Result  {reset}: {gray}%s{reset}\n", result_str);
             }
@@ -362,7 +385,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {white}%s{reset} {red}[test case]{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {white}Tags    {reset}: {blue}%s{reset} {white}[with tag]{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {red}Criteria{reset}: {blue}%s{reset} {red}[given criteria]{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset} {white}[the time]{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset} {white}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {red}Subcases{reset}: {blue}%lld{reset} {red}[total subcases]{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {red}Result  {reset}: {blue}%s{reset} {red}[the result]{reset}\n", result_str);
             }
@@ -371,7 +394,7 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}::TEST       :: %s{reset}\n", test_case->name);
                 pizza_io_printf("    {blue}::TAGS     :: {white}%s{reset}\n", test_case->tags);
                 pizza_io_printf("    {blue}::CRITERIA :: {red}%s{reset}\n", test_case->criteria);
-                pizza_io_printf("    {blue}::TIME     :: {white}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("    {blue}::TIME     :: {white}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("    {blue}::SUBCASES :: {red}%lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("    {blue}::RESULT   :: {red}%s{reset}\n", result_str);
             }
@@ -380,14 +403,14 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
                 pizza_io_printf("  {blue}├─{reset} {white}%s{reset}\n", test_case->name);
                 pizza_io_printf("  {blue}│   ├─{reset} {white}Tags    {reset}: {blue}%s{reset}\n", test_case->tags);
                 pizza_io_printf("  {blue}│   ├─{reset} {red}Criteria{reset}: {blue}%s{reset}\n", test_case->criteria);
-                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset}\n", fossil_pizza_format_ns(test_case->elapsed_ns));
+                pizza_io_printf("  {blue}│   ├─{reset} {white}Time    {reset}: {blue}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
                 pizza_io_printf("  {blue}│   ├─{reset} {red}Subcases{reset}: {blue}%lld{reset}\n", (long long)test_case->total_subcases);
                 pizza_io_printf("  {blue}│   └─{reset} {red}Result  {reset}: {blue}%s{reset}\n", result_str);
             }
             break;
         default:
             pizza_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
-                            test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                            test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             break;
         }
     }
@@ -399,73 +422,73 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_LIGHT:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{bright_blue}[CASE]{reset} {bright_cyan}%s{reset} {bright_blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{bright_blue}::CASE::{reset} {bright_cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{bright_blue}[CASE]{reset} {bright_cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_DARK:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_MAGA:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} --[{red}tags:{reset}{white}%s{reset} {red}[with tag]{reset},{red}criteria:{reset}{white}%s{reset} {red}[given criteria]{reset},{red}time:{reset}{white}%s{reset} {red}[the time]{reset},{red}result:{reset}%s {red}[the result]{reset}]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{red}::CASE::{reset} {white}%s{reset} --[{red}::TAGS::{reset}{white} %s{reset},{red}::CRITERIA::{reset}{white} %s{reset},{red}::TIME::{reset}{white} %s{reset},{red}::RESULT::{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} --[{red}tags:{reset}{white}%s{reset},{red}criteria:{reset}{white}%s{reset},{red}time:{reset}{white}%s{reset},{red}result:{reset} %s]\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         default:
             pizza_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
-                            test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                            test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             break;
         }
     }
@@ -477,73 +500,73 @@ void fossil_pizza_show_cases(const fossil_pizza_suite_t *suite, const fossil_piz
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_LIGHT:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{bright_blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{bright_blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{bright_blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_DARK:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case PIZZA_THEME_MAGA:
             if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
                 pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} ({red}Tags:{reset} {white}%s{reset} {red}[with tag]{reset}, {red}Criteria:{reset} {white}%s{reset} {red}[given criteria]{reset}, {red}Time:{reset} {white}%s{reset} {red}[the time]{reset}, {red}Result:{reset} %s {red}[the result]{reset})\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && pizza_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
                 pizza_io_printf("{red}::CASE::{reset} {white}%s{reset} ( {red}::TAGS::{reset} {white}%s{reset}, {red}::CRITERIA::{reset} {white}%s{reset}, {red}::TIME::{reset} {white}%s{reset}, {red}::RESULT::{reset} %s )\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
                 pizza_io_printf("{red}[CASE]{reset} {white}%s{reset} ({red}Tags:{reset} {white}%s{reset}, {red}Criteria:{reset} {white}%s{reset}, {red}Time:{reset} {white}%s{reset}, {red}Result:{reset} %s)\n",
-                                test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         default:
             pizza_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
-                            test_case->name, test_case->tags, test_case->criteria, fossil_pizza_format_ns(test_case->elapsed_ns), result_str);
+                            test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             break;
         }
     }
@@ -560,9 +583,9 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds)
 // from sanity, should be implemented and placed in common.c
 extern uint64_t get_pizza_time_microseconds(void);
 
-void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
-                           fossil_pizza_case_t *test_case,
-                           fossil_pizza_suite_t *suite)
+void fossil_maip_run_test(const fossil_maip_engine_t *engine,
+                           fossil_maip_case_t *test_case,
+                           fossil_maip_suite_t *suite)
 {
     if (!test_case || !suite || !engine)
         return;
@@ -579,7 +602,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
         pizza_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0)
     {
         test_case->result = FOSSIL_PIZZA_CASE_SKIPPED;
-        fossil_pizza_update_score(test_case, suite);
+        fossil_maip_update_score(test_case, suite);
         return;
     }
 
@@ -593,7 +616,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
 
         test_case->result = FOSSIL_PIZZA_CASE_EMPTY;
         _ASSERT_COUNT = 0; // Reset before running test
-        uint64_t start_time = fossil_pizza_now_ns();
+        uint64_t start_time = fossil_maip_now_ns();
 
         if (test_case->run)
         {
@@ -601,7 +624,7 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
             {
                 test_case->run();
 
-                uint64_t end_time = fossil_pizza_now_ns();
+                uint64_t end_time = fossil_maip_now_ns();
                 uint64_t elapsed = end_time - start_time;
                 test_case->elapsed_ns = elapsed;
 
@@ -625,10 +648,10 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
                 // --- Handle subcases if present ---
                 if (test_case->subcases && test_case->total_subcases > 0)
                 {
-                    fossil_pizza_case_result_t aggregate_result = test_case->result;
+                    fossil_maip_case_result_t aggregate_result = test_case->result;
                     for (int64_t s = 0; s < test_case->total_subcases; ++s)
                     {
-                        fossil_pizza_subcase_t *subcase = &test_case->subcases[s];
+                        fossil_maip_subcase_t *subcase = &test_case->subcases[s];
 
                         if (subcase->result == FOSSIL_PIZZA_CASE_FAIL)
                         {
@@ -675,12 +698,12 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
             else
             {
                 test_case->result = FOSSIL_PIZZA_CASE_FAIL;
-                test_case->elapsed_ns = fossil_pizza_now_ns() - start_time;
+                test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
 
                 if (engine->pallet.run.fail_fast)
                 {
-                    fossil_pizza_update_score(test_case, suite);
-                    fossil_pizza_show_cases(suite, test_case, engine);
+                    fossil_maip_update_score(test_case, suite);
+                    fossil_maip_show_cases(suite, test_case, engine);
                     return;
                 }
             }
@@ -695,8 +718,8 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
             test_case->teardown();
     }
 
-    fossil_pizza_update_score(test_case, suite);
-    fossil_pizza_show_cases(suite, test_case, engine);
+    fossil_maip_update_score(test_case, suite);
+    fossil_maip_show_cases(suite, test_case, engine);
 }
 
 // --- Algorithmic modifications ---
@@ -704,45 +727,45 @@ void fossil_pizza_run_test(const fossil_pizza_engine_t *engine,
 // --- Sorting Test Cases ---
 static int compare_name_asc(const void *a, const void *b)
 {
-    return pizza_io_cstr_compare(((fossil_pizza_case_t *)a)->name, ((fossil_pizza_case_t *)b)->name);
+    return pizza_io_cstr_compare(((fossil_maip_case_t *)a)->name, ((fossil_maip_case_t *)b)->name);
 }
 
 static int compare_name_desc(const void *a, const void *b)
 {
-    return pizza_io_cstr_compare(((fossil_pizza_case_t *)b)->name, ((fossil_pizza_case_t *)a)->name);
+    return pizza_io_cstr_compare(((fossil_maip_case_t *)b)->name, ((fossil_maip_case_t *)a)->name);
 }
 
 static int compare_result_asc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)a)->result - ((fossil_pizza_case_t *)b)->result;
+    return ((fossil_maip_case_t *)a)->result - ((fossil_maip_case_t *)b)->result;
 }
 
 static int compare_result_desc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)b)->result - ((fossil_pizza_case_t *)a)->result;
+    return ((fossil_maip_case_t *)b)->result - ((fossil_maip_case_t *)a)->result;
 }
 
 static int compare_time_asc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)a)->elapsed_ns - ((fossil_pizza_case_t *)b)->elapsed_ns;
+    return ((fossil_maip_case_t *)a)->elapsed_ns - ((fossil_maip_case_t *)b)->elapsed_ns;
 }
 
 static int compare_time_desc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)b)->elapsed_ns - ((fossil_pizza_case_t *)a)->elapsed_ns;
+    return ((fossil_maip_case_t *)b)->elapsed_ns - ((fossil_maip_case_t *)a)->elapsed_ns;
 }
 
 static int compare_priority_asc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)a)->priority - ((fossil_pizza_case_t *)b)->priority;
+    return ((fossil_maip_case_t *)a)->priority - ((fossil_maip_case_t *)b)->priority;
 }
 
 static int compare_priority_desc(const void *a, const void *b)
 {
-    return ((fossil_pizza_case_t *)b)->priority - ((fossil_pizza_case_t *)a)->priority;
+    return ((fossil_maip_case_t *)b)->priority - ((fossil_maip_case_t *)a)->priority;
 }
 
-void fossil_pizza_sort_cases(fossil_pizza_suite_t *suite, const fossil_pizza_engine_t *engine)
+void fossil_maip_sort_cases(fossil_maip_suite_t *suite, const fossil_maip_engine_t *engine)
 {
     if (!suite || !suite->cases || suite->count <= 1 || !engine)
         return;
@@ -776,12 +799,12 @@ void fossil_pizza_sort_cases(fossil_pizza_suite_t *suite, const fossil_pizza_eng
 
     if (compare)
     {
-        qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare);
+        qsort(suite->cases, suite->count, sizeof(fossil_maip_case_t), compare);
     }
 }
 
 // --- Filtering Test Cases ---
-size_t fossil_pizza_filter_cases(fossil_pizza_suite_t *suite, const fossil_pizza_engine_t *engine, fossil_pizza_case_t **filtered_cases)
+size_t fossil_maip_filter_cases(fossil_maip_suite_t *suite, const fossil_maip_engine_t *engine, fossil_maip_case_t **filtered_cases)
 {
     if (!suite || !suite->cases || !filtered_cases || !engine)
         return 0;
@@ -789,7 +812,7 @@ size_t fossil_pizza_filter_cases(fossil_pizza_suite_t *suite, const fossil_pizza
     size_t count = 0;
     for (size_t i = 0; i < suite->count; ++i)
     {
-        fossil_pizza_case_t *test_case = &suite->cases[i];
+        fossil_maip_case_t *test_case = &suite->cases[i];
 
         // Apply filters based on engine->pallet.filter
         if (engine->pallet.filter.test_name && pizza_io_cstr_compare(test_case->name, engine->pallet.filter.test_name) != 0)
@@ -811,7 +834,7 @@ size_t fossil_pizza_filter_cases(fossil_pizza_suite_t *suite, const fossil_pizza
 }
 
 // --- Shuffling Test Cases ---
-void fossil_pizza_shuffle_cases(fossil_pizza_suite_t *suite, const fossil_pizza_engine_t *engine)
+void fossil_maip_shuffle_cases(fossil_maip_suite_t *suite, const fossil_maip_engine_t *engine)
 {
     if (!suite || !suite->cases || suite->count < 2)
         return;
@@ -825,7 +848,7 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t *suite, const fossil_pizza_
     for (size_t i = suite->count - 1; i > 0; --i)
     {
         size_t j = rand() % (i + 1);
-        fossil_pizza_case_t temp = suite->cases[i];
+        fossil_maip_case_t temp = suite->cases[i];
         suite->cases[i] = suite->cases[j];
         suite->cases[j] = temp;
     }
@@ -835,25 +858,25 @@ void fossil_pizza_shuffle_cases(fossil_pizza_suite_t *suite, const fossil_pizza_
     {
         if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "name") == 0)
         {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_name_asc);
+            qsort(suite->cases, suite->count, sizeof(fossil_maip_case_t), compare_name_asc);
         }
         else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "result") == 0)
         {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_result_asc);
+            qsort(suite->cases, suite->count, sizeof(fossil_maip_case_t), compare_result_asc);
         }
         else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "time") == 0)
         {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_time_asc);
+            qsort(suite->cases, suite->count, sizeof(fossil_maip_case_t), compare_time_asc);
         }
         else if (pizza_io_cstr_compare(engine->pallet.shuffle.by, "priority") == 0)
         {
-            qsort(suite->cases, suite->count, sizeof(fossil_pizza_case_t), compare_priority_asc);
+            qsort(suite->cases, suite->count, sizeof(fossil_maip_case_t), compare_priority_asc);
         }
     }
 }
 
 // --- Run One Suite ---
-int fossil_pizza_run_suite(const fossil_pizza_engine_t *engine, fossil_pizza_suite_t *suite)
+int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite)
 {
     if (!suite || !suite->cases)
         return FOSSIL_PIZZA_FAILURE;
@@ -862,28 +885,28 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t *engine, fossil_pizza_sui
         suite->setup();
 
     // --- Reset suite stats ---
-    suite->time_elapsed_ns = fossil_pizza_now_ns();
+    suite->time_elapsed_ns = fossil_maip_now_ns();
     suite->total_score = 0;
     suite->total_possible = 0;
     pizza_sys_memory_set(&suite->score, 0, sizeof(suite->score));
 
     // --- Filtering ---
-    fossil_pizza_case_t *filtered_cases[suite->count];
-    size_t filtered_count = fossil_pizza_filter_cases(suite, engine, filtered_cases);
+    fossil_maip_case_t *filtered_cases[suite->count];
+    size_t filtered_count = fossil_maip_filter_cases(suite, engine, filtered_cases);
 
     if (filtered_count > 0)
     {
-        fossil_pizza_sort_cases(suite, engine);
-        fossil_pizza_shuffle_cases(suite, engine);
+        fossil_maip_sort_cases(suite, engine);
+        fossil_maip_shuffle_cases(suite, engine);
 
         for (size_t i = 0; i < filtered_count; ++i)
         {
-            fossil_pizza_case_t *test_case = filtered_cases[i];
-            fossil_pizza_run_test(engine, test_case, suite);
+            fossil_maip_case_t *test_case = filtered_cases[i];
+            fossil_maip_run_test(engine, test_case, suite);
         }
     }
 
-    suite->time_elapsed_ns = fossil_pizza_now_ns() - suite->time_elapsed_ns;
+    suite->time_elapsed_ns = fossil_maip_now_ns() - suite->time_elapsed_ns;
 
     if (suite->teardown)
         suite->teardown();
@@ -892,7 +915,7 @@ int fossil_pizza_run_suite(const fossil_pizza_engine_t *engine, fossil_pizza_sui
 }
 
 // --- Run All Suites ---
-int fossil_pizza_run_all(fossil_pizza_engine_t *engine)
+int fossil_maip_run_all(fossil_maip_engine_t *engine)
 {
     if (!engine)
         return FOSSIL_PIZZA_FAILURE;
@@ -905,12 +928,12 @@ int fossil_pizza_run_all(fossil_pizza_engine_t *engine)
     // --- Run all test suites ---
     for (size_t i = 0; i < engine->count; ++i)
     {
-        fossil_pizza_run_suite(engine, &engine->suites[i]);
+        fossil_maip_run_suite(engine, &engine->suites[i]);
 
         engine->score_total += engine->suites[i].total_score;
         engine->score_possible += engine->suites[i].total_possible;
 
-        const fossil_pizza_score_t *src = &engine->suites[i].score;
+        const fossil_maip_score_t *src = &engine->suites[i].score;
         engine->score.passed += src->passed;
         engine->score.failed += src->failed;
         engine->score.skipped += src->skipped;
@@ -924,7 +947,7 @@ int fossil_pizza_run_all(fossil_pizza_engine_t *engine)
 
 // --- Summary Report ---
 
-const char *fossil_test_summary_feedback(const fossil_pizza_score_t *score)
+const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
 {
     if (!score)
         return "No results available.";
@@ -1306,7 +1329,7 @@ const char *fossil_test_summary_feedback(const fossil_pizza_score_t *score)
     return message;
 }
 
-void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t *engine)
+void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
 {
     if (!engine)
         return;
@@ -1415,7 +1438,7 @@ void fossil_pizza_summary_timestamp(const fossil_pizza_engine_t *engine)
     }
 }
 
-void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t *engine)
+void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
 {
     if (!engine)
         return;
@@ -1487,7 +1510,7 @@ void fossil_pizza_summary_scoreboard(const fossil_pizza_engine_t *engine)
     }
 }
 
-void fossil_pizza_summary_heading(const fossil_pizza_engine_t *engine)
+void fossil_maip_summary_heading(const fossil_maip_engine_t *engine)
 {
     pizza_sys_hostinfo_system_t system_info;
     pizza_sys_hostinfo_endianness_t endianness_info;
@@ -1537,7 +1560,7 @@ void fossil_pizza_summary_heading(const fossil_pizza_engine_t *engine)
     }
 }
 
-void fossil_pizza_ai_feedback(const fossil_pizza_engine_t *engine)
+void fossil_maip_ai_feedback(const fossil_maip_engine_t *engine)
 {
     if (!engine)
         return;
@@ -1564,33 +1587,33 @@ void fossil_pizza_ai_feedback(const fossil_pizza_engine_t *engine)
     }
 }
 
-void fossil_pizza_summary(const fossil_pizza_engine_t *engine)
+void fossil_maip_summary(const fossil_maip_engine_t *engine)
 {
     if (!engine)
         return;
 
     // Classic Summary Components
-    fossil_pizza_summary_heading(engine);
-    fossil_pizza_summary_scoreboard(engine);
-    fossil_pizza_summary_timestamp(engine);
+    fossil_maip_summary_heading(engine);
+    fossil_maip_summary_scoreboard(engine);
+    fossil_maip_summary_timestamp(engine);
 
     // AI-Generated Feedback
-    fossil_pizza_ai_feedback(engine);
+    fossil_maip_ai_feedback(engine);
 }
 
 // --- End / Cleanup ---
-int32_t fossil_pizza_end(fossil_pizza_engine_t *engine)
+int32_t fossil_maip_end(fossil_maip_engine_t *engine)
 {
     if (!engine)
         return FOSSIL_PIZZA_FAILURE;
     for (size_t i = 0; i < engine->count; ++i)
     {
-        fossil_pizza_suite_t *suite = &engine->suites[i];
+        fossil_maip_suite_t *suite = &engine->suites[i];
         if (suite->cases)
         {
             for (size_t j = 0; j < suite->count; ++j)
             {
-                fossil_pizza_case_t *test_case = &suite->cases[j];
+                fossil_maip_case_t *test_case = &suite->cases[j];
                 if (test_case->teardown)
                 {
                     test_case->teardown();
@@ -1760,7 +1783,7 @@ char *pizza_test_assert_messagef(const char *message, ...)
         result.timestamp = get_pizza_time_microseconds();
 
         // Hash both format string and final message to detect templating vs content errors
-        fossil_pizza_hash(message, formatted_message, result.hash);
+        fossil_maip_hash(message, formatted_message, result.hash);
 
         // Root cause detection
         result.root_cause_code = pizza_test_detect_root_cause(formatted_message);
@@ -2195,7 +2218,7 @@ static int pizza_test_assert_internal_detect_ti(const char *message, const char 
     snprintf(output_buf, sizeof(output_buf), "%s", message);
 
     uint8_t current_hash[FOSSIL_PIZZA_HASH_SIZE];
-    fossil_pizza_hash(input_buf, output_buf, current_hash);
+    fossil_maip_hash(input_buf, output_buf, current_hash);
 
     bool same_hash = memcmp(last_hash, current_hash, FOSSIL_PIZZA_HASH_SIZE) == 0;
 
@@ -2225,7 +2248,7 @@ void pizza_test_assert_internal(bool condition, const char *message, const char 
         snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
         snprintf(output_buf, sizeof(output_buf), "%s", message);
         uint8_t hash[FOSSIL_PIZZA_HASH_SIZE];
-        fossil_pizza_hash(input_buf, output_buf, hash);
+        fossil_maip_hash(input_buf, output_buf, hash);
 
         int root_cause_code = pizza_test_detect_root_cause(message);
 

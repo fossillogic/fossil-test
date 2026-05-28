@@ -214,7 +214,7 @@ typedef const char* ccstr;
  * @param output The output string to combine with the input.
  * @param hash_out Pointer to an array where the resulting hash will be stored.
  */
-FOSSIL_PIZZA_API void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
+FOSSIL_PIZZA_API void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out);
 
 // *****************************************************************************
 // Command Pallet
@@ -225,13 +225,13 @@ typedef enum {
     PIZZA_THEME_LIGHT,    // Light Theme for Fossil Test Framework
     PIZZA_THEME_DARK,     // Dark Theme for Fossil Test Framework
     PIZZA_THEME_MAGA      // Maga Theme make unit testing great again!
-} fossil_pizza_cli_theme_t;
+} fossil_maip_cli_theme_t;
 
 typedef enum {
     PIZZA_VERBOSE_PLAIN,
     PIZZA_VERBOSE_CI,
     PIZZA_VERBOSE_DOGE
-} fossil_pizza_cli_verbose_t;
+} fossil_maip_cli_verbose_t;
 
 typedef struct {
     int dry_run;                   // Flag for dry run mode
@@ -295,8 +295,8 @@ typedef struct {
         const char* destination;       // Output destination (file path or stdout)
     } report;                       // Report command flags
 
-    fossil_pizza_cli_theme_t theme; // Theme option
-} fossil_pizza_pallet_t;
+    fossil_maip_cli_theme_t theme; // Theme option
+} fossil_maip_pallet_t;
 
 // *****************************************************************************
 // exported flags
@@ -308,7 +308,7 @@ extern int G_PIZZA_FAIL_FAST;
 extern int G_PIZZA_SKIP;
 extern const char* G_PIZZA_ONLY;
 extern int G_PIZZA_REPEAT;
-extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
+extern fossil_maip_cli_theme_t G_PIZZA_THEME;
 
 /**
  * @brief Parses command line arguments and populates the pallet structure.
@@ -320,7 +320,7 @@ extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
  * @param argc The number of command line arguments.
  * @param argv The command line arguments.
  */
-FOSSIL_PIZZA_API fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
+FOSSIL_PIZZA_API fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv);
 
 // *****************************************************************************
 // INI Parser
@@ -332,14 +332,14 @@ FOSSIL_PIZZA_API fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char
  * @brief Parses an INI file and populates the provided pallet structure.
  *
  * This function reads an INI file and extracts key-value pairs to populate
- * the fossil_pizza_pallet_t structure. It assumes a simple INI format with
+ * the fossil_maip_pallet_t structure. It assumes a simple INI format with
  * sections and key-value pairs.
  *
  * @param filename The path to the INI file.
  * @param pallet Pointer to the pallet structure to populate.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet);
+FOSSIL_PIZZA_API int fossil_maip_ini_parse(const char *filename, fossil_maip_pallet_t *pallet);
 
 // *****************************************************************************
 // Host information

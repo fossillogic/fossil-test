@@ -44,7 +44,7 @@ int G_PIZZA_SKIP = 0;
 const char* G_PIZZA_ONLY = null;
 int G_PIZZA_REPEAT = 0;
 int G_PIZZA_THREADS = 1;
-fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
+fossil_maip_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
 
 // *****************************************************************************
 // Hashing algorithm
@@ -103,7 +103,7 @@ static uint64_t get_pizza_device_salt(void) {
     return hash;
 }
 
-void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out) {
+void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) {
     const uint64_t PRIME = 0x100000001b3ULL;
     static uint64_t SALT = 0;
     if (SALT == 0) SALT = get_pizza_device_salt();  // Initialize salt once
@@ -332,8 +332,8 @@ static void _show_host(void) {
     exit(EXIT_SUCCESS);
 }
 
-fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
-    fossil_pizza_pallet_t pallet = {0};
+fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
+    fossil_maip_pallet_t pallet = {0};
     int is_command = 0; // Variable to track if a command is being processed
 
     pallet.show.enabled = 0; // Initialize show command enabled flag
@@ -677,7 +677,7 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 // INI Parser
 // *****************************************************************************
 
-int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) {
+int fossil_maip_ini_parse(const char *filename, fossil_maip_pallet_t *pallet) {
     pizza_io_printf("{yellow}Warning: INI parser is experimental and in development.{reset}\n");
     const char *basename = strrchr(filename, '/');
     if (!basename) {
