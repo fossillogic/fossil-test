@@ -289,7 +289,7 @@ extern "C"
         .priority = 0,                                   \
         .result = FOSSIL_PIZZA_CASE_EMPTY,               \
         .subcases = NULL,                                \
-        .subcase_weight = 0};                            \
+        .total_subcases = 0};                            \
     void test_name##_run(void)
 #endif
 
