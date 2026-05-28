@@ -85,7 +85,7 @@ extern "C"
         int64_t priority;                  // Priority level (lower = higher priority)
         fossil_pizza_case_result_t result; // Outcome of the test case
         fossil_pizza_subcase_t *subcases;  // Subcases for granular testing
-        int64_t subcase_weight;            // Weighting for subcases
+        int64_t total_subcases;            // Total number of subcases
     } fossil_pizza_case_t;
 
     // --- Test Suite ---
