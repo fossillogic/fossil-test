@@ -302,16 +302,10 @@ extern "C"
  * @param name The name of the subcase to define.
  * @param description The description of the subcase.
  */
-#define _FOSSIL_SUBCASE(name, description) \
-    static fossil_pizza_subcase_t subcase_##name = { \
-        .name = #name,                                \
-        .description = description,                   \
-        .elapsed_ns = 0,                              \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};           \
-    subcase_##name.result = FOSSIL_PIZZA_CASE_PASS;  \
-    subcase_##name.elapsed_ns = 0;                   \
-    subcase_##name.name = #name;                     \
-    subcase_##name.description = description
+ 
+#define _FOSSIL_SUBCASE(description) \
+    if (true)                          \
+        for (const char *__subcase_desc = description; __subcase_desc; __subcase_desc = NULL)
 
 /** @brief Macro to set a test case's tags.
  *
@@ -721,11 +715,10 @@ extern "C"
  * more granular testing within a single test case. The subcase can be executed
  * independently or as part of the parent test case.
  *
- * @param name The name of the subcase to define.
  * @param description The description of the subcase.
  */
-#define FOSSIL_SUBCASE(name, description) \
-    _FOSSIL_SUBCASE(name, description)
+#define FOSSIL_SUBCASE(description) \
+    _FOSSIL_SUBCASE(description)
 
 /** @brief Macro to set a test case's tags.
  *
