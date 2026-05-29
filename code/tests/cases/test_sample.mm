@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 
-#include "fossil/pizza/framework.h"
+#include "fossil/maip/framework.h"
 
 // Test data structure for a sample test
 FOSSIL_MOCK_STRUCT(ObjCppSampleTestData) {

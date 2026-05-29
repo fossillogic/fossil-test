@@ -35,18 +35,18 @@ extern "C"
     // --- Return codes ---
     enum
     {
-        FOSSIL_PIZZA_SUCCESS = 0,
-        FOSSIL_PIZZA_FAILURE = -1
+        FOSSIL_MAIP_SUCCESS = 0,
+        FOSSIL_MAIP_FAILURE = -1
     };
 
     typedef enum
     {
-        FOSSIL_PIZZA_CASE_EMPTY = 0,
-        FOSSIL_PIZZA_CASE_PASS,
-        FOSSIL_PIZZA_CASE_FAIL,
-        FOSSIL_PIZZA_CASE_TIMEOUT,
-        FOSSIL_PIZZA_CASE_SKIPPED,
-        FOSSIL_PIZZA_CASE_UNEXPECTED
+        FOSSIL_MAIP_CASE_EMPTY = 0,
+        FOSSIL_MAIP_CASE_PASS,
+        FOSSIL_MAIP_CASE_FAIL,
+        FOSSIL_MAIP_CASE_TIMEOUT,
+        FOSSIL_MAIP_CASE_SKIPPED,
+        FOSSIL_MAIP_CASE_UNEXPECTED
     } fossil_maip_case_result_t;
 
     // --- Score Struct ---
@@ -117,7 +117,7 @@ extern "C"
      * @param argv The command line arguments.
      * @return 0 on success, -1 on failure.
      */
-    FOSSIL_PIZZA_API int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv);
+    FOSSIL_MAIP_API int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv);
 
     // --- Adding Test Suites and Cases ---
 
@@ -126,14 +126,14 @@ extern "C"
      * @param suite The suite to add.
      * @return 0 on success, -1 on failure.
      */
-    FOSSIL_PIZZA_API int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite);
+    FOSSIL_MAIP_API int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite);
 
     /** Adds a test case to a suite.
      * @param suite Pointer to the suite instance.
      * @param test_case Pointer to the test case to add.
      * @return 0 on success, -1 on failure.
      */
-    FOSSIL_PIZZA_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
+    FOSSIL_MAIP_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
 
     // --- Execution ---
 
@@ -141,25 +141,25 @@ extern "C"
      * @param suite Pointer to the suite instance.
      * @return 0 on success, -1 on failure.
      */
-    FOSSIL_PIZZA_API int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite);
+    FOSSIL_MAIP_API int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite);
 
     /** Runs all test suites in the engine.
      * @param engine Pointer to the engine instance.
      * @return 0 on success, -1 on failure.
      */
-    FOSSIL_PIZZA_API int fossil_maip_run_all(fossil_maip_engine_t *engine);
+    FOSSIL_MAIP_API int fossil_maip_run_all(fossil_maip_engine_t *engine);
 
     // --- Summary + Teardown ---
 
     /** Prints a summary of the test results.
      * @param engine Pointer to the engine instance.
      */
-    FOSSIL_PIZZA_API void fossil_maip_summary(const fossil_maip_engine_t *engine);
+    FOSSIL_MAIP_API void fossil_maip_summary(const fossil_maip_engine_t *engine);
 
     /** Cleans up and ends the test engine.
      * @param engine Pointer to the engine instance.
      */
-    FOSSIL_PIZZA_API int32_t fossil_maip_end(fossil_maip_engine_t *engine);
+    FOSSIL_MAIP_API int32_t fossil_maip_end(fossil_maip_engine_t *engine);
 
     /**
      * @brief Internal function to handle assertions with anomaly detection.
@@ -173,7 +173,7 @@ extern "C"
      * @param line The line number where the assertion occurred.
      * @param func The function name where the assertion occurred.
      */
-    FOSSIL_PIZZA_API void pizza_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
+    FOSSIL_MAIP_API void maip_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
     /**
      * @brief Internal function to handle assertions with message formatting.
@@ -184,7 +184,7 @@ extern "C"
      * @param message The message to format.
      * @return A formatted message string.
      */
-    FOSSIL_PIZZA_API char *pizza_test_assert_messagef(const char *message, ...);
+    FOSSIL_MAIP_API char *maip_test_assert_messagef(const char *message, ...);
 
     // *********************************************************************************************
     // internal messages
@@ -198,7 +198,7 @@ extern "C"
      *
      * @param description The description of the given step.
      */
-    FOSSIL_PIZZA_API void _given(const char *description);
+    FOSSIL_MAIP_API void _given(const char *description);
 
     /**
      * @brief Internal function to handle the "when" step in a test case.
@@ -208,7 +208,7 @@ extern "C"
      *
      * @param description The description of the when step.
      */
-    FOSSIL_PIZZA_API void _when(const char *description);
+    FOSSIL_MAIP_API void _when(const char *description);
 
     /**
      * @brief Internal function to handle the "then" step in a test case.
@@ -218,7 +218,7 @@ extern "C"
      *
      * @param description The description of the then step.
      */
-    FOSSIL_PIZZA_API void _then(const char *description);
+    FOSSIL_MAIP_API void _then(const char *description);
 
     /**
      * @brief Internal function to handle the "skip" step in a test case.
@@ -228,7 +228,7 @@ extern "C"
      *
      * @param description The description of the skip step.
      */
-    FOSSIL_PIZZA_API void _on_skip(const char *description);
+    FOSSIL_MAIP_API void _on_skip(const char *description);
 
 #ifdef __cplusplus
 }
@@ -259,7 +259,7 @@ extern "C"
         test_name##_run,                                 \
         0,                                               \
         0,                                               \
-        FOSSIL_PIZZA_CASE_EMPTY};                        \
+        FOSSIL_MAIP_CASE_EMPTY};                        \
     extern "C" void test_name##_run(void)
 #else
 #define _FOSSIL_TEST(test_name)                          \
@@ -273,7 +273,7 @@ extern "C"
         .run = test_name##_run,                          \
         .elapsed_ns = 0,                                 \
         .priority = 0,                                   \
-        .result = FOSSIL_PIZZA_CASE_EMPTY};              \
+        .result = FOSSIL_MAIP_CASE_EMPTY};              \
     void test_name##_run(void)
 #endif
 
@@ -298,7 +298,7 @@ extern "C"
  * @param skip The skip message to assign to the test case.
  */
 #define _FOSSIL_TEST_SET_SKIP(test_name, skip)                \
-    test_case_##test_name.result = FOSSIL_PIZZA_CASE_SKIPPED; \
+    test_case_##test_name.result = FOSSIL_MAIP_CASE_SKIPPED; \
     test_case_##test_name.tags = skip                         \
                                      test_case_##test_name.teardown = _on_skip(skip)
 
@@ -457,9 +457,9 @@ extern "C"
  */
 #define _FOSSIL_TEST_START(argc, argv)                                   \
     fossil_maip_engine_t engine;                                        \
-    if (fossil_maip_start(&engine, argc, argv) != FOSSIL_PIZZA_SUCCESS) \
+    if (fossil_maip_start(&engine, argc, argv) != FOSSIL_MAIP_SUCCESS) \
     {                                                                    \
-        return FOSSIL_PIZZA_FAILURE;                                     \
+        return FOSSIL_MAIP_FAILURE;                                     \
     }
 
 /** @brief Macro to print a summary of the test results.
@@ -562,7 +562,7 @@ extern "C"
  * message and may abort the execution of the test case or test suite.
  */
 #define _FOSSIL_TEST_ASSUME(condition, message) \
-    pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
+    maip_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
 /**
  * @brief Macro to assume a condition in a test runner.
@@ -571,7 +571,7 @@ extern "C"
  * message and may abort the execution of the test case or test suite.
  */
 #define _FOSSIL_TEST_ASSERT(condition, message) \
-    pizza_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
+    maip_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
 /**
  * @brief Macro to assume a condition in a test runner.
@@ -582,11 +582,11 @@ extern "C"
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
 // C23: __VA_OPT__ is available
 #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
-    pizza_test_assert_messagef((message)__VA_OPT__(, __VA_ARGS__))
+    maip_test_assert_messagef((message)__VA_OPT__(, __VA_ARGS__))
 #else
 // Portable workaround: always require at least one argument after 'message'
 #define _FOSSIL_TEST_ASSUME_MESSAGE(...) \
-    pizza_test_assert_messagef(__VA_ARGS__)
+    maip_test_assert_messagef(__VA_ARGS__)
 #endif
 
 /**

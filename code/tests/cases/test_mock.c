@@ -12,7 +12,7 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/pizza/framework.h>
+#include <fossil/maip/framework.h>
 #include <string.h>
 
 
@@ -50,11 +50,11 @@ FOSSIL_MOCK_FUNC(int, c_mock_function, int a, int b) {
 }
 
 FOSSIL_MOCK_FUNC(void, c_mock_function_with_output, void) {
-    pizza_io_printf("Hello, Fossil Logic!");
+    maip_io_printf("Hello, Fossil Logic!");
 }
 
 FOSSIL_MOCK_FUNC(void, mock_function_redirection, void) {
-    pizza_io_printf("Testing macro redirection!");
+    maip_io_printf("Testing macro redirection!");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
@@ -81,20 +81,20 @@ FOSSIL_TEST(c_mock_call_list_addition) {
     MOCK_INIT(list);
 
     // Create mock arguments
-    fossil_mock_pizza_t args[2];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("arg1");
+    fossil_mock_maip_t args[2];
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("arg1_name");
-    args[0].attribute.description = pizza_io_cstr_dup("First argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
+    args[0].attribute.name = maip_io_cstr_dup("arg1_name");
+    args[0].attribute.description = maip_io_cstr_dup("First argument");
+    args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[1].value.data = pizza_io_cstr_dup("arg2");
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
-    args[1].attribute.name = pizza_io_cstr_dup("arg2_name");
-    args[1].attribute.description = pizza_io_cstr_dup("Second argument");
-    args[1].attribute.id = pizza_io_cstr_dup("2");
+    args[1].attribute.name = maip_io_cstr_dup("arg2_name");
+    args[1].attribute.description = maip_io_cstr_dup("Second argument");
+    args[1].attribute.id = maip_io_cstr_dup("2");
 
     MOCK_ADD_CALL(list, "test_function", args, 2);
 
@@ -112,20 +112,20 @@ FOSSIL_TEST(c_mock_call_list_destruction) {
     MOCK_INIT(list);
 
     // Create mock arguments
-    fossil_mock_pizza_t args[2];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("arg1");
+    fossil_mock_maip_t args[2];
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("arg1_name");
-    args[0].attribute.description = pizza_io_cstr_dup("First argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
+    args[0].attribute.name = maip_io_cstr_dup("arg1_name");
+    args[0].attribute.description = maip_io_cstr_dup("First argument");
+    args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[1].value.data = pizza_io_cstr_dup("arg2");
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
-    args[1].attribute.name = pizza_io_cstr_dup("arg2_name");
-    args[1].attribute.description = pizza_io_cstr_dup("Second argument");
-    args[1].attribute.id = pizza_io_cstr_dup("2");
+    args[1].attribute.name = maip_io_cstr_dup("arg2_name");
+    args[1].attribute.description = maip_io_cstr_dup("Second argument");
+    args[1].attribute.id = maip_io_cstr_dup("2");
 
     MOCK_ADD_CALL(list, "test_function", args, 2);
 
@@ -167,27 +167,27 @@ FOSSIL_TEST(c_mock_call_list_type_handling) {
     MOCK_INIT(list);
 
     // Create mock arguments with various types
-    fossil_mock_pizza_t args[3];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_I32;
-    args[0].value.data = pizza_io_cstr_dup("42");
+    fossil_mock_maip_t args[3];
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_I32;
+    args[0].value.data = maip_io_cstr_dup("42");
     args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("arg1");
-    args[0].attribute.description = pizza_io_cstr_dup("Integer argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
+    args[0].attribute.name = maip_io_cstr_dup("arg1");
+    args[0].attribute.description = maip_io_cstr_dup("Integer argument");
+    args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[1].value.data = pizza_io_cstr_dup("Hello");
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[1].value.data = maip_io_cstr_dup("Hello");
     args[1].value.mutable_flag = true;
-    args[1].attribute.name = pizza_io_cstr_dup("arg2");
-    args[1].attribute.description = pizza_io_cstr_dup("String argument");
-    args[1].attribute.id = pizza_io_cstr_dup("2");
+    args[1].attribute.name = maip_io_cstr_dup("arg2");
+    args[1].attribute.description = maip_io_cstr_dup("String argument");
+    args[1].attribute.id = maip_io_cstr_dup("2");
 
-    args[2].type = FOSSIL_MOCK_PIZZA_TYPE_BOOL;
-    args[2].value.data = pizza_io_cstr_dup("true");
+    args[2].type = FOSSIL_MOCK_MAIP_TYPE_BOOL;
+    args[2].value.data = maip_io_cstr_dup("true");
     args[2].value.mutable_flag = false;
-    args[2].attribute.name = pizza_io_cstr_dup("arg3");
-    args[2].attribute.description = pizza_io_cstr_dup("Boolean argument");
-    args[2].attribute.id = pizza_io_cstr_dup("3");
+    args[2].attribute.name = maip_io_cstr_dup("arg3");
+    args[2].attribute.description = maip_io_cstr_dup("Boolean argument");
+    args[2].attribute.id = maip_io_cstr_dup("3");
 
     // Add a mock call with the arguments using macro
     MOCK_ADD_CALL(list, "test_function", args, 3);
@@ -197,15 +197,15 @@ FOSSIL_TEST(c_mock_call_list_type_handling) {
     FOSSIL_TEST_ASSUME(strcmp(list.head->function_name, "test_function") == 0, "Function name should be 'test_function'");
     FOSSIL_TEST_ASSUME(list.head->num_args == 3, "Number of arguments should be 3");
 
-    FOSSIL_TEST_ASSUME(list.head->arguments[0].type == FOSSIL_MOCK_PIZZA_TYPE_I32, "First argument type should be I32");
+    FOSSIL_TEST_ASSUME(list.head->arguments[0].type == FOSSIL_MOCK_MAIP_TYPE_I32, "First argument type should be I32");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[0].value.data, "42") == 0, "First argument value should be '42'");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[0].attribute.name, "arg1") == 0, "First argument name should be 'arg1'");
 
-    FOSSIL_TEST_ASSUME(list.head->arguments[1].type == FOSSIL_MOCK_PIZZA_TYPE_CSTR, "Second argument type should be CSTR");
+    FOSSIL_TEST_ASSUME(list.head->arguments[1].type == FOSSIL_MOCK_MAIP_TYPE_CSTR, "Second argument type should be CSTR");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[1].value.data, "Hello") == 0, "Second argument value should be 'Hello'");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[1].attribute.name, "arg2") == 0, "Second argument name should be 'arg2'");
 
-    FOSSIL_TEST_ASSUME(list.head->arguments[2].type == FOSSIL_MOCK_PIZZA_TYPE_BOOL, "Third argument type should be BOOL");
+    FOSSIL_TEST_ASSUME(list.head->arguments[2].type == FOSSIL_MOCK_MAIP_TYPE_BOOL, "Third argument type should be BOOL");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[2].value.data, "true") == 0, "Third argument value should be 'true'");
     FOSSIL_TEST_ASSUME(strcmp(list.head->arguments[2].attribute.name, "arg3") == 0, "Third argument name should be 'arg3'");
 
@@ -237,14 +237,14 @@ FOSSIL_TEST(c_mock_call_list_large_arguments) {
 
     // Create a large number of mock arguments
     const int num_args = 100;
-    fossil_mock_pizza_t args[num_args];
+    fossil_mock_maip_t args[num_args];
     for (int i = 0; i < num_args; ++i) {
-        args[i].type = FOSSIL_MOCK_PIZZA_TYPE_I32;
-        args[i].value.data = pizza_io_cstr_dup("42");
+        args[i].type = FOSSIL_MOCK_MAIP_TYPE_I32;
+        args[i].value.data = maip_io_cstr_dup("42");
         args[i].value.mutable_flag = false;
-        args[i].attribute.name = pizza_io_cstr_dup("arg");
-        args[i].attribute.description = pizza_io_cstr_dup("Large argument test");
-        args[i].attribute.id = pizza_io_cstr_dup("id");
+        args[i].attribute.name = maip_io_cstr_dup("arg");
+        args[i].attribute.description = maip_io_cstr_dup("Large argument test");
+        args[i].attribute.id = maip_io_cstr_dup("id");
     }
 
     // Add a mock call with the large number of arguments using macro
@@ -275,20 +275,20 @@ FOSSIL_TEST(c_mock_macro_addition) {
     MOCK_INIT(list);
 
     // Create mock arguments
-    fossil_mock_pizza_t args[2];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("arg1");
+    fossil_mock_maip_t args[2];
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("arg1_name");
-    args[0].attribute.description = pizza_io_cstr_dup("First argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
+    args[0].attribute.name = maip_io_cstr_dup("arg1_name");
+    args[0].attribute.description = maip_io_cstr_dup("First argument");
+    args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[1].value.data = pizza_io_cstr_dup("arg2");
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
-    args[1].attribute.name = pizza_io_cstr_dup("arg2_name");
-    args[1].attribute.description = pizza_io_cstr_dup("Second argument");
-    args[1].attribute.id = pizza_io_cstr_dup("2");
+    args[1].attribute.name = maip_io_cstr_dup("arg2_name");
+    args[1].attribute.description = maip_io_cstr_dup("Second argument");
+    args[1].attribute.id = maip_io_cstr_dup("2");
 
     // Add a mock call using the macro
     MOCK_ADD_CALL(list, "test_function", args, 2);
@@ -307,20 +307,20 @@ FOSSIL_TEST(c_mock_macro_destruction) {
     MOCK_INIT(list);
 
     // Create mock arguments
-    fossil_mock_pizza_t args[2];
-    args[0].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[0].value.data = pizza_io_cstr_dup("arg1");
+    fossil_mock_maip_t args[2];
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
-    args[0].attribute.name = pizza_io_cstr_dup("arg1_name");
-    args[0].attribute.description = pizza_io_cstr_dup("First argument");
-    args[0].attribute.id = pizza_io_cstr_dup("1");
+    args[0].attribute.name = maip_io_cstr_dup("arg1_name");
+    args[0].attribute.description = maip_io_cstr_dup("First argument");
+    args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_MOCK_PIZZA_TYPE_CSTR;
-    args[1].value.data = pizza_io_cstr_dup("arg2");
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
+    args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
-    args[1].attribute.name = pizza_io_cstr_dup("arg2_name");
-    args[1].attribute.description = pizza_io_cstr_dup("Second argument");
-    args[1].attribute.id = pizza_io_cstr_dup("2");
+    args[1].attribute.name = maip_io_cstr_dup("arg2_name");
+    args[1].attribute.description = maip_io_cstr_dup("Second argument");
+    args[1].attribute.id = maip_io_cstr_dup("2");
 
     // Add a mock call using the macro
     MOCK_ADD_CALL(list, "test_function", args, 2);

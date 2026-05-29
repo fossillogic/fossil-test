@@ -12,7 +12,7 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/pizza/framework.h>
+#include <fossil/maip/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -1025,7 +1025,7 @@ FOSSIL_TEST(c_assume_run_of_its_soap_rot_brain) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_its_soap_tone_detected) {
-    const char *text = "Respectfully testing the pizza.";
+    const char *text = "Respectfully testing the maip.";
     const char *expected_tone = "formal";
 
     // Test case
