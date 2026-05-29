@@ -355,6 +355,10 @@ FOSSIL_MAIP_API bool fossil_mock_compare_output(const char *captured, const char
 #define _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
     fossil_mock_compare_output(captured, expected)
 
+
+#define _MOCK_FUNC_CALL(name) \
+    fossil_mockup_##name
+
 // *****************************************************************************
 // Public API Macros
 // *****************************************************************************
@@ -516,5 +520,8 @@ FOSSIL_MAIP_API bool fossil_mock_compare_output(const char *captured, const char
  */
 #define FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
     _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected)
+
+#define MOCK_FUNC_CALL(name) \
+    _MOCK_FUNC_CALL(name)
 
 #endif // FOSSIL_MOCK_FRAMEWORK_H
