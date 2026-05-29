@@ -141,7 +141,7 @@ FOSSIL_TEST(c_mock_call_list_destruction) {
 
 FOSSIL_TEST(c_mock_function_creation) {
     // Test cases
-    FOSSIL_TEST_ASSUME(fossil_mockup_c_mock_function(2, 3) == 5, "Mock function should return the sum of its arguments");
+    FOSSIL_TEST_ASSUME(MOCK_FUNC_CALL(c_mock_function(2, 3)) == 5, "Mock function should return the sum of its arguments");
 } // end case
 
 FOSSIL_TEST(c_mock_alias_creation) {
