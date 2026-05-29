@@ -305,14 +305,14 @@ FOSSIL_TEST(objc_mock_macro_destruction) {
 
     // Create mock arguments
     fossil_mock_maip_t args[2];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[0].type = FOSSIL_MAIP_TYPE_CSTR;
     args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1_name");
     args[0].attribute.description = maip_io_cstr_dup("First argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
     args[1].attribute.name = maip_io_cstr_dup("arg2_name");
