@@ -82,14 +82,14 @@ FOSSIL_TEST(cpp_mock_call_list_addition) {
 
     // Create mock arguments
     fossil_mock_maip_t args[2];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1_name");
     args[0].attribute.description = maip_io_cstr_dup("First argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
     args[1].attribute.name = maip_io_cstr_dup("arg2_name");
@@ -113,14 +113,14 @@ FOSSIL_TEST(cpp_mock_call_list_destruction) {
 
     // Create mock arguments
     fossil_mock_maip_t args[2];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1_name");
     args[0].attribute.description = maip_io_cstr_dup("First argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
     args[1].attribute.name = maip_io_cstr_dup("arg2_name");
@@ -165,21 +165,21 @@ FOSSIL_TEST(cpp_mock_call_list_type_handling) {
 
     // Create mock arguments with various types
     fossil_mock_maip_t args[3];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_I32;
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_I32;
     args[0].value.data = maip_io_cstr_dup("42");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1");
     args[0].attribute.description = maip_io_cstr_dup("Integer argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("Hello");
     args[1].value.mutable_flag = true;
     args[1].attribute.name = maip_io_cstr_dup("arg2");
     args[1].attribute.description = maip_io_cstr_dup("String argument");
     args[1].attribute.id = maip_io_cstr_dup("2");
 
-    args[2].type = FOSSIL_FOSSIL_MAIP_TYPE_BOOL;
+    args[2].type = FOSSIL_MOCK_MAIP_TYPE_BOOL;
     args[2].value.data = maip_io_cstr_dup("true");
     args[2].value.mutable_flag = false;
     args[2].attribute.name = maip_io_cstr_dup("arg3");
@@ -236,7 +236,7 @@ FOSSIL_TEST(cpp_mock_call_list_large_arguments) {
     const int num_args = 100;
     fossil_mock_maip_t args[num_args];
     for (int i = 0; i < num_args; ++i) {
-        args[i].type = FOSSIL_FOSSIL_MAIP_TYPE_I32;
+        args[i].type = FOSSIL_MOCK_MAIP_TYPE_I32;
         args[i].value.data = maip_io_cstr_dup("42");
         args[i].value.mutable_flag = false;
         args[i].attribute.name = maip_io_cstr_dup("arg");
@@ -273,14 +273,14 @@ FOSSIL_TEST(cpp_mock_macro_addition) {
 
     // Create mock arguments
     fossil_mock_maip_t args[2];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1_name");
     args[0].attribute.description = maip_io_cstr_dup("First argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
     args[1].attribute.name = maip_io_cstr_dup("arg2_name");
@@ -305,14 +305,14 @@ FOSSIL_TEST(cpp_mock_macro_destruction) {
 
     // Create mock arguments
     fossil_mock_maip_t args[2];
-    args[0].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[0].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[0].value.data = maip_io_cstr_dup("arg1");
     args[0].value.mutable_flag = false;
     args[0].attribute.name = maip_io_cstr_dup("arg1_name");
     args[0].attribute.description = maip_io_cstr_dup("First argument");
     args[0].attribute.id = maip_io_cstr_dup("1");
 
-    args[1].type = FOSSIL_FOSSIL_MAIP_TYPE_CSTR;
+    args[1].type = FOSSIL_MOCK_MAIP_TYPE_CSTR;
     args[1].value.data = maip_io_cstr_dup("arg2");
     args[1].value.mutable_flag = false;
     args[1].attribute.name = maip_io_cstr_dup("arg2_name");
