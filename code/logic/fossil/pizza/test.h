@@ -630,38 +630,18 @@ extern "C"
     {                       \
         _then(description); \
     }
-
-/** @brief Macro to define a scoped test case block.
- *
- * This macro is used to define a scoped block of code within a test case. It can
- * be used to group related assertions or steps together, and the description will
- * be printed when the block is executed.
- *
- * Usage:
- * FOSSIL_SCOPE("scope description") {
- *     // Code for this scope
- * }
+    
+/**
+ * @brief Macro for defining a Subcases for scoping edge cases within test cases.
+ * 
+ * This macro is used to define a Subcase for scoping edge cases within test cases.
+ * The Subcase is used to specify the context of a test case.
+ * 
+ * @param description The description of the Subcase.
  */
-#define _FOSSIL_SCOPE(description) \
+#define _FOSSIL_SUBCASE(description) \
     if (true)                          \
-        for (const char *__scope_desc = description; __scope_desc; __scope_desc = NULL)
-
-/** @brief Define a scoped edge case block inside a test case.
- *
- * This macro is used to define a scoped block of code within a test case that
- * represents an edge case. The edge case block can be used to group related
- * assertions or steps together, and the description will be printed when the
- * block is executed.
- *
- * Usage:
- * FOSSIL_EDGE("edge case description") {
- *     int x = 1;
- *     FOSSIL_TEST_ASSERT(x == 1, "x should be 1");
- * }
- */
-#define _FOSSIL_EDGE(description) \
-    if (true)                          \
-        for (const char *__edge_desc = description; __edge_desc; __edge_desc = NULL)
+        for (const char *__subcase_desc = description; __subcase_desc; __subcase_desc = NULL)
 
 // *****************************************************************************
 // Public API Macros
@@ -957,29 +937,15 @@ extern "C"
 #define THEN(description) \
     _THEN(description)
 
-/** @brief Define a scoped edge case block inside a test case.
- *
- * Usage:
- * FOSSIL_EDGE("edge case description") {
- *     int x = 1;
- *     FOSSIL_TEST_ASSERT(x == 1, "x should be 1");
- * }
+/**
+ * @brief Macro for defining a Subcases for scoping edge cases within test cases.
+ * 
+ * This macro is used to define a Subcase for scoping edge cases within test cases.
+ * The Subcase is used to specify the context of a test case.
+ * 
+ * @param description The description of the Subcase.
  */
-#define FOSSIL_EDGE(description) \
-    _FOSSIL_EDGE(description)
-
-/** @brief Macro to define a scoped test case block.
- *
- * This macro is used to define a scoped block of code within a test case. It can
- * be used to group related assertions or steps together, and the description will
- * be printed when the block is executed.
- *
- * Usage:
- * FOSSIL_SCOPE("scope description") {
- *     // Code for this scope
- * }
- */
-#define FOSSIL_SCOPE(description) \
-    _FOSSIL_SCOPE(description)
+#define FOSSIL_SUBCASE(description) \
+    _FOSSIL_SUBCASE(description)
 
 #endif
