@@ -110,7 +110,7 @@ FOSSIL_TEST(test_input_equal)
 
 FOSSIL_TEST(edge_cases)
 {
-    FOSSIL_EDGE("Test with zero input")
+    FOSSIL_SUBCASE("Test with zero input")
     {
         CSampleTestData data = {.input = 0, .expected_output = 0};
 
@@ -119,7 +119,7 @@ FOSSIL_TEST(edge_cases)
         FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Zero input test failed");
     }
 
-    FOSSIL_EDGE("Test with negative input")
+    FOSSIL_SUBCASE("Test with negative input")
     {
         CSampleTestData data = {.input = -5, .expected_output = -5};
 
