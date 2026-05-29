@@ -16,7 +16,7 @@ With Fossil Test, developers can build clean, structured tests that fit naturall
 | **Mocking Capabilities**           | Advanced mocking tools to simulate complex dependencies and edge conditions, enabling isolated and deterministic testing.              |
 | **Benchmarking Tools**             | Integrated benchmarking features to measure runtime performance, identify slow paths, and guide optimization.                         |
 | **Sanity Kit for Command Tests**   | A specialized module for validating command-line tools, ensuring consistent behavior across platforms and shell environments.         |
-| **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., pizza, catch, doctest) to match your preferred style of feedback.                    |
+| **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., maip, catch, doctest) to match your preferred style of feedback.                    |
 | **Tag-Based Test Filtering**       | Execute subsets of tests based on custom tags for better test suite organization and faster iteration.                                |
 | **Detailed Performance Insights**  | In-depth statistics on execution time, memory usage, and test stability to help improve code performance and reliability.              |
 | **Objective-C & Objective-C++ Support (macOS)** | Full compatibility with Objective-C and Objective-C++ projects on macOS, allowing testing of Apple-specific frameworks and apps.  |
@@ -39,7 +39,7 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `shuffle`        | Shuffle tests with optional parameters.                                                     | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                 |
 | `show`           | Show test cases with optional parameters.                                                   | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
 | `color=<mode>`   | Set color mode.                                                                               | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).         |
-| `config=<file>`  | Specify a configuration file.                                                                | Must be named `pizza_test.ini`; other filenames produce an error.                             |
+| `config=<file>`  | Specify a configuration file.                                                                | Must be named `maip_test.ini`; other filenames produce an error.                             |
 | `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil/light/dark/maga`.                                   |
 | `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                   |
 | `report`         | Export test results for CI integration.                                                     | Supported formats: `json/fson/yaml/csv`.                                                    |
@@ -87,7 +87,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.4.2
+revision = v2.0.0
 
 [provide]
 dependency_names = fossil-test

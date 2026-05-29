@@ -12,7 +12,7 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include <fossil/pizza/framework.h>
+#include <fossil/maip/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilites
@@ -1025,7 +1025,7 @@ FOSSIL_TEST(c_assume_run_of_its_soap_rot_brain) {
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_its_soap_tone_detected) {
-    const char *text = "Respectfully testing the pizza.";
+    const char *text = "Respectfully testing the maip.";
     const char *expected_tone = "formal";
 
     // Test case
@@ -1119,6 +1119,21 @@ FOSSIL_TEST(c_assume_run_of_hash_multi_byte_sizes) {
     // Test cases
     ASSUME_ITS_EQUAL_HASH_BYTES(hash_16, hash_dup_16, 16);
     ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 32);
+
+    // Subcases for different sizes
+    FOSSIL_SUBCASE("Hash 16 vs Hash 32") {
+        ASSUME_NOT_EQUAL_HASH_BYTES(hash_16, hash_32, 16);
+    } // end subcase
+
+    // Subcases within subcase for different sizes
+    FOSSIL_SUBCASE("Hash 32 vs Hash 16") {
+        ASSUME_NOT_EQUAL_HASH_BYTES(hash_32, hash_16, 32);
+
+        FOSSIL_SUBCASE("Hash 32 vs Hash 16 with different sizes") {
+            ASSUME_NOT_EQUAL_HASH_BYTES(hash_32, hash_16, 16);
+        } // end subcase
+    }
+
 } // end case
 
 FOSSIL_TEST(c_assume_run_of_bit_set) {

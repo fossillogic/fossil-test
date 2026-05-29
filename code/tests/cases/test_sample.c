@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------------------
  */
 
-#include "fossil/pizza/framework.h"
+#include "fossil/maip/framework.h"
 
 // Test data structure for a sample test
 FOSSIL_MOCK_STRUCT(CSampleTestData)
@@ -110,7 +110,7 @@ FOSSIL_TEST(test_input_equal)
 
 FOSSIL_TEST(edge_cases)
 {
-    FOSSIL_EDGE("Test with zero input")
+    FOSSIL_SUBCASE("Test with zero input")
     {
         CSampleTestData data = {.input = 0, .expected_output = 0};
 
@@ -119,7 +119,7 @@ FOSSIL_TEST(edge_cases)
         FOSSIL_TEST_ASSUME(actual_output == data.expected_output, "Zero input test failed");
     }
 
-    FOSSIL_EDGE("Test with negative input")
+    FOSSIL_SUBCASE("Test with negative input")
     {
         CSampleTestData data = {.input = -5, .expected_output = -5};
 
@@ -132,26 +132,26 @@ FOSSIL_TEST(edge_cases)
 FOSSIL_TEST(math_addition_scopes)
 {
     // General behavior grouping
-    FOSSIL_SCOPE("Basic addition behavior")
+    FOSSIL_SUBCASE("Basic addition behavior")
     {
         int result = 2 + 3;
         FOSSIL_TEST_ASSERT(result == 5, "2 + 3 should equal 5");
     }
 
     // Edge cases
-    FOSSIL_EDGE("Zero addition")
+    FOSSIL_SUBCASE("Zero addition")
     {
         int result = 0 + 0;
         FOSSIL_TEST_ASSERT(result == 0, "0 + 0 should equal 0");
     }
 
-    FOSSIL_EDGE("Negative numbers")
+    FOSSIL_SUBCASE("Negative numbers")
     {
         int result = -2 + -3;
         FOSSIL_TEST_ASSERT(result == -5, "-2 + -3 should equal -5");
     }
 
-    FOSSIL_EDGE("Mixed sign addition")
+    FOSSIL_SUBCASE("Mixed sign addition")
     {
         int result = -2 + 3;
         FOSSIL_TEST_ASSERT(result == 1, "-2 + 3 should equal 1");

@@ -22,29 +22,29 @@
  * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/pizza/common.h"
+#include "fossil/maip/common.h"
 #include <stdio.h>
 
 // *****************************************************************************
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_PIZZA_VERSION "1.4.2"
-#define FOSSIL_PIZZA_AUTHOR "Fossil Logic"
-#define FOSSIL_PIZZA_WEBSITE "https://fossillogic.com"
+#define FOSSIL_MAIP_VERSION "2.0.0"
+#define FOSSIL_MAIP_AUTHOR "Fossil Logic"
+#define FOSSIL_MAIP_WEBSITE "https://fossillogic.com"
 
 // *****************************************************************************
 // exported flags
 // *****************************************************************************
 
-uint64_t G_PIZZA_TIMEOUT = 60; // Default timeout in seconds
-int G_PIZZA_DRY_RUN = 0;
-int G_PIZZA_FAIL_FAST = 0;
-int G_PIZZA_SKIP = 0;
-const char* G_PIZZA_ONLY = null;
-int G_PIZZA_REPEAT = 0;
-int G_PIZZA_THREADS = 1;
-fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
+uint64_t G_MAIP_TIMEOUT = 60; // Default timeout in seconds
+int G_MAIP_DRY_RUN = 0;
+int G_MAIP_FAIL_FAST = 0;
+int G_MAIP_SKIP = 0;
+const char* G_MAIP_ONLY = null;
+int G_MAIP_REPEAT = 0;
+int G_MAIP_THREADS = 1;
+fossil_maip_cli_theme_t G_MAIP_THEME     = MAIP_THEME_FOSSIL;
 
 // *****************************************************************************
 // Hashing algorithm
@@ -54,7 +54,7 @@ fossil_pizza_cli_theme_t G_PIZZA_THEME     = PIZZA_THEME_FOSSIL;
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-uint64_t get_pizza_time_microseconds(void) {
+uint64_t get_maip_time_microseconds(void) {
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
     uint64_t t = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
@@ -62,14 +62,14 @@ uint64_t get_pizza_time_microseconds(void) {
 }
 #else
 #include <sys/time.h>
-uint64_t get_pizza_time_microseconds(void) {
+uint64_t get_maip_time_microseconds(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (uint64_t)tv.tv_sec * 1000000ULL + tv.tv_usec;
 }
 #endif
 
-static uint64_t get_pizza_device_salt(void) {
+static uint64_t get_maip_device_salt(void) {
     // FNV-1a 64-bit base offset
     uint64_t hash = 0xcbf29ce484222325ULL;
 
@@ -103,10 +103,10 @@ static uint64_t get_pizza_device_salt(void) {
     return hash;
 }
 
-void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out) {
+void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) {
     const uint64_t PRIME = 0x100000001b3ULL;
     static uint64_t SALT = 0;
-    if (SALT == 0) SALT = get_pizza_device_salt();  // Initialize salt once
+    if (SALT == 0) SALT = get_maip_device_salt();  // Initialize salt once
 
     uint64_t state1 = 0xcbf29ce484222325ULL ^ SALT;
     uint64_t state2 = 0x84222325cbf29ce4ULL ^ ~SALT;
@@ -114,7 +114,7 @@ void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out)
     size_t in_len = strlen(input);
     size_t out_len = strlen(output);
 
-    uint64_t nonce = get_pizza_time_microseconds();  // Microsecond resolution
+    uint64_t nonce = get_maip_time_microseconds();  // Microsecond resolution
 
     for (size_t i = 0; i < in_len; ++i) {
         state1 ^= (uint8_t)input[i];
@@ -144,7 +144,7 @@ void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out)
         state2 *= PRIME;
     }
 
-    for (size_t i = 0; i < FOSSIL_PIZZA_HASH_SIZE; ++i) {
+    for (size_t i = 0; i < FOSSIL_MAIP_HASH_SIZE; ++i) {
         uint64_t mixed = (i % 2 == 0) ? state1 : state2;
         mixed ^= (mixed >> ((i % 7) + 13));
         mixed *= PRIME;
@@ -181,174 +181,174 @@ static const char* VALID_CRITERIA[] = {
 };
 
 static void _show_help(void) {
-    pizza_io_printf("{blue}Usage: pizza [options] [command]{reset}\n");
-    pizza_io_printf("{blue}Options:{reset}\n");
-    pizza_io_printf("{cyan}  --version          Show version information{reset}\n");
-    pizza_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
-    pizza_io_printf("{cyan}  --host             Show information about the current host{reset}\n");
-    pizza_io_printf("{cyan}  --help             Show this help message{reset}\n");
-    pizza_io_printf("{blue}Commands:{reset}\n");
-    pizza_io_printf("{cyan}  run                Execute tests with optional parameters{reset}\n");
-    pizza_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
-    pizza_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
-    pizza_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
-    pizza_io_printf("{cyan}  show               Show test cases with optional parameters{reset}\n");
-    pizza_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
-    pizza_io_printf("{cyan}  config=<file>      Specify a configuration file (must be pizza_test.ini){reset}\n");
-    pizza_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
-    pizza_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
+    maip_io_printf("{blue}Usage: maip [options] [command]{reset}\n");
+    maip_io_printf("{blue}Options:{reset}\n");
+    maip_io_printf("{cyan}  --version          Show version information{reset}\n");
+    maip_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
+    maip_io_printf("{cyan}  --host             Show information about the current host{reset}\n");
+    maip_io_printf("{cyan}  --help             Show this help message{reset}\n");
+    maip_io_printf("{blue}Commands:{reset}\n");
+    maip_io_printf("{cyan}  run                Execute tests with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
+    maip_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  show               Show test cases with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
+    maip_io_printf("{cyan}  config=<file>      Specify a configuration file (must be maip_test.ini){reset}\n");
+    maip_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
+    maip_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_run(void) {
-    pizza_io_printf("{blue}Run command options:{reset}\n");
-    pizza_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
-    pizza_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
-    pizza_io_printf("{cyan}  --skip <test>      Skip the specified test{reset}\n");
-    pizza_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
-    pizza_io_printf("{cyan}  --help             Show help for run command{reset}\n");
+    maip_io_printf("{blue}Run command options:{reset}\n");
+    maip_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
+    maip_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
+    maip_io_printf("{cyan}  --skip <test>      Skip the specified test{reset}\n");
+    maip_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
+    maip_io_printf("{cyan}  --help             Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_filter(void) {
-    pizza_io_printf("{blue}Filter command options:{reset}\n");
-    pizza_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
-    pizza_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
-    pizza_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
-    pizza_io_printf("{cyan}  --help             Show help for filter command{reset}\n");
-    pizza_io_printf("{cyan}  --options          Show all valid tags{reset}\n");
+    maip_io_printf("{blue}Filter command options:{reset}\n");
+    maip_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
+    maip_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
+    maip_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
+    maip_io_printf("{cyan}  --help             Show help for filter command{reset}\n");
+    maip_io_printf("{cyan}  --options          Show all valid tags{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_report(void) {
-    pizza_io_printf("{blue}Report command options:{reset}\n");
-    pizza_io_printf("{cyan}  --format <json/fson/yaml/csv>       Set the output format{reset}\n");
-    pizza_io_printf("{cyan}  --destination <file/stdout>        Set the output destination (default: stdout){reset}\n");
-    pizza_io_printf("{cyan}  --help                              Show help for report command{reset}\n");
+    maip_io_printf("{blue}Report command options:{reset}\n");
+    maip_io_printf("{cyan}  --format <json/fson/yaml/csv>       Set the output format{reset}\n");
+    maip_io_printf("{cyan}  --destination <file/stdout>        Set the output destination (default: stdout){reset}\n");
+    maip_io_printf("{cyan}  --help                              Show help for report command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_sort(void) {
-    pizza_io_printf("{blue}Sort command options:{reset}\n");
-    pizza_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
-    pizza_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
-    pizza_io_printf("{cyan}  --help             Show help for sort command{reset}\n");
-    pizza_io_printf("{cyan}  --options          Show all valid criteria{reset}\n");
+    maip_io_printf("{blue}Sort command options:{reset}\n");
+    maip_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
+    maip_io_printf("{cyan}  --help             Show help for sort command{reset}\n");
+    maip_io_printf("{cyan}  --options          Show all valid criteria{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_shuffle(void) {
-    pizza_io_printf("{blue}Shuffle command options:{reset}\n");
-    pizza_io_printf("{cyan}  --seed <seed>      Specify the seed for shuffling{reset}\n");
-    pizza_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
-    pizza_io_printf("{cyan}  --by <criteria>    Shuffle by specified criteria{reset}\n");
-    pizza_io_printf("{cyan}  --help             Show help for shuffle command{reset}\n");
-    pizza_io_printf("{cyan}  --options          Show all valid criteria for shuffling{reset}\n");
+    maip_io_printf("{blue}Shuffle command options:{reset}\n");
+    maip_io_printf("{cyan}  --seed <seed>      Specify the seed for shuffling{reset}\n");
+    maip_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
+    maip_io_printf("{cyan}  --by <criteria>    Shuffle by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  --help             Show help for shuffle command{reset}\n");
+    maip_io_printf("{cyan}  --options          Show all valid criteria for shuffling{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_color(void) {
-    pizza_io_printf("{blue}Color command options:{reset}\n");
-    pizza_io_printf("{cyan}  enable            Enable color output{reset}\n");
-    pizza_io_printf("{cyan}  disable           Disable color output{reset}\n");
-    pizza_io_printf("{cyan}  auto              Auto-detect color support{reset}\n");
+    maip_io_printf("{blue}Color command options:{reset}\n");
+    maip_io_printf("{cyan}  enable            Enable color output{reset}\n");
+    maip_io_printf("{cyan}  disable           Disable color output{reset}\n");
+    maip_io_printf("{cyan}  auto              Auto-detect color support{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_theme(void) {
-    pizza_io_printf("{blue}Theme command options:{reset}\n");
-    pizza_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
-    pizza_io_printf("{cyan}  light             Light theme{reset}\n");
-    pizza_io_printf("{cyan}  dark              Dark theme{reset}\n");
-    pizza_io_printf("{cyan}  maga              MAGA theme{reset}\n");
+    maip_io_printf("{blue}Theme command options:{reset}\n");
+    maip_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
+    maip_io_printf("{cyan}  light             Light theme{reset}\n");
+    maip_io_printf("{cyan}  dark              Dark theme{reset}\n");
+    maip_io_printf("{cyan}  maga              MAGA theme{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_show(void) {
-    pizza_io_printf("{blue}Show command options:{reset}\n");
-    pizza_io_printf("{cyan}  --test-name <name>   Filter by test name{reset}\n");
-    pizza_io_printf("{cyan}  --suite-name <name>  Filter by suite name{reset}\n");
-    pizza_io_printf("{cyan}  --tag <tag>          Filter by tag{reset}\n");
-    pizza_io_printf("{cyan}  --result <result>    Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
-    pizza_io_printf("{cyan}  --verbose <level>    Set verbosity level (plain, ci, doge){reset}\n");
-    pizza_io_printf("{cyan}  --mode <mode>        Show mode (list, tree, graph){reset}\n");
+    maip_io_printf("{blue}Show command options:{reset}\n");
+    maip_io_printf("{cyan}  --test-name <name>   Filter by test name{reset}\n");
+    maip_io_printf("{cyan}  --suite-name <name>  Filter by suite name{reset}\n");
+    maip_io_printf("{cyan}  --tag <tag>          Filter by tag{reset}\n");
+    maip_io_printf("{cyan}  --result <result>    Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
+    maip_io_printf("{cyan}  --verbose <level>    Set verbosity level (plain, ci, doge){reset}\n");
+    maip_io_printf("{cyan}  --mode <mode>        Show mode (list, tree, graph){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_version(void) {
-    pizza_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_PIZZA_VERSION);
+    maip_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_MAIP_VERSION);
     exit(EXIT_SUCCESS);
 }
 
 static void _show_host(void) {
-    pizza_sys_hostinfo_system_t system_info;
-    pizza_sys_hostinfo_architecture_t arch_info;
-    pizza_sys_hostinfo_memory_t memory_info;
-    pizza_sys_hostinfo_endianness_t endianness_info;
+    maip_sys_hostinfo_system_t system_info;
+    maip_sys_hostinfo_architecture_t arch_info;
+    maip_sys_hostinfo_memory_t memory_info;
+    maip_sys_hostinfo_endianness_t endianness_info;
 
-    if (pizza_sys_hostinfo_get_system(&system_info) == 0) {
-        pizza_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
-        pizza_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
-        pizza_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
-        pizza_io_printf("{blue}Hostname: {cyan}%s{reset}\n", system_info.hostname);
-        pizza_io_printf("{blue}Username: {cyan}%s{reset}\n", system_info.username);
-        pizza_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
-        pizza_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
-        pizza_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
+    if (maip_sys_hostinfo_get_system(&system_info) == 0) {
+        maip_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
+        maip_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
+        maip_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
+        maip_io_printf("{blue}Hostname: {cyan}%s{reset}\n", system_info.hostname);
+        maip_io_printf("{blue}Username: {cyan}%s{reset}\n", system_info.username);
+        maip_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
+        maip_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
+        maip_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
     } else {
-        pizza_io_printf("{red}Error retrieving system information.{reset}\n");
+        maip_io_printf("{red}Error retrieving system information.{reset}\n");
     }
 
-    if (pizza_sys_hostinfo_get_architecture(&arch_info) == 0) {
-        pizza_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
-        pizza_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
-        pizza_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
-        pizza_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
-        pizza_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
-        pizza_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
+    if (maip_sys_hostinfo_get_architecture(&arch_info) == 0) {
+        maip_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
+        maip_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
+        maip_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
+        maip_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
+        maip_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
+        maip_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
     } else {
-        pizza_io_printf("{red}Error retrieving architecture information.{reset}\n");
+        maip_io_printf("{red}Error retrieving architecture information.{reset}\n");
     }
 
-    if (pizza_sys_hostinfo_get_memory(&memory_info) == 0) {
-        pizza_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
-        pizza_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
-        pizza_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
-        pizza_io_printf("{blue}Available Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.available_memory);
-        pizza_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
-        pizza_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
-        pizza_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
+    if (maip_sys_hostinfo_get_memory(&memory_info) == 0) {
+        maip_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
+        maip_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
+        maip_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
+        maip_io_printf("{blue}Available Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.available_memory);
+        maip_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
+        maip_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
+        maip_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
     } else {
-        pizza_io_printf("{red}Error retrieving memory information.{reset}\n");
+        maip_io_printf("{red}Error retrieving memory information.{reset}\n");
     }
 
-    if (pizza_sys_hostinfo_get_endianness(&endianness_info) == 0) {
-        pizza_io_printf("{blue}Endianness: {cyan}%s{reset}\n", 
+    if (maip_sys_hostinfo_get_endianness(&endianness_info) == 0) {
+        maip_io_printf("{blue}Endianness: {cyan}%s{reset}\n", 
                         endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
     } else {
-        pizza_io_printf("{red}Error retrieving endianness information.{reset}\n");
+        maip_io_printf("{red}Error retrieving endianness information.{reset}\n");
     }
 
     exit(EXIT_SUCCESS);
 }
 
-fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
-    fossil_pizza_pallet_t pallet = {0};
+fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
+    fossil_maip_pallet_t pallet = {0};
     int is_command = 0; // Variable to track if a command is being processed
 
     pallet.show.enabled = 0; // Initialize show command enabled flag
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
-        if (pizza_io_cstr_compare(argv[i], "--dry-run") == 0) {
-            G_PIZZA_DRY_RUN = 1;
-        } else if (pizza_io_cstr_compare(argv[i], "--version") == 0) {
+        if (maip_io_cstr_compare(argv[i], "--dry-run") == 0) {
+            G_MAIP_DRY_RUN = 1;
+        } else if (maip_io_cstr_compare(argv[i], "--version") == 0) {
             _show_version();
-        } else if (pizza_io_cstr_compare(argv[i], "--help") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "--help") == 0) {
             _show_help();
-        } else if (pizza_io_cstr_compare(argv[i], "--host") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "--host") == 0) {
             _show_host();
-        } else if (pizza_io_cstr_compare(argv[i], "run") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "run") == 0) {
             is_command = 1;
             pallet.run.fail_fast = 0;
             pallet.run.only = null;
@@ -357,14 +357,14 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--fail-fast") == 0) {
+                if (maip_io_cstr_compare(argv[j], "--fail-fast") == 0) {
                     pallet.run.fail_fast = 1;
-                    G_PIZZA_FAIL_FAST = 1;
-                } else if (pizza_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
+                    G_MAIP_FAIL_FAST = 1;
+                } else if (maip_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
                     // Support multiple test cases separated by comma, and wildcards
                     j++;
                     size_t count = 0;
-                    cstr *test_cases = pizza_io_cstr_split(argv[j], ',', &count);
+                    cstr *test_cases = maip_io_cstr_split(argv[j], ',', &count);
                     pallet.run.only = argv[j]; // Store raw string for now
                     pallet.run.only_cases = test_cases;
                     pallet.run.only_count = count;
@@ -376,21 +376,21 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                             break;
                         }
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
                     pallet.run.skip = argv[++j];
-                    G_PIZZA_SKIP = 1;
-                } else if (pizza_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc) {
+                    G_MAIP_SKIP = 1;
+                } else if (maip_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc) {
                     pallet.run.repeat = atoi(argv[++j]);
-                    G_PIZZA_REPEAT = pallet.run.repeat;
-                } else if (pizza_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc) {
-                    G_PIZZA_THREADS = atoi(argv[++j]);
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                    G_MAIP_REPEAT = pallet.run.repeat;
+                } else if (maip_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc) {
+                    G_MAIP_THREADS = atoi(argv[++j]);
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_run();
                 } else {
                     is_command = 0;
                 }
             }
-        } else if (pizza_io_cstr_compare(argv[i], "filter") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "filter") == 0) {
             is_command = 1;
             pallet.filter.test_name = null;
             pallet.filter.suite_name = null;
@@ -398,11 +398,11 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
                     // Support multiple test names separated by comma, and wildcards
                     j++;
                     size_t count = 0;
-                    cstr *test_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    cstr *test_names = maip_io_cstr_split(argv[j], ',', &count);
                     pallet.filter.test_name = argv[j]; // Store raw string for now
                     pallet.filter.test_name_list = test_names;
                     pallet.filter.test_name_count = count;
@@ -414,11 +414,11 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                             break;
                         }
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
                     // Support multiple suite names separated by comma, and wildcards
                     j++;
                     size_t count = 0;
-                    cstr *suite_names = pizza_io_cstr_split(argv[j], ',', &count);
+                    cstr *suite_names = maip_io_cstr_split(argv[j], ',', &count);
                     pallet.filter.suite_name = argv[j]; // Store raw string for now
                     pallet.filter.suite_name_list = suite_names;
                     pallet.filter.suite_name_count = count;
@@ -430,16 +430,16 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                             break;
                         }
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
                     // Support multiple tags separated by comma, and wildcards
                     j++;
                     size_t count = 0;
-                    cstr *tags = pizza_io_cstr_split(argv[j], ',', &count);
+                    cstr *tags = maip_io_cstr_split(argv[j], ',', &count);
                     int valid_count = 0;
                     for (size_t k = 0; k < count; k++) {
                         int is_valid_tag = 0;
                         for (int t = 0; VALID_TAGS[t] != null; t++) {
-                            if (pizza_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0) {
+                            if (maip_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0) {
                                 is_valid_tag = 1;
                                 break;
                             }
@@ -461,57 +461,57 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                             }
                         }
                     } else {
-                        pizza_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
+                        maip_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_filter();
-                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
-                    pizza_io_printf("{blue}Valid tags:{reset}\n");
+                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                    maip_io_printf("{blue}Valid tags:{reset}\n");
                     for (int k = 0; VALID_TAGS[k] != null; k++) {
-                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
+                        maip_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
                     }
                     exit(EXIT_SUCCESS);
                 } else {
                     is_command = 0;
                 }
             }
-        } else if (pizza_io_cstr_compare(argv[i], "report") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "report") == 0) {
             is_command = 1;
             pallet.report.format = "json";       // default format
             pallet.report.destination = "stdout"; // default destination
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc) {
+                if (maip_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc) {
                     pallet.report.format = argv[++j];
-                    if (pizza_io_cstr_compare(pallet.report.format, "json") != 0 &&
-                        pizza_io_cstr_compare(pallet.report.format, "fson") != 0 &&
-                        pizza_io_cstr_compare(pallet.report.format, "yaml") != 0 &&
-                        pizza_io_cstr_compare(pallet.report.format, "csv") != 0) {
-                        pizza_io_printf("{red}Error: Invalid report format '%s'. Valid formats: json, fson, yaml, csv.{reset}\n", pallet.report.format);
+                    if (maip_io_cstr_compare(pallet.report.format, "json") != 0 &&
+                        maip_io_cstr_compare(pallet.report.format, "fson") != 0 &&
+                        maip_io_cstr_compare(pallet.report.format, "yaml") != 0 &&
+                        maip_io_cstr_compare(pallet.report.format, "csv") != 0) {
+                        maip_io_printf("{red}Error: Invalid report format '%s'. Valid formats: json, fson, yaml, csv.{reset}\n", pallet.report.format);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc) {
                     pallet.report.destination = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_report();
                 } else {
                     is_command = 0;
                 }
             }
-        } else if (pizza_io_cstr_compare(argv[i], "sort") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "sort") == 0) {
             is_command = 1;
             pallet.sort.by = null;
             pallet.sort.order = null;
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
+                if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     const char* criteria = argv[++j];
                     int is_valid_criteria = 0;
                     for (int k = 0; VALID_CRITERIA[k] != null; k++) {
-                        if (pizza_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0) {
+                        if (maip_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0) {
                             is_valid_criteria = 1;
                             break;
                         }
@@ -519,24 +519,24 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                     if (is_valid_criteria) {
                         pallet.sort.by = criteria;
                     } else {
-                        pizza_io_printf("{red}Error: Invalid criteria '%s'.{reset}\n", criteria);
+                        maip_io_printf("{red}Error: Invalid criteria '%s'.{reset}\n", criteria);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc) {
                     pallet.sort.order = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_sort();
-                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
-                    pizza_io_printf("{blue}Valid criteria:{reset}\n");
+                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                    maip_io_printf("{blue}Valid criteria:{reset}\n");
                     for (int k = 0; VALID_CRITERIA[k] != null; k++) {
-                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
+                        maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
                     }
                     exit(EXIT_SUCCESS);
                 } else {
                     is_command = 0;
                 }
             }
-        } else if (pizza_io_cstr_compare(argv[i], "shuffle") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "shuffle") == 0) {
             is_command = 1;
             pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
@@ -544,18 +544,18 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
+                if (maip_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
                     pallet.shuffle.seed = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
                     pallet.shuffle.count = atoi(argv[++j]);
-                } else if (pizza_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
                     pallet.shuffle.by = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_shuffle();
-                } else if (pizza_io_cstr_compare(argv[j], "--options") == 0) {
-                    pizza_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
+                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                    maip_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
                     for (int k = 0; VALID_CRITERIA[k] != null; k++) {
-                        pizza_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
+                        maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
                     }
                     exit(EXIT_SUCCESS);
                 } else {
@@ -563,19 +563,19 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 }
             }
         } else if (strncmp(argv[i], "color=", 6) == 0) {
-            if (pizza_io_cstr_compare(argv[i] + 6, "enable") == 0) {
-                PIZZA_IO_COLOR_ENABLE = 1;
-            } else if (pizza_io_cstr_compare(argv[i] + 6, "disable") == 0) {
-                PIZZA_IO_COLOR_ENABLE = 0;
-            } else if (pizza_io_cstr_compare(argv[i] + 6, "auto") == 0) {
+            if (maip_io_cstr_compare(argv[i] + 6, "enable") == 0) {
+                MAIP_IO_COLOR_ENABLE = 1;
+            } else if (maip_io_cstr_compare(argv[i] + 6, "disable") == 0) {
+                MAIP_IO_COLOR_ENABLE = 0;
+            } else if (maip_io_cstr_compare(argv[i] + 6, "auto") == 0) {
                 if (isatty(STDOUT_FILENO)) {
-                    PIZZA_IO_COLOR_ENABLE = 1;
+                    MAIP_IO_COLOR_ENABLE = 1;
                 } else {
-                    PIZZA_IO_COLOR_ENABLE = 0;
+                    MAIP_IO_COLOR_ENABLE = 0;
                 }
             }
-        } else if (pizza_io_cstr_compare(argv[i], "color") == 0) {
-            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "color") == 0) {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_color();
             }
         } else if (strncmp(argv[i], "config=", 7) == 0) {
@@ -587,43 +587,43 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
                 basename++; // Skip the '/'
             }
 
-            if (pizza_io_cstr_compare(basename, "pizza_test.ini") == 0) {
+            if (maip_io_cstr_compare(basename, "maip_test.ini") == 0) {
                 pallet.config_file = config_file;
             } else {
-                pizza_io_printf("{red}Error: Invalid configuration file name. Must be 'pizza_test.ini'.{reset}\n");
+                maip_io_printf("{red}Error: Invalid configuration file name. Must be 'maip_test.ini'.{reset}\n");
                 exit(EXIT_FAILURE);
             }
-        } else if (pizza_io_cstr_compare(argv[i], "config") == 0) {
-            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "config") == 0) {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_help();
             }
         } else if (strncmp(argv[i], "theme=", 6) == 0) {
             const char* theme_str = argv[i] + 6;
-            if (pizza_io_cstr_compare(theme_str, "fossil") == 0) {
-                pallet.theme = PIZZA_THEME_FOSSIL;
-                G_PIZZA_THEME = PIZZA_THEME_FOSSIL;
-            } else if (pizza_io_cstr_compare(theme_str, "dark") == 0) {
-                pallet.theme = PIZZA_THEME_DARK;
-                G_PIZZA_THEME = PIZZA_THEME_DARK;
-            } else if (pizza_io_cstr_compare(theme_str, "light") == 0) {
-                pallet.theme = PIZZA_THEME_LIGHT;
-                G_PIZZA_THEME = PIZZA_THEME_LIGHT;
-            } else if (pizza_io_cstr_compare(theme_str, "maga") == 0) {
-                pallet.theme = PIZZA_THEME_MAGA;
-                G_PIZZA_THEME = PIZZA_THEME_MAGA;
+            if (maip_io_cstr_compare(theme_str, "fossil") == 0) {
+                pallet.theme = MAIP_THEME_FOSSIL;
+                G_MAIP_THEME = MAIP_THEME_FOSSIL;
+            } else if (maip_io_cstr_compare(theme_str, "dark") == 0) {
+                pallet.theme = MAIP_THEME_DARK;
+                G_MAIP_THEME = MAIP_THEME_DARK;
+            } else if (maip_io_cstr_compare(theme_str, "light") == 0) {
+                pallet.theme = MAIP_THEME_LIGHT;
+                G_MAIP_THEME = MAIP_THEME_LIGHT;
+            } else if (maip_io_cstr_compare(theme_str, "maga") == 0) {
+                pallet.theme = MAIP_THEME_MAGA;
+                G_MAIP_THEME = MAIP_THEME_MAGA;
             }
-        } else if (pizza_io_cstr_compare(argv[i], "theme") == 0) {
-            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "theme") == 0) {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_subhelp_theme();
             }
         } else if (strncmp(argv[i], "timeout=", 8) == 0) {
-            G_PIZZA_TIMEOUT = atoi(argv[i] + 8);
-        } else if (pizza_io_cstr_compare(argv[i], "timeout") == 0) {
-            if (i + 1 < argc && pizza_io_cstr_compare(argv[i + 1], "--help") == 0) {
+            G_MAIP_TIMEOUT = atoi(argv[i] + 8);
+        } else if (maip_io_cstr_compare(argv[i], "timeout") == 0) {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
                 _show_help();
                 exit(EXIT_SUCCESS);
             }
-        } else if (pizza_io_cstr_compare(argv[i], "show") == 0) {
+        } else if (maip_io_cstr_compare(argv[i], "show") == 0) {
             is_command = 1;
             pallet.show.test_name = null;
             pallet.show.suite_name = null;
@@ -635,33 +635,33 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 
             for (int j = i + 1; j < argc; j++) {
                 if (!is_command) break;
-                if (pizza_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
                     pallet.show.test_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
                     pallet.show.suite_name = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
                     pallet.show.tag = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc) {
                     pallet.show.result = argv[++j];
-                } else if (pizza_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc) {
                     pallet.show.mode = argv[++j];
                     // Validate mode (should be one of: list, tree, graph)
-                    if (pizza_io_cstr_compare(pallet.show.mode, "list") != 0 &&
-                        pizza_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
-                        pizza_io_cstr_compare(pallet.show.mode, "graph") != 0) {
-                        pizza_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
+                    if (maip_io_cstr_compare(pallet.show.mode, "list") != 0 &&
+                        maip_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
+                        maip_io_cstr_compare(pallet.show.mode, "graph") != 0) {
+                        maip_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc) {
+                } else if (maip_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc) {
                     pallet.show.verbose = argv[++j];
                     // Validate verbose (should be one of: plain, ci, doge)
-                    if (pizza_io_cstr_compare(pallet.show.verbose, "plain") != 0 &&
-                        pizza_io_cstr_compare(pallet.show.verbose, "ci") != 0 &&
-                        pizza_io_cstr_compare(pallet.show.verbose, "doge") != 0) {
-                        pizza_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
+                    if (maip_io_cstr_compare(pallet.show.verbose, "plain") != 0 &&
+                        maip_io_cstr_compare(pallet.show.verbose, "ci") != 0 &&
+                        maip_io_cstr_compare(pallet.show.verbose, "doge") != 0) {
+                        maip_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
                         exit(EXIT_FAILURE);
                     }
-                } else if (pizza_io_cstr_compare(argv[j], "--help") == 0) {
+                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
                     _show_subhelp_show();
                 } else {
                     is_command = 0;
@@ -677,8 +677,8 @@ fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv) {
 // INI Parser
 // *****************************************************************************
 
-int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) {
-    pizza_io_printf("{yellow}Warning: INI parser is experimental and in development.{reset}\n");
+int fossil_maip_ini_parse(const char *filename, fossil_maip_pallet_t *pallet) {
+    maip_io_printf("{yellow}Warning: INI parser is experimental and in development.{reset}\n");
     const char *basename = strrchr(filename, '/');
     if (!basename) {
         basename = filename; // No '/' found, use the entire filename
@@ -686,8 +686,8 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
         basename++; // Skip the '/'
     }
 
-    if (pizza_io_cstr_compare(basename, "pizza_test.ini") != 0) {
-        fprintf(stderr, "Error: INI file must be named 'pizza_test.ini'.\n");
+    if (maip_io_cstr_compare(basename, "maip_test.ini") != 0) {
+        fprintf(stderr, "Error: INI file must be named 'maip_test.ini'.\n");
         return -1;
     }
 
@@ -746,73 +746,73 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
             while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
 
             // Populate the pallet structure based on the section and key
-            if (pizza_io_cstr_compare(section, "general") == 0) {
-                if (pizza_io_cstr_compare(key, "theme") == 0) {
-                    if (pizza_io_cstr_compare(value, "fossil") == 0) {
-                        pallet->theme = PIZZA_THEME_FOSSIL;
-                    } else if (pizza_io_cstr_compare(value, "dark") == 0) {
-                        pallet->theme = PIZZA_THEME_DARK;
-                    } else if (pizza_io_cstr_compare(value, "light") == 0) {
-                        pallet->theme = PIZZA_THEME_LIGHT;
-                    } else if (pizza_io_cstr_compare(value, "maga") == 0) {
-                        pallet->theme = PIZZA_THEME_MAGA;
+            if (maip_io_cstr_compare(section, "general") == 0) {
+                if (maip_io_cstr_compare(key, "theme") == 0) {
+                    if (maip_io_cstr_compare(value, "fossil") == 0) {
+                        pallet->theme = MAIP_THEME_FOSSIL;
+                    } else if (maip_io_cstr_compare(value, "dark") == 0) {
+                        pallet->theme = MAIP_THEME_DARK;
+                    } else if (maip_io_cstr_compare(value, "light") == 0) {
+                        pallet->theme = MAIP_THEME_LIGHT;
+                    } else if (maip_io_cstr_compare(value, "maga") == 0) {
+                        pallet->theme = MAIP_THEME_MAGA;
                     }
                 }
-            } else if (pizza_io_cstr_compare(section, "test") == 0) {
-                if (pizza_io_cstr_compare(key, "run.fail_fast") == 0) {
+            } else if (maip_io_cstr_compare(section, "test") == 0) {
+                if (maip_io_cstr_compare(key, "run.fail_fast") == 0) {
                     pallet->run.fail_fast = atoi(value);
-                } else if (pizza_io_cstr_compare(key, "run.only") == 0) {
-                    pallet->run.only = pizza_io_cstr_dup(value);
-                } else if (pizza_io_cstr_compare(key, "run.repeat") == 0) {
+                } else if (maip_io_cstr_compare(key, "run.only") == 0) {
+                    pallet->run.only = maip_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "run.repeat") == 0) {
                     pallet->run.repeat = atoi(value);
-                } else if (pizza_io_cstr_compare(key, "filter.test_name") == 0) {
-                    pallet->filter.test_name = pizza_io_cstr_dup(value);
-                } else if (pizza_io_cstr_compare(key, "filter.suite_name") == 0) {
-                    pallet->filter.suite_name = pizza_io_cstr_dup(value);
-                } else if (pizza_io_cstr_compare(key, "filter.tag") == 0) {
+                } else if (maip_io_cstr_compare(key, "filter.test_name") == 0) {
+                    pallet->filter.test_name = maip_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "filter.suite_name") == 0) {
+                    pallet->filter.suite_name = maip_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "filter.tag") == 0) {
                     int is_valid_tag = 0;
                     for (int i = 0; VALID_TAGS[i] != null; i++) {
-                        if (pizza_io_cstr_compare(value, VALID_TAGS[i]) == 0) {
+                        if (maip_io_cstr_compare(value, VALID_TAGS[i]) == 0) {
                             is_valid_tag = 1;
                             break;
                         }
                     }
                     if (is_valid_tag) {
-                        pallet->filter.tag = pizza_io_cstr_dup(value);
+                        pallet->filter.tag = maip_io_cstr_dup(value);
                     } else {
                         fprintf(stderr, "Error: Invalid tag '%s'.\n", value);
                         fclose(file);
                         return -1;
                     }
-                } else if (pizza_io_cstr_compare(key, "sort.by") == 0) {
+                } else if (maip_io_cstr_compare(key, "sort.by") == 0) {
                     int is_valid_criteria = 0;
                     for (int i = 0; VALID_CRITERIA[i] != null; i++) {
-                        if (pizza_io_cstr_compare(value, VALID_CRITERIA[i]) == 0) {
+                        if (maip_io_cstr_compare(value, VALID_CRITERIA[i]) == 0) {
                             is_valid_criteria = 1;
                             break;
                         }
                     }
                     if (is_valid_criteria) {
-                        pallet->sort.by = pizza_io_cstr_dup(value);
+                        pallet->sort.by = maip_io_cstr_dup(value);
                     } else {
                         fprintf(stderr, "Error: Invalid sort criteria '%s'.\n", value);
                         fclose(file);
                         return -1;
                     }
-                } else if (pizza_io_cstr_compare(key, "sort.order") == 0) {
-                    pallet->sort.order = pizza_io_cstr_dup(value);
-                } else if (pizza_io_cstr_compare(key, "shuffle.seed") == 0) {
-                    pallet->shuffle.seed = pizza_io_cstr_dup(value);
-                } else if (pizza_io_cstr_compare(key, "shuffle.count") == 0) {
+                } else if (maip_io_cstr_compare(key, "sort.order") == 0) {
+                    pallet->sort.order = maip_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "shuffle.seed") == 0) {
+                    pallet->shuffle.seed = maip_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "shuffle.count") == 0) {
                     pallet->shuffle.count = atoi(value);
-                } else if (pizza_io_cstr_compare(key, "shuffle.by") == 0) {
-                    pallet->shuffle.by = pizza_io_cstr_dup(value);
+                } else if (maip_io_cstr_compare(key, "shuffle.by") == 0) {
+                    pallet->shuffle.by = maip_io_cstr_dup(value);
                 }
-            } else if (pizza_io_cstr_compare(section, "mock") == 0) {
+            } else if (maip_io_cstr_compare(section, "mock") == 0) {
                 // Add mock-related parsing logic here
-            } else if (pizza_io_cstr_compare(section, "mark") == 0) {
+            } else if (maip_io_cstr_compare(section, "mark") == 0) {
                 // Add mark-related parsing logic here
-            } else if (pizza_io_cstr_compare(section, "sanity") == 0) {
+            } else if (maip_io_cstr_compare(section, "sanity") == 0) {
                 // Add sanity-related parsing logic here
             }
         }
@@ -826,7 +826,7 @@ int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet) 
 // Host information
 // *****************************************************************************
 
-int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
+int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
     if (!info) return -1;
 #ifdef _WIN32
     OSVERSIONINFO osvi;
@@ -922,7 +922,7 @@ int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info) {
     return 0;
 }
 
-int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info) {
+int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info) {
     if (!info) return -1;
 
 #ifdef _WIN32
@@ -1060,7 +1060,7 @@ int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info)
     return 0;
 }
 
-int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
+int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info) {
     if (!info) return -1;
 #ifdef _WIN32
     MEMORYSTATUSEX statex;
@@ -1098,7 +1098,7 @@ int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info) {
     return 0;
 }
 
-int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info) {
+int maip_sys_hostinfo_get_endianness(maip_sys_hostinfo_endianness_t *info) {
     if (!info) return -1;
     uint16_t test = 0x0001;
     info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
@@ -1223,7 +1223,7 @@ static const char *SKIP_WORDS[] = {
 /**
  * @brief Convert leetspeak to normal letters.
  */
-static void pizza_io_soap_normalize_leetspeak(char *word) {
+static void maip_io_soap_normalize_leetspeak(char *word) {
     for (size_t i = 0; word[i] != '\0'; i++) {
         switch (word[i]) {
             case '0': word[i] = 'o'; break;
@@ -1270,7 +1270,7 @@ static int fuzzy_match(const char *str1, const char *str2) {
  */
 static int should_skip_word(const char *word) {
     for (size_t i = 0; SKIP_WORDS[i] != null; i++) {
-        if (pizza_io_cstr_compare(word, SKIP_WORDS[i]) == 0) {
+        if (maip_io_cstr_compare(word, SKIP_WORDS[i]) == 0) {
             return 1;
         }
     }
@@ -1314,7 +1314,7 @@ static const char *custom_strcasestr(const char *haystack, const char *needle) {
  * @brief Look up a suggested alternative for a given word, checking both custom filters and predefined suggestions.
  * AI trick: fuzzy match with threshold, prefer exact, then fuzzy, then grammar.
  */
-static const char *pizza_io_soap_get_suggestion(const char *word) {
+static const char *maip_io_soap_get_suggestion(const char *word) {
     if (should_skip_word(word)) {
         return null;
     }
@@ -1356,7 +1356,7 @@ static const char *pizza_io_soap_get_suggestion(const char *word) {
  * @return Newly allocated sanitized string.
  * AI trick: preserve original punctuation, handle leetspeak, use fuzzy match.
  */
-char *pizza_io_soap_sanitize(const char *text) {
+char *maip_io_soap_sanitize(const char *text) {
     if (!text) return null;
 
     size_t len = strlen(text);
@@ -1374,8 +1374,8 @@ char *pizza_io_soap_sanitize(const char *text) {
         } else {
             word[word_idx] = '\0';
             if (word_idx > 0) {
-                pizza_io_soap_normalize_leetspeak(word);
-                const char *suggested = pizza_io_soap_get_suggestion(word);
+                maip_io_soap_normalize_leetspeak(word);
+                const char *suggested = maip_io_soap_get_suggestion(word);
                 if (suggested && !should_skip_word(word)) {
                     for (size_t j = 0; j < strlen(suggested); j++) {
                         output[out_idx++] = suggested[j];
@@ -1392,8 +1392,8 @@ char *pizza_io_soap_sanitize(const char *text) {
     }
     word[word_idx] = '\0';
     if (word_idx > 0) {
-        pizza_io_soap_normalize_leetspeak(word);
-        const char *suggested = pizza_io_soap_get_suggestion(word);
+        maip_io_soap_normalize_leetspeak(word);
+        const char *suggested = maip_io_soap_get_suggestion(word);
         if (suggested && !should_skip_word(word)) {
             for (size_t j = 0; j < strlen(suggested); j++) {
                 output[out_idx++] = suggested[j];
@@ -1412,7 +1412,7 @@ char *pizza_io_soap_sanitize(const char *text) {
  * @brief Suggest improved wording for meme/rot-brain language.
  * AI trick: same as sanitize, but always prefer suggestion if available.
  */
-char *pizza_io_soap_suggest(const char *text) {
+char *maip_io_soap_suggest(const char *text) {
     if (!text) return null;
 
     size_t len = strlen(text);
@@ -1430,8 +1430,8 @@ char *pizza_io_soap_suggest(const char *text) {
         } else {
             word[word_idx] = '\0';
             if (word_idx > 0) {
-                pizza_io_soap_normalize_leetspeak(word);
-                const char *suggested = pizza_io_soap_get_suggestion(word);
+                maip_io_soap_normalize_leetspeak(word);
+                const char *suggested = maip_io_soap_get_suggestion(word);
                 if (suggested && !should_skip_word(word)) {
                     strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
                     out_idx += strlen(suggested);
@@ -1446,8 +1446,8 @@ char *pizza_io_soap_suggest(const char *text) {
     }
     word[word_idx] = '\0';
     if (word_idx > 0) {
-        pizza_io_soap_normalize_leetspeak(word);
-        const char *suggested = pizza_io_soap_get_suggestion(word);
+        maip_io_soap_normalize_leetspeak(word);
+        const char *suggested = maip_io_soap_get_suggestion(word);
         if (suggested && !should_skip_word(word)) {
             strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
             out_idx += strlen(suggested);
@@ -1464,7 +1464,7 @@ char *pizza_io_soap_suggest(const char *text) {
  * @brief Add a custom word or phrase to the filter.
  * AI trick: lowercase and deduplicate.
  */
-int pizza_io_soap_add_custom_filter(const char *phrase) {
+int maip_io_soap_add_custom_filter(const char *phrase) {
     // Deduplicate
     for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
         if (custom_filters[i] && custom_strcasecmp(custom_filters[i], phrase) == 0) {
@@ -1489,7 +1489,7 @@ int pizza_io_soap_add_custom_filter(const char *phrase) {
 /**
  * @brief Clear all custom filters.
  */
-void pizza_io_soap_clear_custom_filters(void) {
+void maip_io_soap_clear_custom_filters(void) {
     memset(custom_filters, 0, sizeof(custom_filters));
 }
 
@@ -1497,7 +1497,7 @@ void pizza_io_soap_clear_custom_filters(void) {
  * @brief Detect tone of the text using phrase lookup.
  * AI trick: prioritize sarcastic, then formal, else casual.
  */
-const char *pizza_io_soap_detect_tone(const char *text) {
+const char *maip_io_soap_detect_tone(const char *text) {
     for (size_t i = 0; SARCASTIcpp_PHRASES[i] != null; i++) {
         if (custom_strcasestr(text, SARCASTIcpp_PHRASES[i])) {
             return "sarcastic";
@@ -1517,7 +1517,7 @@ const char *pizza_io_soap_detect_tone(const char *text) {
  * @brief Detect if text contains rot-brain language.
  * AI trick: use substring search for slang.
  */
-int pizza_io_is_rot_brain(const char *text) {
+int maip_io_is_rot_brain(const char *text) {
     if (!text) return 0;
 
     for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
@@ -1532,163 +1532,163 @@ int pizza_io_is_rot_brain(const char *text) {
 // memory management
 // *****************************************************************************
 
-pizza_sys_memory_t pizza_sys_memory_alloc(size_t size) {
+maip_sys_memory_t maip_sys_memory_alloc(size_t size) {
     if (size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Cannot allocate zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_alloc() - Cannot allocate zero bytes.\n");
         return null;
     }
     
-    pizza_sys_memory_t ptr = malloc(size);
+    maip_sys_memory_t ptr = malloc(size);
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_alloc() - Memory allocation failed.\n");
+        fprintf(stderr, "Error: maip_sys_memory_alloc() - Memory allocation failed.\n");
         return null;
     }
     return ptr;
 }
 
-pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size) {
-    pizza_sys_memory_t new_ptr = realloc(ptr, size);
+maip_sys_memory_t maip_sys_memory_realloc(maip_sys_memory_t ptr, size_t size) {
+    maip_sys_memory_t new_ptr = realloc(ptr, size);
     if (!new_ptr && size > 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_realloc() - Memory reallocation failed.\n");
+        fprintf(stderr, "Error: maip_sys_memory_realloc() - Memory reallocation failed.\n");
         return null;
     }
     return new_ptr;
 }
 
-pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size) {
+maip_sys_memory_t maip_sys_memory_calloc(size_t num, size_t size) {
     if (num == 0 || size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
         return null;
     }
 
-    pizza_sys_memory_t ptr = calloc(num, size);
+    maip_sys_memory_t ptr = calloc(num, size);
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_calloc() - Memory allocation failed.\n");
+        fprintf(stderr, "Error: maip_sys_memory_calloc() - Memory allocation failed.\n");
         return null;
     }
     return ptr;
 }
 
-pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value) {
+maip_sys_memory_t maip_sys_memory_init(maip_sys_memory_t ptr, size_t size, int32_t value) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_init() - Pointer is null.\n");
+        fprintf(stderr, "Error: maip_sys_memory_init() - Pointer is null.\n");
         return null;
     }
 
     if (size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_init() - Cannot initialize zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_init() - Cannot initialize zero bytes.\n");
         return null;
     }
 
     return memset(ptr, value, size);
 }
 
-void pizza_sys_memory_free(pizza_sys_memory_t ptr) {
+void maip_sys_memory_free(maip_sys_memory_t ptr) {
     if (!ptr) {
         return;
     }
     free(ptr); // No need for null check, free() already handles null.
 }
 
-pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size) {
+maip_sys_memory_t maip_sys_memory_copy(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size) {
     if (!dest || !src) {
-        fprintf(stderr, "Error: pizza_sys_memory_copy() - Source or destination is null.\n");
+        fprintf(stderr, "Error: maip_sys_memory_copy() - Source or destination is null.\n");
         return null;
     }
 
     if (size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_copy() - Cannot copy zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_copy() - Cannot copy zero bytes.\n");
         return null;
     }
     
     return memcpy(dest, src, size);
 }
 
-pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size) {
+maip_sys_memory_t maip_sys_memory_set(maip_sys_memory_t ptr, int32_t value, size_t size) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_set() - Pointer is null.\n");
+        fprintf(stderr, "Error: maip_sys_memory_set() - Pointer is null.\n");
         return null;
     }
 
     if (size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_set() - Cannot set zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_set() - Cannot set zero bytes.\n");
         return null;
     }
     
     return memset(ptr, value, size);
 }
 
-pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size) {
+maip_sys_memory_t maip_sys_memory_dup(const maip_sys_memory_t src, size_t size) {
     if (!src || size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_dup() - Invalid source or zero size.\n");
+        fprintf(stderr, "Error: maip_sys_memory_dup() - Invalid source or zero size.\n");
         return null;
     }
 
-    pizza_sys_memory_t dest = pizza_sys_memory_alloc(size);
+    maip_sys_memory_t dest = maip_sys_memory_alloc(size);
     if (!dest) {
-        return null;  // Error already handled in pizza_sys_memory_alloc
+        return null;  // Error already handled in maip_sys_memory_alloc
     }
 
     return memcpy(dest, src, size);
 }
 
-pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size) {
+maip_sys_memory_t maip_sys_memory_zero(maip_sys_memory_t ptr, size_t size) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_zero() - Pointer is null.\n");
+        fprintf(stderr, "Error: maip_sys_memory_zero() - Pointer is null.\n");
         return null;
     }
 
     if (size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_zero() - Cannot zero out zero bytes.\n");
+        fprintf(stderr, "Error: maip_sys_memory_zero() - Cannot zero out zero bytes.\n");
         return null;
     }
 
     return memset(ptr, 0, size);
 }
 
-int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size) {
+int maip_sys_memory_compare(const maip_sys_memory_t ptr1, const maip_sys_memory_t ptr2, size_t size) {
     if (!ptr1 || !ptr2 || size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_compare() - Invalid pointers or zero size.\n");
+        fprintf(stderr, "Error: maip_sys_memory_compare() - Invalid pointers or zero size.\n");
         return -1;  // Return -1 for invalid input
     }
 
     return memcmp(ptr1, ptr2, size);
 }
 
-pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size) {
+maip_sys_memory_t maip_sys_memory_move(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size) {
     if (!dest || !src || size == 0) {
-        fprintf(stderr, "Error: pizza_sys_memory_move() - Invalid source or destination pointers, or zero size.\n");
+        fprintf(stderr, "Error: maip_sys_memory_move() - Invalid source or destination pointers, or zero size.\n");
         return null;
     }
 
     return memmove(dest, src, size);
 }
 
-pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size) {
+maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size, size_t new_size) {
     if (!ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Pointer is null.\n");
+        fprintf(stderr, "Error: maip_sys_memory_resize() - Pointer is null.\n");
         return NULL;
     }
 
     if (new_size == 0) {
-        pizza_sys_memory_free(ptr);
+        maip_sys_memory_free(ptr);
         return NULL;
     }
 
     if (new_size <= old_size) {
         // Shrinking, just realloc (no data copy needed)
-        pizza_sys_memory_t new_ptr = pizza_sys_memory_realloc(ptr, new_size);
+        maip_sys_memory_t new_ptr = maip_sys_memory_realloc(ptr, new_size);
         if (!new_ptr) {
-            fprintf(stderr, "Error: pizza_sys_memory_resize() - Memory shrink failed, original preserved.\n");
+            fprintf(stderr, "Error: maip_sys_memory_resize() - Memory shrink failed, original preserved.\n");
             return ptr;
         }
         return new_ptr;
     }
 
     // Allocate new memory manually to preserve old data
-    pizza_sys_memory_t new_ptr = pizza_sys_memory_alloc(new_size);
+    maip_sys_memory_t new_ptr = maip_sys_memory_alloc(new_size);
     if (!new_ptr) {
-        fprintf(stderr, "Error: pizza_sys_memory_resize() - Allocation failed.\n");
+        fprintf(stderr, "Error: maip_sys_memory_resize() - Allocation failed.\n");
         return ptr;
     }
 
@@ -1696,12 +1696,12 @@ pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_si
     memcpy(new_ptr, ptr, old_size);
 
     // Free old memory
-    pizza_sys_memory_free(ptr);
+    maip_sys_memory_free(ptr);
 
     return new_ptr;
 }
 
-bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr) {
+bool maip_sys_memory_is_valid(const maip_sys_memory_t ptr) {
     if (!ptr) {
         return false;
     }
@@ -1713,11 +1713,11 @@ bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr) {
 // output management
 // *****************************************************************************
 
-pizza_fstream_t *PIZZA_STDIN;
-pizza_fstream_t *PIZZA_STDOUT;
-pizza_fstream_t *PIZZA_STDERR;
+maip_fstream_t *MAIP_STDIN;
+maip_fstream_t *MAIP_STDOUT;
+maip_fstream_t *MAIP_STDERR;
 
-int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
+int32_t MAIP_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 
 // ================================================================
 // RESET
@@ -1826,55 +1826,55 @@ int32_t PIZZA_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 #define FOSSIL_IO_BUFFER_SIZE 1000
 
 // Function to apply color
-void pizza_io_apply_color(const char *color) {
-    if (pizza_io_cstr_compare(color, "red") == 0) {
+void maip_io_apply_color(const char *color) {
+    if (maip_io_cstr_compare(color, "red") == 0) {
         printf(FOSSIL_IO_COLOR_RED);
-    } else if (pizza_io_cstr_compare(color, "green") == 0) {
+    } else if (maip_io_cstr_compare(color, "green") == 0) {
         printf(FOSSIL_IO_COLOR_GREEN);
-    } else if (pizza_io_cstr_compare(color, "yellow") == 0) {
+    } else if (maip_io_cstr_compare(color, "yellow") == 0) {
         printf(FOSSIL_IO_COLOR_YELLOW);
-    } else if (pizza_io_cstr_compare(color, "blue") == 0) {
+    } else if (maip_io_cstr_compare(color, "blue") == 0) {
         printf(FOSSIL_IO_COLOR_BLUE);
-    } else if (pizza_io_cstr_compare(color, "magenta") == 0) {
+    } else if (maip_io_cstr_compare(color, "magenta") == 0) {
         printf(FOSSIL_IO_COLOR_MAGENTA);
-    } else if (pizza_io_cstr_compare(color, "cyan") == 0) {
+    } else if (maip_io_cstr_compare(color, "cyan") == 0) {
         printf(FOSSIL_IO_COLOR_CYAN);
-    } else if (pizza_io_cstr_compare(color, "white") == 0) {
+    } else if (maip_io_cstr_compare(color, "white") == 0) {
         printf(FOSSIL_IO_COLOR_WHITE);
-    } else if (pizza_io_cstr_compare(color, "black") == 0) {
+    } else if (maip_io_cstr_compare(color, "black") == 0) {
         printf(FOSSIL_IO_COLOR_BLACK);
-    } else if (pizza_io_cstr_compare(color, "orange") == 0) {
+    } else if (maip_io_cstr_compare(color, "orange") == 0) {
         printf(FOSSIL_IO_COLOR_ORANGE);
-    } else if (pizza_io_cstr_compare(color, "gray") == 0) {
+    } else if (maip_io_cstr_compare(color, "gray") == 0) {
         printf(FOSSIL_IO_COLOR_GRAY);
-    } else if (pizza_io_cstr_compare(color, "pink") == 0) {
+    } else if (maip_io_cstr_compare(color, "pink") == 0) {
         printf(FOSSIL_IO_COLOR_PINK);
-    } else if (pizza_io_cstr_compare(color, "purple") == 0) {
+    } else if (maip_io_cstr_compare(color, "purple") == 0) {
         printf(FOSSIL_IO_COLOR_PURPLE);
-    } else if (pizza_io_cstr_compare(color, "brown") == 0) {
+    } else if (maip_io_cstr_compare(color, "brown") == 0) {
         printf(FOSSIL_IO_COLOR_BROWN);
-    } else if (pizza_io_cstr_compare(color, "teal") == 0) {
+    } else if (maip_io_cstr_compare(color, "teal") == 0) {
         printf(FOSSIL_IO_COLOR_TEAL);
-    } else if (pizza_io_cstr_compare(color, "silver") == 0) {
+    } else if (maip_io_cstr_compare(color, "silver") == 0) {
         printf(FOSSIL_IO_COLOR_SILVER);
     }
 
     // Bright colors
-    else if (pizza_io_cstr_compare(color, "bright_red") == 0) {
+    else if (maip_io_cstr_compare(color, "bright_red") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_RED);
-    } else if (pizza_io_cstr_compare(color, "bright_green") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_green") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
-    } else if (pizza_io_cstr_compare(color, "bright_yellow") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_yellow") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
-    } else if (pizza_io_cstr_compare(color, "bright_blue") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_blue") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
-    } else if (pizza_io_cstr_compare(color, "bright_magenta") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_magenta") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
-    } else if (pizza_io_cstr_compare(color, "bright_cyan") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_cyan") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
-    } else if (pizza_io_cstr_compare(color, "bright_white") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_white") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
-    } else if (pizza_io_cstr_compare(color, "bright_black") == 0) {
+    } else if (maip_io_cstr_compare(color, "bright_black") == 0) {
         printf(FOSSIL_IO_COLOR_BRIGHT_BLACK);
     } else {
         printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
@@ -1882,52 +1882,52 @@ void pizza_io_apply_color(const char *color) {
 }
 
 // Function to apply text attributes (e.g., bold, underline)
-void pizza_io_apply_attribute(const char *attribute) {
-    if (pizza_io_cstr_compare(attribute, "bold") == 0) {
+void maip_io_apply_attribute(const char *attribute) {
+    if (maip_io_cstr_compare(attribute, "bold") == 0) {
         printf(FOSSIL_IO_ATTR_BOLD);
-    } else if (pizza_io_cstr_compare(attribute, "underline") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "underline") == 0) {
         printf(FOSSIL_IO_ATTR_UNDERLINE);
-    } else if (pizza_io_cstr_compare(attribute, "reversed") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "reversed") == 0) {
         printf(FOSSIL_IO_ATTR_REVERSED);
-    } else if (pizza_io_cstr_compare(attribute, "blink") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "blink") == 0) {
         printf(FOSSIL_IO_ATTR_BLINK);
-    } else if (pizza_io_cstr_compare(attribute, "hidden") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "hidden") == 0) {
         printf(FOSSIL_IO_ATTR_HIDDEN);
-    } else if (pizza_io_cstr_compare(attribute, "normal") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "normal") == 0) {
         printf(FOSSIL_IO_ATTR_NORMAL);
-    } else if (pizza_io_cstr_compare(attribute, "italic") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "italic") == 0) {
         printf(FOSSIL_IO_ATTR_ITALIC);
-    } else if (pizza_io_cstr_compare(attribute, "strikethrough") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "strikethrough") == 0) {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
-    } else if (pizza_io_cstr_compare(attribute, "dim") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "dim") == 0) {
         printf(FOSSIL_IO_ATTR_DIM);
-    } else if (pizza_io_cstr_compare(attribute, "reset") == 0) {
+    } else if (maip_io_cstr_compare(attribute, "reset") == 0) {
         printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
     }
 }
 
 // Function to handle named positions (like top, bottom, left, right)
-void pizza_io_apply_position(const char *pos) {
-    if (pizza_io_cstr_compare(pos, "top") == 0) {
+void maip_io_apply_position(const char *pos) {
+    if (maip_io_cstr_compare(pos, "top") == 0) {
         // Apply position logic for top
         printf("\033[H"); // Move cursor to the top
-    } else if (pizza_io_cstr_compare(pos, "bottom") == 0) {
+    } else if (maip_io_cstr_compare(pos, "bottom") == 0) {
         // Apply position logic for bottom
         printf("\033[999;1H"); // Move cursor to the bottom (example within reasonable bounds)
-    } else if (pizza_io_cstr_compare(pos, "left") == 0) {
+    } else if (maip_io_cstr_compare(pos, "left") == 0) {
         // Apply position logic for left
         printf("\033[1;1H"); // Move cursor to the top-left corner
-    } else if (pizza_io_cstr_compare(pos, "right") == 0) {
+    } else if (maip_io_cstr_compare(pos, "right") == 0) {
         // Apply position logic for right
         printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
-    } else if (pizza_io_cstr_compare(pos, "center") == 0) {
+    } else if (maip_io_cstr_compare(pos, "center") == 0) {
         // Apply position logic for center
         printf("\033[12;40H"); // Move cursor to the center (example within reasonable bounds)
     }
 }
 
 // Function to print text with attributes, colors, positions, and format specifiers
-void pizza_io_print_with_attributes(const char *format, ...) {
+void maip_io_print_with_attributes(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -1970,13 +1970,13 @@ void pizza_io_print_with_attributes(const char *format, ...) {
             // Handle positions (like {pos:name})
             if (strstr(color, "pos:") == color) {
                 pos = color + 4; // Skip the "pos:" prefix
-                pizza_io_apply_position(pos);
+                maip_io_apply_position(pos);
             } else {
                 // Apply color and/or attribute based on flags
-                if (PIZZA_IO_COLOR_ENABLE && color) {
-                    pizza_io_apply_color(color);
+                if (MAIP_IO_COLOR_ENABLE && color) {
+                    maip_io_apply_color(color);
                 }
-                pizza_io_apply_attribute(attribute);
+                maip_io_apply_attribute(attribute);
             }
 
             // Move past '}' and continue processing
@@ -1991,14 +1991,14 @@ void pizza_io_print_with_attributes(const char *format, ...) {
 }
 
 // Function to print a sanitized formatted string to a specific file stream with attributes
-void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
+void maip_io_fprint_with_attributes(maip_fstream_t *stream, const char *str) {
     if (str != null && stream != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
 
         // Apply color and attribute logic (same as the print version)
-        pizza_io_print_with_attributes(sanitized_str);
+        maip_io_print_with_attributes(sanitized_str);
 
         // Write the sanitized string to the stream
         fputs(sanitized_str, stream->file);
@@ -2012,26 +2012,26 @@ void pizza_io_fprint_with_attributes(pizza_fstream_t *stream, const char *str) {
 //
 
 // Function to print a sanitized string with attributes inside {}
-void pizza_io_puts(const char *str) {
+void maip_io_puts(const char *str) {
     if (str != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
         
         // Print the sanitized string with attributes
-        pizza_io_print_with_attributes(sanitized_str);
+        maip_io_print_with_attributes(sanitized_str);
     } else {
         fputs("cnullptr\n", stderr);
     }
 }
 
 // Function to print a single character
-void pizza_io_putchar(char c) {
+void maip_io_putchar(char c) {
     putchar(c);
 }
 
 // Function to print sanitized formatted output with attributes
-void pizza_io_printf(const char *format, ...) {
+void maip_io_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -2040,12 +2040,12 @@ void pizza_io_printf(const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     // Print the sanitized output with attributes
-    pizza_io_print_with_attributes(buffer);
+    maip_io_print_with_attributes(buffer);
 
     va_end(args);
 }
 
-int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
+int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
     if (buffer == null || size == 0 || format == null) {
         return -1; // Invalid input
     }
@@ -2068,21 +2068,21 @@ int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list ar
 }
 
 // Function to print a sanitized string to a specific file stream
-void pizza_io_fputs(pizza_fstream_t *stream, const char *str) {
+void maip_io_fputs(maip_fstream_t *stream, const char *str) {
     if (str != null && stream != null) {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
 
         // Apply color/attributes and sanitize the string before printing
-        pizza_io_fprint_with_attributes(stream, sanitized_str);
+        maip_io_fprint_with_attributes(stream, sanitized_str);
     } else {
         fputs("cnullptr\n", stderr);
     }
 }
 
 // Function to print a sanitized formatted string to a specific file stream
-void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...) {
+void maip_io_fprintf(maip_fstream_t *stream, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -2091,44 +2091,44 @@ void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
 
     // Print the sanitized formatted string with attributes to the specified stream
-    pizza_io_fprint_with_attributes(stream, buffer);
+    maip_io_fprint_with_attributes(stream, buffer);
 
     va_end(args);
 }
 
 // TUI PART
 
-void pizza_io_clear_screen(void) {
-    pizza_io_printf("\033[2J\033[H");
+void maip_io_clear_screen(void) {
+    maip_io_printf("\033[2J\033[H");
 }
 
-void pizza_io_move_cursor(int row, int col) {
-    pizza_io_printf("\033[%d;%dH", row, col);
+void maip_io_move_cursor(int row, int col) {
+    maip_io_printf("\033[%d;%dH", row, col);
 }
 
-void pizza_io_hide_cursor(void) {
-    pizza_io_printf("\033[?25l");
+void maip_io_hide_cursor(void) {
+    maip_io_printf("\033[?25l");
 }
 
-void pizza_io_show_cursor(void) {
-    pizza_io_printf("\033[?25h");
+void maip_io_show_cursor(void) {
+    maip_io_printf("\033[?25h");
 }
 
-void pizza_io_draw_horizontal_line(int length, char ch) {
+void maip_io_draw_horizontal_line(int length, char ch) {
     for (int i = 0; i < length; ++i) {
         putchar(ch);
     }
     putchar('\n');
 }
 
-void pizza_io_draw_vertical_line(int length, char ch) {
+void maip_io_draw_vertical_line(int length, char ch) {
     for (int i = 0; i < length; ++i) {
         putchar(ch);
         putchar('\n');
     }
 }
 
-void pizza_io_flush(void) {
+void maip_io_flush(void) {
     fflush(stdout);
 }
 
@@ -2158,7 +2158,7 @@ static int strncasecmp(const char *s1, const char *s2, size_t n) {
 // C String Functions
 // ============================================================================
 
-cstr pizza_io_cstr_create(const char *init) {
+cstr maip_io_cstr_create(const char *init) {
     if (!init) return null;
     size_t length = strlen(init);
     cstr str = (cstr)malloc(length + 1);
@@ -2168,18 +2168,18 @@ cstr pizza_io_cstr_create(const char *init) {
     return str;
 }
 
-void pizza_io_cstr_free(cstr str) {
+void maip_io_cstr_free(cstr str) {
     if (str) {
         free(str);
     }
 }
 
-cstr pizza_io_cstr_copy(ccstr str) {
+cstr maip_io_cstr_copy(ccstr str) {
     if (!str) return null;
-    return pizza_io_cstr_create(str);
+    return maip_io_cstr_create(str);
 }
 
-cstr pizza_io_cstr_dup(ccstr str) {
+cstr maip_io_cstr_dup(ccstr str) {
     if (!str) return null;
     size_t length = strlen(str);
     cstr new_str = (cstr)malloc(length + 1);
@@ -2189,7 +2189,7 @@ cstr pizza_io_cstr_dup(ccstr str) {
     return new_str;
 }
 
-cstr pizza_io_cstr_concat(ccstr s1, ccstr s2) {
+cstr maip_io_cstr_concat(ccstr s1, ccstr s2) {
     if (!s1 || !s2) return null;
     size_t length1 = strlen(s1);
     size_t length2 = strlen(s2);
@@ -2201,17 +2201,17 @@ cstr pizza_io_cstr_concat(ccstr s1, ccstr s2) {
     return str;
 }
 
-size_t pizza_io_cstr_length(ccstr str) {
+size_t maip_io_cstr_length(ccstr str) {
     if (!str) return 0;
     return strlen(str);
 }
 
-int pizza_io_cstr_compare(ccstr s1, ccstr s2) {
+int maip_io_cstr_compare(ccstr s1, ccstr s2) {
     if (!s1 || !s2) return -1;
     return strcmp(s1, s2);
 }
 
-void pizza_io_cstr_trim(cstr str) {
+void maip_io_cstr_trim(cstr str) {
     if (!str) return;
     size_t length = strlen(str);
     size_t start = 0;
@@ -2229,7 +2229,7 @@ void pizza_io_cstr_trim(cstr str) {
     str[count] = '\0';
 }
 
-cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
+cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count) {
     if (!str || !count) return null;
     size_t length = strlen(str);
     size_t num_delimiters = 0;
@@ -2279,7 +2279,7 @@ cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count) {
     return result;
 }
 
-cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
+cstr maip_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
     if (!str || !old || !new_str) return null;
     size_t old_length = strlen(old);
     size_t new_length = strlen(new_str);
@@ -2314,7 +2314,7 @@ cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
     return result;
 }
 
-cstr pizza_io_cstr_to_upper(cstr str) {
+cstr maip_io_cstr_to_upper(cstr str) {
     if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
@@ -2327,7 +2327,7 @@ cstr pizza_io_cstr_to_upper(cstr str) {
     return result;
 }
 
-cstr pizza_io_cstr_to_lower(cstr str) {
+cstr maip_io_cstr_to_lower(cstr str) {
     if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
@@ -2340,7 +2340,7 @@ cstr pizza_io_cstr_to_lower(cstr str) {
     return result;
 }
 
-int pizza_io_cstr_starts_with(ccstr str, ccstr prefix) {
+int maip_io_cstr_starts_with(ccstr str, ccstr prefix) {
     if (!str || !prefix) return 0;
     size_t str_length = strlen(str);
     size_t prefix_length = strlen(prefix);
@@ -2350,7 +2350,7 @@ int pizza_io_cstr_starts_with(ccstr str, ccstr prefix) {
     return strncmp(str, prefix, prefix_length) == 0;
 }
 
-int pizza_io_cstr_ends_with(ccstr str, ccstr suffix) {
+int maip_io_cstr_ends_with(ccstr str, ccstr suffix) {
     if (!str || !suffix) return 0;
     size_t str_length = strlen(str);
     size_t suffix_length = strlen(suffix);
@@ -2360,7 +2360,7 @@ int pizza_io_cstr_ends_with(ccstr str, ccstr suffix) {
     return strncmp(str + str_length - suffix_length, suffix, suffix_length) == 0;
 }
 
-cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length) {
+cstr maip_io_cstr_substring(ccstr str, size_t start, size_t length) {
     if (!str) return null;
     size_t str_length = strlen(str);
     if (start >= str_length) {
@@ -2378,7 +2378,7 @@ cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length) {
     return result;
 }
 
-cstr pizza_io_cstr_reverse(cstr str) {
+cstr maip_io_cstr_reverse(cstr str) {
     if (!str) return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
@@ -2391,12 +2391,12 @@ cstr pizza_io_cstr_reverse(cstr str) {
     return result;
 }
 
-int pizza_io_cstr_contains(ccstr str, ccstr substr) {
+int maip_io_cstr_contains(ccstr str, ccstr substr) {
     if (!str || !substr) return 0;
     return strstr(str, substr) != null;
 }
 
-cstr pizza_io_cstr_repeat(ccstr str, size_t count) {
+cstr maip_io_cstr_repeat(ccstr str, size_t count) {
     if (!str || count == 0) return null;
     size_t length = strlen(str);
     size_t new_length = length * count;
@@ -2410,7 +2410,7 @@ cstr pizza_io_cstr_repeat(ccstr str, size_t count) {
     return result;
 }
 
-cstr pizza_io_cstr_strip(ccstr str, char ch) {
+cstr maip_io_cstr_strip(ccstr str, char ch) {
     if (!str) return null;
     size_t length = strlen(str);
     size_t start = 0;
@@ -2430,7 +2430,7 @@ cstr pizza_io_cstr_strip(ccstr str, char ch) {
     return result;
 }
 
-size_t pizza_io_cstr_count(ccstr str, ccstr substr) {
+size_t maip_io_cstr_count(ccstr str, ccstr substr) {
     if (!str || !substr) return 0;
     size_t count = 0;
     size_t length = strlen(substr);
@@ -2441,11 +2441,11 @@ size_t pizza_io_cstr_count(ccstr str, ccstr substr) {
     return count;
 }
 
-cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
+cstr maip_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
     if (!str || total_length == 0) return null;
     size_t length = strlen(str);
     if (length >= total_length) {
-        return pizza_io_cstr_copy(str);
+        return maip_io_cstr_copy(str);
     }
     size_t pad_length = total_length - length;
     cstr result = (cstr)malloc(total_length + 1);
@@ -2457,11 +2457,11 @@ cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
+cstr maip_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     if (!str || total_length == 0) return null;
     size_t length = strlen(str);
     if (length >= total_length) {
-        return pizza_io_cstr_copy(str);
+        return maip_io_cstr_copy(str);
     }
     size_t pad_length = total_length - length;
     cstr result = (cstr)malloc(total_length + 1);
@@ -2473,7 +2473,7 @@ cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src) {
+bool maip_io_cstr_append(cstr dest, size_t max_len, cstr src) {
     if (!dest || !src || max_len == 0) return false;
 
     // Find current length of dest up to max_len

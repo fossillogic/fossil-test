@@ -23,7 +23,7 @@
  * -----------------------------------------------------------------------------
  */
 #define _DARWIN_C_SOURCE
-#include "fossil/pizza/sanity.h"
+#include "fossil/maip/sanity.h"
 #include <stdlib.h>   // getenv, setenv
 #include <time.h>     // localtime_r, strftime
 #include <sys/time.h> // gettimeofday
@@ -39,7 +39,7 @@
 #include <fcntl.h>
 #endif
 
-int pizza_sys_call_execute(const char *command) {
+int maip_sys_call_execute(const char *command) {
 #ifdef _WIN32
     return system(command); // On Windows, use the system function to execute the command.
 #else
@@ -47,7 +47,7 @@ int pizza_sys_call_execute(const char *command) {
 #endif
 }
 
-int pizza_sys_call_getpid(void) {
+int maip_sys_call_getpid(void) {
 #ifdef _WIN32
     return GetCurrentProcessId(); // On Windows, use the GetCurrentProcessId function to get the process ID.
 #else
@@ -55,7 +55,7 @@ int pizza_sys_call_getpid(void) {
 #endif
 }
 
-void pizza_sys_call_sleep(int milliseconds) {
+void maip_sys_call_sleep(int milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds); // On Windows, use the Sleep function to sleep for the specified number of milliseconds.
 #else
@@ -63,7 +63,7 @@ void pizza_sys_call_sleep(int milliseconds) {
 #endif
 }
 
-int pizza_sys_call_create_file(const char *filename) {
+int maip_sys_call_create_file(const char *filename) {
 #ifdef _WIN32
     HANDLE hFile = CreateFileA(filename, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) return -1; // If the file handle is invalid, return an error code.
@@ -78,19 +78,19 @@ int pizza_sys_call_create_file(const char *filename) {
 }
 
 int fossil_sanity_sys_execute(const char* command) {
-    return pizza_sys_call_execute(command);
+    return maip_sys_call_execute(command);
 }
 
 int fossil_sanity_sys_getpid(void) {
-    return pizza_sys_call_getpid();
+    return maip_sys_call_getpid();
 }
 
 void fossil_sanity_sys_sleep(int milliseconds) {
-    pizza_sys_call_sleep(milliseconds);
+    maip_sys_call_sleep(milliseconds);
 }
 
 int fossil_sanity_sys_create_file(const char* filename) {
-    return pizza_sys_call_create_file(filename);
+    return maip_sys_call_create_file(filename);
 }
 
 int fossil_sanity_sys_file_exists(const char* filename) {
@@ -203,7 +203,7 @@ char* fossil_sanity_sys_timestamp(void) {
     if (strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tstruct) == 0)
         return NULL;
 
-    char* out = pizza_io_cstr_dup(buf);
+    char* out = maip_io_cstr_dup(buf);
     return out;
 }
 

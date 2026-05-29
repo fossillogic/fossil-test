@@ -26,12 +26,12 @@
 #define FOSSIL_TEST_COMMON_H
 
 /* ---------- Configuration / visibility ---------- */
-#if defined(_WIN32) && defined(FOSSIL_PIZZA_BUILD_DLL)
-#  define FOSSIL_PIZZA_API __declspec(dllexport)
-#elif defined(_WIN32) && defined(FOSSIL_PIZZA_USE_DLL)
-#  define FOSSIL_PIZZA_API __declspec(dllimport)
+#if defined(_WIN32) && defined(FOSSIL_MAIP_BUILD_DLL)
+#  define FOSSIL_MAIP_API __declspec(dllexport)
+#elif defined(_WIN32) && defined(FOSSIL_MAIP_USE_DLL)
+#  define FOSSIL_MAIP_API __declspec(dllimport)
 #else
-#  define FOSSIL_PIZZA_API
+#  define FOSSIL_MAIP_API
 #endif
 
 // C headers
@@ -73,7 +73,7 @@
 extern "C" {
 #endif
 
-#define FOSSIL_PIZZA_HASH_SIZE 16
+#define FOSSIL_MAIP_HASH_SIZE 16
 
 /* Type definitions */
 typedef char* cstr;
@@ -214,24 +214,24 @@ typedef const char* ccstr;
  * @param output The output string to combine with the input.
  * @param hash_out Pointer to an array where the resulting hash will be stored.
  */
-FOSSIL_PIZZA_API void fossil_pizza_hash(const char *input, const char *output, uint8_t *hash_out);
+FOSSIL_MAIP_API void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out);
 
 // *****************************************************************************
 // Command Pallet
 // *****************************************************************************
 
 typedef enum {
-    PIZZA_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
-    PIZZA_THEME_LIGHT,    // Light Theme for Fossil Test Framework
-    PIZZA_THEME_DARK,     // Dark Theme for Fossil Test Framework
-    PIZZA_THEME_MAGA      // Maga Theme make unit testing great again!
-} fossil_pizza_cli_theme_t;
+    MAIP_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
+    MAIP_THEME_LIGHT,    // Light Theme for Fossil Test Framework
+    MAIP_THEME_DARK,     // Dark Theme for Fossil Test Framework
+    MAIP_THEME_MAGA      // Maga Theme make unit testing great again!
+} fossil_maip_cli_theme_t;
 
 typedef enum {
-    PIZZA_VERBOSE_PLAIN,
-    PIZZA_VERBOSE_CI,
-    PIZZA_VERBOSE_DOGE
-} fossil_pizza_cli_verbose_t;
+    MAIP_VERBOSE_PLAIN,
+    MAIP_VERBOSE_CI,
+    MAIP_VERBOSE_DOGE
+} fossil_maip_cli_verbose_t;
 
 typedef struct {
     int dry_run;                   // Flag for dry run mode
@@ -295,20 +295,20 @@ typedef struct {
         const char* destination;       // Output destination (file path or stdout)
     } report;                       // Report command flags
 
-    fossil_pizza_cli_theme_t theme; // Theme option
-} fossil_pizza_pallet_t;
+    fossil_maip_cli_theme_t theme; // Theme option
+} fossil_maip_pallet_t;
 
 // *****************************************************************************
 // exported flags
 // *****************************************************************************
 
-extern uint64_t G_PIZZA_TIMEOUT;
-extern int G_PIZZA_DRY_RUN;
-extern int G_PIZZA_FAIL_FAST;
-extern int G_PIZZA_SKIP;
-extern const char* G_PIZZA_ONLY;
-extern int G_PIZZA_REPEAT;
-extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
+extern uint64_t G_MAIP_TIMEOUT;
+extern int G_MAIP_DRY_RUN;
+extern int G_MAIP_FAIL_FAST;
+extern int G_MAIP_SKIP;
+extern const char* G_MAIP_ONLY;
+extern int G_MAIP_REPEAT;
+extern fossil_maip_cli_theme_t G_MAIP_THEME;
 
 /**
  * @brief Parses command line arguments and populates the pallet structure.
@@ -320,7 +320,7 @@ extern fossil_pizza_cli_theme_t G_PIZZA_THEME;
  * @param argc The number of command line arguments.
  * @param argv The command line arguments.
  */
-FOSSIL_PIZZA_API fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char** argv);
+FOSSIL_MAIP_API fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv);
 
 // *****************************************************************************
 // INI Parser
@@ -332,14 +332,14 @@ FOSSIL_PIZZA_API fossil_pizza_pallet_t fossil_pizza_pallet_create(int argc, char
  * @brief Parses an INI file and populates the provided pallet structure.
  *
  * This function reads an INI file and extracts key-value pairs to populate
- * the fossil_pizza_pallet_t structure. It assumes a simple INI format with
+ * the fossil_maip_pallet_t structure. It assumes a simple INI format with
  * sections and key-value pairs.
  *
  * @param filename The path to the INI file.
  * @param pallet Pointer to the pallet structure to populate.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int fossil_pizza_ini_parse(const char *filename, fossil_pizza_pallet_t *pallet);
+FOSSIL_MAIP_API int fossil_maip_ini_parse(const char *filename, fossil_maip_pallet_t *pallet);
 
 // *****************************************************************************
 // Host information
@@ -355,7 +355,7 @@ typedef struct {
     char domain_name[128];
     char machine_type[128];
     char platform[128];
-} pizza_sys_hostinfo_system_t;
+} maip_sys_hostinfo_system_t;
 
 // Architecture information structure
 typedef struct {
@@ -365,7 +365,7 @@ typedef struct {
     char cpu_threads[128];
     char cpu_frequency[128];
     char cpu_architecture[128];
-} pizza_sys_hostinfo_architecture_t;
+} maip_sys_hostinfo_architecture_t;
 
 // Memory information structure
 typedef struct {
@@ -376,12 +376,12 @@ typedef struct {
     uint64_t total_swap;      // in bytes
     uint64_t free_swap;       // in bytes
     uint64_t used_swap;       // in bytes
-} pizza_sys_hostinfo_memory_t;
+} maip_sys_hostinfo_memory_t;
 
 // Endianness information structure
 typedef struct {
     int is_little_endian; // 1 if little-endian, 0 if big-endian
-} pizza_sys_hostinfo_endianness_t;
+} maip_sys_hostinfo_endianness_t;
 
 /**
  * Retrieve system information.
@@ -389,7 +389,7 @@ typedef struct {
  * @param info A pointer to a structure that will be filled with system information.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *info);
+FOSSIL_MAIP_API int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info);
 
 /**
  * Retrieve architecture information.
@@ -397,7 +397,7 @@ FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_system(pizza_sys_hostinfo_system_t *
  * @param info A pointer to a structure that will be filled with architecture information.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_architecture_t *info);
+FOSSIL_MAIP_API int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info);
 
 /**
  * Retrieve memory information.
@@ -405,7 +405,7 @@ FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_architecture(pizza_sys_hostinfo_arch
  * @param info A pointer to a structure that will be filled with memory information.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *info);
+FOSSIL_MAIP_API int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info);
 
 /**
  * Retrieve endianness information.
@@ -413,7 +413,7 @@ FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_memory(pizza_sys_hostinfo_memory_t *
  * @param info A pointer to a structure that will be filled with endianness information.
  * @return 0 on success, or a negative error code on failure.
  */
-FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endianness_t *info);
+FOSSIL_MAIP_API int maip_sys_hostinfo_get_endianness(maip_sys_hostinfo_endianness_t *info);
 
 // *****************************************************************************
 // Soap sanitizer
@@ -425,7 +425,7 @@ FOSSIL_PIZZA_API int pizza_sys_hostinfo_get_endianness(pizza_sys_hostinfo_endian
  * @param text The input text to sanitize.
  * @return A dynamically allocated sanitized string (must be freed by the caller).
  */
-FOSSIL_PIZZA_API char *pizza_io_soap_sanitize(const char *text);
+FOSSIL_MAIP_API char *maip_io_soap_sanitize(const char *text);
 
 /**
  * @brief Suggest proper alternatives for rot-brain words or grammar fixes.
@@ -433,7 +433,7 @@ FOSSIL_PIZZA_API char *pizza_io_soap_sanitize(const char *text);
  * @param text The input text.
  * @return A dynamically allocated string with suggestions (must be freed by the caller).
  */
-FOSSIL_PIZZA_API char *pizza_io_soap_suggest(const char *text);
+FOSSIL_MAIP_API char *maip_io_soap_suggest(const char *text);
 
 /**
  * @brief Detect the tone of a sentence.
@@ -441,7 +441,7 @@ FOSSIL_PIZZA_API char *pizza_io_soap_suggest(const char *text);
  * @param text The input text.
  * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
  */
-FOSSIL_PIZZA_API const char *pizza_io_soap_detect_tone(const char *text);
+FOSSIL_MAIP_API const char *maip_io_soap_detect_tone(const char *text);
 
 // ============================================================================
 // Fossil IO Soap: Advanced Text Analysis and Filtering
@@ -453,7 +453,7 @@ FOSSIL_PIZZA_API const char *pizza_io_soap_detect_tone(const char *text);
  * @param text The input text to sanitize.
  * @return A dynamically allocated sanitized string (must be freed by the caller).
  */
-char *pizza_io_soap_sanitize(const char *text);
+char *maip_io_soap_sanitize(const char *text);
 
 /**
  * @brief Suggest proper alternatives for rot-brain words or grammar fixes.
@@ -461,7 +461,7 @@ char *pizza_io_soap_sanitize(const char *text);
  * @param text The input text.
  * @return A dynamically allocated string with suggestions (must be freed by the caller).
  */
-char *pizza_io_soap_suggest(const char *text);
+char *maip_io_soap_suggest(const char *text);
 
 /**
  * @brief Detect the tone of a sentence.
@@ -469,7 +469,7 @@ char *pizza_io_soap_suggest(const char *text);
  * @param text The input text.
  * @return A string representing the detected tone ("formal", "casual", "sarcastic", etc.).
  */
-const char *pizza_io_soap_detect_tone(const char *text);
+const char *maip_io_soap_detect_tone(const char *text);
 
 // grammar functions
 
@@ -479,7 +479,7 @@ const char *pizza_io_soap_detect_tone(const char *text);
  * @param text Input string to analyze.
  * @return 0 if grammar is clean, non-zero otherwise.
  */
-int pizza_io_soap_check_grammar(const char *text);
+int maip_io_soap_check_grammar(const char *text);
 
 /**
  * @brief Apply a grammar correction pass over the input text.
@@ -487,7 +487,7 @@ int pizza_io_soap_check_grammar(const char *text);
  * @param text The input text.
  * @return A dynamically allocated corrected string (must be freed).
  */
-char *pizza_io_soap_correct_grammar(const char *text);
+char *maip_io_soap_correct_grammar(const char *text);
 
 /**
  * @brief Split input text into individual sentences.
@@ -495,7 +495,7 @@ char *pizza_io_soap_correct_grammar(const char *text);
  * @param text The input text to split.
  * @return A dynamically allocated array of strings, each representing a sentence (must be freed by the caller).
  */
-char **pizza_io_soap_split_sentences(const char *text);
+char **maip_io_soap_split_sentences(const char *text);
 
 // detect functions
 
@@ -504,70 +504,70 @@ char **pizza_io_soap_split_sentences(const char *text);
  * @param text Input string to analyze.
  * @return Non-zero if ragebait patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_ragebait(const char *text);
+int maip_io_soap_detect_ragebait(const char *text);
 
 /** 
  * Detects clickbait content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if clickbait patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_clickbait(const char *text);
+int maip_io_soap_detect_clickbait(const char *text);
 
 /** 
  * Detects spam content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if spam patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_spam(const char *text);
+int maip_io_soap_detect_spam(const char *text);
 
 /** 
  * Detects woke-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if woke patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_woke(const char *text);
+int maip_io_soap_detect_woke(const char *text);
 
 /** 
  * Detects automated/bot content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if bot patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_bot(const char *text);
+int maip_io_soap_detect_bot(const char *text);
 
 /** 
  * Detects sarcastic tone in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if sarcastic patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_sarcasm(const char *text);
+int maip_io_soap_detect_sarcasm(const char *text);
 
 /** 
  * Detects formal tone in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if formal patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_formal(const char *text);
+int maip_io_soap_detect_formal(const char *text);
 
 /** 
  * Detects "snowflake"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if snowflake patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_snowflake(const char *text);
+int maip_io_soap_detect_snowflake(const char *text);
 
 /** 
  * Detects "offensive"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if offensive patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_offensive(const char *text);
+int maip_io_soap_detect_offensive(const char *text);
 
 /** 
  * Detects "neutral"-related content in the given text.
  * @param text Input string to analyze.
  * @return Non-zero if neutral patterns are found, 0 otherwise.
  */
-int pizza_io_soap_detect_neutral(const char *text);
+int maip_io_soap_detect_neutral(const char *text);
 
 /**
  * @brief Detect hype-related phrases in text.
@@ -575,7 +575,7 @@ int pizza_io_soap_detect_neutral(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if hype phrases are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_hype(const char *text);
+int maip_io_soap_detect_hype(const char *text);
 
 /**
  * @brief Detect quality-related phrases in text.
@@ -583,7 +583,7 @@ int pizza_io_soap_detect_hype(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if quality phrases are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_quality(const char *text);
+int maip_io_soap_detect_quality(const char *text);
 
 /**
  * @brief Detect political content in text.
@@ -591,7 +591,7 @@ int pizza_io_soap_detect_quality(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if political patterns are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_political(const char *text);
+int maip_io_soap_detect_political(const char *text);
 
 /**
  * @brief Detect conspiracy-related content in text.
@@ -599,7 +599,7 @@ int pizza_io_soap_detect_political(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if conspiracy patterns are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_conspiracy(const char *text);
+int maip_io_soap_detect_conspiracy(const char *text);
 
 /**
  * @brief Detect marketing/jargon-heavy content in text.
@@ -607,7 +607,7 @@ int pizza_io_soap_detect_conspiracy(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if marketing patterns are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_marketing(const char *text);
+int maip_io_soap_detect_marketing(const char *text);
 
 /**
  * @brief Detect technobabble or meaningless jargon in text.
@@ -615,7 +615,7 @@ int pizza_io_soap_detect_marketing(const char *text);
  * @param text Input text to scan.
  * @return Non-zero if technobabble patterns are detected, 0 otherwise.
  */
-int pizza_io_soap_detect_technobabble(const char *text);
+int maip_io_soap_detect_technobabble(const char *text);
 
 // filter functions
 
@@ -625,18 +625,18 @@ int pizza_io_soap_detect_technobabble(const char *text);
  * @param phrase The phrase to add.
  * @return 0 on success, nonzero on failure.
  */
-int pizza_io_soap_add_custom_filter(const char *phrase);
+int maip_io_soap_add_custom_filter(const char *phrase);
 
 /**
  * @brief Filter text by replacing words/phrases matching any pattern (comma-separated) with '*'.
  *        Patterns support '*' and '?' wildcards, case-insensitive.
  */
-char *pizza_io_soap_filter(const char *patterns, const char *text);
+char *maip_io_soap_filter(const char *patterns, const char *text);
 
 /**
  * @brief Clear all custom filters.
  */
-void pizza_io_soap_clear_custom_filters(void);
+void maip_io_soap_clear_custom_filters(void);
 
 /**
  * @brief Compute a readability score for the input text (0–100 scale).
@@ -644,7 +644,7 @@ void pizza_io_soap_clear_custom_filters(void);
  * @param text Input string to analyze.
  * @return Integer readability score; higher = easier to read.
  */
-int pizza_io_soap_readability_score(const char *text);
+int maip_io_soap_readability_score(const char *text);
 
 /**
  * @brief Provide a label for readability ("easy", "medium", "complex").
@@ -652,7 +652,7 @@ int pizza_io_soap_readability_score(const char *text);
  * @param text Input text.
  * @return A constant string label.
  */
-const char *pizza_io_soap_readability_label(const char *text);
+const char *maip_io_soap_readability_label(const char *text);
 
 /**
  * @brief Generate a concise summary (1–3 sentences).
@@ -660,7 +660,7 @@ const char *pizza_io_soap_readability_label(const char *text);
  * @param text Input text.
  * @return A dynamically allocated summary string (caller frees).
  */
-char *pizza_io_soap_summarize(const char *text);
+char *maip_io_soap_summarize(const char *text);
 
 /**
  * @brief Extract the single key sentence (TL;DR).
@@ -668,7 +668,7 @@ char *pizza_io_soap_summarize(const char *text);
  * @param text Input text.
  * @return A dynamically allocated extracted sentence (caller frees).
  */
-char *pizza_io_soap_extract_key_sentence(const char *text);
+char *maip_io_soap_extract_key_sentence(const char *text);
 
 /**
  * @brief Analyze the writing style ("concise", "verbose", "technical", etc.).
@@ -676,7 +676,7 @@ char *pizza_io_soap_extract_key_sentence(const char *text);
  * @param text Input text.
  * @return A constant string label.
  */
-const char *pizza_io_soap_analyze_style(const char *text);
+const char *maip_io_soap_analyze_style(const char *text);
 
 /**
  * @brief Estimate passive voice usage (0–100%).
@@ -684,7 +684,7 @@ const char *pizza_io_soap_analyze_style(const char *text);
  * @param text Input string.
  * @return Percentage of passive constructions.
  */
-int pizza_io_soap_passive_voice_ratio(const char *text);
+int maip_io_soap_passive_voice_ratio(const char *text);
 
 /**
  * @brief Evaluate clarity of writing (0–100).
@@ -692,7 +692,7 @@ int pizza_io_soap_passive_voice_ratio(const char *text);
  * @param text Input.
  * @return Clarity score.
  */
-int pizza_io_soap_clarity_score(const char *text);
+int maip_io_soap_clarity_score(const char *text);
 
 /**
  * @brief Assess overall writing quality (grammar, concision, structure).
@@ -700,7 +700,7 @@ int pizza_io_soap_clarity_score(const char *text);
  * @param text Input.
  * @return Quality score 0–100.
  */
-int pizza_io_soap_quality_score(const char *text);
+int maip_io_soap_quality_score(const char *text);
 
 /**
  * @brief Split text into sentences.
@@ -708,7 +708,7 @@ int pizza_io_soap_quality_score(const char *text);
  * @param text Input.
  * @return NULL-terminated array of strdup'd sentences (caller frees array & elements).
  */
-char **pizza_io_soap_split_sentences(const char *text);
+char **maip_io_soap_split_sentences(const char *text);
 
 /**
  * @brief Reflow text to max line width. Preserves words; inserts line breaks.
@@ -717,7 +717,7 @@ char **pizza_io_soap_split_sentences(const char *text);
  * @param width Maximum allowed characters per line.
  * @return A dynamically allocated reflowed string (caller frees).
  */
-char *pizza_io_soap_reflow(const char *text, int width);
+char *maip_io_soap_reflow(const char *text, int width);
 
 /**
  * @brief Normalize whitespace, punctuation, spacing, and basic formatting.
@@ -725,7 +725,7 @@ char *pizza_io_soap_reflow(const char *text, int width);
  * @param text Input string.
  * @return A dynamically allocated normalized string (caller frees).
  */
-char *pizza_io_soap_normalize(const char *text);
+char *maip_io_soap_normalize(const char *text);
 
 /**
  * @brief Apply capitalization rules.
@@ -734,7 +734,7 @@ char *pizza_io_soap_normalize(const char *text);
  * @param mode 0 = sentence case, 1 = title case, 2 = uppercase, 3 = lowercase.
  * @return A dynamically allocated transformed string (caller frees).
  */
-char *pizza_io_soap_capitalize(const char *text, int mode);
+char *maip_io_soap_capitalize(const char *text, int mode);
 
 /**
  * @brief Checks if the given text contains "rot-brain" language.
@@ -742,14 +742,14 @@ char *pizza_io_soap_capitalize(const char *text, int mode);
  * @param text The input text to check.
  * @return 1 if the text contains "rot-brain" language, 0 otherwise.
  */
-FOSSIL_PIZZA_API int pizza_io_is_rot_brain(const char *text);
+FOSSIL_MAIP_API int maip_io_is_rot_brain(const char *text);
 
 // *****************************************************************************
 // Memory management
 // *****************************************************************************
 
-// Define pizza_sys_memory_t as void*
-typedef void* pizza_sys_memory_t;
+// Define maip_sys_memory_t as void*
+typedef void* maip_sys_memory_t;
 
 /**
  * Allocate memory.
@@ -758,7 +758,7 @@ typedef void* pizza_sys_memory_t;
  * @return A pointer to the allocated memory.
  * @throws Error message and exits if allocation fails.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_alloc(size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_alloc(size_t size);
 
 /**
  * Reallocate memory.
@@ -768,7 +768,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_alloc(size_t size);
  * @return A pointer to the reallocated memory.
  * @throws Error message and exits if reallocation fails or if the pointer is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t ptr, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_realloc(maip_sys_memory_t ptr, size_t size);
 
 /**
  * Allocate and zero memory.
@@ -778,7 +778,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_realloc(pizza_sys_memory_t 
  * @return A pointer to the allocated and zeroed memory.
  * @throws Error message and exits if allocation fails.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_calloc(size_t num, size_t size);
 
 /**
  * Initialize allocated memory to a known state.
@@ -788,7 +788,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_calloc(size_t num, size_t s
  * @param value The value to initialize the memory with (e.g., zero).
  * @return A pointer to the initialized memory.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr, size_t size, int32_t value);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_init(maip_sys_memory_t ptr, size_t size, int32_t value);
 
 /**
  * Free memory.
@@ -796,7 +796,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_init(pizza_sys_memory_t ptr
  * @param ptr A pointer to the memory to free.
  * @throws Error message and exits if the pointer is NULL.
  */
-FOSSIL_PIZZA_API void pizza_sys_memory_free(pizza_sys_memory_t ptr);
+FOSSIL_MAIP_API void maip_sys_memory_free(maip_sys_memory_t ptr);
 
 /**
  * Copy memory.
@@ -807,7 +807,7 @@ FOSSIL_PIZZA_API void pizza_sys_memory_free(pizza_sys_memory_t ptr);
  * @return A pointer to the destination memory.
  * @throws Error message and exits if copying fails or if either source or destination is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_copy(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size);
 
 /**
  * Set memory.
@@ -818,7 +818,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_copy(pizza_sys_memory_t des
  * @return A pointer to the memory.
  * @throws Error message and exits if setting fails or if the pointer is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr, int32_t value, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_set(maip_sys_memory_t ptr, int32_t value, size_t size);
 
 /**
  * Duplicate memory.
@@ -828,7 +828,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_set(pizza_sys_memory_t ptr,
  * @return A pointer to the duplicated memory.
  * @throws Error message and exits if duplication fails or if the source is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_t src, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_dup(const maip_sys_memory_t src, size_t size);
 
 /**
  * Zero memory.
@@ -837,7 +837,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_dup(const pizza_sys_memory_
  * @param size The size of the memory to zero.
  * @throws Error message and exits if the pointer is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_zero(maip_sys_memory_t ptr, size_t size);
 
 /**
  * Compare memory.
@@ -848,7 +848,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_zero(pizza_sys_memory_t ptr
  * @return The result of the comparison.
  * @throws Error message and exits if the pointers are NULL or if the size is zero.
  */
-FOSSIL_PIZZA_API int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, const pizza_sys_memory_t ptr2, size_t size);
+FOSSIL_MAIP_API int maip_sys_memory_compare(const maip_sys_memory_t ptr1, const maip_sys_memory_t ptr2, size_t size);
 
 /**
  * Move memory.
@@ -859,7 +859,7 @@ FOSSIL_PIZZA_API int pizza_sys_memory_compare(const pizza_sys_memory_t ptr1, con
  * @return A pointer to the destination memory.
  * @throws Error message and exits if moving fails or if either source or destination is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t dest, const pizza_sys_memory_t src, size_t size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_move(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size);
 
 /**
  * Resize memory.
@@ -870,7 +870,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_move(pizza_sys_memory_t des
  * @return A pointer to the resized memory.
  * @throws Error message and exits if resizing fails or if the pointer is NULL.
  */
-FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t ptr, size_t old_size, size_t new_size);
+FOSSIL_MAIP_API maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size, size_t new_size);
 
 /**
  * Check if a memory pointer is valid.
@@ -878,7 +878,7 @@ FOSSIL_PIZZA_API pizza_sys_memory_t pizza_sys_memory_resize(pizza_sys_memory_t p
  * @param ptr A pointer to the memory.
  * @return 1 if the memory is valid, 0 otherwise.
  */
-FOSSIL_PIZZA_API bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr);
+FOSSIL_MAIP_API bool maip_sys_memory_is_valid(const maip_sys_memory_t ptr);
 
 // *****************************************************************************
 // output management
@@ -890,17 +890,17 @@ FOSSIL_PIZZA_API bool pizza_sys_memory_is_valid(const pizza_sys_memory_t ptr);
 typedef struct {
     FILE *file;         // Pointer to the FILE structure for the stream
     char filename[500]; // Array to store the filename
-} pizza_fstream_t;
+} maip_fstream_t;
 
-extern pizza_fstream_t *PIZZA_STDIN;
-extern pizza_fstream_t *PIZZA_STDOUT;
-extern pizza_fstream_t *PIZZA_STDERR;
+extern maip_fstream_t *MAIP_STDIN;
+extern maip_fstream_t *MAIP_STDOUT;
+extern maip_fstream_t *MAIP_STDERR;
 
-#define PIZZA_STDIN  (PIZZA_STDIN)
-#define PIZZA_STDOUT (PIZZA_STDOUT)
-#define PIZZA_STDERR (PIZZA_STDERR)
+#define MAIP_STDIN  (MAIP_STDIN)
+#define MAIP_STDOUT (MAIP_STDOUT)
+#define MAIP_STDERR (MAIP_STDERR)
 
-extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
+extern int32_t MAIP_IO_COLOR_ENABLE; // Flag to enable/disable color output
 
 /** 
  * This code provides a robust set of functions for formatting and manipulating terminal output, 
@@ -937,10 +937,10 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  *    fine-grained control over the text output. The system is flexible enough to be extended with more attributes, 
  *    colors, and positioning options as required.
  *
- * 5. **Implementation Details** - The function `pizza_io_print_with_attributes` processes the format string 
+ * 5. **Implementation Details** - The function `maip_io_print_with_attributes` processes the format string 
  *    provided to it, looking for `{}` markers. When it encounters a `{}`, it checks if the enclosed string specifies 
- *    a color, attribute, or position, and then calls the respective helper functions (`pizza_io_apply_color` and 
- *    `pizza_io_apply_attribute`) to modify the terminal output accordingly. If a position marker is found (e.g., 
+ *    a color, attribute, or position, and then calls the respective helper functions (`maip_io_apply_color` and 
+ *    `maip_io_apply_attribute`) to modify the terminal output accordingly. If a position marker is found (e.g., 
  *    `{pos:top}`), it adjusts the cursor position in the terminal to the specified location. The code uses standard 
  *    C string manipulation functions like `strchr`, `strncpy`, and `vsnprintf` to process the format string and apply 
  *    the requested changes to the output.
@@ -977,7 +977,7 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  *   - "bright_white"
  *
  * Example usage in a format string:
- *   pizza_io_printf("{red}This is red text{reset}\n");
+ *   maip_io_printf("{red}This is red text{reset}\n");
  */
 
 /**
@@ -988,7 +988,7 @@ extern int32_t PIZZA_IO_COLOR_ENABLE; // Flag to enable/disable color output
  *
  * @param stream The output stream where subsequent output should be redirected.
  */
-FOSSIL_PIZZA_API void pizza_io_redirect_output(pizza_fstream_t *stream);
+FOSSIL_MAIP_API void maip_io_redirect_output(maip_fstream_t *stream);
 
 /**
  * Prints a string to the output.
@@ -999,7 +999,7 @@ FOSSIL_PIZZA_API void pizza_io_redirect_output(pizza_fstream_t *stream);
  *
  * @param str The string to be printed. This should be a null-terminated string.
  */
-FOSSIL_PIZZA_API void pizza_io_puts(const char *str);
+FOSSIL_MAIP_API void maip_io_puts(const char *str);
 
 /** 
  * Prints a formatted string to the output.
@@ -1013,14 +1013,14 @@ FOSSIL_PIZZA_API void pizza_io_puts(const char *str);
  *
  * Example usage:
  * ```c
- * pizza_io_printf("Hello, %s! Your score is %d\n", "Alice", 95);
+ * maip_io_printf("Hello, %s! Your score is %d\n", "Alice", 95);
  * ```
  *
  * @param format The format string, which contains the text to be printed, along with format specifiers.
  * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
  *            in the order they appear, based on the format specifiers.
  */
-FOSSIL_PIZZA_API void pizza_io_printf(const char *format, ...);
+FOSSIL_MAIP_API void maip_io_printf(const char *format, ...);
 
 /**
  * Prints a formatted string to a buffer using a va_list.
@@ -1034,7 +1034,7 @@ FOSSIL_PIZZA_API void pizza_io_printf(const char *format, ...);
  * char buffer[100];
  * va_list args;
  * va_start(args, format);
- * pizza_io_vsnprintf(buffer, sizeof(buffer), format, args);
+ * maip_io_vsnprintf(buffer, sizeof(buffer), format, args);
  * va_end(args);
  * ```
  *
@@ -1044,7 +1044,7 @@ FOSSIL_PIZZA_API void pizza_io_printf(const char *format, ...);
  * @param args The variable argument list containing the values to be formatted.
  * @return The number of characters written (excluding the null terminator), or a negative value if an error occurs.
  */
-FOSSIL_PIZZA_API int pizza_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
+FOSSIL_MAIP_API int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args);
 
 /**
  * Prints a character to the output.
@@ -1054,43 +1054,43 @@ FOSSIL_PIZZA_API int pizza_io_vsnprintf(char *buffer, size_t size, const char *f
  *
  * Example usage:
  * ```c
- * pizza_io_putchar('A');
+ * maip_io_putchar('A');
  * ```
  *
  * @param c The character to be printed. This should be a single character.
  */
-FOSSIL_PIZZA_API void pizza_io_putchar(char c);
+FOSSIL_MAIP_API void maip_io_putchar(char c);
 
 /**
  * Prints a string to the specified output stream.
  * 
- * This function is similar to `pizza_io_puts`, but instead of printing to the standard output, it allows you
+ * This function is similar to `maip_io_puts`, but instead of printing to the standard output, it allows you
  * to specify an output stream (like a file or a custom output stream). This can be useful when writing to files
  * or other output destinations.
  *
  * Example usage:
  * ```c
  * FILE *file = fopen("output.txt", "w");
- * pizza_io_fputs(file, "Hello, File Output!\n");
+ * maip_io_fputs(file, "Hello, File Output!\n");
  * fclose(file);
  * ```
  *
  * @param stream The output stream where the string should be printed. This should be a valid pointer to a `FILE` object.
  * @param str The string to be printed. This should be a null-terminated string.
  */
-FOSSIL_PIZZA_API void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
+FOSSIL_MAIP_API void maip_io_fputs(maip_fstream_t *stream, const char *str);
 
 /**
  * Prints a formatted string to the specified output stream.
  * 
- * This function is similar to `pizza_io_printf`, but instead of printing to the standard output, it allows you
+ * This function is similar to `maip_io_printf`, but instead of printing to the standard output, it allows you
  * to specify an output stream. The format string can include format specifiers and custom formatting markers, just
- * like `pizza_io_printf`. This can be useful when writing formatted text to files or other output destinations.
+ * like `maip_io_printf`. This can be useful when writing formatted text to files or other output destinations.
  *
  * Example usage:
  * ```c
  * FILE *file = fopen("output.txt", "w");
- * pizza_io_fprintf(file, "Hello, %s! Your score is %d\n", "Alice", 95);
+ * maip_io_fprintf(file, "Hello, %s! Your score is %d\n", "Alice", 95);
  * fclose(file);
  * ```
  *
@@ -1099,7 +1099,7 @@ FOSSIL_PIZZA_API void pizza_io_fputs(pizza_fstream_t *stream, const char *str);
  * @param ... The additional arguments to be formatted. These arguments are inserted into the format string
  *            in the order they appear, based on the format specifiers.
  */
-FOSSIL_PIZZA_API void pizza_io_fprintf(pizza_fstream_t *stream, const char *format, ...);
+FOSSIL_MAIP_API void maip_io_fprintf(maip_fstream_t *stream, const char *format, ...);
 
 // TUI part of the API
 
@@ -1110,7 +1110,7 @@ FOSSIL_PIZZA_API void pizza_io_fprintf(pizza_fstream_t *stream, const char *form
  * and move the cursor to the top-left corner. It is useful when creating full-screen
  * terminal applications or refreshing the display.
  */
-FOSSIL_PIZZA_API void pizza_io_clear_screen(void);
+FOSSIL_MAIP_API void maip_io_clear_screen(void);
 
 /**
  * Moves the cursor to a specific row and column on the terminal.
@@ -1118,19 +1118,19 @@ FOSSIL_PIZZA_API void pizza_io_clear_screen(void);
  * @param row The row position (starting from 1).
  * @param col The column position (starting from 1).
  */
-FOSSIL_PIZZA_API void pizza_io_move_cursor(int row, int col);
+FOSSIL_MAIP_API void maip_io_move_cursor(int row, int col);
 
 /**
  * Hides the cursor from the terminal screen.
  *
  * This is useful for creating cleaner UIs without a blinking cursor.
  */
-FOSSIL_PIZZA_API void pizza_io_hide_cursor(void);
+FOSSIL_MAIP_API void maip_io_hide_cursor(void);
 
 /**
  * Shows the cursor on the terminal screen.
  */
-FOSSIL_PIZZA_API void pizza_io_show_cursor(void);
+FOSSIL_MAIP_API void maip_io_show_cursor(void);
 
 /**
  * Draws a horizontal line using a specified character.
@@ -1138,7 +1138,7 @@ FOSSIL_PIZZA_API void pizza_io_show_cursor(void);
  * @param length The number of characters to draw.
  * @param ch The character to use for drawing.
  */
-FOSSIL_PIZZA_API void pizza_io_draw_horizontal_line(int length, char ch);
+FOSSIL_MAIP_API void maip_io_draw_horizontal_line(int length, char ch);
 
 /**
  * Draws a vertical line using a specified character.
@@ -1146,14 +1146,14 @@ FOSSIL_PIZZA_API void pizza_io_draw_horizontal_line(int length, char ch);
  * @param length The number of characters to draw.
  * @param ch The character to use for drawing.
  */
-FOSSIL_PIZZA_API void pizza_io_draw_vertical_line(int length, char ch);
+FOSSIL_MAIP_API void maip_io_draw_vertical_line(int length, char ch);
 
 /**
  * Flushes the output stream, ensuring all buffered text is written.
  *
  * Useful when mixing multiple output functions or when printing from threads.
  */
-FOSSIL_PIZZA_API void pizza_io_flush(void);
+FOSSIL_MAIP_API void maip_io_flush(void);
 
 // *****************************************************************************
 // string management
@@ -1168,7 +1168,7 @@ FOSSIL_PIZZA_API void pizza_io_flush(void);
  * @param init The initial value for the cstr (null-terminated string).
  * @return A new cstr initialized with the given value, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_create(const char *init);
+FOSSIL_MAIP_API cstr maip_io_cstr_create(const char *init);
 
 /**
  * @brief Frees the memory allocated for the given cstr.
@@ -1177,7 +1177,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_create(const char *init);
  *
  * @param str The cstr to be freed.
  */
-FOSSIL_PIZZA_API void pizza_io_cstr_free(cstr str);
+FOSSIL_MAIP_API void maip_io_cstr_free(cstr str);
 
 /**
  * @brief Creates a copy of the given cstr.
@@ -1187,18 +1187,18 @@ FOSSIL_PIZZA_API void pizza_io_cstr_free(cstr str);
  * @param str The cstr to be copied.
  * @return A new cstr that is a copy of the given cstr, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_copy(ccstr str);
+FOSSIL_MAIP_API cstr maip_io_cstr_copy(ccstr str);
 
 /**
  * @brief Duplicates the given cstr.
  *
  * Allocates a new string and copies the contents of `str` into it.
- * Equivalent to pizza_io_cstr_copy.
+ * Equivalent to maip_io_cstr_copy.
  *
  * @param str The cstr to be duplicated.
  * @return A new cstr that is a duplicate of the given cstr, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_dup(ccstr str);
+FOSSIL_MAIP_API cstr maip_io_cstr_dup(ccstr str);
 
 /**
  * @brief Concatenates two cstrings into a new cstr.
@@ -1209,7 +1209,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_dup(ccstr str);
  * @param s2 The second cstr.
  * @return A new cstr that is the concatenation of s1 and s2, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
+FOSSIL_MAIP_API cstr maip_io_cstr_concat(ccstr s1, ccstr s2);
 
 /**
  * @brief Returns the length of the given cstr.
@@ -1219,7 +1219,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_concat(ccstr s1, ccstr s2);
  * @param str The cstr whose length is to be determined.
  * @return The length of the given cstr.
  */
-FOSSIL_PIZZA_API size_t pizza_io_cstr_length(ccstr str);
+FOSSIL_MAIP_API size_t maip_io_cstr_length(ccstr str);
 
 /**
  * @brief Compares two cstrings.
@@ -1231,7 +1231,7 @@ FOSSIL_PIZZA_API size_t pizza_io_cstr_length(ccstr str);
  * @return An integer less than, equal to, or greater than zero if s1 is found,
  *         respectively, to be less than, to match, or be greater than s2.
  */
-FOSSIL_PIZZA_API int pizza_io_cstr_compare(ccstr s1, ccstr s2);
+FOSSIL_MAIP_API int maip_io_cstr_compare(ccstr s1, ccstr s2);
 
 /**
  * @brief Trims whitespace from the beginning and end of the given cstr (in-place).
@@ -1241,7 +1241,7 @@ FOSSIL_PIZZA_API int pizza_io_cstr_compare(ccstr s1, ccstr s2);
  *
  * @param str The cstr to be trimmed.
  */
-FOSSIL_PIZZA_API void pizza_io_cstr_trim(cstr str);
+FOSSIL_MAIP_API void maip_io_cstr_trim(cstr str);
 
 /**
  * @brief Splits the given cstr by the specified delimiter.
@@ -1255,7 +1255,7 @@ FOSSIL_PIZZA_API void pizza_io_cstr_trim(cstr str);
  * @param count Pointer to a size_t variable where the number of resulting substrings will be stored.
  * @return An array of cstrings resulting from the split operation, or null on failure.
  */
-FOSSIL_PIZZA_API cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *count);
+FOSSIL_MAIP_API cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count);
 
 /**
  * @brief Replaces all occurrences of a substring within a cstr with another substring.
@@ -1267,7 +1267,7 @@ FOSSIL_PIZZA_API cstr *pizza_io_cstr_split(ccstr str, char delimiter, size_t *co
  * @param new_str The substring to replace with.
  * @return A new cstr with the replacements made, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
+FOSSIL_MAIP_API cstr maip_io_cstr_replace(ccstr str, ccstr old, ccstr new_str);
 
 /**
  * @brief Converts all characters in the given cstr to uppercase.
@@ -1277,7 +1277,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_replace(ccstr str, ccstr old, ccstr new_str)
  * @param str The cstr to be converted.
  * @return The new cstr with all characters converted to uppercase, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_to_upper(cstr str);
+FOSSIL_MAIP_API cstr maip_io_cstr_to_upper(cstr str);
 
 /**
  * @brief Converts all characters in the given cstr to lowercase.
@@ -1287,7 +1287,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_to_upper(cstr str);
  * @param str The cstr to be converted.
  * @return The new cstr with all characters converted to lowercase, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_to_lower(cstr str);
+FOSSIL_MAIP_API cstr maip_io_cstr_to_lower(cstr str);
 
 /**
  * @brief Checks if the given cstr starts with the specified prefix.
@@ -1298,7 +1298,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_to_lower(cstr str);
  * @param prefix The prefix to check for.
  * @return 1 if the cstr starts with the prefix, 0 otherwise.
  */
-FOSSIL_PIZZA_API int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
+FOSSIL_MAIP_API int maip_io_cstr_starts_with(ccstr str, ccstr prefix);
 
 /**
  * @brief Checks if the given cstr ends with the specified suffix.
@@ -1309,7 +1309,7 @@ FOSSIL_PIZZA_API int pizza_io_cstr_starts_with(ccstr str, ccstr prefix);
  * @param suffix The suffix to check for.
  * @return 1 if the cstr ends with the suffix, 0 otherwise.
  */
-FOSSIL_PIZZA_API int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
+FOSSIL_MAIP_API int maip_io_cstr_ends_with(ccstr str, ccstr suffix);
 
 /**
  * @brief Extracts a substring from the given cstr.
@@ -1322,7 +1322,7 @@ FOSSIL_PIZZA_API int pizza_io_cstr_ends_with(ccstr str, ccstr suffix);
  * @param length The length of the substring.
  * @return A new cstr that is the specified substring of the original cstr, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t length);
+FOSSIL_MAIP_API cstr maip_io_cstr_substring(ccstr str, size_t start, size_t length);
 
 /**
  * @brief Reverses the given cstr.
@@ -1332,7 +1332,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_substring(ccstr str, size_t start, size_t le
  * @param str The cstr to be reversed.
  * @return A new cstr that is the reverse of the given cstr, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_reverse(cstr str);
+FOSSIL_MAIP_API cstr maip_io_cstr_reverse(cstr str);
 
 /**
  * @brief Checks if the given cstr contains the specified substring.
@@ -1343,7 +1343,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_reverse(cstr str);
  * @param substr The substring to check for.
  * @return 1 if the cstr contains the substring, 0 otherwise.
  */
-FOSSIL_PIZZA_API int pizza_io_cstr_contains(ccstr str, ccstr substr);
+FOSSIL_MAIP_API int maip_io_cstr_contains(ccstr str, ccstr substr);
 
 /**
  * @brief Repeats the given cstr the specified number of times.
@@ -1354,7 +1354,7 @@ FOSSIL_PIZZA_API int pizza_io_cstr_contains(ccstr str, ccstr substr);
  * @param count The number of times to repeat the cstr.
  * @return A new cstr that is the original cstr repeated the specified number of times, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_repeat(ccstr str, size_t count);
+FOSSIL_MAIP_API cstr maip_io_cstr_repeat(ccstr str, size_t count);
 
 /**
  * @brief Strips the given character from the beginning and end of the cstr.
@@ -1365,7 +1365,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_repeat(ccstr str, size_t count);
  * @param ch The character to strip.
  * @return A new cstr with the specified character stripped from the beginning and end, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_strip(ccstr str, char ch);
+FOSSIL_MAIP_API cstr maip_io_cstr_strip(ccstr str, char ch);
 
 /**
  * @brief Counts the number of occurrences of a substring within the given cstr.
@@ -1376,7 +1376,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_strip(ccstr str, char ch);
  * @param substr The substring to search for.
  * @return The number of occurrences of the substring within the cstr.
  */
-FOSSIL_PIZZA_API size_t pizza_io_cstr_count(ccstr str, ccstr substr);
+FOSSIL_MAIP_API size_t maip_io_cstr_count(ccstr str, ccstr substr);
 
 /**
  * @brief Pads the given cstr with the specified character on the left side.
@@ -1389,7 +1389,7 @@ FOSSIL_PIZZA_API size_t pizza_io_cstr_count(ccstr str, ccstr substr);
  * @param pad_char The character to pad with.
  * @return A new cstr padded on the left side, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
+FOSSIL_MAIP_API cstr maip_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char);
 
 /**
  * @brief Pads the given cstr with the specified character on the right side.
@@ -1402,7 +1402,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_left(ccstr str, size_t total_length, cha
  * @param pad_char The character to pad with.
  * @return A new cstr padded on the right side, or null on failure.
  */
-FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
+FOSSIL_MAIP_API cstr maip_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char);
 
 /**
  * @brief Appends a string to a buffer safely with NUL-termination.
@@ -1415,7 +1415,7 @@ FOSSIL_PIZZA_API cstr pizza_io_cstr_pad_right(ccstr str, size_t total_length, ch
  * @param src The source string to append.
  * @return true if append succeeded, false otherwise.
  */
-FOSSIL_PIZZA_API bool pizza_io_cstr_append(cstr dest, size_t max_len, cstr src);
+FOSSIL_MAIP_API bool maip_io_cstr_append(cstr dest, size_t max_len, cstr src);
 
 #ifdef __cplusplus
 }

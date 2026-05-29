@@ -37,43 +37,43 @@ extern "C" {
 
 // --- Pizza Data Types ---
 typedef enum {
-    FOSSIL_MOCK_PIZZA_TYPE_I8,
-    FOSSIL_MOCK_PIZZA_TYPE_I16,
-    FOSSIL_MOCK_PIZZA_TYPE_I32,
-    FOSSIL_MOCK_PIZZA_TYPE_I64,
-    FOSSIL_MOCK_PIZZA_TYPE_U8,
-    FOSSIL_MOCK_PIZZA_TYPE_U16,
-    FOSSIL_MOCK_PIZZA_TYPE_U32,
-    FOSSIL_MOCK_PIZZA_TYPE_U64,
-    FOSSIL_MOCK_PIZZA_TYPE_HEX,
-    FOSSIL_MOCK_PIZZA_TYPE_OCTAL,
-    FOSSIL_MOCK_PIZZA_TYPE_FLOAT,
-    FOSSIL_MOCK_PIZZA_TYPE_DOUBLE,
-    FOSSIL_MOCK_PIZZA_TYPE_WSTR,
-    FOSSIL_MOCK_PIZZA_TYPE_CSTR,
-    FOSSIL_MOCK_PIZZA_TYPE_CCHAR,
-    FOSSIL_MOCK_PIZZA_TYPE_WCHAR,
-    FOSSIL_MOCK_PIZZA_TYPE_BOOL,
-    FOSSIL_MOCK_PIZZA_TYPE_SIZE,
-    FOSSIL_MOCK_PIZZA_TYPE_ANY
-} fossil_mock_pizza_type_t;
+    FOSSIL_MOCK_MAIP_TYPE_I8,
+    FOSSIL_MOCK_MAIP_TYPE_I16,
+    FOSSIL_MOCK_MAIP_TYPE_I32,
+    FOSSIL_MOCK_MAIP_TYPE_I64,
+    FOSSIL_MOCK_MAIP_TYPE_U8,
+    FOSSIL_MOCK_MAIP_TYPE_U16,
+    FOSSIL_MOCK_MAIP_TYPE_U32,
+    FOSSIL_MOCK_MAIP_TYPE_U64,
+    FOSSIL_MOCK_MAIP_TYPE_HEX,
+    FOSSIL_MOCK_MAIP_TYPE_OCTAL,
+    FOSSIL_MOCK_MAIP_TYPE_FLOAT,
+    FOSSIL_MOCK_MAIP_TYPE_DOUBLE,
+    FOSSIL_MOCK_MAIP_TYPE_WSTR,
+    FOSSIL_MOCK_MAIP_TYPE_CSTR,
+    FOSSIL_MOCK_MAIP_TYPE_CCHAR,
+    FOSSIL_MOCK_MAIP_TYPE_WCHAR,
+    FOSSIL_MOCK_MAIP_TYPE_BOOL,
+    FOSSIL_MOCK_MAIP_TYPE_SIZE,
+    FOSSIL_MOCK_MAIP_TYPE_ANY
+} fossil_mock_maip_type_t;
 
 typedef struct {
     char *data;
     bool mutable_flag;
-} fossil_mock_pizza_value_t;
+} fossil_mock_maip_value_t;
 
 typedef struct {
     char* name;
     char* description;
     char* id;
-} fossil_mock_pizza_attribute_t;
+} fossil_mock_maip_attribute_t;
 
 typedef struct {
-    fossil_mock_pizza_type_t type;
-    fossil_mock_pizza_value_t value;
-    fossil_mock_pizza_attribute_t attribute;
-} fossil_mock_pizza_t;
+    fossil_mock_maip_type_t type;
+    fossil_mock_maip_value_t value;
+    fossil_mock_maip_attribute_t attribute;
+} fossil_mock_maip_t;
 
 // ******************************************************************************
 // Mock call structure
@@ -88,7 +88,7 @@ typedef struct fossil_mock_ai_context_t {
 
 typedef struct fossil_mock_call_t {
     char *function_name;
-    fossil_mock_pizza_t *arguments; // Use pizza type for arguments
+    fossil_mock_maip_t *arguments; // Use maip type for arguments
     int num_args;
     fossil_mock_ai_context_t *ai_context; // Pointer to AI context for this call
     struct fossil_mock_call_t *next;
@@ -110,14 +110,14 @@ typedef struct {
  * 
  * @param list The fossil_mock_calllist_t to initialize.
  */
-FOSSIL_PIZZA_API void fossil_mock_init(fossil_mock_calllist_t *list);
+FOSSIL_MAIP_API void fossil_mock_init(fossil_mock_calllist_t *list);
 
 /**
  * Destroys a fossil_mock_calllist_t and frees all associated memory.
  * 
  * @param list The fossil_mock_calllist_t to destroy.
  */
-FOSSIL_PIZZA_API void fossil_mock_destroy(fossil_mock_calllist_t *list);
+FOSSIL_MAIP_API void fossil_mock_destroy(fossil_mock_calllist_t *list);
 
 /**
  * Adds a fossil_mock_call_t to the fossil_mock_calllist_t.
@@ -127,14 +127,14 @@ FOSSIL_PIZZA_API void fossil_mock_destroy(fossil_mock_calllist_t *list);
  * @param arguments The arguments passed to the function.
  * @param num_args The number of arguments.
  */
-FOSSIL_PIZZA_API void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_pizza_t *arguments, int num_args);
+FOSSIL_MAIP_API void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_maip_t *arguments, int num_args);
 
 /**
  * Prints the contents of a fossil_mock_calllist_t.
  * 
  * @param list The fossil_mock_calllist_t to print.
  */
-FOSSIL_PIZZA_API void fossil_mock_print(fossil_mock_calllist_t *list);
+FOSSIL_MAIP_API void fossil_mock_print(fossil_mock_calllist_t *list);
 
 /**
  * Sets the AI context for a specific mock call.
@@ -142,7 +142,7 @@ FOSSIL_PIZZA_API void fossil_mock_print(fossil_mock_calllist_t *list);
  * @param call The mock call to set the AI context for.
  * @param ai_context The AI context to associate with the call.
  */
-FOSSIL_PIZZA_API void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossil_mock_ai_context_t *ai_context);
+FOSSIL_MAIP_API void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossil_mock_ai_context_t *ai_context);
 
 /**
  * Creates a new AI context for mocking.
@@ -153,21 +153,21 @@ FOSSIL_PIZZA_API void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossi
  * @param ai_notes AI-generated notes or recommendations.
  * @return Pointer to the newly created AI context.
  */
-FOSSIL_PIZZA_API fossil_mock_ai_context_t *fossil_mock_create_ai_context(const char *context_info, const char *expected_behavior, double confidence, const char *ai_notes);
+FOSSIL_MAIP_API fossil_mock_ai_context_t *fossil_mock_create_ai_context(const char *context_info, const char *expected_behavior, double confidence, const char *ai_notes);
 
 /**
  * Destroys an AI context and frees associated memory.
  *
  * @param ai_context The AI context to destroy.
  */
-FOSSIL_PIZZA_API void fossil_mock_destroy_ai_context(fossil_mock_ai_context_t *ai_context);
+FOSSIL_MAIP_API void fossil_mock_destroy_ai_context(fossil_mock_ai_context_t *ai_context);
 
 /**
  * Prints the AI context information for a mock call.
  *
  * @param ai_context The AI context to print.
  */
-FOSSIL_PIZZA_API void fossil_mock_print_ai_context(const fossil_mock_ai_context_t *ai_context);
+FOSSIL_MAIP_API void fossil_mock_print_ai_context(const fossil_mock_ai_context_t *ai_context);
 
 /**
  * Captures the output of a function to a buffer for testing purposes.
@@ -177,7 +177,7 @@ FOSSIL_PIZZA_API void fossil_mock_print_ai_context(const fossil_mock_ai_context_
  * @param function The function whose output is to be captured.
  * @return The number of characters captured.
  */
-FOSSIL_PIZZA_API int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
+FOSSIL_MAIP_API int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void));
 
 /**
  * Compares the captured output with the expected output.
@@ -186,7 +186,7 @@ FOSSIL_PIZZA_API int fossil_mock_capture_output(char *buffer, size_t size, void 
  * @param expected The expected output.
  * @return True if the captured output matches the expected output, false otherwise.
  */
-FOSSIL_PIZZA_API bool fossil_mock_compare_output(const char *captured, const char *expected);
+FOSSIL_MAIP_API bool fossil_mock_compare_output(const char *captured, const char *expected);
 
 #ifdef __cplusplus
 }

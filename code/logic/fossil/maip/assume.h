@@ -1760,7 +1760,7 @@ extern "C" {
  * @param size The size of the memory to check.
  */
 #define ASSUME_ITS_ZERO_MEMORY(ptr, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory at " #ptr " of size %zu to be zeroed", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory at " #ptr " of size %zu to be zeroed", (size)))
 
 /**
  * @brief Assumes that the given memory is not zeroed.
@@ -1769,7 +1769,7 @@ extern "C" {
  * @param size The size of the memory to check.
  */
 #define ASSUME_NOT_ZERO_MEMORY(ptr, size) \
-    FOSSIL_TEST_ASSUME(!pizza_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory at " #ptr " of size %zu to not be zeroed", (size)))
+    FOSSIL_TEST_ASSUME(!maip_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory at " #ptr " of size %zu to not be zeroed", (size)))
 
 /**
  * @brief Assumes that the given memory regions are equal.
@@ -1779,7 +1779,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_ITS_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory regions " #ptr1 " and " #ptr2 " of size %zu to be equal", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory regions " #ptr1 " and " #ptr2 " of size %zu to be equal", (size)))
 
 /**
  * @brief Assumes that the given memory regions are not equal.
@@ -1789,7 +1789,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_NOT_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory regions " #ptr1 " and " #ptr2 " of size %zu to not be equal", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory regions " #ptr1 " and " #ptr2 " of size %zu to not be equal", (size)))
 
 /**
  * @brief Assumes that the given memory region is more than the expected memory region.
@@ -1799,7 +1799,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_ITS_MORE_THAN_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) > 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be more than " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) > 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be more than " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is less than the expected memory region.
@@ -1809,7 +1809,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_ITS_LESS_THAN_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) < 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be less than " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) < 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be less than " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is more than or equal to the expected memory region.
@@ -1819,7 +1819,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_ITS_MORE_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be more than or equal to " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be more than or equal to " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is less than or equal to the expected memory region.
@@ -1829,7 +1829,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_ITS_LESS_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be less than or equal to " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to be less than or equal to " #ptr2 " for size %zu", (size)))
     
 /**
  * @brief Assumes that the given memory region is not more than the expected memory region.
@@ -1839,7 +1839,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_NOT_MORE_THAN_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be more than " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) <= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be more than " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is not less than the expected memory region.
@@ -1849,7 +1849,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_NOT_LESS_THAN_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be less than " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) >= 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be less than " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is not more than or equal to the expected memory region.
@@ -1859,7 +1859,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_NOT_MORE_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) < 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be more than or equal to " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) < 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be more than or equal to " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory region is not less than or equal to the expected memory region.
@@ -1869,7 +1869,7 @@ extern "C" {
  * @param size The size of the memory regions to compare.
  */
 #define ASSUME_NOT_LESS_OR_EQUAL_MEMORY(ptr1, ptr2, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((ptr1), (ptr2), (size)) > 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be less than or equal to " #ptr2 " for size %zu", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((ptr1), (ptr2), (size)) > 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory region " #ptr1 " to not be less than or equal to " #ptr2 " for size %zu", (size)))
 
 /**
  * @brief Assumes that the given memory pointer is valid.
@@ -1877,7 +1877,7 @@ extern "C" {
  * @param ptr A pointer to the memory to check.
  */
 #define ASSUME_ITS_VALID_MEMORY(ptr) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to be valid", null))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to be valid", null))
 
 /**
  * @brief Assumes that the given memory pointer is not valid.
@@ -1885,7 +1885,7 @@ extern "C" {
  * @param ptr A pointer to the memory to check.
  */
 #define ASSUME_NOT_VALID_MEMORY(ptr) \
-    FOSSIL_TEST_ASSUME(!pizza_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to not be valid", null))
+    FOSSIL_TEST_ASSUME(!maip_sys_memory_is_valid((ptr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected memory pointer " #ptr " to not be valid", null))
 
 // **************************************************
 //
@@ -2366,7 +2366,7 @@ extern "C" {
  * @param prefix The prefix to check for.
  */
 #define ASSUME_ITS_CSTR_STARTS_WITH(str, prefix) \
-    FOSSIL_TEST_ASSUME(pizza_io_cstr_starts_with((str), (prefix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to start with prefix " #prefix " of value \"%s\"", (str), (prefix)))
+    FOSSIL_TEST_ASSUME(maip_io_cstr_starts_with((str), (prefix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to start with prefix " #prefix " of value \"%s\"", (str), (prefix)))
 
 /**
  * @brief Assumes that the given cstr does not start with the specified prefix.
@@ -2375,7 +2375,7 @@ extern "C" {
  * @param prefix The prefix to check for.
  */
 #define ASSUME_NOT_CSTR_STARTS_WITH(str, prefix) \
-    FOSSIL_TEST_ASSUME(!pizza_io_cstr_starts_with((str), (prefix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not start with prefix " #prefix " of value \"%s\"", (str), (prefix)))
+    FOSSIL_TEST_ASSUME(!maip_io_cstr_starts_with((str), (prefix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not start with prefix " #prefix " of value \"%s\"", (str), (prefix)))
 
 /**
  * @brief Assumes that the given cstr ends with the specified suffix.
@@ -2384,7 +2384,7 @@ extern "C" {
  * @param suffix The suffix to check for.
  */
 #define ASSUME_ITS_CSTR_ENDS_WITH(str, suffix) \
-    FOSSIL_TEST_ASSUME(pizza_io_cstr_ends_with((str), (suffix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to end with suffix " #suffix " of value \"%s\"", (str), (suffix)))
+    FOSSIL_TEST_ASSUME(maip_io_cstr_ends_with((str), (suffix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to end with suffix " #suffix " of value \"%s\"", (str), (suffix)))
 
 /**
  * @brief Assumes that the given cstr does not end with the specified suffix.
@@ -2393,7 +2393,7 @@ extern "C" {
  * @param suffix The suffix to check for.
  */
 #define ASSUME_NOT_CSTR_ENDS_WITH(str, suffix) \
-    FOSSIL_TEST_ASSUME(!pizza_io_cstr_ends_with((str), (suffix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not end with suffix " #suffix " of value \"%s\"", (str), (suffix)))
+    FOSSIL_TEST_ASSUME(!maip_io_cstr_ends_with((str), (suffix)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not end with suffix " #suffix " of value \"%s\"", (str), (suffix)))
 
 /**
  * @brief Assumes that the given cstr contains the specified substring.
@@ -2402,7 +2402,7 @@ extern "C" {
  * @param substr The substring to check for.
  */
 #define ASSUME_ITS_CSTR_CONTAINS(str, substr) \
-    FOSSIL_TEST_ASSUME(pizza_io_cstr_contains((str), (substr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to contain substring " #substr " of value \"%s\"", (str), (substr)))
+    FOSSIL_TEST_ASSUME(maip_io_cstr_contains((str), (substr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to contain substring " #substr " of value \"%s\"", (str), (substr)))
 
 /**
  * @brief Assumes that the given cstr does not contain the specified substring.
@@ -2411,7 +2411,7 @@ extern "C" {
  * @param substr The substring to check for.
  */
 #define ASSUME_NOT_CSTR_CONTAINS(str, substr) \
-    FOSSIL_TEST_ASSUME(!pizza_io_cstr_contains((str), (substr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not contain substring " #substr " of value \"%s\"", (str), (substr)))
+    FOSSIL_TEST_ASSUME(!maip_io_cstr_contains((str), (substr)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not contain substring " #substr " of value \"%s\"", (str), (substr)))
 
 /**
  * @brief Assumes that the given cstr contains the specified number of occurrences of a substring.
@@ -2421,7 +2421,7 @@ extern "C" {
  * @param count The expected number of occurrences.
  */
 #define ASSUME_ITS_CSTR_COUNT(str, substr, count) \
-    FOSSIL_TEST_ASSUME(pizza_io_cstr_count((str), (substr)) == (count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to contain " #count " occurrences of substring " #substr " of value \"%s\"", (str), (substr), (count)))
+    FOSSIL_TEST_ASSUME(maip_io_cstr_count((str), (substr)) == (count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to contain " #count " occurrences of substring " #substr " of value \"%s\"", (str), (substr), (count)))
 
 /**
  * @brief Assumes that the given cstr does not contain the specified number of occurrences of a substring.
@@ -2431,7 +2431,7 @@ extern "C" {
  * @param count The expected number of occurrences.
  */
 #define ASSUME_NOT_CSTR_COUNT(str, substr, count) \
-    FOSSIL_TEST_ASSUME(pizza_io_cstr_count((str), (substr)) != (count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not contain " #count " occurrences of substring " #substr " of value \"%s\"", (str), (substr), (count)))
+    FOSSIL_TEST_ASSUME(maip_io_cstr_count((str), (substr)) != (count), _FOSSIL_TEST_ASSUME_MESSAGE("Expected cstr " #str " of value \"%s\" to not contain " #count " occurrences of substring " #substr " of value \"%s\"", (str), (substr), (count)))
 
 // **************************************************
 //
@@ -2539,7 +2539,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_NOT_SOAP_ROT_BRAIN(text) \
-    FOSSIL_TEST_ASSUME(!pizza_io_is_rot_brain((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain 'rot-brain' language", (text)))
+    FOSSIL_TEST_ASSUME(!maip_io_is_rot_brain((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to not contain 'rot-brain' language", (text)))
 
 /**
  * @brief Assumes that the given text contains "rot-brain" language.
@@ -2547,7 +2547,7 @@ extern "C" {
  * @param text The input text to check.
  */
 #define ASSUME_ITS_SOAP_ROT_BRAIN(text) \
-    FOSSIL_TEST_ASSUME(pizza_io_is_rot_brain((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain 'rot-brain' language", (text)))
+    FOSSIL_TEST_ASSUME(maip_io_is_rot_brain((text)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected text " #text " of value \"%s\" to contain 'rot-brain' language", (text)))
 
 /**
  * @brief Assumes that the tone of the given sentence is detected correctly.
@@ -2556,7 +2556,7 @@ extern "C" {
  * @param expected_tone The expected tone ("formal", "casual", "sarcastic", etc.).
  */
 #define ASSUME_ITS_SOAP_TONE_DETECTED(text, expected_tone) \
-    FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
+    FOSSIL_TEST_ASSUME(strcmp(maip_io_soap_detect_tone((text)), (expected_tone)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
 
 /**
  * @brief Assumes that the tone of the given sentence is not detected correctly.
@@ -2565,7 +2565,7 @@ extern "C" {
  * @param expected_tone The expected tone ("formal", "casual", "sarcastic", etc.).
  */
 #define ASSUME_NOT_SOAP_TONE_DETECTED(text, expected_tone) \
-    FOSSIL_TEST_ASSUME(strcmp(pizza_io_soap_detect_tone((text)), (expected_tone)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to not be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
+    FOSSIL_TEST_ASSUME(strcmp(maip_io_soap_detect_tone((text)), (expected_tone)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected tone of text " #text " of value \"%s\" to not be " #expected_tone " of value \"%s\"", (text), (expected_tone)))
 
 // **************************************************
 // Time assumptions
@@ -2713,7 +2713,7 @@ extern "C" {
  * @param size The size of the hash in bytes.
  */
 #define ASSUME_ITS_EQUAL_HASH_BYTES(actual, expected, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to be equal to " #expected " for size %zu bytes", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((actual), (expected), (size)) == 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to be equal to " #expected " for size %zu bytes", (size)))
 
 /**
  * @brief Assumes that the given hash byte arrays are not equal.
@@ -2723,7 +2723,7 @@ extern "C" {
  * @param size The size of the hash in bytes.
  */
 #define ASSUME_NOT_EQUAL_HASH_BYTES(actual, expected, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_compare((actual), (expected), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to not be equal to " #expected " for size %zu bytes", (size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_compare((actual), (expected), (size)) != 0, _FOSSIL_TEST_ASSUME_MESSAGE("Expected hash bytes " #actual " to not be equal to " #expected " for size %zu bytes", (size)))
 
 /**
  * @brief Assumes that the given hash is deterministic by comparing two computations.
@@ -3033,7 +3033,7 @@ extern "C" {
  * @param size The size of the memory to verify.
  */
 #define ASSUME_ITS_SECURE_CLEARED(ptr, size) \
-    FOSSIL_TEST_ASSUME(pizza_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected sensitive memory at %p (%zu bytes) to be securely cleared", (ptr), (size_t)(size)))
+    FOSSIL_TEST_ASSUME(maip_sys_memory_zero((ptr), (size)), _FOSSIL_TEST_ASSUME_MESSAGE("Expected sensitive memory at %p (%zu bytes) to be securely cleared", (ptr), (size_t)(size)))
 
 /**
  * @brief Assumes that a file descriptor is valid and open.
