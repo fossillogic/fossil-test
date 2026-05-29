@@ -132,26 +132,26 @@ FOSSIL_TEST(edge_cases)
 FOSSIL_TEST(math_addition_scopes)
 {
     // General behavior grouping
-    FOSSIL_SCOPE("Basic addition behavior")
+    FOSSIL_SUBCASE("Basic addition behavior")
     {
         int result = 2 + 3;
         FOSSIL_TEST_ASSERT(result == 5, "2 + 3 should equal 5");
     }
 
     // Edge cases
-    FOSSIL_EDGE("Zero addition")
+    FOSSIL_SUBCASE("Zero addition")
     {
         int result = 0 + 0;
         FOSSIL_TEST_ASSERT(result == 0, "0 + 0 should equal 0");
     }
 
-    FOSSIL_EDGE("Negative numbers")
+    FOSSIL_SUBCASE("Negative numbers")
     {
         int result = -2 + -3;
         FOSSIL_TEST_ASSERT(result == -5, "-2 + -3 should equal -5");
     }
 
-    FOSSIL_EDGE("Mixed sign addition")
+    FOSSIL_SUBCASE("Mixed sign addition")
     {
         int result = -2 + 3;
         FOSSIL_TEST_ASSERT(result == 1, "-2 + 3 should equal 1");
