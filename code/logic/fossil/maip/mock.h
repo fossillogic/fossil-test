@@ -355,7 +355,15 @@ FOSSIL_MAIP_API bool fossil_mock_compare_output(const char *captured, const char
 #define _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
     fossil_mock_compare_output(captured, expected)
 
-
+/**
+ * @def _MOCK_FUNC_CALL
+ * @brief Macro for brigging macro function calls to the fossil_mockup_ prefixed functions.
+ * This macro simplifies the creation of mock function calls by defining a function call
+ * with the given name. The function name will be prefixed with "fossil_mockup_" to clearly indicate
+ * that it is a mock function call.
+ * 
+ * @param name The name of the mock function call.
+ */
 #define _MOCK_FUNC_CALL(name) \
     fossil_mockup_##name
 
@@ -521,6 +529,14 @@ FOSSIL_MAIP_API bool fossil_mock_compare_output(const char *captured, const char
 #define FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected) \
     _FOSSIL_MOCK_COMPARE_OUTPUT(captured, expected)
 
+/**
+ * @def MOCK_FUNC_CALL
+ * @brief Macro for brigging macro function calls to the fossil_mockup_ prefixed functions.
+ * This macro simplifies the creation of mock function calls by defining a function call
+ * with the given name. The function name will be prefixed with "fossil_mockup_" to clearly indicate that it is a mock function call.
+ * 
+ * @param name The name of the mock function call.
+ */
 #define MOCK_FUNC_CALL(name) \
     _MOCK_FUNC_CALL(name)
 
