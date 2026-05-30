@@ -339,7 +339,7 @@ FOSSIL_TEST(c_mock_io_capture_output) {
     char buffer[256];
 
     // Capture the output of the mock function
-    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), fossil_mockup_c_mock_function_with_output);
+    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), MOCK_FUNC_CALL(c_mock_function_with_output));
 
     // Test cases
     FOSSIL_TEST_ASSUME(captured_size > 0, "Captured size should be greater than 0");
