@@ -138,7 +138,7 @@ FOSSIL_TEST(cpp_mock_call_list_destruction) {
 
 FOSSIL_TEST(cpp_mock_function_creation) {
     // Test cases
-    FOSSIL_TEST_ASSUME(fossil_mockup_cpp_mock_function(2, 3) == 5, "Mock function should return the sum of its arguments");
+    FOSSIL_TEST_ASSUME(MOCK_FUNC_CALL(cpp_mock_function(2, 3)) == 5, "Mock function should return the sum of its arguments");
 } // end case
 
 FOSSIL_TEST(cpp_mock_alias_creation) {
@@ -336,7 +336,7 @@ FOSSIL_TEST(cpp_mock_io_capture_output) {
     char buffer[256];
 
     // Capture the output of the mock function
-    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), fossil_mockup_cpp_mock_function_with_output);
+    int captured_size = fossil_mock_capture_output(buffer, sizeof(buffer), MOCK_FUNC_CALL(cpp_mock_function_with_output));
 
     // Test cases
     FOSSIL_TEST_ASSUME(captured_size > 0, "Captured size should be greater than 0");
@@ -360,7 +360,7 @@ FOSSIL_TEST(cpp_mock_io_redirect_stdout_macro) {
     char buffer[256];
 
     // Use the macro to redirect stdout and capture output
-    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), fossil_mockup_mock_function_redirection);
+    FOSSIL_MOCK_REDIRECT_STDOUT(buffer, sizeof(buffer), MOCK_FUNC_CALL(mock_function_redirection));
 
     // Test cases
     FOSSIL_TEST_ASSUME(strcmp(buffer, "Testing macro redirection!") == 0, "Captured output should match expected output");
