@@ -275,6 +275,14 @@ static void _show_subhelp_show(void) {
     exit(EXIT_SUCCESS);
 }
 
+static void _show_info(void) {
+    maip_io_printf("{blue}Fossil Test Information:{reset}\n");
+    maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
+    maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
+    maip_io_printf("{cyan}  Website: {green}%s{reset}\n", FOSSIL_MAIP_WEBSITE);
+    exit(EXIT_SUCCESS);
+}
+
 static void _show_version(void) {
     maip_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_MAIP_VERSION);
     exit(EXIT_SUCCESS);
@@ -346,6 +354,8 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
             _show_version();
         } else if (maip_io_cstr_compare(argv[i], "--help") == 0) {
             _show_help();
+        } else if (maip_io_cstr_compare(argv[i], "--info") == 0) {
+            _show_info();
         } else if (maip_io_cstr_compare(argv[i], "--host") == 0) {
             _show_host();
         } else if (maip_io_cstr_compare(argv[i], "run") == 0) {
