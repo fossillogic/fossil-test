@@ -60,14 +60,6 @@ int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv)
 
     engine->pallet = fossil_maip_pallet_create(argc, argv);
 
-    // Parse configuration file if specified
-    const char *config_file = engine->pallet.config_file;
-    if (config_file && fossil_maip_ini_parse(config_file, &engine->pallet) != FOSSIL_MAIP_SUCCESS)
-    {
-        maip_io_printf("Error: Failed to parse configuration file: %s\n", config_file);
-        return FOSSIL_MAIP_FAILURE;
-    }
-
     return FOSSIL_MAIP_SUCCESS;
 }
 
