@@ -373,6 +373,29 @@ static void _show_host(void)
     exit(EXIT_SUCCESS);
 }
 
+static int g_maip_color_mode = -1;
+
+/*
+ *  1  = enabled
+ *  0  = disabled
+ * -1  = auto
+ */
+void maip_io_set_color_mode(int mode)
+{
+    switch (mode)
+    {
+        case 1:
+        case 0:
+        case -1:
+            g_maip_color_mode = mode;
+            break;
+
+        default:
+            g_maip_color_mode = -1;
+            break;
+    }
+}
+
 fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 {
     fossil_maip_pallet_t pallet = {0};
