@@ -802,13 +802,6 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
                 _show_subhelp_color();
             }
         }
-        else if (maip_io_cstr_compare(argv[i], "config") == 0)
-        {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
-            {
-                _show_help();
-            }
-        }
         else if (strncmp(argv[i], "theme=", 6) == 0)
         {
             const char *theme_str = argv[i] + 6;
