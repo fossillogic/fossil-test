@@ -1,3 +1,7 @@
+<p align="center">
+    <img src=".github/logo.png" alt="Fossil Test Logo" width="500"/>
+</p>
+
 # ***Fossil Test by Fossil Logic***
 
 **Fossil Test** is a unit testing framework from **Fossil Logic** designed for C and C++ projects that require precision, clarity, and control. It focuses on producing reliable, easy-to-understand test results while supporting detailed verification of logic, memory behavior, and system correctness. The framework is well-suited for low-level components, performance-critical code, and environments where predictable behavior matters.
