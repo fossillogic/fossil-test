@@ -41,10 +41,10 @@ uint64_t G_MAIP_TIMEOUT = 60; // Default timeout in seconds
 int G_MAIP_DRY_RUN = 0;
 int G_MAIP_FAIL_FAST = 0;
 int G_MAIP_SKIP = 0;
-const char* G_MAIP_ONLY = null;
+const char *G_MAIP_ONLY = null;
 int G_MAIP_REPEAT = 0;
 int G_MAIP_THREADS = 1;
-fossil_maip_cli_theme_t G_MAIP_THEME     = MAIP_THEME_FOSSIL;
+fossil_maip_cli_theme_t G_MAIP_THEME = MAIP_THEME_FOSSIL;
 
 // *****************************************************************************
 // Hashing algorithm
@@ -54,7 +54,8 @@ fossil_maip_cli_theme_t G_MAIP_THEME     = MAIP_THEME_FOSSIL;
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-uint64_t get_maip_time_microseconds(void) {
+uint64_t get_maip_time_microseconds(void)
+{
     FILETIME ft;
     GetSystemTimeAsFileTime(&ft);
     uint64_t t = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
@@ -62,14 +63,16 @@ uint64_t get_maip_time_microseconds(void) {
 }
 #else
 #include <sys/time.h>
-uint64_t get_maip_time_microseconds(void) {
+uint64_t get_maip_time_microseconds(void)
+{
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (uint64_t)tv.tv_sec * 1000000ULL + tv.tv_usec;
 }
 #endif
 
-static uint64_t get_maip_device_salt(void) {
+static uint64_t get_maip_device_salt(void)
+{
     // FNV-1a 64-bit base offset
     uint64_t hash = 0xcbf29ce484222325ULL;
 
@@ -78,22 +81,23 @@ static uint64_t get_maip_device_salt(void) {
     const char *vars[] = {
         getenv("USERNAME"),
         getenv("USERPROFILE"),
-        getenv("COMPUTERNAME")
-    };
+        getenv("COMPUTERNAME")};
 #else
     const char *vars[] = {
         getenv("USER"),
         getenv("HOME"),
         getenv("SHELL"),
-        getenv("HOSTNAME")
-    };
+        getenv("HOSTNAME")};
 #endif
 
     // Mix in each variable if it exists
-    for (size_t v = 0; v < sizeof(vars) / sizeof(vars[0]); ++v) {
+    for (size_t v = 0; v < sizeof(vars) / sizeof(vars[0]); ++v)
+    {
         const char *val = vars[v];
-        if (val) {
-            for (size_t i = 0; val[i]; ++i) {
+        if (val)
+        {
+            for (size_t i = 0; val[i]; ++i)
+            {
                 hash ^= (uint8_t)val[i];
                 hash *= 0x100000001b3ULL;
             }
@@ -103,10 +107,12 @@ static uint64_t get_maip_device_salt(void) {
     return hash;
 }
 
-void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) {
+void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out)
+{
     const uint64_t PRIME = 0x100000001b3ULL;
     static uint64_t SALT = 0;
-    if (SALT == 0) SALT = get_maip_device_salt();  // Initialize salt once
+    if (SALT == 0)
+        SALT = get_maip_device_salt(); // Initialize salt once
 
     uint64_t state1 = 0xcbf29ce484222325ULL ^ SALT;
     uint64_t state2 = 0x84222325cbf29ce4ULL ^ ~SALT;
@@ -114,16 +120,18 @@ void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) 
     size_t in_len = strlen(input);
     size_t out_len = strlen(output);
 
-    uint64_t nonce = get_maip_time_microseconds();  // Microsecond resolution
+    uint64_t nonce = get_maip_time_microseconds(); // Microsecond resolution
 
-    for (size_t i = 0; i < in_len; ++i) {
+    for (size_t i = 0; i < in_len; ++i)
+    {
         state1 ^= (uint8_t)input[i];
         state1 *= PRIME;
         state1 ^= (state1 >> 27);
         state1 ^= (state1 << 33);
     }
 
-    for (size_t i = 0; i < out_len; ++i) {
+    for (size_t i = 0; i < out_len; ++i)
+    {
         state2 ^= (uint8_t)output[i];
         state2 *= PRIME;
         state2 ^= (state2 >> 29);
@@ -135,7 +143,8 @@ void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) 
     state2 ^= ~nonce ^ ((uint64_t)out_len << 16);
 
     // Mixing rounds
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 6; ++i)
+    {
         state1 += (state2 ^ (state1 >> 17));
         state2 += (state1 ^ (state2 >> 13));
         state1 ^= (state1 << 41);
@@ -144,7 +153,8 @@ void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) 
         state2 *= PRIME;
     }
 
-    for (size_t i = 0; i < FOSSIL_MAIP_HASH_SIZE; ++i) {
+    for (size_t i = 0; i < FOSSIL_MAIP_HASH_SIZE; ++i)
+    {
         uint64_t mixed = (i % 2 == 0) ? state1 : state2;
         mixed ^= (mixed >> ((i % 7) + 13));
         mixed *= PRIME;
@@ -153,25 +163,24 @@ void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out) 
     }
 }
 
-
 // *****************************************************************************
 // command pallet
 // *****************************************************************************
 
 // Lookup tables for valid tags and criteria
-static const char* VALID_TAGS[] = {
-    "fossil",       // default tag
-    "ai",           // Jellyfish AI tag
-    "network",      // Network-related tests
-    "database",     // Database-related tests
-    "ui",           // User Interface tests
-    "api",          // API-related tests
-    "critical",     // Critical tests
-    "media",        // Media tests
-    null // Sentinel to mark the end
+static const char *VALID_TAGS[] = {
+    "fossil",   // default tag
+    "ai",       // Jellyfish AI tag
+    "network",  // Network-related tests
+    "database", // Database-related tests
+    "ui",       // User Interface tests
+    "api",      // API-related tests
+    "critical", // Critical tests
+    "media",    // Media tests
+    null        // Sentinel to mark the end
 };
 
-static const char* VALID_CRITERIA[] = {
+static const char *VALID_CRITERIA[] = {
     "name",
     "time",
     "result",
@@ -180,7 +189,8 @@ static const char* VALID_CRITERIA[] = {
     null // Sentinel to mark the end
 };
 
-static void _show_help(void) {
+static void _show_help(void)
+{
     maip_io_printf("{blue}Usage: maip [options] [command]{reset}\n");
     maip_io_printf("{blue}Options:{reset}\n");
     maip_io_printf("{cyan}  --version          Show version information{reset}\n");
@@ -200,7 +210,8 @@ static void _show_help(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_run(void) {
+static void _show_subhelp_run(void)
+{
     maip_io_printf("{blue}Run command options:{reset}\n");
     maip_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
     maip_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
@@ -210,7 +221,8 @@ static void _show_subhelp_run(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_filter(void) {
+static void _show_subhelp_filter(void)
+{
     maip_io_printf("{blue}Filter command options:{reset}\n");
     maip_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
     maip_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
@@ -220,7 +232,8 @@ static void _show_subhelp_filter(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_report(void) {
+static void _show_subhelp_report(void)
+{
     maip_io_printf("{blue}Report command options:{reset}\n");
     maip_io_printf("{cyan}  --format <json/fson/yaml/csv>       Set the output format{reset}\n");
     maip_io_printf("{cyan}  --destination <file/stdout>        Set the output destination (default: stdout){reset}\n");
@@ -228,7 +241,8 @@ static void _show_subhelp_report(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_sort(void) {
+static void _show_subhelp_sort(void)
+{
     maip_io_printf("{blue}Sort command options:{reset}\n");
     maip_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
     maip_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
@@ -237,7 +251,8 @@ static void _show_subhelp_sort(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_shuffle(void) {
+static void _show_subhelp_shuffle(void)
+{
     maip_io_printf("{blue}Shuffle command options:{reset}\n");
     maip_io_printf("{cyan}  --seed <seed>      Specify the seed for shuffling{reset}\n");
     maip_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
@@ -247,7 +262,8 @@ static void _show_subhelp_shuffle(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_color(void) {
+static void _show_subhelp_color(void)
+{
     maip_io_printf("{blue}Color command options:{reset}\n");
     maip_io_printf("{cyan}  enable            Enable color output{reset}\n");
     maip_io_printf("{cyan}  disable           Disable color output{reset}\n");
@@ -255,7 +271,8 @@ static void _show_subhelp_color(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_theme(void) {
+static void _show_subhelp_theme(void)
+{
     maip_io_printf("{blue}Theme command options:{reset}\n");
     maip_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
     maip_io_printf("{cyan}  light             Light theme{reset}\n");
@@ -264,7 +281,8 @@ static void _show_subhelp_theme(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_show(void) {
+static void _show_subhelp_show(void)
+{
     maip_io_printf("{blue}Show command options:{reset}\n");
     maip_io_printf("{cyan}  --test-name <name>   Filter by test name{reset}\n");
     maip_io_printf("{cyan}  --suite-name <name>  Filter by suite name{reset}\n");
@@ -275,7 +293,8 @@ static void _show_subhelp_show(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_info(void) {
+static void _show_info(void)
+{
     maip_io_printf("{blue}Fossil Test Information:{reset}\n");
     maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
     maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
@@ -283,18 +302,21 @@ static void _show_info(void) {
     exit(EXIT_SUCCESS);
 }
 
-static void _show_version(void) {
+static void _show_version(void)
+{
     maip_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_MAIP_VERSION);
     exit(EXIT_SUCCESS);
 }
 
-static void _show_host(void) {
+static void _show_host(void)
+{
     maip_sys_hostinfo_system_t system_info;
     maip_sys_hostinfo_architecture_t arch_info;
     maip_sys_hostinfo_memory_t memory_info;
     maip_sys_hostinfo_endianness_t endianness_info;
 
-    if (maip_sys_hostinfo_get_system(&system_info) == 0) {
+    if (maip_sys_hostinfo_get_system(&system_info) == 0)
+    {
         maip_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
         maip_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
         maip_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
@@ -303,22 +325,28 @@ static void _show_host(void) {
         maip_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
         maip_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
         maip_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
-    } else {
+    }
+    else
+    {
         maip_io_printf("{red}Error retrieving system information.{reset}\n");
     }
 
-    if (maip_sys_hostinfo_get_architecture(&arch_info) == 0) {
+    if (maip_sys_hostinfo_get_architecture(&arch_info) == 0)
+    {
         maip_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
         maip_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
         maip_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
         maip_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
         maip_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
         maip_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
-    } else {
+    }
+    else
+    {
         maip_io_printf("{red}Error retrieving architecture information.{reset}\n");
     }
 
-    if (maip_sys_hostinfo_get_memory(&memory_info) == 0) {
+    if (maip_sys_hostinfo_get_memory(&memory_info) == 0)
+    {
         maip_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
         maip_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
         maip_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
@@ -326,51 +354,158 @@ static void _show_host(void) {
         maip_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
         maip_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
         maip_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
-    } else {
+    }
+    else
+    {
         maip_io_printf("{red}Error retrieving memory information.{reset}\n");
     }
 
-    if (maip_sys_hostinfo_get_endianness(&endianness_info) == 0) {
-        maip_io_printf("{blue}Endianness: {cyan}%s{reset}\n", 
-                        endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
-    } else {
+    if (maip_sys_hostinfo_get_endianness(&endianness_info) == 0)
+    {
+        maip_io_printf("{blue}Endianness: {cyan}%s{reset}\n",
+                       endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+    }
+    else
+    {
         maip_io_printf("{red}Error retrieving endianness information.{reset}\n");
     }
 
     exit(EXIT_SUCCESS);
 }
 
-fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
+static int g_maip_color_mode = -1;
+
+/*
+ *  1  = enabled
+ *  0  = disabled
+ * -1  = auto
+ */
+void maip_io_set_color_mode(int mode)
+{
+    switch (mode)
+    {
+        case 1:
+        case 0:
+        case -1:
+            g_maip_color_mode = mode;
+            break;
+
+        default:
+            g_maip_color_mode = -1;
+            break;
+    }
+}
+
+fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
+{
     fossil_maip_pallet_t pallet = {0};
     int is_command = 0; // Variable to track if a command is being processed
 
     pallet.show.enabled = 0; // Initialize show command enabled flag
 
     // Parse command-line arguments
-    for (int i = 1; i < argc; i++) {
-        if (maip_io_cstr_compare(argv[i], "--dry-run") == 0) {
+    for (int i = 1; i < argc; i++)
+    {
+        if (maip_io_cstr_compare(argv[i], "--dry-run") == 0)
+        {
             G_MAIP_DRY_RUN = 1;
-        } else if (maip_io_cstr_compare(argv[i], "--version") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "--version") == 0)
+        {
             _show_version();
-        } else if (maip_io_cstr_compare(argv[i], "--help") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "--help") == 0)
+        {
             _show_help();
-        } else if (maip_io_cstr_compare(argv[i], "--info") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "--info") == 0)
+        {
             _show_info();
-        } else if (maip_io_cstr_compare(argv[i], "--host") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "--host") == 0)
+        {
             _show_host();
-        } else if (maip_io_cstr_compare(argv[i], "run") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "--color") == 0 && i + 1 < argc)
+        {
+            const char *color_mode = argv[++i];
+            if (maip_io_cstr_compare(color_mode, "enable") == 0)
+            {
+                maip_io_set_color_mode(1);
+            }
+            else if (maip_io_cstr_compare(color_mode, "disable") == 0)
+            {
+                maip_io_set_color_mode(0);
+            }
+            else if (maip_io_cstr_compare(color_mode, "auto") == 0)
+            {
+                maip_io_set_color_mode(-1); // Auto-detect
+            }
+            else
+            {
+                maip_io_printf("{red}Invalid color mode: %s{reset}\n", color_mode);
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if (maip_io_cstr_compare(argv[i], "help") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                const char *subcommand = argv[++i];
+                if (maip_io_cstr_compare(subcommand, "run") == 0)
+                {
+                    _show_subhelp_run();
+                }
+                else if (maip_io_cstr_compare(subcommand, "filter") == 0)
+                {
+                    _show_subhelp_filter();
+                }
+                else if (maip_io_cstr_compare(subcommand, "sort") == 0)
+                {
+                    _show_subhelp_sort();
+                }
+                else if (maip_io_cstr_compare(subcommand, "shuffle") == 0)
+                {
+                    _show_subhelp_shuffle();
+                }
+                else if (maip_io_cstr_compare(subcommand, "color") == 0)
+                {
+                    _show_subhelp_color();
+                }
+                else if (maip_io_cstr_compare(subcommand, "theme") == 0)
+                {
+                    _show_subhelp_theme();
+                }
+                else if (maip_io_cstr_compare(subcommand, "show") == 0)
+                {
+                    _show_subhelp_show();
+                }
+                else
+                {
+                    maip_io_printf("{red}Unknown subcommand for help: %s{reset}\n", subcommand);
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }
+        else if (maip_io_cstr_compare(argv[i], "run") == 0)
+        {
             is_command = 1;
             pallet.run.fail_fast = 0;
             pallet.run.only = null;
             pallet.run.skip = null;
             pallet.run.repeat = 1;
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--fail-fast") == 0) {
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--fail-fast") == 0)
+                {
                     pallet.run.fail_fast = 1;
                     G_MAIP_FAIL_FAST = 1;
-                } else if (maip_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc)
+                {
                     // Support multiple test cases separated by comma, and wildcards
                     j++;
                     size_t count = 0;
@@ -380,35 +515,52 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
                     pallet.run.only_count = count;
                     // Wildcard support: mark if any test case contains '*'
                     pallet.run.only_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++) {
-                        if (strchr(test_cases[k], '*')) {
+                    for (size_t k = 0; k < count; k++)
+                    {
+                        if (strchr(test_cases[k], '*'))
+                        {
                             pallet.run.only_has_wildcard = 1;
                             break;
                         }
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc)
+                {
                     pallet.run.skip = argv[++j];
                     G_MAIP_SKIP = 1;
-                } else if (maip_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc)
+                {
                     pallet.run.repeat = atoi(argv[++j]);
                     G_MAIP_REPEAT = pallet.run.repeat;
-                } else if (maip_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc)
+                {
                     G_MAIP_THREADS = atoi(argv[++j]);
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_run();
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
-        } else if (maip_io_cstr_compare(argv[i], "filter") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "filter") == 0)
+        {
             is_command = 1;
             pallet.filter.test_name = null;
             pallet.filter.suite_name = null;
             pallet.filter.tag = null;
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc)
+                {
                     // Support multiple test names separated by comma, and wildcards
                     j++;
                     size_t count = 0;
@@ -418,13 +570,17 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
                     pallet.filter.test_name_count = count;
                     // Wildcard support: mark if any test name contains '*'
                     pallet.filter.test_name_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++) {
-                        if (strchr(test_names[k], '*')) {
+                    for (size_t k = 0; k < count; k++)
+                    {
+                        if (strchr(test_names[k], '*'))
+                        {
                             pallet.filter.test_name_has_wildcard = 1;
                             break;
                         }
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc)
+                {
                     // Support multiple suite names separated by comma, and wildcards
                     j++;
                     size_t count = 0;
@@ -434,206 +590,286 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
                     pallet.filter.suite_name_count = count;
                     // Wildcard support: mark if any suite name contains '*'
                     pallet.filter.suite_name_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++) {
-                        if (strchr(suite_names[k], '*')) {
+                    for (size_t k = 0; k < count; k++)
+                    {
+                        if (strchr(suite_names[k], '*'))
+                        {
                             pallet.filter.suite_name_has_wildcard = 1;
                             break;
                         }
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc)
+                {
                     // Support multiple tags separated by comma, and wildcards
                     j++;
                     size_t count = 0;
                     cstr *tags = maip_io_cstr_split(argv[j], ',', &count);
                     int valid_count = 0;
-                    for (size_t k = 0; k < count; k++) {
+                    for (size_t k = 0; k < count; k++)
+                    {
                         int is_valid_tag = 0;
-                        for (int t = 0; VALID_TAGS[t] != null; t++) {
-                            if (maip_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0) {
+                        for (int t = 0; VALID_TAGS[t] != null; t++)
+                        {
+                            if (maip_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0)
+                            {
                                 is_valid_tag = 1;
                                 break;
                             }
                         }
-                        if (is_valid_tag || strchr(tags[k], '*')) {
+                        if (is_valid_tag || strchr(tags[k], '*'))
+                        {
                             valid_count++;
                         }
                     }
-                    if (valid_count == (int)count) {
+                    if (valid_count == (int)count)
+                    {
                         pallet.filter.tag = argv[j]; // Store raw string for now
                         pallet.filter.tag_list = tags;
                         pallet.filter.tag_count = count;
                         // Wildcard support: mark if any tag contains '*'
                         pallet.filter.tag_has_wildcard = 0;
-                        for (size_t k = 0; k < count; k++) {
-                            if (strchr(tags[k], '*')) {
+                        for (size_t k = 0; k < count; k++)
+                        {
+                            if (strchr(tags[k], '*'))
+                            {
                                 pallet.filter.tag_has_wildcard = 1;
                                 break;
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         maip_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
                         exit(EXIT_FAILURE);
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_filter();
-                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
+                {
                     maip_io_printf("{blue}Valid tags:{reset}\n");
-                    for (int k = 0; VALID_TAGS[k] != null; k++) {
+                    for (int k = 0; VALID_TAGS[k] != null; k++)
+                    {
                         maip_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
                     }
                     exit(EXIT_SUCCESS);
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
-        } else if (maip_io_cstr_compare(argv[i], "report") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "report") == 0)
+        {
             is_command = 1;
-            pallet.report.format = "json";       // default format
+            pallet.report.format = "json";        // default format
             pallet.report.destination = "stdout"; // default destination
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc) {
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc)
+                {
                     pallet.report.format = argv[++j];
                     if (maip_io_cstr_compare(pallet.report.format, "json") != 0 &&
                         maip_io_cstr_compare(pallet.report.format, "fson") != 0 &&
                         maip_io_cstr_compare(pallet.report.format, "yaml") != 0 &&
-                        maip_io_cstr_compare(pallet.report.format, "csv") != 0) {
+                        maip_io_cstr_compare(pallet.report.format, "csv") != 0)
+                    {
                         maip_io_printf("{red}Error: Invalid report format '%s'. Valid formats: json, fson, yaml, csv.{reset}\n", pallet.report.format);
                         exit(EXIT_FAILURE);
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc)
+                {
                     pallet.report.destination = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_report();
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
-        } else if (maip_io_cstr_compare(argv[i], "sort") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "sort") == 0)
+        {
             is_command = 1;
             pallet.sort.by = null;
             pallet.sort.order = null;
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
-                    const char* criteria = argv[++j];
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc)
+                {
+                    const char *criteria = argv[++j];
                     int is_valid_criteria = 0;
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
-                        if (maip_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0) {
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
+                    {
+                        if (maip_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0)
+                        {
                             is_valid_criteria = 1;
                             break;
                         }
                     }
-                    if (is_valid_criteria) {
+                    if (is_valid_criteria)
+                    {
                         pallet.sort.by = criteria;
-                    } else {
+                    }
+                    else
+                    {
                         maip_io_printf("{red}Error: Invalid criteria '%s'.{reset}\n", criteria);
                         exit(EXIT_FAILURE);
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc)
+                {
                     pallet.sort.order = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_sort();
-                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
+                {
                     maip_io_printf("{blue}Valid criteria:{reset}\n");
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
+                    {
                         maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
                     }
                     exit(EXIT_SUCCESS);
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
-        } else if (maip_io_cstr_compare(argv[i], "shuffle") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "shuffle") == 0)
+        {
             is_command = 1;
             pallet.shuffle.seed = null;
             pallet.shuffle.count = 0;
             pallet.shuffle.by = null;
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc) {
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc)
+                {
                     pallet.shuffle.seed = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc)
+                {
                     pallet.shuffle.count = atoi(argv[++j]);
-                } else if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc)
+                {
                     pallet.shuffle.by = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_shuffle();
-                } else if (maip_io_cstr_compare(argv[j], "--options") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
+                {
                     maip_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++) {
+                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
+                    {
                         maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
                     }
                     exit(EXIT_SUCCESS);
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
-        } else if (strncmp(argv[i], "color=", 6) == 0) {
-            if (maip_io_cstr_compare(argv[i] + 6, "enable") == 0) {
+        }
+        else if (strncmp(argv[i], "color=", 6) == 0)
+        {
+            if (maip_io_cstr_compare(argv[i] + 6, "enable") == 0)
+            {
                 MAIP_IO_COLOR_ENABLE = 1;
-            } else if (maip_io_cstr_compare(argv[i] + 6, "disable") == 0) {
+            }
+            else if (maip_io_cstr_compare(argv[i] + 6, "disable") == 0)
+            {
                 MAIP_IO_COLOR_ENABLE = 0;
-            } else if (maip_io_cstr_compare(argv[i] + 6, "auto") == 0) {
-                if (isatty(STDOUT_FILENO)) {
+            }
+            else if (maip_io_cstr_compare(argv[i] + 6, "auto") == 0)
+            {
+                if (isatty(STDOUT_FILENO))
+                {
                     MAIP_IO_COLOR_ENABLE = 1;
-                } else {
+                }
+                else
+                {
                     MAIP_IO_COLOR_ENABLE = 0;
                 }
             }
-        } else if (maip_io_cstr_compare(argv[i], "color") == 0) {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "color") == 0)
+        {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
+            {
                 _show_subhelp_color();
             }
-        } else if (strncmp(argv[i], "config=", 7) == 0) {
-            const char* config_file = argv[i] + 7;
-            const char* basename = strrchr(config_file, '/');
-            if (!basename) {
-                basename = config_file; // No '/' found, use the entire filename
-            } else {
-                basename++; // Skip the '/'
-            }
-
-            if (maip_io_cstr_compare(basename, "maip_test.ini") == 0) {
-                pallet.config_file = config_file;
-            } else {
-                maip_io_printf("{red}Error: Invalid configuration file name. Must be 'maip_test.ini'.{reset}\n");
-                exit(EXIT_FAILURE);
-            }
-        } else if (maip_io_cstr_compare(argv[i], "config") == 0) {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
-                _show_help();
-            }
-        } else if (strncmp(argv[i], "theme=", 6) == 0) {
-            const char* theme_str = argv[i] + 6;
-            if (maip_io_cstr_compare(theme_str, "fossil") == 0) {
+        }
+        else if (strncmp(argv[i], "theme=", 6) == 0)
+        {
+            const char *theme_str = argv[i] + 6;
+            if (maip_io_cstr_compare(theme_str, "fossil") == 0)
+            {
                 pallet.theme = MAIP_THEME_FOSSIL;
                 G_MAIP_THEME = MAIP_THEME_FOSSIL;
-            } else if (maip_io_cstr_compare(theme_str, "dark") == 0) {
+            }
+            else if (maip_io_cstr_compare(theme_str, "dark") == 0)
+            {
                 pallet.theme = MAIP_THEME_DARK;
                 G_MAIP_THEME = MAIP_THEME_DARK;
-            } else if (maip_io_cstr_compare(theme_str, "light") == 0) {
+            }
+            else if (maip_io_cstr_compare(theme_str, "light") == 0)
+            {
                 pallet.theme = MAIP_THEME_LIGHT;
                 G_MAIP_THEME = MAIP_THEME_LIGHT;
-            } else if (maip_io_cstr_compare(theme_str, "maga") == 0) {
+            }
+            else if (maip_io_cstr_compare(theme_str, "maga") == 0)
+            {
                 pallet.theme = MAIP_THEME_MAGA;
                 G_MAIP_THEME = MAIP_THEME_MAGA;
             }
-        } else if (maip_io_cstr_compare(argv[i], "theme") == 0) {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "theme") == 0)
+        {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
+            {
                 _show_subhelp_theme();
             }
-        } else if (strncmp(argv[i], "timeout=", 8) == 0) {
+        }
+        else if (strncmp(argv[i], "timeout=", 8) == 0)
+        {
             G_MAIP_TIMEOUT = atoi(argv[i] + 8);
-        } else if (maip_io_cstr_compare(argv[i], "timeout") == 0) {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "timeout") == 0)
+        {
+            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
+            {
                 _show_help();
                 exit(EXIT_SUCCESS);
             }
-        } else if (maip_io_cstr_compare(argv[i], "show") == 0) {
+        }
+        else if (maip_io_cstr_compare(argv[i], "show") == 0)
+        {
             is_command = 1;
             pallet.show.test_name = null;
             pallet.show.suite_name = null;
@@ -643,37 +879,56 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
             pallet.show.verbose = "plain";
             pallet.show.enabled = 1; // Default to enabled
 
-            for (int j = i + 1; j < argc; j++) {
-                if (!is_command) break;
-                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc) {
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (!is_command)
+                    break;
+                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc)
+                {
                     pallet.show.test_name = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc)
+                {
                     pallet.show.suite_name = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc)
+                {
                     pallet.show.tag = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc)
+                {
                     pallet.show.result = argv[++j];
-                } else if (maip_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc)
+                {
                     pallet.show.mode = argv[++j];
                     // Validate mode (should be one of: list, tree, graph)
                     if (maip_io_cstr_compare(pallet.show.mode, "list") != 0 &&
                         maip_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
-                        maip_io_cstr_compare(pallet.show.mode, "graph") != 0) {
+                        maip_io_cstr_compare(pallet.show.mode, "graph") != 0)
+                    {
                         maip_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
                         exit(EXIT_FAILURE);
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc)
+                {
                     pallet.show.verbose = argv[++j];
                     // Validate verbose (should be one of: plain, ci, doge)
                     if (maip_io_cstr_compare(pallet.show.verbose, "plain") != 0 &&
                         maip_io_cstr_compare(pallet.show.verbose, "ci") != 0 &&
-                        maip_io_cstr_compare(pallet.show.verbose, "doge") != 0) {
+                        maip_io_cstr_compare(pallet.show.verbose, "doge") != 0)
+                    {
                         maip_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
                         exit(EXIT_FAILURE);
                     }
-                } else if (maip_io_cstr_compare(argv[j], "--help") == 0) {
+                }
+                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
+                {
                     _show_subhelp_show();
-                } else {
+                }
+                else
+                {
                     is_command = 0;
                 }
             }
@@ -684,164 +939,18 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char** argv) {
 }
 
 // *****************************************************************************
-// INI Parser
-// *****************************************************************************
-
-int fossil_maip_ini_parse(const char *filename, fossil_maip_pallet_t *pallet) {
-    maip_io_printf("{yellow}Warning: INI parser is experimental and in development.{reset}\n");
-    const char *basename = strrchr(filename, '/');
-    if (!basename) {
-        basename = filename; // No '/' found, use the entire filename
-    } else {
-        basename++; // Skip the '/'
-    }
-
-    if (maip_io_cstr_compare(basename, "maip_test.ini") != 0) {
-        fprintf(stderr, "Error: INI file must be named 'maip_test.ini'.\n");
-        return -1;
-    }
-
-    FILE *file = fopen(filename, "r");
-    if (!file) {
-        fprintf(stderr, "Error: Unable to open INI file: %s\n", basename);
-        return -1;
-    }
-
-    char line[256];
-    char section[64] = "";
-    while (fgets(line, sizeof(line), file)) {
-        // Trim whitespace
-        char *start = line;
-        while (isspace((unsigned char)*start)) start++;
-        char *end = start + strlen(start) - 1;
-        while (end > start && isspace((unsigned char)*end)) *end-- = '\0';
-
-        // Skip comments and empty lines
-        if (*start == ';' || *start == '#' || *start == '\0') continue;
-
-        // Handle section headers
-        if (*start == '[') {
-            char *close = strchr(start, ']');
-            if (close) {
-                *close = '\0';
-                strncpy(section, start + 1, sizeof(section) - 1);
-                section[sizeof(section) - 1] = '\0';
-            }
-            continue;
-        }
-
-        // Handle key-value pairs
-        char *equals = strchr(start, '=');
-        if (equals) {
-            *equals = '\0';
-            char *key = start;
-            char *value = equals + 1;
-
-            // Trim whitespace around key and value
-            while (isspace((unsigned char)*key)) key++;
-            end = key + strlen(key) - 1;
-            while (end > key && isspace((unsigned char)*end)) *end-- = '\0';
-
-            while (isspace((unsigned char)*value)) value++;
-            end = value + strlen(value) - 1;
-            while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
-
-            // Handle inline comments
-            char *comment = strchr(value, ';');
-            if (!comment) comment = strchr(value, '#');
-            if (comment) *comment = '\0';
-
-            // Trim whitespace again after removing comments
-            end = value + strlen(value) - 1;
-            while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
-
-            // Populate the pallet structure based on the section and key
-            if (maip_io_cstr_compare(section, "general") == 0) {
-                if (maip_io_cstr_compare(key, "theme") == 0) {
-                    if (maip_io_cstr_compare(value, "fossil") == 0) {
-                        pallet->theme = MAIP_THEME_FOSSIL;
-                    } else if (maip_io_cstr_compare(value, "dark") == 0) {
-                        pallet->theme = MAIP_THEME_DARK;
-                    } else if (maip_io_cstr_compare(value, "light") == 0) {
-                        pallet->theme = MAIP_THEME_LIGHT;
-                    } else if (maip_io_cstr_compare(value, "maga") == 0) {
-                        pallet->theme = MAIP_THEME_MAGA;
-                    }
-                }
-            } else if (maip_io_cstr_compare(section, "test") == 0) {
-                if (maip_io_cstr_compare(key, "run.fail_fast") == 0) {
-                    pallet->run.fail_fast = atoi(value);
-                } else if (maip_io_cstr_compare(key, "run.only") == 0) {
-                    pallet->run.only = maip_io_cstr_dup(value);
-                } else if (maip_io_cstr_compare(key, "run.repeat") == 0) {
-                    pallet->run.repeat = atoi(value);
-                } else if (maip_io_cstr_compare(key, "filter.test_name") == 0) {
-                    pallet->filter.test_name = maip_io_cstr_dup(value);
-                } else if (maip_io_cstr_compare(key, "filter.suite_name") == 0) {
-                    pallet->filter.suite_name = maip_io_cstr_dup(value);
-                } else if (maip_io_cstr_compare(key, "filter.tag") == 0) {
-                    int is_valid_tag = 0;
-                    for (int i = 0; VALID_TAGS[i] != null; i++) {
-                        if (maip_io_cstr_compare(value, VALID_TAGS[i]) == 0) {
-                            is_valid_tag = 1;
-                            break;
-                        }
-                    }
-                    if (is_valid_tag) {
-                        pallet->filter.tag = maip_io_cstr_dup(value);
-                    } else {
-                        fprintf(stderr, "Error: Invalid tag '%s'.\n", value);
-                        fclose(file);
-                        return -1;
-                    }
-                } else if (maip_io_cstr_compare(key, "sort.by") == 0) {
-                    int is_valid_criteria = 0;
-                    for (int i = 0; VALID_CRITERIA[i] != null; i++) {
-                        if (maip_io_cstr_compare(value, VALID_CRITERIA[i]) == 0) {
-                            is_valid_criteria = 1;
-                            break;
-                        }
-                    }
-                    if (is_valid_criteria) {
-                        pallet->sort.by = maip_io_cstr_dup(value);
-                    } else {
-                        fprintf(stderr, "Error: Invalid sort criteria '%s'.\n", value);
-                        fclose(file);
-                        return -1;
-                    }
-                } else if (maip_io_cstr_compare(key, "sort.order") == 0) {
-                    pallet->sort.order = maip_io_cstr_dup(value);
-                } else if (maip_io_cstr_compare(key, "shuffle.seed") == 0) {
-                    pallet->shuffle.seed = maip_io_cstr_dup(value);
-                } else if (maip_io_cstr_compare(key, "shuffle.count") == 0) {
-                    pallet->shuffle.count = atoi(value);
-                } else if (maip_io_cstr_compare(key, "shuffle.by") == 0) {
-                    pallet->shuffle.by = maip_io_cstr_dup(value);
-                }
-            } else if (maip_io_cstr_compare(section, "mock") == 0) {
-                // Add mock-related parsing logic here
-            } else if (maip_io_cstr_compare(section, "mark") == 0) {
-                // Add mark-related parsing logic here
-            } else if (maip_io_cstr_compare(section, "sanity") == 0) {
-                // Add sanity-related parsing logic here
-            }
-        }
-    }
-
-    fclose(file);
-    return 0;
-}
-
-// *****************************************************************************
 // Host information
 // *****************************************************************************
 
-int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
-    if (!info) return -1;
+int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info)
+{
+    if (!info)
+        return -1;
 #ifdef _WIN32
     OSVERSIONINFO osvi;
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    if (!GetVersionEx(&osvi)) return -1;
+    if (!GetVersionEx(&osvi))
+        return -1;
     snprintf(info->os_name, sizeof(info->os_name), "Windows");
     snprintf(info->os_version, sizeof(info->os_version), "%lu.%lu", osvi.dwMajorVersion, osvi.dwMinorVersion);
     snprintf(info->kernel_version, sizeof(info->kernel_version), "%lu", osvi.dwBuildNumber);
@@ -854,7 +963,8 @@ int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
 
     // Domain name
     size = sizeof(info->domain_name);
-    if (!GetEnvironmentVariableA("USERDOMAIN", info->domain_name, size)) {
+    if (!GetEnvironmentVariableA("USERDOMAIN", info->domain_name, size))
+    {
         strncpy(info->domain_name, "Unknown", sizeof(info->domain_name) - 1);
         info->domain_name[sizeof(info->domain_name) - 1] = '\0';
     }
@@ -866,7 +976,8 @@ int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
 
 #elif defined(__APPLE__)
     struct utsname sysinfo;
-    if (uname(&sysinfo) != 0) return -1;
+    if (uname(&sysinfo) != 0)
+        return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
@@ -896,7 +1007,8 @@ int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
 
 #else
     struct utsname sysinfo;
-    if (uname(&sysinfo) != 0) return -1;
+    if (uname(&sysinfo) != 0)
+        return -1;
     strncpy(info->os_name, sysinfo.sysname, sizeof(info->os_name) - 1);
     info->os_name[sizeof(info->os_name) - 1] = '\0';
     strncpy(info->os_version, sysinfo.version, sizeof(info->os_version) - 1);
@@ -932,27 +1044,30 @@ int maip_sys_hostinfo_get_system(maip_sys_hostinfo_system_t *info) {
     return 0;
 }
 
-int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info) {
-    if (!info) return -1;
+int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info)
+{
+    if (!info)
+        return -1;
 
 #ifdef _WIN32
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
 
     // Architecture
-    switch (sysinfo.wProcessorArchitecture) {
-        case PROCESSOR_ARCHITECTURE_AMD64:
-            strncpy(info->architecture, "x86_64", sizeof(info->architecture) - 1);
-            break;
-        case PROCESSOR_ARCHITECTURE_INTEL:
-            strncpy(info->architecture, "x86", sizeof(info->architecture) - 1);
-            break;
-        case PROCESSOR_ARCHITECTURE_ARM:
-            strncpy(info->architecture, "ARM", sizeof(info->architecture) - 1);
-            break;
-        default:
-            strncpy(info->architecture, "Unknown", sizeof(info->architecture) - 1);
-            break;
+    switch (sysinfo.wProcessorArchitecture)
+    {
+    case PROCESSOR_ARCHITECTURE_AMD64:
+        strncpy(info->architecture, "x86_64", sizeof(info->architecture) - 1);
+        break;
+    case PROCESSOR_ARCHITECTURE_INTEL:
+        strncpy(info->architecture, "x86", sizeof(info->architecture) - 1);
+        break;
+    case PROCESSOR_ARCHITECTURE_ARM:
+        strncpy(info->architecture, "ARM", sizeof(info->architecture) - 1);
+        break;
+    default:
+        strncpy(info->architecture, "Unknown", sizeof(info->architecture) - 1);
+        break;
     }
     info->architecture[sizeof(info->architecture) - 1] = '\0';
 
@@ -1008,51 +1123,71 @@ int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info) {
 
 #else
     struct utsname sysinfo;
-    if (uname(&sysinfo) != 0) return -1;
+    if (uname(&sysinfo) != 0)
+        return -1;
 
     strncpy(info->architecture, sysinfo.machine, sizeof(info->architecture) - 1);
     info->architecture[sizeof(info->architecture) - 1] = '\0';
 
     FILE *fp = fopen("/proc/cpuinfo", "r");
-    if (fp) {
+    if (fp)
+    {
         char line[256];
-        while (fgets(line, sizeof(line), fp)) {
-            if (strncmp(line, "model name", 10) == 0) {
+        while (fgets(line, sizeof(line), fp))
+        {
+            if (strncmp(line, "model name", 10) == 0)
+            {
                 char *colon = strchr(line, ':');
-                if (colon) {
+                if (colon)
+                {
                     colon++;
-                    while (*colon == ' ') colon++;
+                    while (*colon == ' ')
+                        colon++;
                     strncpy(info->cpu, colon, sizeof(info->cpu) - 1);
                     info->cpu[sizeof(info->cpu) - 1] = '\0';
                 }
-            } else if (strncmp(line, "cpu cores", 9) == 0) {
+            }
+            else if (strncmp(line, "cpu cores", 9) == 0)
+            {
                 char *colon = strchr(line, ':');
-                if (colon) {
+                if (colon)
+                {
                     colon++;
-                    while (*colon == ' ') colon++;
+                    while (*colon == ' ')
+                        colon++;
                     strncpy(info->cpu_cores, colon, sizeof(info->cpu_cores) - 1);
                     info->cpu_cores[sizeof(info->cpu_cores) - 1] = '\0';
                 }
-            } else if (strncmp(line, "siblings", 8) == 0) {
+            }
+            else if (strncmp(line, "siblings", 8) == 0)
+            {
                 char *colon = strchr(line, ':');
-                if (colon) {
+                if (colon)
+                {
                     colon++;
-                    while (*colon == ' ') colon++;
+                    while (*colon == ' ')
+                        colon++;
                     strncpy(info->cpu_threads, colon, sizeof(info->cpu_threads) - 1);
                     info->cpu_threads[sizeof(info->cpu_threads) - 1] = '\0';
                 }
-            } else if (strncmp(line, "cpu MHz", 7) == 0) {
+            }
+            else if (strncmp(line, "cpu MHz", 7) == 0)
+            {
                 char *colon = strchr(line, ':');
-                if (colon) {
+                if (colon)
+                {
                     colon++;
-                    while (*colon == ' ') colon++;
+                    while (*colon == ' ')
+                        colon++;
                     strncpy(info->cpu_frequency, colon, sizeof(info->cpu_frequency) - 1);
                     info->cpu_frequency[sizeof(info->cpu_frequency) - 1] = '\0';
                 }
             }
         }
         fclose(fp);
-    } else {
+    }
+    else
+    {
         strncpy(info->cpu, "Unknown", sizeof(info->cpu) - 1);
         info->cpu[sizeof(info->cpu) - 1] = '\0';
         strncpy(info->cpu_cores, "Unknown", sizeof(info->cpu_cores) - 1);
@@ -1070,12 +1205,15 @@ int maip_sys_hostinfo_get_architecture(maip_sys_hostinfo_architecture_t *info) {
     return 0;
 }
 
-int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info) {
-    if (!info) return -1;
+int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info)
+{
+    if (!info)
+        return -1;
 #ifdef _WIN32
     MEMORYSTATUSEX statex;
     statex.dwLength = sizeof(statex);
-    if (!GlobalMemoryStatusEx(&statex)) return -1;
+    if (!GlobalMemoryStatusEx(&statex))
+        return -1;
     info->total_memory = statex.ullTotalPhys;
     info->free_memory = statex.ullAvailPhys;
     info->used_memory = statex.ullTotalPhys - statex.ullAvailPhys;
@@ -1086,7 +1224,8 @@ int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info) {
 #elif defined(__APPLE__)
     int64_t memsize;
     size_t len = sizeof(memsize);
-    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0) return -1;
+    if (sysctlbyname("hw.memsize", &memsize, &len, NULL, 0) != 0)
+        return -1;
     info->total_memory = memsize;
     info->free_memory = 0; // macOS does not provide free memory info in the same way
     info->used_memory = 0;
@@ -1096,7 +1235,8 @@ int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info) {
     info->used_swap = 0;
 #else
     struct sysinfo sys_info;
-    if (sysinfo(&sys_info) != 0) return -1;
+    if (sysinfo(&sys_info) != 0)
+        return -1;
     info->total_memory = sys_info.totalram * sys_info.mem_unit;
     info->free_memory = sys_info.freeram * sys_info.mem_unit;
     info->used_memory = (sys_info.totalram - sys_info.freeram) * sys_info.mem_unit;
@@ -1108,10 +1248,12 @@ int maip_sys_hostinfo_get_memory(maip_sys_hostinfo_memory_t *info) {
     return 0;
 }
 
-int maip_sys_hostinfo_get_endianness(maip_sys_hostinfo_endianness_t *info) {
-    if (!info) return -1;
+int maip_sys_hostinfo_get_endianness(maip_sys_hostinfo_endianness_t *info)
+{
+    if (!info)
+        return -1;
     uint16_t test = 0x0001;
-    info->is_little_endian = (*(uint8_t*)&test) ? 1 : 0;
+    info->is_little_endian = (*(uint8_t *)&test) ? 1 : 0;
     return 0;
 }
 
@@ -1122,7 +1264,8 @@ int maip_sys_hostinfo_get_endianness(maip_sys_hostinfo_endianness_t *info) {
 #define MAX_CUSTOM_FILTERS 64
 
 /** Lookup table for rot-brain words and their suggested replacements */
-static const struct {
+static const struct
+{
     const char *bad;
     const char *suggested;
 } FOSSIL_SOAP_SUGGESTIONS[] = {
@@ -1176,7 +1319,8 @@ static const struct {
 };
 
 /** Grammar suggestions for common mistakes */
-static const struct {
+static const struct
+{
     const char *incorrect;
     const char *correct;
 } FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[] = {
@@ -1233,16 +1377,33 @@ static const char *SKIP_WORDS[] = {
 /**
  * @brief Convert leetspeak to normal letters.
  */
-static void maip_io_soap_normalize_leetspeak(char *word) {
-    for (size_t i = 0; word[i] != '\0'; i++) {
-        switch (word[i]) {
-            case '0': word[i] = 'o'; break;
-            case '1': word[i] = 'i'; break;
-            case '3': word[i] = 'e'; break;
-            case '4': word[i] = 'a'; break;
-            case '5': word[i] = 's'; break;
-            case '7': word[i] = 't'; break;
-            case '$': word[i] = 's'; break;
+static void maip_io_soap_normalize_leetspeak(char *word)
+{
+    for (size_t i = 0; word[i] != '\0'; i++)
+    {
+        switch (word[i])
+        {
+        case '0':
+            word[i] = 'o';
+            break;
+        case '1':
+            word[i] = 'i';
+            break;
+        case '3':
+            word[i] = 'e';
+            break;
+        case '4':
+            word[i] = 'a';
+            break;
+        case '5':
+            word[i] = 's';
+            break;
+        case '7':
+            word[i] = 't';
+            break;
+        case '$':
+            word[i] = 's';
+            break;
         }
     }
 }
@@ -1251,25 +1412,34 @@ static void maip_io_soap_normalize_leetspeak(char *word) {
  * @brief Fuzzy matching using Levenshtein distance.
  * Optimized for short words, early exit if distance > 2.
  */
-static int fuzzy_match(const char *str1, const char *str2) {
+static int fuzzy_match(const char *str1, const char *str2)
+{
     size_t len1 = strlen(str1);
     size_t len2 = strlen(str2);
-    if (len1 == 0 || len2 == 0) return (int)(len1 + len2);
-    if (abs((int)len1 - (int)len2) > 2) return 3; // AI trick: early exit for big length diff
+    if (len1 == 0 || len2 == 0)
+        return (int)(len1 + len2);
+    if (abs((int)len1 - (int)len2) > 2)
+        return 3; // AI trick: early exit for big length diff
 
     int prev[65], curr[65];
-    if (len2 > 64) return 3; // AI trick: limit for stack buffer
+    if (len2 > 64)
+        return 3; // AI trick: limit for stack buffer
 
-    for (size_t j = 0; j <= len2; j++) prev[j] = (int)j;
-    for (size_t i = 1; i <= len1; i++) {
+    for (size_t j = 0; j <= len2; j++)
+        prev[j] = (int)j;
+    for (size_t i = 1; i <= len1; i++)
+    {
         curr[0] = (int)i;
         int min_row = curr[0];
-        for (size_t j = 1; j <= len2; j++) {
+        for (size_t j = 1; j <= len2; j++)
+        {
             int cost = (tolower((unsigned char)str1[i - 1]) == tolower((unsigned char)str2[j - 1])) ? 0 : 1;
             curr[j] = fmin(fmin(prev[j] + 1, curr[j - 1] + 1), prev[j - 1] + cost);
-            if (curr[j] < min_row) min_row = curr[j];
+            if (curr[j] < min_row)
+                min_row = curr[j];
         }
-        if (min_row > 2) return 3; // AI trick: early exit if row min > 2
+        if (min_row > 2)
+            return 3; // AI trick: early exit if row min > 2
         memcpy(prev, curr, (len2 + 1) * sizeof(int));
     }
     return curr[len2];
@@ -1278,9 +1448,12 @@ static int fuzzy_match(const char *str1, const char *str2) {
 /**
  * @brief Check if a word should be skipped.
  */
-static int should_skip_word(const char *word) {
-    for (size_t i = 0; SKIP_WORDS[i] != null; i++) {
-        if (maip_io_cstr_compare(word, SKIP_WORDS[i]) == 0) {
+static int should_skip_word(const char *word)
+{
+    for (size_t i = 0; SKIP_WORDS[i] != null; i++)
+    {
+        if (maip_io_cstr_compare(word, SKIP_WORDS[i]) == 0)
+        {
             return 1;
         }
     }
@@ -1290,9 +1463,12 @@ static int should_skip_word(const char *word) {
 /**
  * @brief Case-insensitive string comparison.
  */
-static int custom_strcasecmp(const char *s1, const char *s2) {
-    while (*s1 && *s2) {
-        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) {
+static int custom_strcasecmp(const char *s1, const char *s2)
+{
+    while (*s1 && *s2)
+    {
+        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2))
+        {
             return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
         }
         s1++;
@@ -1304,17 +1480,23 @@ static int custom_strcasecmp(const char *s1, const char *s2) {
 /**
  * @brief Case-insensitive substring search.
  */
-static const char *custom_strcasestr(const char *haystack, const char *needle) {
-    if (!*needle) return haystack;
+static const char *custom_strcasestr(const char *haystack, const char *needle)
+{
+    if (!*needle)
+        return haystack;
 
-    for (; *haystack; haystack++) {
-        if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle)) {
+    for (; *haystack; haystack++)
+    {
+        if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle))
+        {
             const char *h = haystack, *n = needle;
-            while (*h && *n && tolower((unsigned char)*h) == tolower((unsigned char)*n)) {
+            while (*h && *n && tolower((unsigned char)*h) == tolower((unsigned char)*n))
+            {
                 h++;
                 n++;
             }
-            if (!*n) return haystack;
+            if (!*n)
+                return haystack;
         }
     }
     return null;
@@ -1324,35 +1506,45 @@ static const char *custom_strcasestr(const char *haystack, const char *needle) {
  * @brief Look up a suggested alternative for a given word, checking both custom filters and predefined suggestions.
  * AI trick: fuzzy match with threshold, prefer exact, then fuzzy, then grammar.
  */
-static const char *maip_io_soap_get_suggestion(const char *word) {
-    if (should_skip_word(word)) {
+static const char *maip_io_soap_get_suggestion(const char *word)
+{
+    if (should_skip_word(word))
+    {
         return null;
     }
 
     // Check in custom filters first
-    for (size_t i = 0; i < MAX_CUSTOM_FILTERS && custom_filters[i] != null; i++) {
-        if (custom_strcasecmp(word, custom_filters[i]) == 0) {
-            return custom_filters[i];  // Use the custom filter word itself as suggestion
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS && custom_filters[i] != null; i++)
+    {
+        if (custom_strcasecmp(word, custom_filters[i]) == 0)
+        {
+            return custom_filters[i]; // Use the custom filter word itself as suggestion
         }
-        if (fuzzy_match(word, custom_filters[i]) <= 2) {
-            return custom_filters[i];  // Return fuzzy match result
+        if (fuzzy_match(word, custom_filters[i]) <= 2)
+        {
+            return custom_filters[i]; // Return fuzzy match result
         }
     }
 
     // Check in predefined suggestions
-    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
-        if (custom_strcasecmp(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 0) {
+    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++)
+    {
+        if (custom_strcasecmp(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 0)
+        {
             return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
         }
         // AI trick: fuzzy match for slang, but only if word is at least 4 chars
-        if (strlen(word) >= 4 && fuzzy_match(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 1) {
+        if (strlen(word) >= 4 && fuzzy_match(word, FOSSIL_SOAP_SUGGESTIONS[i].bad) == 1)
+        {
             return FOSSIL_SOAP_SUGGESTIONS[i].suggested;
         }
     }
 
     // Check in grammar suggestions
-    for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect != null; i++) {
-        if (custom_strcasecmp(word, FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect) == 0) {
+    for (size_t i = 0; FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect != null; i++)
+    {
+        if (custom_strcasecmp(word, FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].incorrect) == 0)
+        {
             return FOSSIL_SOAP_GRAMMAR_SUGGESTIONS[i].correct;
         }
     }
@@ -1366,32 +1558,46 @@ static const char *maip_io_soap_get_suggestion(const char *word) {
  * @return Newly allocated sanitized string.
  * AI trick: preserve original punctuation, handle leetspeak, use fuzzy match.
  */
-char *maip_io_soap_sanitize(const char *text) {
-    if (!text) return null;
+char *maip_io_soap_sanitize(const char *text)
+{
+    if (!text)
+        return null;
 
     size_t len = strlen(text);
     char *output = (char *)malloc(len * 2 + 1); // Allocate more space to handle replacements
-    if (!output) return null;
+    if (!output)
+        return null;
 
     size_t out_idx = 0;
     char word[64];
     size_t word_idx = 0;
 
-    for (size_t i = 0; text[i] != '\0'; i++) {
-        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-') {
+    for (size_t i = 0; text[i] != '\0'; i++)
+    {
+        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-')
+        {
             word[word_idx++] = text[i];
-            if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
-        } else {
+            if (word_idx >= sizeof(word) - 1)
+                word_idx = sizeof(word) - 2;
+        }
+        else
+        {
             word[word_idx] = '\0';
-            if (word_idx > 0) {
+            if (word_idx > 0)
+            {
                 maip_io_soap_normalize_leetspeak(word);
                 const char *suggested = maip_io_soap_get_suggestion(word);
-                if (suggested && !should_skip_word(word)) {
-                    for (size_t j = 0; j < strlen(suggested); j++) {
+                if (suggested && !should_skip_word(word))
+                {
+                    for (size_t j = 0; j < strlen(suggested); j++)
+                    {
                         output[out_idx++] = suggested[j];
                     }
-                } else {
-                    for (size_t j = 0; j < word_idx; j++) {
+                }
+                else
+                {
+                    for (size_t j = 0; j < word_idx; j++)
+                    {
                         output[out_idx++] = word[j];
                     }
                 }
@@ -1401,15 +1607,21 @@ char *maip_io_soap_sanitize(const char *text) {
         }
     }
     word[word_idx] = '\0';
-    if (word_idx > 0) {
+    if (word_idx > 0)
+    {
         maip_io_soap_normalize_leetspeak(word);
         const char *suggested = maip_io_soap_get_suggestion(word);
-        if (suggested && !should_skip_word(word)) {
-            for (size_t j = 0; j < strlen(suggested); j++) {
+        if (suggested && !should_skip_word(word))
+        {
+            for (size_t j = 0; j < strlen(suggested); j++)
+            {
                 output[out_idx++] = suggested[j];
             }
-        } else {
-            for (size_t j = 0; j < word_idx; j++) {
+        }
+        else
+        {
+            for (size_t j = 0; j < word_idx; j++)
+            {
                 output[out_idx++] = word[j];
             }
         }
@@ -1422,30 +1634,42 @@ char *maip_io_soap_sanitize(const char *text) {
  * @brief Suggest improved wording for meme/rot-brain language.
  * AI trick: same as sanitize, but always prefer suggestion if available.
  */
-char *maip_io_soap_suggest(const char *text) {
-    if (!text) return null;
+char *maip_io_soap_suggest(const char *text)
+{
+    if (!text)
+        return null;
 
     size_t len = strlen(text);
     char *output = (char *)malloc(len * 2 + 64); // Allocate more space to handle replacements
-    if (!output) return null;
+    if (!output)
+        return null;
 
     size_t out_idx = 0;
     char word[64];
     size_t word_idx = 0;
 
-    for (size_t i = 0; text[i] != '\0'; i++) {
-        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-') {
+    for (size_t i = 0; text[i] != '\0'; i++)
+    {
+        if (isalnum((unsigned char)text[i]) || text[i] == '\'' || text[i] == '-')
+        {
             word[word_idx++] = text[i];
-            if (word_idx >= sizeof(word) - 1) word_idx = sizeof(word) - 2;
-        } else {
+            if (word_idx >= sizeof(word) - 1)
+                word_idx = sizeof(word) - 2;
+        }
+        else
+        {
             word[word_idx] = '\0';
-            if (word_idx > 0) {
+            if (word_idx > 0)
+            {
                 maip_io_soap_normalize_leetspeak(word);
                 const char *suggested = maip_io_soap_get_suggestion(word);
-                if (suggested && !should_skip_word(word)) {
+                if (suggested && !should_skip_word(word))
+                {
                     strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
                     out_idx += strlen(suggested);
-                } else {
+                }
+                else
+                {
                     strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
                     out_idx += word_idx;
                 }
@@ -1455,13 +1679,17 @@ char *maip_io_soap_suggest(const char *text) {
         }
     }
     word[word_idx] = '\0';
-    if (word_idx > 0) {
+    if (word_idx > 0)
+    {
         maip_io_soap_normalize_leetspeak(word);
         const char *suggested = maip_io_soap_get_suggestion(word);
-        if (suggested && !should_skip_word(word)) {
+        if (suggested && !should_skip_word(word))
+        {
             strncpy(&output[out_idx], suggested, len * 2 + 64 - out_idx);
             out_idx += strlen(suggested);
-        } else {
+        }
+        else
+        {
             strncpy(&output[out_idx], word, len * 2 + 64 - out_idx);
             out_idx += word_idx;
         }
@@ -1474,17 +1702,23 @@ char *maip_io_soap_suggest(const char *text) {
  * @brief Add a custom word or phrase to the filter.
  * AI trick: lowercase and deduplicate.
  */
-int maip_io_soap_add_custom_filter(const char *phrase) {
+int maip_io_soap_add_custom_filter(const char *phrase)
+{
     // Deduplicate
-    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
-        if (custom_filters[i] && custom_strcasecmp(custom_filters[i], phrase) == 0) {
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++)
+    {
+        if (custom_filters[i] && custom_strcasecmp(custom_filters[i], phrase) == 0)
+        {
             return 0;
         }
     }
-    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++) {
-        if (custom_filters[i] == null) {
+    for (size_t i = 0; i < MAX_CUSTOM_FILTERS; i++)
+    {
+        if (custom_filters[i] == null)
+        {
             size_t j = 0;
-            while (phrase[j] != '\0' && j < sizeof(custom_storage[i]) - 1) {
+            while (phrase[j] != '\0' && j < sizeof(custom_storage[i]) - 1)
+            {
                 custom_storage[i][j] = tolower((unsigned char)phrase[j]);
                 j++;
             }
@@ -1499,7 +1733,8 @@ int maip_io_soap_add_custom_filter(const char *phrase) {
 /**
  * @brief Clear all custom filters.
  */
-void maip_io_soap_clear_custom_filters(void) {
+void maip_io_soap_clear_custom_filters(void)
+{
     memset(custom_filters, 0, sizeof(custom_filters));
 }
 
@@ -1507,15 +1742,20 @@ void maip_io_soap_clear_custom_filters(void) {
  * @brief Detect tone of the text using phrase lookup.
  * AI trick: prioritize sarcastic, then formal, else casual.
  */
-const char *maip_io_soap_detect_tone(const char *text) {
-    for (size_t i = 0; SARCASTIcpp_PHRASES[i] != null; i++) {
-        if (custom_strcasestr(text, SARCASTIcpp_PHRASES[i])) {
+const char *maip_io_soap_detect_tone(const char *text)
+{
+    for (size_t i = 0; SARCASTIcpp_PHRASES[i] != null; i++)
+    {
+        if (custom_strcasestr(text, SARCASTIcpp_PHRASES[i]))
+        {
             return "sarcastic";
         }
     }
 
-    for (size_t i = 0; FORMAL_PHRASES[i] != null; i++) {
-        if (custom_strcasestr(text, FORMAL_PHRASES[i])) {
+    for (size_t i = 0; FORMAL_PHRASES[i] != null; i++)
+    {
+        if (custom_strcasestr(text, FORMAL_PHRASES[i]))
+        {
             return "formal";
         }
     }
@@ -1527,11 +1767,15 @@ const char *maip_io_soap_detect_tone(const char *text) {
  * @brief Detect if text contains rot-brain language.
  * AI trick: use substring search for slang.
  */
-int maip_io_is_rot_brain(const char *text) {
-    if (!text) return 0;
+int maip_io_is_rot_brain(const char *text)
+{
+    if (!text)
+        return 0;
 
-    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++) {
-        if (custom_strcasestr(text, FOSSIL_SOAP_SUGGESTIONS[i].bad)) {
+    for (size_t i = 0; FOSSIL_SOAP_SUGGESTIONS[i].bad != null; i++)
+    {
+        if (custom_strcasestr(text, FOSSIL_SOAP_SUGGESTIONS[i].bad))
+        {
             return 1;
         }
     }
@@ -1542,50 +1786,61 @@ int maip_io_is_rot_brain(const char *text) {
 // memory management
 // *****************************************************************************
 
-maip_sys_memory_t maip_sys_memory_alloc(size_t size) {
-    if (size == 0) {
+maip_sys_memory_t maip_sys_memory_alloc(size_t size)
+{
+    if (size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_alloc() - Cannot allocate zero bytes.\n");
         return null;
     }
-    
+
     maip_sys_memory_t ptr = malloc(size);
-    if (!ptr) {
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_alloc() - Memory allocation failed.\n");
         return null;
     }
     return ptr;
 }
 
-maip_sys_memory_t maip_sys_memory_realloc(maip_sys_memory_t ptr, size_t size) {
+maip_sys_memory_t maip_sys_memory_realloc(maip_sys_memory_t ptr, size_t size)
+{
     maip_sys_memory_t new_ptr = realloc(ptr, size);
-    if (!new_ptr && size > 0) {
+    if (!new_ptr && size > 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_realloc() - Memory reallocation failed.\n");
         return null;
     }
     return new_ptr;
 }
 
-maip_sys_memory_t maip_sys_memory_calloc(size_t num, size_t size) {
-    if (num == 0 || size == 0) {
+maip_sys_memory_t maip_sys_memory_calloc(size_t num, size_t size)
+{
+    if (num == 0 || size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_calloc() - Cannot allocate zero elements or zero bytes.\n");
         return null;
     }
 
     maip_sys_memory_t ptr = calloc(num, size);
-    if (!ptr) {
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_calloc() - Memory allocation failed.\n");
         return null;
     }
     return ptr;
 }
 
-maip_sys_memory_t maip_sys_memory_init(maip_sys_memory_t ptr, size_t size, int32_t value) {
-    if (!ptr) {
+maip_sys_memory_t maip_sys_memory_init(maip_sys_memory_t ptr, size_t size, int32_t value)
+{
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_init() - Pointer is null.\n");
         return null;
     }
 
-    if (size == 0) {
+    if (size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_init() - Cannot initialize zero bytes.\n");
         return null;
     }
@@ -1593,62 +1848,76 @@ maip_sys_memory_t maip_sys_memory_init(maip_sys_memory_t ptr, size_t size, int32
     return memset(ptr, value, size);
 }
 
-void maip_sys_memory_free(maip_sys_memory_t ptr) {
-    if (!ptr) {
+void maip_sys_memory_free(maip_sys_memory_t ptr)
+{
+    if (!ptr)
+    {
         return;
     }
     free(ptr); // No need for null check, free() already handles null.
 }
 
-maip_sys_memory_t maip_sys_memory_copy(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size) {
-    if (!dest || !src) {
+maip_sys_memory_t maip_sys_memory_copy(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size)
+{
+    if (!dest || !src)
+    {
         fprintf(stderr, "Error: maip_sys_memory_copy() - Source or destination is null.\n");
         return null;
     }
 
-    if (size == 0) {
+    if (size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_copy() - Cannot copy zero bytes.\n");
         return null;
     }
-    
+
     return memcpy(dest, src, size);
 }
 
-maip_sys_memory_t maip_sys_memory_set(maip_sys_memory_t ptr, int32_t value, size_t size) {
-    if (!ptr) {
+maip_sys_memory_t maip_sys_memory_set(maip_sys_memory_t ptr, int32_t value, size_t size)
+{
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_set() - Pointer is null.\n");
         return null;
     }
 
-    if (size == 0) {
+    if (size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_set() - Cannot set zero bytes.\n");
         return null;
     }
-    
+
     return memset(ptr, value, size);
 }
 
-maip_sys_memory_t maip_sys_memory_dup(const maip_sys_memory_t src, size_t size) {
-    if (!src || size == 0) {
+maip_sys_memory_t maip_sys_memory_dup(const maip_sys_memory_t src, size_t size)
+{
+    if (!src || size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_dup() - Invalid source or zero size.\n");
         return null;
     }
 
     maip_sys_memory_t dest = maip_sys_memory_alloc(size);
-    if (!dest) {
-        return null;  // Error already handled in maip_sys_memory_alloc
+    if (!dest)
+    {
+        return null; // Error already handled in maip_sys_memory_alloc
     }
 
     return memcpy(dest, src, size);
 }
 
-maip_sys_memory_t maip_sys_memory_zero(maip_sys_memory_t ptr, size_t size) {
-    if (!ptr) {
+maip_sys_memory_t maip_sys_memory_zero(maip_sys_memory_t ptr, size_t size)
+{
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_zero() - Pointer is null.\n");
         return null;
     }
 
-    if (size == 0) {
+    if (size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_zero() - Cannot zero out zero bytes.\n");
         return null;
     }
@@ -1656,17 +1925,21 @@ maip_sys_memory_t maip_sys_memory_zero(maip_sys_memory_t ptr, size_t size) {
     return memset(ptr, 0, size);
 }
 
-int maip_sys_memory_compare(const maip_sys_memory_t ptr1, const maip_sys_memory_t ptr2, size_t size) {
-    if (!ptr1 || !ptr2 || size == 0) {
+int maip_sys_memory_compare(const maip_sys_memory_t ptr1, const maip_sys_memory_t ptr2, size_t size)
+{
+    if (!ptr1 || !ptr2 || size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_compare() - Invalid pointers or zero size.\n");
-        return -1;  // Return -1 for invalid input
+        return -1; // Return -1 for invalid input
     }
 
     return memcmp(ptr1, ptr2, size);
 }
 
-maip_sys_memory_t maip_sys_memory_move(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size) {
-    if (!dest || !src || size == 0) {
+maip_sys_memory_t maip_sys_memory_move(maip_sys_memory_t dest, const maip_sys_memory_t src, size_t size)
+{
+    if (!dest || !src || size == 0)
+    {
         fprintf(stderr, "Error: maip_sys_memory_move() - Invalid source or destination pointers, or zero size.\n");
         return null;
     }
@@ -1674,21 +1947,26 @@ maip_sys_memory_t maip_sys_memory_move(maip_sys_memory_t dest, const maip_sys_me
     return memmove(dest, src, size);
 }
 
-maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size, size_t new_size) {
-    if (!ptr) {
+maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size, size_t new_size)
+{
+    if (!ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_resize() - Pointer is null.\n");
         return NULL;
     }
 
-    if (new_size == 0) {
+    if (new_size == 0)
+    {
         maip_sys_memory_free(ptr);
         return NULL;
     }
 
-    if (new_size <= old_size) {
+    if (new_size <= old_size)
+    {
         // Shrinking, just realloc (no data copy needed)
         maip_sys_memory_t new_ptr = maip_sys_memory_realloc(ptr, new_size);
-        if (!new_ptr) {
+        if (!new_ptr)
+        {
             fprintf(stderr, "Error: maip_sys_memory_resize() - Memory shrink failed, original preserved.\n");
             return ptr;
         }
@@ -1697,7 +1975,8 @@ maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size,
 
     // Allocate new memory manually to preserve old data
     maip_sys_memory_t new_ptr = maip_sys_memory_alloc(new_size);
-    if (!new_ptr) {
+    if (!new_ptr)
+    {
         fprintf(stderr, "Error: maip_sys_memory_resize() - Allocation failed.\n");
         return ptr;
     }
@@ -1711,8 +1990,10 @@ maip_sys_memory_t maip_sys_memory_resize(maip_sys_memory_t ptr, size_t old_size,
     return new_ptr;
 }
 
-bool maip_sys_memory_is_valid(const maip_sys_memory_t ptr) {
-    if (!ptr) {
+bool maip_sys_memory_is_valid(const maip_sys_memory_t ptr)
+{
+    if (!ptr)
+    {
         return false;
     }
     // Optional: Add more validation logic if needed, but normally you'd rely on the caller to manage validity.
@@ -1830,114 +2111,192 @@ int32_t MAIP_IO_COLOR_ENABLE = 1; // Flag to enable/disable color output
 #define FOSSIL_IO_ATTR_RESET_STRIKE "\033[29m"
 
 // Additional attributes
-#define FOSSIL_IO_ATTR_ITALIC       "\033[3m"
+#define FOSSIL_IO_ATTR_ITALIC "\033[3m"
 #define FOSSIL_IO_ATTR_STRIKETHROUGH "\033[9m"
 
 #define FOSSIL_IO_BUFFER_SIZE 1000
 
 // Function to apply color
-void maip_io_apply_color(const char *color) {
-    if (maip_io_cstr_compare(color, "red") == 0) {
+void maip_io_apply_color(const char *color)
+{
+    if (maip_io_cstr_compare(color, "red") == 0)
+    {
         printf(FOSSIL_IO_COLOR_RED);
-    } else if (maip_io_cstr_compare(color, "green") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "green") == 0)
+    {
         printf(FOSSIL_IO_COLOR_GREEN);
-    } else if (maip_io_cstr_compare(color, "yellow") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "yellow") == 0)
+    {
         printf(FOSSIL_IO_COLOR_YELLOW);
-    } else if (maip_io_cstr_compare(color, "blue") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "blue") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BLUE);
-    } else if (maip_io_cstr_compare(color, "magenta") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "magenta") == 0)
+    {
         printf(FOSSIL_IO_COLOR_MAGENTA);
-    } else if (maip_io_cstr_compare(color, "cyan") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "cyan") == 0)
+    {
         printf(FOSSIL_IO_COLOR_CYAN);
-    } else if (maip_io_cstr_compare(color, "white") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "white") == 0)
+    {
         printf(FOSSIL_IO_COLOR_WHITE);
-    } else if (maip_io_cstr_compare(color, "black") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "black") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BLACK);
-    } else if (maip_io_cstr_compare(color, "orange") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "orange") == 0)
+    {
         printf(FOSSIL_IO_COLOR_ORANGE);
-    } else if (maip_io_cstr_compare(color, "gray") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "gray") == 0)
+    {
         printf(FOSSIL_IO_COLOR_GRAY);
-    } else if (maip_io_cstr_compare(color, "pink") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "pink") == 0)
+    {
         printf(FOSSIL_IO_COLOR_PINK);
-    } else if (maip_io_cstr_compare(color, "purple") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "purple") == 0)
+    {
         printf(FOSSIL_IO_COLOR_PURPLE);
-    } else if (maip_io_cstr_compare(color, "brown") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "brown") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BROWN);
-    } else if (maip_io_cstr_compare(color, "teal") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "teal") == 0)
+    {
         printf(FOSSIL_IO_COLOR_TEAL);
-    } else if (maip_io_cstr_compare(color, "silver") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "silver") == 0)
+    {
         printf(FOSSIL_IO_COLOR_SILVER);
     }
 
     // Bright colors
-    else if (maip_io_cstr_compare(color, "bright_red") == 0) {
+    else if (maip_io_cstr_compare(color, "bright_red") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_RED);
-    } else if (maip_io_cstr_compare(color, "bright_green") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_green") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_GREEN);
-    } else if (maip_io_cstr_compare(color, "bright_yellow") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_yellow") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_YELLOW);
-    } else if (maip_io_cstr_compare(color, "bright_blue") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_blue") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_BLUE);
-    } else if (maip_io_cstr_compare(color, "bright_magenta") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_magenta") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_MAGENTA);
-    } else if (maip_io_cstr_compare(color, "bright_cyan") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_cyan") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_CYAN);
-    } else if (maip_io_cstr_compare(color, "bright_white") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_white") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_WHITE);
-    } else if (maip_io_cstr_compare(color, "bright_black") == 0) {
+    }
+    else if (maip_io_cstr_compare(color, "bright_black") == 0)
+    {
         printf(FOSSIL_IO_COLOR_BRIGHT_BLACK);
-    } else {
+    }
+    else
+    {
         printf(FOSSIL_IO_COLOR_RESET); // Reset to default if color not recognized
     }
 }
 
 // Function to apply text attributes (e.g., bold, underline)
-void maip_io_apply_attribute(const char *attribute) {
-    if (maip_io_cstr_compare(attribute, "bold") == 0) {
+void maip_io_apply_attribute(const char *attribute)
+{
+    if (maip_io_cstr_compare(attribute, "bold") == 0)
+    {
         printf(FOSSIL_IO_ATTR_BOLD);
-    } else if (maip_io_cstr_compare(attribute, "underline") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "underline") == 0)
+    {
         printf(FOSSIL_IO_ATTR_UNDERLINE);
-    } else if (maip_io_cstr_compare(attribute, "reversed") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "reversed") == 0)
+    {
         printf(FOSSIL_IO_ATTR_REVERSED);
-    } else if (maip_io_cstr_compare(attribute, "blink") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "blink") == 0)
+    {
         printf(FOSSIL_IO_ATTR_BLINK);
-    } else if (maip_io_cstr_compare(attribute, "hidden") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "hidden") == 0)
+    {
         printf(FOSSIL_IO_ATTR_HIDDEN);
-    } else if (maip_io_cstr_compare(attribute, "normal") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "normal") == 0)
+    {
         printf(FOSSIL_IO_ATTR_NORMAL);
-    } else if (maip_io_cstr_compare(attribute, "italic") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "italic") == 0)
+    {
         printf(FOSSIL_IO_ATTR_ITALIC);
-    } else if (maip_io_cstr_compare(attribute, "strikethrough") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "strikethrough") == 0)
+    {
         printf(FOSSIL_IO_ATTR_STRIKETHROUGH);
-    } else if (maip_io_cstr_compare(attribute, "dim") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "dim") == 0)
+    {
         printf(FOSSIL_IO_ATTR_DIM);
-    } else if (maip_io_cstr_compare(attribute, "reset") == 0) {
+    }
+    else if (maip_io_cstr_compare(attribute, "reset") == 0)
+    {
         printf(FOSSIL_IO_ATTR_NORMAL); // Reset to normal if attribute not recognized
     }
 }
 
 // Function to handle named positions (like top, bottom, left, right)
-void maip_io_apply_position(const char *pos) {
-    if (maip_io_cstr_compare(pos, "top") == 0) {
+void maip_io_apply_position(const char *pos)
+{
+    if (maip_io_cstr_compare(pos, "top") == 0)
+    {
         // Apply position logic for top
         printf("\033[H"); // Move cursor to the top
-    } else if (maip_io_cstr_compare(pos, "bottom") == 0) {
+    }
+    else if (maip_io_cstr_compare(pos, "bottom") == 0)
+    {
         // Apply position logic for bottom
         printf("\033[999;1H"); // Move cursor to the bottom (example within reasonable bounds)
-    } else if (maip_io_cstr_compare(pos, "left") == 0) {
+    }
+    else if (maip_io_cstr_compare(pos, "left") == 0)
+    {
         // Apply position logic for left
         printf("\033[1;1H"); // Move cursor to the top-left corner
-    } else if (maip_io_cstr_compare(pos, "right") == 0) {
+    }
+    else if (maip_io_cstr_compare(pos, "right") == 0)
+    {
         // Apply position logic for right
         printf("\033[1;999H"); // Move cursor to the top-right corner (example within reasonable bounds)
-    } else if (maip_io_cstr_compare(pos, "center") == 0) {
+    }
+    else if (maip_io_cstr_compare(pos, "center") == 0)
+    {
         // Apply position logic for center
         printf("\033[12;40H"); // Move cursor to the center (example within reasonable bounds)
     }
 }
 
 // Function to print text with attributes, colors, positions, and format specifiers
-void maip_io_print_with_attributes(const char *format, ...) {
+void maip_io_print_with_attributes(const char *format, ...)
+{
     va_list args;
     va_start(args, format);
 
@@ -1951,13 +2310,15 @@ void maip_io_print_with_attributes(const char *format, ...) {
     const char *end = null;
 
     // Iterate over the buffer and process color/attribute/position inside `{}` and format specifiers
-    while ((start = strchr(current_pos, '{')) != null) {
+    while ((start = strchr(current_pos, '{')) != null)
+    {
         // Print text before '{'
         printf("%.*s", (int)(start - current_pos), current_pos);
-        
+
         // Find the matching '}'
         end = strchr(start, '}');
-        if (end) {
+        if (end)
+        {
             // Extract attributes inside '{}'
             size_t length = end - start - 1;
             char attributes[length + 1];
@@ -1969,21 +2330,28 @@ void maip_io_print_with_attributes(const char *format, ...) {
             char *attribute = null;
             char *pos = null;
             char *comma_pos = strchr(attributes, ',');
-            if (comma_pos) {
-                *comma_pos = '\0';  // null-terminate the first part
-                color = attributes; // Color or position part
+            if (comma_pos)
+            {
+                *comma_pos = '\0';         // null-terminate the first part
+                color = attributes;        // Color or position part
                 attribute = comma_pos + 1; // Attribute part
-            } else {
+            }
+            else
+            {
                 color = attributes; // Only one part (could be color, attribute, or position)
             }
 
             // Handle positions (like {pos:name})
-            if (strstr(color, "pos:") == color) {
+            if (strstr(color, "pos:") == color)
+            {
                 pos = color + 4; // Skip the "pos:" prefix
                 maip_io_apply_position(pos);
-            } else {
+            }
+            else
+            {
                 // Apply color and/or attribute based on flags
-                if (MAIP_IO_COLOR_ENABLE && color) {
+                if (MAIP_IO_COLOR_ENABLE && color)
+                {
                     maip_io_apply_color(color);
                 }
                 maip_io_apply_attribute(attribute);
@@ -2001,8 +2369,10 @@ void maip_io_print_with_attributes(const char *format, ...) {
 }
 
 // Function to print a sanitized formatted string to a specific file stream with attributes
-void maip_io_fprint_with_attributes(maip_fstream_t *stream, const char *str) {
-    if (str != null && stream != null) {
+void maip_io_fprint_with_attributes(maip_fstream_t *stream, const char *str)
+{
+    if (str != null && stream != null)
+    {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
@@ -2012,7 +2382,9 @@ void maip_io_fprint_with_attributes(maip_fstream_t *stream, const char *str) {
 
         // Write the sanitized string to the stream
         fputs(sanitized_str, stream->file);
-    } else {
+    }
+    else
+    {
         fputs("cnullptr\n", stderr);
     }
 }
@@ -2022,26 +2394,32 @@ void maip_io_fprint_with_attributes(maip_fstream_t *stream, const char *str) {
 //
 
 // Function to print a sanitized string with attributes inside {}
-void maip_io_puts(const char *str) {
-    if (str != null) {
+void maip_io_puts(const char *str)
+{
+    if (str != null)
+    {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
-        
+
         // Print the sanitized string with attributes
         maip_io_print_with_attributes(sanitized_str);
-    } else {
+    }
+    else
+    {
         fputs("cnullptr\n", stderr);
     }
 }
 
 // Function to print a single character
-void maip_io_putchar(char c) {
+void maip_io_putchar(char c)
+{
     putchar(c);
 }
 
 // Function to print sanitized formatted output with attributes
-void maip_io_printf(const char *format, ...) {
+void maip_io_printf(const char *format, ...)
+{
     va_list args;
     va_start(args, format);
 
@@ -2055,8 +2433,10 @@ void maip_io_printf(const char *format, ...) {
     va_end(args);
 }
 
-int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args) {
-    if (buffer == null || size == 0 || format == null) {
+int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list args)
+{
+    if (buffer == null || size == 0 || format == null)
+    {
         return -1; // Invalid input
     }
 
@@ -2064,7 +2444,8 @@ int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list arg
     char temp_buffer[FOSSIL_IO_BUFFER_SIZE];
     int formatted_length = vsnprintf(temp_buffer, sizeof(temp_buffer), format, args);
 
-    if (formatted_length < 0 || (size_t)formatted_length >= size) {
+    if (formatted_length < 0 || (size_t)formatted_length >= size)
+    {
         // Truncate the string if it exceeds the provided buffer size
         strncpy(buffer, temp_buffer, size - 1);
         buffer[size - 1] = '\0'; // Ensure null termination
@@ -2078,21 +2459,26 @@ int maip_io_vsnprintf(char *buffer, size_t size, const char *format, va_list arg
 }
 
 // Function to print a sanitized string to a specific file stream
-void maip_io_fputs(maip_fstream_t *stream, const char *str) {
-    if (str != null && stream != null) {
+void maip_io_fputs(maip_fstream_t *stream, const char *str)
+{
+    if (str != null && stream != null)
+    {
         char sanitized_str[FOSSIL_IO_BUFFER_SIZE];
         strncpy(sanitized_str, str, sizeof(sanitized_str));
         sanitized_str[sizeof(sanitized_str) - 1] = '\0'; // Ensure null termination
 
         // Apply color/attributes and sanitize the string before printing
         maip_io_fprint_with_attributes(stream, sanitized_str);
-    } else {
+    }
+    else
+    {
         fputs("cnullptr\n", stderr);
     }
 }
 
 // Function to print a sanitized formatted string to a specific file stream
-void maip_io_fprintf(maip_fstream_t *stream, const char *format, ...) {
+void maip_io_fprintf(maip_fstream_t *stream, const char *format, ...)
+{
     va_list args;
     va_start(args, format);
 
@@ -2108,37 +2494,46 @@ void maip_io_fprintf(maip_fstream_t *stream, const char *format, ...) {
 
 // TUI PART
 
-void maip_io_clear_screen(void) {
+void maip_io_clear_screen(void)
+{
     maip_io_printf("\033[2J\033[H");
 }
 
-void maip_io_move_cursor(int row, int col) {
+void maip_io_move_cursor(int row, int col)
+{
     maip_io_printf("\033[%d;%dH", row, col);
 }
 
-void maip_io_hide_cursor(void) {
+void maip_io_hide_cursor(void)
+{
     maip_io_printf("\033[?25l");
 }
 
-void maip_io_show_cursor(void) {
+void maip_io_show_cursor(void)
+{
     maip_io_printf("\033[?25h");
 }
 
-void maip_io_draw_horizontal_line(int length, char ch) {
-    for (int i = 0; i < length; ++i) {
+void maip_io_draw_horizontal_line(int length, char ch)
+{
+    for (int i = 0; i < length; ++i)
+    {
         putchar(ch);
     }
     putchar('\n');
 }
 
-void maip_io_draw_vertical_line(int length, char ch) {
-    for (int i = 0; i < length; ++i) {
+void maip_io_draw_vertical_line(int length, char ch)
+{
+    for (int i = 0; i < length; ++i)
+    {
         putchar(ch);
         putchar('\n');
     }
 }
 
-void maip_io_flush(void) {
+void maip_io_flush(void)
+{
     fflush(stdout);
 }
 
@@ -2168,103 +2563,136 @@ static int strncasecmp(const char *s1, const char *s2, size_t n) {
 // C String Functions
 // ============================================================================
 
-cstr maip_io_cstr_create(const char *init) {
-    if (!init) return null;
+cstr maip_io_cstr_create(const char *init)
+{
+    if (!init)
+        return null;
     size_t length = strlen(init);
     cstr str = (cstr)malloc(length + 1);
-    if (str) {
+    if (str)
+    {
         strcpy(str, init);
     }
     return str;
 }
 
-void maip_io_cstr_free(cstr str) {
-    if (str) {
+void maip_io_cstr_free(cstr str)
+{
+    if (str)
+    {
         free(str);
     }
 }
 
-cstr maip_io_cstr_copy(ccstr str) {
-    if (!str) return null;
+cstr maip_io_cstr_copy(ccstr str)
+{
+    if (!str)
+        return null;
     return maip_io_cstr_create(str);
 }
 
-cstr maip_io_cstr_dup(ccstr str) {
-    if (!str) return null;
+cstr maip_io_cstr_dup(ccstr str)
+{
+    if (!str)
+        return null;
     size_t length = strlen(str);
     cstr new_str = (cstr)malloc(length + 1);
-    if (new_str) {
+    if (new_str)
+    {
         strcpy(new_str, str);
     }
     return new_str;
 }
 
-cstr maip_io_cstr_concat(ccstr s1, ccstr s2) {
-    if (!s1 || !s2) return null;
+cstr maip_io_cstr_concat(ccstr s1, ccstr s2)
+{
+    if (!s1 || !s2)
+        return null;
     size_t length1 = strlen(s1);
     size_t length2 = strlen(s2);
     cstr str = (cstr)malloc(length1 + length2 + 1);
-    if (str) {
+    if (str)
+    {
         strcpy(str, s1);
         strcpy(str + length1, s2);
     }
     return str;
 }
 
-size_t maip_io_cstr_length(ccstr str) {
-    if (!str) return 0;
+size_t maip_io_cstr_length(ccstr str)
+{
+    if (!str)
+        return 0;
     return strlen(str);
 }
 
-int maip_io_cstr_compare(ccstr s1, ccstr s2) {
-    if (!s1 || !s2) return -1;
+int maip_io_cstr_compare(ccstr s1, ccstr s2)
+{
+    if (!s1 || !s2)
+        return -1;
     return strcmp(s1, s2);
 }
 
-void maip_io_cstr_trim(cstr str) {
-    if (!str) return;
+void maip_io_cstr_trim(cstr str)
+{
+    if (!str)
+        return;
     size_t length = strlen(str);
     size_t start = 0;
     size_t end = length - 1;
-    while (start < length && isspace(str[start])) {
+    while (start < length && isspace(str[start]))
+    {
         start++;
     }
-    while (end > start && isspace(str[end])) {
+    while (end > start && isspace(str[end]))
+    {
         end--;
     }
     size_t count = end - start + 1;
-    if (start > 0) {
+    if (start > 0)
+    {
         memmove(str, str + start, count);
     }
     str[count] = '\0';
 }
 
-cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count) {
-    if (!str || !count) return null;
+cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count)
+{
+    if (!str || !count)
+        return null;
     size_t length = strlen(str);
     size_t num_delimiters = 0;
-    for (size_t i = 0; i < length; i++) {
-        if (str[i] == delimiter) {
+    for (size_t i = 0; i < length; i++)
+    {
+        if (str[i] == delimiter)
+        {
             num_delimiters++;
         }
     }
     *count = num_delimiters + 1;
-    cstr *result = (cstr*)malloc(*count * sizeof(cstr));
-    if (result) {
+    cstr *result = (cstr *)malloc(*count * sizeof(cstr));
+    if (result)
+    {
         size_t start = 0;
         size_t index = 0;
-        for (size_t i = 0; i < length; i++) {
-            if (str[i] == delimiter) {
+        for (size_t i = 0; i < length; i++)
+        {
+            if (str[i] == delimiter)
+            {
                 size_t count = i - start;
                 result[index] = (cstr)malloc(count + 1);
-                if (result[index]) {
+                if (result[index])
+                {
                     memcpy(result[index], str + start, count);
                     result[index][count] = '\0';
                     start = i + 1;
                     index++;
-                } else {
+                }
+                else
+                {
                     // Free previously allocated memory on error
-                    for (size_t j = 0; j < index; j++) {
+                    for (size_t j = 0; j < index; j++)
+                    {
                         free(result[j]);
                     }
                     free(result);
@@ -2274,12 +2702,16 @@ cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count) {
         }
         size_t count = length - start;
         result[index] = (cstr)malloc(count + 1);
-        if (result[index]) {
+        if (result[index])
+        {
             memcpy(result[index], str + start, count);
             result[index][count] = '\0';
-        } else {
+        }
+        else
+        {
             // Free previously allocated memory on error
-            for (size_t j = 0; j < index; j++) {
+            for (size_t j = 0; j < index; j++)
+            {
                 free(result[j]);
             }
             free(result);
@@ -2289,31 +2721,42 @@ cstr *maip_io_cstr_split(ccstr str, char delimiter, size_t *count) {
     return result;
 }
 
-cstr maip_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
-    if (!str || !old || !new_str) return null;
+cstr maip_io_cstr_replace(ccstr str, ccstr old, ccstr new_str)
+{
+    if (!str || !old || !new_str)
+        return null;
     size_t old_length = strlen(old);
     size_t new_length = strlen(new_str);
     size_t count = 0;
     size_t index = 0;
     size_t length = strlen(str);
-    while (index < length) {
-        if (strstr(str + index, old) == str + index) {
+    while (index < length)
+    {
+        if (strstr(str + index, old) == str + index)
+        {
             count++;
             index += old_length;
-        } else {
+        }
+        else
+        {
             index++;
         }
     }
     cstr result = (cstr)malloc(length + count * (new_length - old_length) + 1);
-    if (result) {
+    if (result)
+    {
         index = 0;
         size_t start = 0;
-        while (index < length) {
-            if (strstr(str + index, old) == str + index) {
+        while (index < length)
+        {
+            if (strstr(str + index, old) == str + index)
+            {
                 strcpy(result + start, new_str);
                 start += new_length;
                 index += old_length;
-            } else {
+            }
+            else
+            {
                 result[start] = str[index];
                 start++;
                 index++;
@@ -2324,12 +2767,16 @@ cstr maip_io_cstr_replace(ccstr str, ccstr old, ccstr new_str) {
     return result;
 }
 
-cstr maip_io_cstr_to_upper(cstr str) {
-    if (!str) return null;
+cstr maip_io_cstr_to_upper(cstr str)
+{
+    if (!str)
+        return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
-    if (result) {
-        for (size_t i = 0; i < length; i++) {
+    if (result)
+    {
+        for (size_t i = 0; i < length; i++)
+        {
             result[i] = toupper(str[i]);
         }
         result[length] = '\0';
@@ -2337,12 +2784,16 @@ cstr maip_io_cstr_to_upper(cstr str) {
     return result;
 }
 
-cstr maip_io_cstr_to_lower(cstr str) {
-    if (!str) return null;
+cstr maip_io_cstr_to_lower(cstr str)
+{
+    if (!str)
+        return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
-    if (result) {
-        for (size_t i = 0; i < length; i++) {
+    if (result)
+    {
+        for (size_t i = 0; i < length; i++)
+        {
             result[i] = tolower(str[i]);
         }
         result[length] = '\0';
@@ -2350,36 +2801,47 @@ cstr maip_io_cstr_to_lower(cstr str) {
     return result;
 }
 
-int maip_io_cstr_starts_with(ccstr str, ccstr prefix) {
-    if (!str || !prefix) return 0;
+int maip_io_cstr_starts_with(ccstr str, ccstr prefix)
+{
+    if (!str || !prefix)
+        return 0;
     size_t str_length = strlen(str);
     size_t prefix_length = strlen(prefix);
-    if (prefix_length > str_length) {
+    if (prefix_length > str_length)
+    {
         return 0;
     }
     return strncmp(str, prefix, prefix_length) == 0;
 }
 
-int maip_io_cstr_ends_with(ccstr str, ccstr suffix) {
-    if (!str || !suffix) return 0;
+int maip_io_cstr_ends_with(ccstr str, ccstr suffix)
+{
+    if (!str || !suffix)
+        return 0;
     size_t str_length = strlen(str);
     size_t suffix_length = strlen(suffix);
-    if (suffix_length > str_length) {
+    if (suffix_length > str_length)
+    {
         return 0;
     }
     return strncmp(str + str_length - suffix_length, suffix, suffix_length) == 0;
 }
 
-cstr maip_io_cstr_substring(ccstr str, size_t start, size_t length) {
-    if (!str) return null;
+cstr maip_io_cstr_substring(ccstr str, size_t start, size_t length)
+{
+    if (!str)
+        return null;
     size_t str_length = strlen(str);
-    if (start >= str_length) {
+    if (start >= str_length)
+    {
         return null;
     }
     cstr result = (cstr)malloc(length + 1);
-    if (result) {
+    if (result)
+    {
         size_t count = str_length - start;
-        if (length < count) {
+        if (length < count)
+        {
             count = length;
         }
         memcpy(result, str + start, count);
@@ -2388,12 +2850,16 @@ cstr maip_io_cstr_substring(ccstr str, size_t start, size_t length) {
     return result;
 }
 
-cstr maip_io_cstr_reverse(cstr str) {
-    if (!str) return null;
+cstr maip_io_cstr_reverse(cstr str)
+{
+    if (!str)
+        return null;
     size_t length = strlen(str);
     cstr result = (cstr)malloc(length + 1);
-    if (result) {
-        for (size_t i = 0; i < length; i++) {
+    if (result)
+    {
+        for (size_t i = 0; i < length; i++)
+        {
             result[i] = str[length - i - 1];
         }
         result[length] = '\0';
@@ -2401,18 +2867,24 @@ cstr maip_io_cstr_reverse(cstr str) {
     return result;
 }
 
-int maip_io_cstr_contains(ccstr str, ccstr substr) {
-    if (!str || !substr) return 0;
+int maip_io_cstr_contains(ccstr str, ccstr substr)
+{
+    if (!str || !substr)
+        return 0;
     return strstr(str, substr) != null;
 }
 
-cstr maip_io_cstr_repeat(ccstr str, size_t count) {
-    if (!str || count == 0) return null;
+cstr maip_io_cstr_repeat(ccstr str, size_t count)
+{
+    if (!str || count == 0)
+        return null;
     size_t length = strlen(str);
     size_t new_length = length * count;
     cstr result = (cstr)malloc(new_length + 1);
-    if (result) {
-        for (size_t i = 0; i < count; i++) {
+    if (result)
+    {
+        for (size_t i = 0; i < count; i++)
+        {
             memcpy(result + i * length, str, length);
         }
         result[new_length] = '\0';
@@ -2420,46 +2892,58 @@ cstr maip_io_cstr_repeat(ccstr str, size_t count) {
     return result;
 }
 
-cstr maip_io_cstr_strip(ccstr str, char ch) {
-    if (!str) return null;
+cstr maip_io_cstr_strip(ccstr str, char ch)
+{
+    if (!str)
+        return null;
     size_t length = strlen(str);
     size_t start = 0;
     size_t end = length - 1;
-    while (start < length && str[start] == ch) {
+    while (start < length && str[start] == ch)
+    {
         start++;
     }
-    while (end > start && str[end] == ch) {
+    while (end > start && str[end] == ch)
+    {
         end--;
     }
     size_t count = end - start + 1;
     cstr result = (cstr)malloc(count + 1);
-    if (result) {
+    if (result)
+    {
         memcpy(result, str + start, count);
         result[count] = '\0';
     }
     return result;
 }
 
-size_t maip_io_cstr_count(ccstr str, ccstr substr) {
-    if (!str || !substr) return 0;
+size_t maip_io_cstr_count(ccstr str, ccstr substr)
+{
+    if (!str || !substr)
+        return 0;
     size_t count = 0;
     size_t length = strlen(substr);
-    while ((str = strstr(str, substr)) != null) {
+    while ((str = strstr(str, substr)) != null)
+    {
         count++;
         str += length;
     }
     return count;
 }
 
-cstr maip_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
-    if (!str || total_length == 0) return null;
+cstr maip_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char)
+{
+    if (!str || total_length == 0)
+        return null;
     size_t length = strlen(str);
-    if (length >= total_length) {
+    if (length >= total_length)
+    {
         return maip_io_cstr_copy(str);
     }
     size_t pad_length = total_length - length;
     cstr result = (cstr)malloc(total_length + 1);
-    if (result) {
+    if (result)
+    {
         memset(result, pad_char, pad_length);
         strcpy(result + pad_length, str);
         result[total_length] = '\0';
@@ -2467,15 +2951,19 @@ cstr maip_io_cstr_pad_left(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-cstr maip_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
-    if (!str || total_length == 0) return null;
+cstr maip_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char)
+{
+    if (!str || total_length == 0)
+        return null;
     size_t length = strlen(str);
-    if (length >= total_length) {
+    if (length >= total_length)
+    {
         return maip_io_cstr_copy(str);
     }
     size_t pad_length = total_length - length;
     cstr result = (cstr)malloc(total_length + 1);
-    if (result) {
+    if (result)
+    {
         strcpy(result, str);
         memset(result + length, pad_char, pad_length);
         result[total_length] = '\0';
@@ -2483,22 +2971,27 @@ cstr maip_io_cstr_pad_right(ccstr str, size_t total_length, char pad_char) {
     return result;
 }
 
-bool maip_io_cstr_append(cstr dest, size_t max_len, cstr src) {
-    if (!dest || !src || max_len == 0) return false;
+bool maip_io_cstr_append(cstr dest, size_t max_len, cstr src)
+{
+    if (!dest || !src || max_len == 0)
+        return false;
 
     // Find current length of dest up to max_len
     size_t dest_len = 0;
-    while (dest_len < max_len && dest[dest_len] != '\0') {
+    while (dest_len < max_len && dest[dest_len] != '\0')
+    {
         ++dest_len;
     }
 
     // If no null-terminator found in range, dest is not safe
-    if (dest_len == max_len) return false;
+    if (dest_len == max_len)
+        return false;
 
     size_t srcpp_len = strlen(src);
 
     // Make sure there's enough space (including null terminator)
-    if (dest_len + srcpp_len >= max_len) return false;
+    if (dest_len + srcpp_len >= max_len)
+        return false;
 
     memcpy(dest + dest_len, src, srcpp_len);
     dest[dest_len + srcpp_len] = '\0';

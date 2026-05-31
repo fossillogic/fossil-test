@@ -1,3 +1,7 @@
+<p align="center">
+    <img src=".github/logo.png" alt="Fossil Test Logo" width="500"/>
+</p>
+
 # ***Fossil Test by Fossil Logic***
 
 **Fossil Test** is a unit testing framework from **Fossil Logic** designed for C and C++ projects that require precision, clarity, and control. It focuses on producing reliable, easy-to-understand test results while supporting detailed verification of logic, memory behavior, and system correctness. The framework is well-suited for low-level components, performance-critical code, and environments where predictable behavior matters.
@@ -33,37 +37,20 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `--info`         | Show detailed build, runtime, and framework information.                                     | Prints version, compiler, platform, build configuration, enabled features, and exits.         |
 | `--dry-run`      | Perform a dry run without executing commands.                                                | Sets an internal dry-run flag to simulate test execution.                                     |
 | `--host`         | Show information about the current host.                                                     | Prints system information.                                                                    |
-| `--help`         | Show this help message.                                                                      | Displays global usage instructions.                                                           |
+| `--help`         | Show help and usage information.                                                             | Displays global usage instructions, available commands, options, examples, and exits.         |
+| `help`           | Display help information for commands and options.                                           | Equivalent to `--help`; supports `help <command>` and `<command> --help` for detailed documentation. |
 | `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
 | `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.      |
 | `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against built-in criteria.        |
 | `shuffle`        | Shuffle tests with optional parameters.                                                      | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                  |
 | `show`           | Show test cases with optional parameters.                                                    | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
 | `color=<mode>`   | Set color mode.                                                                              | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).           |
-| `config=<file>`  | Specify a configuration file.                                                                | Must be named `maip_test.ini`; other filenames produce an error.                              |
+produce an error.                              |
 | `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil/light/dark/maga`.                                                            |
 | `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                     |
 | `report`         | Export test results for CI integration.                                                      | Supported formats: `json/fson/yaml/csv`.                                                      |
 
-> **Note:** In addition to the `--help` option, Fossil Test CLI supports `--help` and subcommand-specific help commands. You can use `<command> --help` (e.g., `run --help`) to display detailed usage information for any command or subcommand. This provides flexible ways to access documentation directly from the terminal.
-
-| Section | Key                   | Description                                                      | Notes / Valid Values                                                                 |
-|---------|----------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| general | theme                 | Set the theme for output.                                        | Options: `fossil/light/dark`.        |
-| test    | run.fail_fast         | Enable or disable fail-fast mode.                                | `0` = disabled, `1` = enabled.                                                     |
-| test    | run.only              | Specify which tests to run.                                      | Comma-separated list of test names; wildcards supported.                            |
-| test    | run.repeat            | Repeat test execution multiple times.                             | Integer value, e.g., `1` (default).                                               |
-| test    | filter.test_name      | Filter tests by name.                                            | Comma-separated list; wildcards supported.                                         |
-| test    | filter.suite_name     | Filter tests by suite name.                                      | Comma-separated list; wildcards supported.                                         |
-| test    | filter.tag            | Filter tests by tag.                                             | Must match `VALID_TAGS` or contain wildcard `*`.                                   |
-| test    | sort.by               | Sort tests by specified criteria.                                | Must match `VALID_CRITERIA`.                                                      |
-| test    | sort.order            | Set sort order.                                                  | Options: `asc`, `desc`.                                                           |
-| test    | shuffle.seed          | Seed for shuffling tests.                                        | Any string accepted as seed.                                                      |
-| test    | shuffle.count         | Number of tests to shuffle.                                      | Integer value.                                                                    |
-| test    | shuffle.by            | Criteria to shuffle by.                                          | Must match `VALID_CRITERIA`.                                                      |
-| mock    | …                     | Placeholder for future mock-related INI options.                 | Currently unimplemented.                                                          |
-| mark    | …                     | Placeholder for future mark-related INI options.                 | Currently unimplemented.                                                          |
-| sanity  | …                     | Placeholder for future sanity-related INI options.               | Currently unimplemented.                                                          |
+> **Help System:** Fossil Test CLI provides both global and command-specific help. Running `--help` displays the main usage guide, available commands, global options, examples, and general documentation. You can also request detailed help for any command by using `help <command>` or `<command> --help` (for example, `help run`, `run --help`, `help filter`, or `filter --help`). Command-specific help includes syntax, supported options, defaults, examples, and additional notes relevant to that command. This allows documentation to be accessed directly from the terminal without requiring external references.
 
 ---
 
