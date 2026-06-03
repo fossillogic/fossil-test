@@ -410,15 +410,15 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
         {
             G_MAIP_DRY_RUN = 1;
         }
-        else if (maip_io_cstr_compare(argv[i], "--version") == 0)
+        else if (maip_io_cstr_compare(argv[i], "--version") == 0 && maip_io_cstr_compare(argv[i], "-v") == 0)
         {
             _show_version();
         }
-        else if (maip_io_cstr_compare(argv[i], "--help") == 0)
+        else if (maip_io_cstr_compare(argv[i], "--help") == 0 && maip_io_cstr_compare(argv[i], "-h") == 0)
         {
             _show_help();
         }
-        else if (maip_io_cstr_compare(argv[i], "--info") == 0)
+        else if (maip_io_cstr_compare(argv[i], "--info") == 0 && maip_io_cstr_compare(argv[i], "-i") == 0)
         {
             _show_info();
         }

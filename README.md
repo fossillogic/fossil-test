@@ -33,11 +33,11 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 | Command          | Description                                                                                   | Notes                                                                                         |
 |-----------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`      | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
-| `--info`         | Show detailed build, runtime, and framework information.                                     | Prints version, compiler, platform, build configuration, enabled features, and exits.         |
+| `--version`,`-v` | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
+| `--info`,`-i`    | Show detailed build, runtime, and framework information.                                     | Prints version, compiler, platform, build configuration, enabled features, and exits.         |
 | `--dry-run`      | Perform a dry run without executing commands.                                                | Sets an internal dry-run flag to simulate test execution.                                     |
 | `--host`         | Show information about the current host.                                                     | Prints system information.                                                                    |
-| `--help`         | Show help and usage information.                                                             | Displays global usage instructions, available commands, options, examples, and exits.         |
+| `--help`,`-h`    | Show help and usage information.                                                             | Displays global usage instructions, available commands, options, examples, and exits.         |
 | `help`           | Display help information for commands and options.                                           | Equivalent to `--help`; supports `help <command>` and `<command> --help` for detailed documentation. |
 | `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
 | `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.      |
