@@ -234,103 +234,103 @@ static void _show_help(void)
 {
     maip_io_printf("{blue}Usage: maip [options] [command]{reset}\n");
     maip_io_printf("{blue}Options:{reset}\n");
-    maip_io_printf("{cyan}  --version          Show version information{reset}\n");
-    maip_io_printf("{cyan}  --dry-run          Perform a dry run without executing commands{reset}\n");
-    maip_io_printf("{cyan}  --host             Show information about the current host{reset}\n");
-    maip_io_printf("{cyan}  --help             Show this help message{reset}\n");
+    maip_io_printf("{cyan}  --version          {white}Show version information{reset}\n");
+    maip_io_printf("{cyan}  --dry-run          {white}Perform a dry run without executing commands{reset}\n");
+    maip_io_printf("{cyan}  --host             {white}Show information about the current host{reset}\n");
+    maip_io_printf("{cyan}  --help             {white}Show this help message{reset}\n");
     maip_io_printf("{blue}Commands:{reset}\n");
-    maip_io_printf("{cyan}  run                Execute tests with optional parameters{reset}\n");
-    maip_io_printf("{cyan}  filter             Filter tests based on criteria{reset}\n");
-    maip_io_printf("{cyan}  sort               Sort tests by specified criteria{reset}\n");
-    maip_io_printf("{cyan}  shuffle            Shuffle tests with optional parameters{reset}\n");
-    maip_io_printf("{cyan}  show               Show test cases with optional parameters{reset}\n");
-    maip_io_printf("{cyan}  color=<mode>       Set color mode (enable, disable, auto){reset}\n");
-    maip_io_printf("{cyan}  config=<file>      Specify a configuration file (must be maip_test.ini){reset}\n");
-    maip_io_printf("{cyan}  theme=<name>       Set the theme (fossil, catch, doctest, etc.){reset}\n");
-    maip_io_printf("{cyan}  timeout=<seconds>  Set the timeout for commands (default: 60 seconds){reset}\n");
+    maip_io_printf("{cyan}  run                {white}Execute tests with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  filter             {white}Filter tests based on criteria{reset}\n");
+    maip_io_printf("{cyan}  sort               {white}Sort tests by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  shuffle            {white}Shuffle tests with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  show               {white}Show test cases with optional parameters{reset}\n");
+    maip_io_printf("{cyan}  color=<mode>       {white}Set color mode (enable, disable, auto){reset}\n");
+    maip_io_printf("{cyan}  config=<file>      {white}Specify a configuration file (must be maip_test.ini){reset}\n");
+    maip_io_printf("{cyan}  theme=<name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
+    maip_io_printf("{cyan}  timeout=<seconds>  {white}Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_run(void)
 {
     maip_io_printf("{blue}Run command options:{reset}\n");
-    maip_io_printf("{cyan}  --fail-fast        Stop on the first failure{reset}\n");
-    maip_io_printf("{cyan}  --only <test>      Run only the specified test{reset}\n");
-    maip_io_printf("{cyan}  --skip <test>      Skip the specified test{reset}\n");
-    maip_io_printf("{cyan}  --repeat <count>   Repeat the test a specified number of times{reset}\n");
-    maip_io_printf("{cyan}  --help             Show help for run command{reset}\n");
+    maip_io_printf("{cyan}  --fail-fast        {white}Stop on the first failure{reset}\n");
+    maip_io_printf("{cyan}  --only <test>      {white}Run only the specified test{reset}\n");
+    maip_io_printf("{cyan}  --skip <test>      {white}Skip the specified test{reset}\n");
+    maip_io_printf("{cyan}  --repeat <count>   {white}Repeat the test a specified number of times{reset}\n");
+    maip_io_printf("{cyan}  --help             {white}Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_filter(void)
 {
     maip_io_printf("{blue}Filter command options:{reset}\n");
-    maip_io_printf("{cyan}  --test-name <name> Filter by test name{reset}\n");
-    maip_io_printf("{cyan}  --suite-name <name> Filter by suite name{reset}\n");
-    maip_io_printf("{cyan}  --tag <tag>        Filter by tag{reset}\n");
-    maip_io_printf("{cyan}  --help             Show help for filter command{reset}\n");
-    maip_io_printf("{cyan}  --options          Show all valid tags{reset}\n");
+    maip_io_printf("{cyan}  --test-name <name> {white}Filter by test name{reset}\n");
+    maip_io_printf("{cyan}  --suite-name <name> {white}Filter by suite name{reset}\n");
+    maip_io_printf("{cyan}  --tag <tag>        {white}Filter by tag{reset}\n");
+    maip_io_printf("{cyan}  --help             {white}Show help for filter command{reset}\n");
+    maip_io_printf("{cyan}  --options          {white}Show all valid tags{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_report(void)
 {
     maip_io_printf("{blue}Report command options:{reset}\n");
-    maip_io_printf("{cyan}  --format <json/fson/yaml/csv>       Set the output format{reset}\n");
-    maip_io_printf("{cyan}  --destination <file/stdout>        Set the output destination (default: stdout){reset}\n");
-    maip_io_printf("{cyan}  --help                              Show help for report command{reset}\n");
+    maip_io_printf("{cyan}  --format <json/fson/yaml/csv>       {white}Set the output format{reset}\n");
+    maip_io_printf("{cyan}  --destination <file/stdout>        {white}Set the output destination (default: stdout){reset}\n");
+    maip_io_printf("{cyan}  --help                              {white}Show help for report command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_sort(void)
 {
     maip_io_printf("{blue}Sort command options:{reset}\n");
-    maip_io_printf("{cyan}  --by <criteria>    Sort by specified criteria{reset}\n");
-    maip_io_printf("{cyan}  --order <asc|desc> Sort in ascending or descending order{reset}\n");
-    maip_io_printf("{cyan}  --help             Show help for sort command{reset}\n");
-    maip_io_printf("{cyan}  --options          Show all valid criteria{reset}\n");
+    maip_io_printf("{cyan}  --by <criteria>    {white}Sort by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  --order <asc|desc> {white}Sort in ascending or descending order{reset}\n");
+    maip_io_printf("{cyan}  --help             {white}Show help for sort command{reset}\n");
+    maip_io_printf("{cyan}  --options          {white}Show all valid criteria{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_shuffle(void)
 {
     maip_io_printf("{blue}Shuffle command options:{reset}\n");
-    maip_io_printf("{cyan}  --seed <seed>      Specify the seed for shuffling{reset}\n");
-    maip_io_printf("{cyan}  --count <count>    Number of items to shuffle{reset}\n");
-    maip_io_printf("{cyan}  --by <criteria>    Shuffle by specified criteria{reset}\n");
-    maip_io_printf("{cyan}  --help             Show help for shuffle command{reset}\n");
-    maip_io_printf("{cyan}  --options          Show all valid criteria for shuffling{reset}\n");
+    maip_io_printf("{cyan}  --seed <seed>      {white}Specify the seed for shuffling{reset}\n");
+    maip_io_printf("{cyan}  --count <count>    {white}Number of items to shuffle{reset}\n");
+    maip_io_printf("{cyan}  --by <criteria>    {white}Shuffle by specified criteria{reset}\n");
+    maip_io_printf("{cyan}  --help             {white}Show help for shuffle command{reset}\n");
+    maip_io_printf("{cyan}  --options          {white}Show all valid criteria for shuffling{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_color(void)
 {
     maip_io_printf("{blue}Color command options:{reset}\n");
-    maip_io_printf("{cyan}  enable            Enable color output{reset}\n");
-    maip_io_printf("{cyan}  disable           Disable color output{reset}\n");
-    maip_io_printf("{cyan}  auto              Auto-detect color support{reset}\n");
+    maip_io_printf("{cyan}  enable            {white}Enable color output{reset}\n");
+    maip_io_printf("{cyan}  disable           {white}Disable color output{reset}\n");
+    maip_io_printf("{cyan}  auto              {white}Auto-detect color support{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_theme(void)
 {
     maip_io_printf("{blue}Theme command options:{reset}\n");
-    maip_io_printf("{cyan}  fossil            Fossil theme{reset}\n");
-    maip_io_printf("{cyan}  light             Light theme{reset}\n");
-    maip_io_printf("{cyan}  dark              Dark theme{reset}\n");
-    maip_io_printf("{cyan}  maga              MAGA theme{reset}\n");
+    maip_io_printf("{cyan}  fossil            {white}Fossil theme{reset}\n");
+    maip_io_printf("{cyan}  light             {white}Light theme{reset}\n");
+    maip_io_printf("{cyan}  dark              {white}Dark theme{reset}\n");
+    maip_io_printf("{cyan}  maga              {white}MAGA theme{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
 static void _show_subhelp_show(void)
 {
     maip_io_printf("{blue}Show command options:{reset}\n");
-    maip_io_printf("{cyan}  --test-name <name>   Filter by test name{reset}\n");
-    maip_io_printf("{cyan}  --suite-name <name>  Filter by suite name{reset}\n");
-    maip_io_printf("{cyan}  --tag <tag>          Filter by tag{reset}\n");
-    maip_io_printf("{cyan}  --result <result>    Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
-    maip_io_printf("{cyan}  --verbose <level>    Set verbosity level (plain, ci, doge){reset}\n");
-    maip_io_printf("{cyan}  --mode <mode>        Show mode (list, tree, graph){reset}\n");
+    maip_io_printf("{cyan}  --test-name <name>   {white}Filter by test name{reset}\n");
+    maip_io_printf("{cyan}  --suite-name <name>  {white}Filter by suite name{reset}\n");
+    maip_io_printf("{cyan}  --tag <tag>          {white}Filter by tag{reset}\n");
+    maip_io_printf("{cyan}  --result <result>    {white}Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
+    maip_io_printf("{cyan}  --verbose <level>    {white}Set verbosity level (plain, ci, doge){reset}\n");
+    maip_io_printf("{cyan}  --mode <mode>        {white}Show mode (list, tree, graph){reset}\n");
     exit(EXIT_SUCCESS);
 }
 
