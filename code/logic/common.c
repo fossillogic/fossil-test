@@ -534,8 +534,8 @@ static int fossil_maip_parse_sort(fossil_maip_pallet_t *p, int argc, char **argv
 static int fossil_maip_parse_shuffle(fossil_maip_pallet_t *p, int argc, char **argv, int i)
 {
     // set defaults for shuffle command
-    p->shuffle.seed = 0; // default seed (0 means use time/device entropy)
-    p->shuffle.count = 0; // default to shuffle all items
+    p->shuffle.seed = 0;    // default seed (0 means use time/device entropy)
+    p->shuffle.count = 0;   // default to shuffle all items
     p->shuffle.by = "name"; // default shuffle criteria
 
     for (int j = i + 1; j < argc; j++)
@@ -687,7 +687,8 @@ static int fossil_maip_parse_help(int argc, char **argv, int i)
             _show_subhelp_theme();
         }
     }
-    else {
+    else
+    {
         _show_help();
     }
     return argc; // This will never be reached
@@ -770,6 +771,60 @@ static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **arg
     return i + 1; // Skip the theme argument
 }
 
+static int levenshtein_distance(const char *s1, const char *s2)
+{
+    size_t len1 = 0, len2 = 0;
+    while (s1[len1]) len1++;
+    while (s2[len2]) len2++;
+
+    if (len1 == 0) return len2;
+    if (len2 == 0) return len1;
+
+    int *d0 = malloc((len2 + 1) * sizeof(int));
+    int *d1 = malloc((len2 + 1) * sizeof(int));
+
+    for (size_t i = 0; i <= len2; i++)
+        d0[i] = i;
+
+    for (size_t i = 1; i <= len1; i++)
+    {
+        d1[0] = i;
+        for (size_t j = 1; j <= len2; j++)
+        {
+            int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
+            int m_v = d1[j - 1] + 1;
+            if (d0[j] + 1 < m_v) m_v = d0[j] + 1;
+            if (d0[j - 1] + cost < m_v) m_v = d0[j - 1] + cost;
+            d1[j] = m_v;
+        }
+        int *tmp = d0;
+        d0 = d1;
+        d1 = tmp;
+    }
+
+    int result = d0[len2];
+    free(d0);
+    free(d1);
+    return result;
+}
+
+static const char* find_best_match(const char *input, const char **candidates, size_t count, int max_distance)
+{
+    int best_distance = max_distance + 1;
+    const char *best_match = NULL;
+
+    for (size_t i = 0; i < count; i++)
+    {
+        int dist = levenshtein_distance(input, candidates[i]);
+        if (dist < best_distance)
+        {
+            best_distance = dist;
+            best_match = candidates[i];
+        }
+    }
+    return best_match;
+}
+
 static fossil_maip_cmd_t fossil_maip_resolve_cmd(const char *name)
 {
     for (size_t i = 0; CMD_MAP[i].name != NULL; i++)
@@ -823,7 +878,9 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 
         if (arg[0] == '-')
         {
-            continue; // skip global flags handled elsewhere
+            /* Unknown global flag: report and exit */
+            maip_io_printf("{red}Unknown flag: %s{reset}\n", arg);
+            exit(EXIT_FAILURE);
         }
 
         fossil_maip_cmd_t cmd = fossil_maip_resolve_cmd(arg);
@@ -853,22 +910,55 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
         case MAIP_CMD_REPORT:
             i = fossil_maip_parse_report(&pallet, argc, argv, i);
             break;
-        
+
         case MAIP_CMD_HELP:
             i = fossil_maip_parse_help(argc, argv, i);
             break;
-        
+
         case MAIP_CMD_COLOR:
             i = fossil_maip_parse_color(argc, argv, i);
             break;
-        
+
         case MAIP_CMD_THEME:
             i = fossil_maip_parse_theme(&pallet, argc, argv, i);
             break;
 
         default:
-            maip_io_printf("{red}Unknown command: %s{reset}\n", arg);
+        {
+            /* Try to detect possible intended command using fuzzy matching */
+            size_t cmd_count = 0;
+            for (size_t j = 0; CMD_MAP[j].name != NULL; j++)
+            {
+                cmd_count++;
+            }
+            
+            const char **cmd_names = (const char **)malloc(cmd_count * sizeof(const char *));
+            if (cmd_names)
+            {
+                for (size_t j = 0; j < cmd_count; j++)
+                {
+                    cmd_names[j] = CMD_MAP[j].name;
+                }
+                
+                const char *suggest = find_best_match(arg, cmd_names, cmd_count, 2);
+                
+                if (suggest)
+                {
+                    maip_io_printf("{red}Unknown command: %s{reset}\nDid you mean: %s?\n", arg, suggest);
+                }
+                else
+                {
+                    maip_io_printf("{red}Unknown command: %s{reset}\n", arg);
+                }
+                
+                free(cmd_names);
+            }
+            else
+            {
+                maip_io_printf("{red}Unknown command: %s{reset}\n", arg);
+            }
             exit(EXIT_FAILURE);
+        }
         }
     }
 
@@ -2561,6 +2651,14 @@ size_t maip_io_cstr_length(ccstr str)
     if (!str)
         return 0;
     return strlen(str);
+}
+
+int maip_io_cstr_compare_prefix(ccstr str, ccstr prefix)
+{
+    if (!str || !prefix)
+        return -1;
+    size_t prefix_length = strlen(prefix);
+    return strncmp(str, prefix, prefix_length);
 }
 
 int maip_io_cstr_compare(ccstr s1, ccstr s2)
