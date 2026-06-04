@@ -44,9 +44,9 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against built-in criteria.        |
 | `shuffle`        | Shuffle tests with optional parameters.                                                      | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                  |
 | `show`           | Show test cases with optional parameters.                                                    | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
-| `color=<mode>`   | Set color mode.                                                                              | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).           |
+| `color <mode>`   | Set color mode.                                                                              | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).           |
 produce an error.                              |
-| `theme=<name>`   | Set the theme for output.                                                                    | Options: `fossil/light/dark/maga`.                                                            |
+| `theme <name>`   | Set the theme for output.                                                                    | Options: `fossil/light/dark/maga`.                                                            |
 | `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                     |
 | `report`         | Export test results for CI integration.                                                      | Supported formats: `json/fson/yaml/csv`.                                                      |
 
