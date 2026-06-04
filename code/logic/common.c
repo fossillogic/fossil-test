@@ -213,6 +213,7 @@ static void _show_help(void)
     maip_io_printf("{cyan}  --dry-run          {white}Perform a dry run without executing commands{reset}\n");
     maip_io_printf("{cyan}  --host             {white}Show information about the current host{reset}\n");
     maip_io_printf("{cyan}  --help             {white}Show this help message{reset}\n");
+    maip_io_printf("{cyan}  --info             {white}Show detailed information about the environment{reset}\n");
     maip_io_printf("{blue}Commands:{reset}\n");
     maip_io_printf("{cyan}  run                {white}Execute tests with optional parameters{reset}\n");
     maip_io_printf("{cyan}  filter             {white}Filter tests based on criteria{reset}\n");
@@ -944,7 +945,7 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
                 
                 if (suggest)
                 {
-                    maip_io_printf("{red}Unknown command: %s{reset}\nDid you mean: %s?\n", arg, suggest);
+                    maip_io_printf("{red}Unknown command: %s{reset}\n{red}Did you mean:{reset} '%s'{red}?{reset}\n", arg, suggest);
                 }
                 else
                 {
