@@ -1214,6 +1214,17 @@ FOSSIL_MAIP_API size_t maip_io_cstr_length(ccstr str);
 FOSSIL_MAIP_API int maip_io_cstr_compare(ccstr s1, ccstr s2);
 
 /**
+ * @brief Compares the prefix of a cstr with another cstr.
+ *
+ * Returns 1 if `prefix` is a prefix of `str`, 0 otherwise. Returns -1 if either string is null.
+ *
+ * @param str The cstr to be checked.
+ * @param prefix The cstr to compare as a prefix.
+ * @return 1 if `prefix` is a prefix of `str`, 0 otherwise, or -1 on error.
+ */
+FOSSIL_MAIP_API int maip_io_cstr_compare_prefix(ccstr str, ccstr prefix);
+
+/**
  * @brief Trims whitespace from the beginning and end of the given cstr (in-place).
  *
  * Modifies the string to remove leading and trailing whitespace.
