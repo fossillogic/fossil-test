@@ -684,7 +684,7 @@ static int fossil_maip_parse_report(fossil_maip_pallet_t *p, int argc, char **ar
     return argc;
 }
 
-static int fossil_maip_parse_help(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+static int fossil_maip_parse_help(int argc, char **argv, int i)
 {
     if (i + 1 < argc)
     {
@@ -728,7 +728,7 @@ static int fossil_maip_parse_help(fossil_maip_pallet_t *p, int argc, char **argv
     return argc; // This will never be reached
 }
 
-static int fossil_maip_parse_color(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+static int fossil_maip_parse_color(int argc, char **argv, int i)
 {
     if (i + 1 < argc)
     {
@@ -890,11 +890,11 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
             break;
         
         case MAIP_CMD_HELP:
-            i = fossil_maip_parse_help(&pallet, argc, argv, i);
+            i = fossil_maip_parse_help(argc, argv, i);
             break;
         
         case MAIP_CMD_COLOR:
-            i = fossil_maip_parse_color(&pallet, argc, argv, i);
+            i = fossil_maip_parse_color(argc, argv, i);
             break;
         
         case MAIP_CMD_THEME:
