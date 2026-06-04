@@ -219,8 +219,8 @@ static void _show_help(void)
     maip_io_printf("{cyan}  sort               {white}Sort tests by specified criteria{reset}\n");
     maip_io_printf("{cyan}  shuffle            {white}Shuffle tests with optional parameters{reset}\n");
     maip_io_printf("{cyan}  show               {white}Show test cases with optional parameters{reset}\n");
-    maip_io_printf("{cyan}  color=<mode>       {white}Set color mode (enable, disable, auto){reset}\n");
-    maip_io_printf("{cyan}  theme=<name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
+    maip_io_printf("{cyan}  color <mode>       {white}Set color mode (enable, disable, auto){reset}\n");
+    maip_io_printf("{cyan}  theme <name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
     maip_io_printf("{cyan}  timeout=<seconds>  {white}Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
 }
