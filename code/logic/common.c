@@ -167,6 +167,47 @@ void fossil_maip_hash(const char *input, const char *output, uint8_t *hash_out)
 // command pallet
 // *****************************************************************************
 
+typedef struct
+{
+    int argc;
+    char **argv;
+
+    const char *command; // run/filter/sort/etc
+    int command_index;
+
+    // global flags
+    int dry_run;
+    int show_version;
+    int show_help;
+    int show_info;
+    int show_host;
+
+    const char *color_mode;
+    const char *theme;
+    int timeout;
+} fossil_maip_scan_t;
+
+typedef struct
+{
+    const char *name;
+    const char *value;
+} maip_kv_t;
+
+typedef struct
+{
+    maip_kv_t *items;
+    size_t count;
+} maip_arg_list_t;
+
+typedef struct
+{
+    const char *name;
+    maip_arg_list_t args;
+} fossil_maip_command_t;
+
+static fossil_maip_pallet_t execute(fossil_maip_scan_t *scan,
+                                    fossil_maip_command_t *cmd);
+
 // Lookup tables for valid tags and criteria
 static const char *VALID_TAGS[] = {
     "fossil",   // default tag
@@ -384,554 +425,383 @@ void maip_io_set_color_mode(int mode)
 {
     switch (mode)
     {
-        case 1:
-        case 0:
-        case -1:
-            g_maip_color_mode = mode;
-            break;
+    case 1:
+    case 0:
+    case -1:
+        g_maip_color_mode = mode;
+        break;
 
-        default:
-            g_maip_color_mode = -1;
-            break;
+    default:
+        g_maip_color_mode = -1;
+        break;
     }
+}
+
+typedef struct
+{
+    const char *value;
+    int is_flag;
+} fossil_token_t;
+
+typedef struct
+{
+    const char *key;
+    const char *value;
+} fossil_kv_t;
+
+typedef enum
+{
+    MAIP_CMD_NONE,
+    MAIP_CMD_RUN,
+    MAIP_CMD_FILTER,
+    MAIP_CMD_SORT,
+    MAIP_CMD_SHUFFLE,
+    MAIP_CMD_SHOW,
+    MAIP_CMD_REPORT
+} fossil_maip_cmd_t;
+
+typedef struct
+{
+    fossil_maip_cmd_t cmd;
+    const char *name;
+} fossil_cmd_map_t;
+
+static fossil_cmd_map_t CMD_MAP[] = {
+    {MAIP_CMD_RUN, "run"},
+    {MAIP_CMD_FILTER, "filter"},
+    {MAIP_CMD_SORT, "sort"},
+    {MAIP_CMD_SHUFFLE, "shuffle"},
+    {MAIP_CMD_SHOW, "show"},
+    {MAIP_CMD_REPORT, "report"},
+    {MAIP_CMD_NONE, NULL}};
+
+static int fossil_maip_parse_run(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for run command
+    p->run.only_cases = null;
+    p->run.only_count = 0;
+    p->run.repeat = 1;
+    p->run.fail_fast = 0;
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--fail-fast") == 0)
+        {
+            p->run.fail_fast = 1;
+            G_MAIP_FAIL_FAST = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--repeat") == 0 && j + 1 < argc)
+        {
+            p->run.repeat = atoi(argv[++j]);
+        }
+        else if (maip_io_cstr_compare(arg, "--only") == 0 && j + 1 < argc)
+        {
+            j++;
+            size_t count = 0;
+            p->run.only_cases = maip_io_cstr_split(argv[j], ',', &count);
+            p->run.only_count = count;
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_run();
+        }
+    }
+
+    return argc;
+}
+
+static int fossil_maip_parse_filter(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for filter command
+    p->filter.test_name = null;
+    p->filter.suite_name = null;
+    p->filter.tag = "fossil"; // default tag
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--test-name") == 0 && j + 1 < argc)
+        {
+            p->filter.test_name = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--suite-name") == 0 && j + 1 < argc)
+        {
+            p->filter.suite_name = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--tag") == 0 && j + 1 < argc)
+        {
+            p->filter.tag = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_filter();
+        }
+    }
+
+    return argc;
+}
+
+static int fossil_maip_parse_sort(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for sort command
+    p->sort.by = "name";
+    p->sort.order = "asc";
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--by") == 0 && j + 1 < argc)
+        {
+            p->sort.by = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--order") == 0 && j + 1 < argc)
+        {
+            p->sort.order = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_sort();
+        }
+    }
+
+    return argc;
+}
+
+static int fossil_maip_parse_shuffle(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for shuffle command
+    p->shuffle.seed = 0; // default seed (0 means use time/device entropy)
+    p->shuffle.count = 0; // default to shuffle all items
+    p->shuffle.by = "name"; // default shuffle criteria
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--seed") == 0 && j + 1 < argc)
+        {
+            p->shuffle.seed = atoi(argv[++j]);
+        }
+        else if (maip_io_cstr_compare(arg, "--count") == 0 && j + 1 < argc)
+        {
+            p->shuffle.count = atoi(argv[++j]);
+        }
+        else if (maip_io_cstr_compare(arg, "--by") == 0 && j + 1 < argc)
+        {
+            p->shuffle.by = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_shuffle();
+        }
+    }
+
+    return argc;
+}
+
+static int fossil_maip_parse_show(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for show command
+    p->show.enabled = 1;
+    p->show.verbose = "plain";
+    p->show.mode = "list";
+    p->show.result = "all";
+    p->show.test_name = null;
+    p->show.suite_name = null;
+    p->show.tag = null;
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--test-name") == 0 && j + 1 < argc)
+        {
+            p->show.test_name = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--suite-name") == 0 && j + 1 < argc)
+        {
+            p->show.suite_name = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--tag") == 0 && j + 1 < argc)
+        {
+            p->show.tag = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--result") == 0 && j + 1 < argc)
+        {
+            p->show.result = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--verbose") == 0 && j + 1 < argc)
+        {
+            p->show.verbose = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--mode") == 0 && j + 1 < argc)
+        {
+            p->show.mode = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_show();
+        }
+    }
+
+    return argc;
+}
+
+static int fossil_maip_parse_report(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--format") == 0 && j + 1 < argc)
+        {
+            p->report.format = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--destination") == 0 && j + 1 < argc)
+        {
+            p->report.destination = argv[++j];
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_report();
+        }
+    }
+
+    return argc;
 }
 
 fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 {
     fossil_maip_pallet_t pallet = {0};
-    int is_command = 0; // Variable to track if a command is being processed
 
-    pallet.show.enabled = 0; // Initialize show command enabled flag
-
-    // Parse command-line arguments
     for (int i = 1; i < argc; i++)
     {
-        if (maip_io_cstr_compare(argv[i], "--dry-run") == 0)
+        const char *arg = argv[i];
+
+        // global flags first
+        if (maip_io_cstr_compare(arg, "--dry-run") == 0)
         {
             G_MAIP_DRY_RUN = 1;
+            continue;
         }
-        else if (maip_io_cstr_compare(argv[i], "--version") == 0 || maip_io_cstr_compare(argv[i], "-v") == 0)
+
+        if (maip_io_cstr_compare(arg, "--version") == 0)
         {
             _show_version();
+            continue;
         }
-        else if (maip_io_cstr_compare(argv[i], "--help") == 0 || maip_io_cstr_compare(argv[i], "-h") == 0)
+
+        if (maip_io_cstr_compare(arg, "--help") == 0)
         {
             _show_help();
+            continue;
         }
-        else if (maip_io_cstr_compare(argv[i], "--info") == 0 || maip_io_cstr_compare(argv[i], "-i") == 0)
-        {
-            _show_info();
-        }
-        else if (maip_io_cstr_compare(argv[i], "--host") == 0)
+
+        if (maip_io_cstr_compare(arg, "--host") == 0)
         {
             _show_host();
+            continue;
         }
-        else if (maip_io_cstr_compare(argv[i], "--color") == 0 && i + 1 < argc)
+
+        if (maip_io_cstr_compare(arg, "--info") == 0)
         {
-            const char *color_mode = argv[++i];
-            if (maip_io_cstr_compare(color_mode, "enable") == 0)
+            _show_info();
+            continue;
+        }
+
+        if (maip_io_cstr_starts_with(arg, "color="))
+        {
+            const char *mode = arg + 6;
+            if (maip_io_cstr_compare(mode, "enable") == 0)
             {
                 maip_io_set_color_mode(1);
             }
-            else if (maip_io_cstr_compare(color_mode, "disable") == 0)
+            else if (maip_io_cstr_compare(mode, "disable") == 0)
             {
                 maip_io_set_color_mode(0);
             }
-            else if (maip_io_cstr_compare(color_mode, "auto") == 0)
+            else if (maip_io_cstr_compare(mode, "auto") == 0)
             {
-                maip_io_set_color_mode(-1); // Auto-detect
+                maip_io_set_color_mode(-1);
             }
             else
             {
-                maip_io_printf("{red}Invalid color mode: %s{reset}\n", color_mode);
+                maip_io_printf("{red}Invalid color mode: %s{reset}\n", mode);
                 exit(EXIT_FAILURE);
             }
+            continue;
         }
-        else if (maip_io_cstr_compare(argv[i], "help") == 0)
-        {
-            if (i + 1 < argc)
-            {
-                const char *subcommand = argv[++i];
-                if (maip_io_cstr_compare(subcommand, "run") == 0)
-                {
-                    _show_subhelp_run();
-                }
-                else if (maip_io_cstr_compare(subcommand, "filter") == 0)
-                {
-                    _show_subhelp_filter();
-                }
-                else if (maip_io_cstr_compare(subcommand, "sort") == 0)
-                {
-                    _show_subhelp_sort();
-                }
-                else if (maip_io_cstr_compare(subcommand, "shuffle") == 0)
-                {
-                    _show_subhelp_shuffle();
-                }
-                else if (maip_io_cstr_compare(subcommand, "color") == 0)
-                {
-                    _show_subhelp_color();
-                }
-                else if (maip_io_cstr_compare(subcommand, "theme") == 0)
-                {
-                    _show_subhelp_theme();
-                }
-                else if (maip_io_cstr_compare(subcommand, "show") == 0)
-                {
-                    _show_subhelp_show();
-                }
-                else
-                {
-                    maip_io_printf("{red}Unknown subcommand for help: %s{reset}\n", subcommand);
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "run") == 0)
-        {
-            is_command = 1;
-            pallet.run.fail_fast = 0;
-            pallet.run.only = null;
-            pallet.run.skip = null;
-            pallet.run.repeat = 1;
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--fail-fast") == 0)
-                {
-                    pallet.run.fail_fast = 1;
-                    G_MAIP_FAIL_FAST = 1;
-                }
-                else if (maip_io_cstr_compare(argv[j], "--only") == 0 && j + 1 < argc)
-                {
-                    // Support multiple test cases separated by comma, and wildcards
-                    j++;
-                    size_t count = 0;
-                    cstr *test_cases = maip_io_cstr_split(argv[j], ',', &count);
-                    pallet.run.only = argv[j]; // Store raw string for now
-                    pallet.run.only_cases = test_cases;
-                    pallet.run.only_count = count;
-                    // Wildcard support: mark if any test case contains '*'
-                    pallet.run.only_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++)
-                    {
-                        if (strchr(test_cases[k], '*'))
-                        {
-                            pallet.run.only_has_wildcard = 1;
-                            break;
-                        }
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--skip") == 0 && j + 1 < argc)
-                {
-                    pallet.run.skip = argv[++j];
-                    G_MAIP_SKIP = 1;
-                }
-                else if (maip_io_cstr_compare(argv[j], "--repeat") == 0 && j + 1 < argc)
-                {
-                    pallet.run.repeat = atoi(argv[++j]);
-                    G_MAIP_REPEAT = pallet.run.repeat;
-                }
-                else if (maip_io_cstr_compare(argv[j], "--threads") == 0 && j + 1 < argc)
-                {
-                    G_MAIP_THREADS = atoi(argv[++j]);
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_run();
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "filter") == 0)
+        if (arg[0] == '-')
         {
-            is_command = 1;
-            pallet.filter.test_name = null;
-            pallet.filter.suite_name = null;
-            pallet.filter.tag = null;
+            continue; // skip global flags handled elsewhere
+        }
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc)
-                {
-                    // Support multiple test names separated by comma, and wildcards
-                    j++;
-                    size_t count = 0;
-                    cstr *test_names = maip_io_cstr_split(argv[j], ',', &count);
-                    pallet.filter.test_name = argv[j]; // Store raw string for now
-                    pallet.filter.test_name_list = test_names;
-                    pallet.filter.test_name_count = count;
-                    // Wildcard support: mark if any test name contains '*'
-                    pallet.filter.test_name_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++)
-                    {
-                        if (strchr(test_names[k], '*'))
-                        {
-                            pallet.filter.test_name_has_wildcard = 1;
-                            break;
-                        }
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc)
-                {
-                    // Support multiple suite names separated by comma, and wildcards
-                    j++;
-                    size_t count = 0;
-                    cstr *suite_names = maip_io_cstr_split(argv[j], ',', &count);
-                    pallet.filter.suite_name = argv[j]; // Store raw string for now
-                    pallet.filter.suite_name_list = suite_names;
-                    pallet.filter.suite_name_count = count;
-                    // Wildcard support: mark if any suite name contains '*'
-                    pallet.filter.suite_name_has_wildcard = 0;
-                    for (size_t k = 0; k < count; k++)
-                    {
-                        if (strchr(suite_names[k], '*'))
-                        {
-                            pallet.filter.suite_name_has_wildcard = 1;
-                            break;
-                        }
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc)
-                {
-                    // Support multiple tags separated by comma, and wildcards
-                    j++;
-                    size_t count = 0;
-                    cstr *tags = maip_io_cstr_split(argv[j], ',', &count);
-                    int valid_count = 0;
-                    for (size_t k = 0; k < count; k++)
-                    {
-                        int is_valid_tag = 0;
-                        for (int t = 0; VALID_TAGS[t] != null; t++)
-                        {
-                            if (maip_io_cstr_compare(tags[k], VALID_TAGS[t]) == 0)
-                            {
-                                is_valid_tag = 1;
-                                break;
-                            }
-                        }
-                        if (is_valid_tag || strchr(tags[k], '*'))
-                        {
-                            valid_count++;
-                        }
-                    }
-                    if (valid_count == (int)count)
-                    {
-                        pallet.filter.tag = argv[j]; // Store raw string for now
-                        pallet.filter.tag_list = tags;
-                        pallet.filter.tag_count = count;
-                        // Wildcard support: mark if any tag contains '*'
-                        pallet.filter.tag_has_wildcard = 0;
-                        for (size_t k = 0; k < count; k++)
-                        {
-                            if (strchr(tags[k], '*'))
-                            {
-                                pallet.filter.tag_has_wildcard = 1;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        maip_io_printf("{red}Error: Invalid tag(s) in '%s'.{reset}\n", argv[j]);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_filter();
-                }
-                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
-                {
-                    maip_io_printf("{blue}Valid tags:{reset}\n");
-                    for (int k = 0; VALID_TAGS[k] != null; k++)
-                    {
-                        maip_io_printf("{cyan}  %s{reset}\n", VALID_TAGS[k]);
-                    }
-                    exit(EXIT_SUCCESS);
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "report") == 0)
-        {
-            is_command = 1;
-            pallet.report.format = "json";        // default format
-            pallet.report.destination = "stdout"; // default destination
+        fossil_maip_cmd_t cmd = fossil_maip_resolve_cmd(arg);
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--format") == 0 && j + 1 < argc)
-                {
-                    pallet.report.format = argv[++j];
-                    if (maip_io_cstr_compare(pallet.report.format, "json") != 0 &&
-                        maip_io_cstr_compare(pallet.report.format, "fson") != 0 &&
-                        maip_io_cstr_compare(pallet.report.format, "yaml") != 0 &&
-                        maip_io_cstr_compare(pallet.report.format, "csv") != 0)
-                    {
-                        maip_io_printf("{red}Error: Invalid report format '%s'. Valid formats: json, fson, yaml, csv.{reset}\n", pallet.report.format);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--destination") == 0 && j + 1 < argc)
-                {
-                    pallet.report.destination = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_report();
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "sort") == 0)
+        switch (cmd)
         {
-            is_command = 1;
-            pallet.sort.by = null;
-            pallet.sort.order = null;
+        case MAIP_CMD_RUN:
+            i = fossil_maip_parse_run(&pallet, argc, argv, i);
+            break;
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc)
-                {
-                    const char *criteria = argv[++j];
-                    int is_valid_criteria = 0;
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
-                    {
-                        if (maip_io_cstr_compare(criteria, VALID_CRITERIA[k]) == 0)
-                        {
-                            is_valid_criteria = 1;
-                            break;
-                        }
-                    }
-                    if (is_valid_criteria)
-                    {
-                        pallet.sort.by = criteria;
-                    }
-                    else
-                    {
-                        maip_io_printf("{red}Error: Invalid criteria '%s'.{reset}\n", criteria);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--order") == 0 && j + 1 < argc)
-                {
-                    pallet.sort.order = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_sort();
-                }
-                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
-                {
-                    maip_io_printf("{blue}Valid criteria:{reset}\n");
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
-                    {
-                        maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
-                    }
-                    exit(EXIT_SUCCESS);
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "shuffle") == 0)
-        {
-            is_command = 1;
-            pallet.shuffle.seed = null;
-            pallet.shuffle.count = 0;
-            pallet.shuffle.by = null;
+        case MAIP_CMD_FILTER:
+            i = fossil_maip_parse_filter(&pallet, argc, argv, i);
+            break;
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--seed") == 0 && j + 1 < argc)
-                {
-                    pallet.shuffle.seed = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--count") == 0 && j + 1 < argc)
-                {
-                    pallet.shuffle.count = atoi(argv[++j]);
-                }
-                else if (maip_io_cstr_compare(argv[j], "--by") == 0 && j + 1 < argc)
-                {
-                    pallet.shuffle.by = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_shuffle();
-                }
-                else if (maip_io_cstr_compare(argv[j], "--options") == 0)
-                {
-                    maip_io_printf("{blue}Valid criteria for shuffling:{reset}\n");
-                    for (int k = 0; VALID_CRITERIA[k] != null; k++)
-                    {
-                        maip_io_printf("{cyan}  %s{reset}\n", VALID_CRITERIA[k]);
-                    }
-                    exit(EXIT_SUCCESS);
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
-        }
-        else if (strncmp(argv[i], "color=", 6) == 0)
-        {
-            if (maip_io_cstr_compare(argv[i] + 6, "enable") == 0)
-            {
-                MAIP_IO_COLOR_ENABLE = 1;
-            }
-            else if (maip_io_cstr_compare(argv[i] + 6, "disable") == 0)
-            {
-                MAIP_IO_COLOR_ENABLE = 0;
-            }
-            else if (maip_io_cstr_compare(argv[i] + 6, "auto") == 0)
-            {
-                if (isatty(STDOUT_FILENO))
-                {
-                    MAIP_IO_COLOR_ENABLE = 1;
-                }
-                else
-                {
-                    MAIP_IO_COLOR_ENABLE = 0;
-                }
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "color") == 0)
-        {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
-            {
-                _show_subhelp_color();
-            }
-        }
-        else if (strncmp(argv[i], "theme=", 6) == 0)
-        {
-            const char *theme_str = argv[i] + 6;
-            if (maip_io_cstr_compare(theme_str, "fossil") == 0)
-            {
-                pallet.theme = MAIP_THEME_FOSSIL;
-                G_MAIP_THEME = MAIP_THEME_FOSSIL;
-            }
-            else if (maip_io_cstr_compare(theme_str, "dark") == 0)
-            {
-                pallet.theme = MAIP_THEME_DARK;
-                G_MAIP_THEME = MAIP_THEME_DARK;
-            }
-            else if (maip_io_cstr_compare(theme_str, "light") == 0)
-            {
-                pallet.theme = MAIP_THEME_LIGHT;
-                G_MAIP_THEME = MAIP_THEME_LIGHT;
-            }
-            else if (maip_io_cstr_compare(theme_str, "maga") == 0)
-            {
-                pallet.theme = MAIP_THEME_MAGA;
-                G_MAIP_THEME = MAIP_THEME_MAGA;
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "theme") == 0)
-        {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
-            {
-                _show_subhelp_theme();
-            }
-        }
-        else if (strncmp(argv[i], "timeout=", 8) == 0)
-        {
-            G_MAIP_TIMEOUT = atoi(argv[i] + 8);
-        }
-        else if (maip_io_cstr_compare(argv[i], "timeout") == 0)
-        {
-            if (i + 1 < argc && maip_io_cstr_compare(argv[i + 1], "--help") == 0)
-            {
-                _show_help();
-                exit(EXIT_SUCCESS);
-            }
-        }
-        else if (maip_io_cstr_compare(argv[i], "show") == 0)
-        {
-            is_command = 1;
-            pallet.show.test_name = null;
-            pallet.show.suite_name = null;
-            pallet.show.tag = null;
-            pallet.show.result = "fail";
-            pallet.show.mode = "list";
-            pallet.show.verbose = "plain";
-            pallet.show.enabled = 1; // Default to enabled
+        case MAIP_CMD_SORT:
+            i = fossil_maip_parse_sort(&pallet, argc, argv, i);
+            break;
 
-            for (int j = i + 1; j < argc; j++)
-            {
-                if (!is_command)
-                    break;
-                if (maip_io_cstr_compare(argv[j], "--test-name") == 0 && j + 1 < argc)
-                {
-                    pallet.show.test_name = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--suite-name") == 0 && j + 1 < argc)
-                {
-                    pallet.show.suite_name = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--tag") == 0 && j + 1 < argc)
-                {
-                    pallet.show.tag = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--result") == 0 && j + 1 < argc)
-                {
-                    pallet.show.result = argv[++j];
-                }
-                else if (maip_io_cstr_compare(argv[j], "--mode") == 0 && j + 1 < argc)
-                {
-                    pallet.show.mode = argv[++j];
-                    // Validate mode (should be one of: list, tree, graph)
-                    if (maip_io_cstr_compare(pallet.show.mode, "list") != 0 &&
-                        maip_io_cstr_compare(pallet.show.mode, "tree") != 0 &&
-                        maip_io_cstr_compare(pallet.show.mode, "graph") != 0)
-                    {
-                        maip_io_printf("{red}Error: Invalid mode '%s'. Valid modes are: list, tree, graph.{reset}\n", pallet.show.mode);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--verbose") == 0 && j + 1 < argc)
-                {
-                    pallet.show.verbose = argv[++j];
-                    // Validate verbose (should be one of: plain, ci, doge)
-                    if (maip_io_cstr_compare(pallet.show.verbose, "plain") != 0 &&
-                        maip_io_cstr_compare(pallet.show.verbose, "ci") != 0 &&
-                        maip_io_cstr_compare(pallet.show.verbose, "doge") != 0)
-                    {
-                        maip_io_printf("{red}Error: Invalid verbose level '%s'. Valid levels are: plain, ci, doge.{reset}\n", pallet.show.verbose);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                else if (maip_io_cstr_compare(argv[j], "--help") == 0)
-                {
-                    _show_subhelp_show();
-                }
-                else
-                {
-                    is_command = 0;
-                }
-            }
+        case MAIP_CMD_SHUFFLE:
+            i = fossil_maip_parse_shuffle(&pallet, argc, argv, i);
+            break;
+
+        case MAIP_CMD_SHOW:
+            i = fossil_maip_parse_show(&pallet, argc, argv, i);
+            break;
+
+        case MAIP_CMD_REPORT:
+            i = fossil_maip_parse_report(&pallet, argc, argv, i);
+            break;
+
+        default:
+            maip_io_printf("{red}Unknown command: %s{reset}\n", arg);
+            exit(EXIT_FAILURE);
         }
     }
 
