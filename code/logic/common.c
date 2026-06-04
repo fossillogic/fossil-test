@@ -205,31 +205,6 @@ typedef struct
     maip_arg_list_t args;
 } fossil_maip_command_t;
 
-static fossil_maip_pallet_t execute(fossil_maip_scan_t *scan,
-                                    fossil_maip_command_t *cmd);
-
-// Lookup tables for valid tags and criteria
-static const char *VALID_TAGS[] = {
-    "fossil",   // default tag
-    "ai",       // Jellyfish AI tag
-    "network",  // Network-related tests
-    "database", // Database-related tests
-    "ui",       // User Interface tests
-    "api",      // API-related tests
-    "critical", // Critical tests
-    "media",    // Media tests
-    null        // Sentinel to mark the end
-};
-
-static const char *VALID_CRITERIA[] = {
-    "name",
-    "time",
-    "result",
-    "priority",
-    "hash",
-    null // Sentinel to mark the end
-};
-
 static void _show_help(void)
 {
     maip_io_printf("{blue}Usage: maip [options] [command]{reset}\n");
@@ -245,7 +220,6 @@ static void _show_help(void)
     maip_io_printf("{cyan}  shuffle            {white}Shuffle tests with optional parameters{reset}\n");
     maip_io_printf("{cyan}  show               {white}Show test cases with optional parameters{reset}\n");
     maip_io_printf("{cyan}  color=<mode>       {white}Set color mode (enable, disable, auto){reset}\n");
-    maip_io_printf("{cyan}  config=<file>      {white}Specify a configuration file (must be maip_test.ini){reset}\n");
     maip_io_printf("{cyan}  theme=<name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
     maip_io_printf("{cyan}  timeout=<seconds>  {white}Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
@@ -457,7 +431,10 @@ typedef enum
     MAIP_CMD_SORT,
     MAIP_CMD_SHUFFLE,
     MAIP_CMD_SHOW,
-    MAIP_CMD_REPORT
+    MAIP_CMD_REPORT,
+    MAIP_CMD_HELP,
+    MAIP_CMD_COLOR,
+    MAIP_CMD_THEME
 } fossil_maip_cmd_t;
 
 typedef struct
@@ -473,6 +450,9 @@ static fossil_cmd_map_t CMD_MAP[] = {
     {MAIP_CMD_SHUFFLE, "shuffle"},
     {MAIP_CMD_SHOW, "show"},
     {MAIP_CMD_REPORT, "report"},
+    {MAIP_CMD_HELP, "help"},
+    {MAIP_CMD_COLOR, "color"},
+    {MAIP_CMD_THEME, "theme"},
     {MAIP_CMD_NONE, NULL}};
 
 static int fossil_maip_parse_run(fossil_maip_pallet_t *p, int argc, char **argv, int i)
@@ -604,7 +584,7 @@ static int fossil_maip_parse_shuffle(fossil_maip_pallet_t *p, int argc, char **a
 
         if (maip_io_cstr_compare(arg, "--seed") == 0 && j + 1 < argc)
         {
-            p->shuffle.seed = atoi(argv[++j]);
+            p->shuffle.seed = argv[++j];
         }
         else if (maip_io_cstr_compare(arg, "--count") == 0 && j + 1 < argc)
         {
@@ -704,6 +684,139 @@ static int fossil_maip_parse_report(fossil_maip_pallet_t *p, int argc, char **ar
     return argc;
 }
 
+static int fossil_maip_parse_help(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    if (i + 1 < argc)
+    {
+        const char *subcmd = argv[i + 1];
+        if (maip_io_cstr_compare(subcmd, "run") == 0)
+        {
+            _show_subhelp_run();
+        }
+        else if (maip_io_cstr_compare(subcmd, "filter") == 0)
+        {
+            _show_subhelp_filter();
+        }
+        else if (maip_io_cstr_compare(subcmd, "sort") == 0)
+        {
+            _show_subhelp_sort();
+        }
+        else if (maip_io_cstr_compare(subcmd, "shuffle") == 0)
+        {
+            _show_subhelp_shuffle();
+        }
+        else if (maip_io_cstr_compare(subcmd, "show") == 0)
+        {
+            _show_subhelp_show();
+        }
+        else if (maip_io_cstr_compare(subcmd, "report") == 0)
+        {
+            _show_subhelp_report();
+        }
+        else if (maip_io_cstr_compare(subcmd, "color") == 0)
+        {
+            _show_subhelp_color();
+        }
+        else if (maip_io_cstr_compare(subcmd, "theme") == 0)
+        {
+            _show_subhelp_theme();
+        }
+    }
+    else {
+        _show_help();
+    }
+    return argc; // This will never be reached
+}
+
+static int fossil_maip_parse_color(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    if (i + 1 < argc)
+    {
+        const char *mode = argv[i + 1];
+        if (maip_io_cstr_compare(mode, "enable") == 0)
+        {
+            MAIP_IO_COLOR_ENABLE = 1;
+        }
+        else if (maip_io_cstr_compare(mode, "disable") == 0)
+        {
+            MAIP_IO_COLOR_ENABLE = 0;
+        }
+        else if (maip_io_cstr_compare(mode, "auto") == 0)
+        {
+            if (isatty(fileno(stdout)))
+            {
+                MAIP_IO_COLOR_ENABLE = 1;
+            }
+            else
+            {
+                MAIP_IO_COLOR_ENABLE = 0;
+            }
+        }
+        else
+        {
+            maip_io_printf("{red}Invalid color mode: %s{reset}\n", mode);
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        maip_io_printf("{red}Color command requires a mode argument (enable, disable, auto){reset}\n");
+        exit(EXIT_FAILURE);
+    }
+    return i + 1; // Skip the mode argument
+}
+
+static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    if (i + 1 < argc)
+    {
+        const char *theme = argv[i + 1];
+        if (maip_io_cstr_compare(theme, "fossil") == 0)
+        {
+            G_MAIP_THEME = MAIP_THEME_FOSSIL;
+            p->theme = MAIP_THEME_FOSSIL;
+        }
+        else if (maip_io_cstr_compare(theme, "light") == 0)
+        {
+            G_MAIP_THEME = MAIP_THEME_LIGHT;
+            p->theme = MAIP_THEME_LIGHT;
+        }
+        else if (maip_io_cstr_compare(theme, "dark") == 0)
+        {
+            G_MAIP_THEME = MAIP_THEME_DARK;
+            p->theme = MAIP_THEME_DARK;
+        }
+        else if (maip_io_cstr_compare(theme, "maga") == 0)
+        {
+            G_MAIP_THEME = MAIP_THEME_MAGA;
+            p->theme = MAIP_THEME_MAGA;
+        }
+        else
+        {
+            maip_io_printf("{red}Invalid theme: %s{reset}\n", theme);
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        maip_io_printf("{red}Theme command requires a theme argument (fossil, light, dark, maga){reset}\n");
+        exit(EXIT_FAILURE);
+    }
+    return i + 1; // Skip the theme argument
+}
+
+static fossil_maip_cmd_t fossil_maip_resolve_cmd(const char *name)
+{
+    for (size_t i = 0; CMD_MAP[i].name != NULL; i++)
+    {
+        if (maip_io_cstr_compare(name, CMD_MAP[i].name) == 0)
+        {
+            return CMD_MAP[i].cmd;
+        }
+    }
+    return MAIP_CMD_NONE;
+}
+
 fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 {
     fossil_maip_pallet_t pallet = {0};
@@ -743,29 +856,6 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
             continue;
         }
 
-        if (maip_io_cstr_starts_with(arg, "color="))
-        {
-            const char *mode = arg + 6;
-            if (maip_io_cstr_compare(mode, "enable") == 0)
-            {
-                maip_io_set_color_mode(1);
-            }
-            else if (maip_io_cstr_compare(mode, "disable") == 0)
-            {
-                maip_io_set_color_mode(0);
-            }
-            else if (maip_io_cstr_compare(mode, "auto") == 0)
-            {
-                maip_io_set_color_mode(-1);
-            }
-            else
-            {
-                maip_io_printf("{red}Invalid color mode: %s{reset}\n", mode);
-                exit(EXIT_FAILURE);
-            }
-            continue;
-        }
-
         if (arg[0] == '-')
         {
             continue; // skip global flags handled elsewhere
@@ -797,6 +887,18 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 
         case MAIP_CMD_REPORT:
             i = fossil_maip_parse_report(&pallet, argc, argv, i);
+            break;
+        
+        case MAIP_CMD_HELP:
+            i = fossil_maip_parse_help(&pallet, argc, argv, i);
+            break;
+        
+        case MAIP_CMD_COLOR:
+            i = fossil_maip_parse_color(&pallet, argc, argv, i);
+            break;
+        
+        case MAIP_CMD_THEME:
+            i = fossil_maip_parse_theme(&pallet, argc, argv, i);
             break;
 
         default:
