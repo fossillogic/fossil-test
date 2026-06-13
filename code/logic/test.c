@@ -335,6 +335,32 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
                 maip_io_printf("  {blue}│   └─{reset} {red}Result  {reset}: {blue}%s{reset}\n", result_str);
             }
             break;
+        case MAIP_THEME_MINT:
+            if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                maip_io_printf("  {green}├─{reset} {bright_cyan}%s{reset} {green}[test case]{reset}\n", test_case->name);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Tags    {reset}: {gray}%s{reset} {orange}[with tag]{reset}\n", test_case->tags);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Criteria{reset}: {gray}%s{reset} {orange}[given criteria]{reset}\n", test_case->criteria);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset} {orange}[the time]{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
+                maip_io_printf("  {green}│   └─{reset} {bright_cyan}Result  {reset}: {gray}%s{reset} {orange}[the result]{reset}\n", result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                maip_io_printf("  {green}::TEST       :: %s{reset}\n", test_case->name);
+                maip_io_printf("    {green}::TAGS     :: %s{reset}\n", test_case->tags);
+                maip_io_printf("    {green}::CRITERIA :: %s{reset}\n", test_case->criteria);
+                maip_io_printf("    {green}::TIME     :: %s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
+                maip_io_printf("    {green}::RESULT   :: %s{reset}\n", result_str);
+            }
+            else
+            { // plain or default
+                maip_io_printf("  {green}├─{reset} {bright_cyan}%s{reset}\n", test_case->name);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Tags    {reset}: {gray}%s{reset}\n", test_case->tags);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Criteria{reset}: {gray}%s{reset}\n", test_case->criteria);
+                maip_io_printf("  {green}│   ├─{reset} {bright_cyan}Time    {reset}: {gray}%s{reset}\n", fossil_maip_format_ns(test_case->elapsed_ns));
+                maip_io_printf("  {green}│   └─{reset} {bright_cyan}Result  {reset}: {gray}%s{reset}\n", result_str);
+            }
+            break;
         default:
             maip_io_printf("- %s (Tags: %s, Criteria: %s, Time: %s, Result: %s)\n",
                             test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
@@ -348,68 +374,85 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
         case MAIP_THEME_FOSSIL:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
+                maip_io_printf("{gray}::{cyan}CASE{gray}:: {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_LIGHT:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{bright_blue}[CASE]{reset} {bright_cyan}%s{reset} {bright_blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {bright_cyan}%s{reset} {bright_blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{bright_blue}::CASE::{reset} {bright_cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
+                maip_io_printf("{gray}::{cyan}CASE{gray}:: {bright_cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{bright_blue}[CASE]{reset} {bright_cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {bright_cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_DARK:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {cyan}%s{reset} {blue}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {orange}[the result]{reset}]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
+                maip_io_printf("{gray}::{cyan}CASE{gray}:: {cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {cyan}%s{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_MAGA:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} --[{red}tags:{reset}{white}%s{reset} {red}[with tag]{reset},{red}criteria:{reset}{white}%s{reset} {red}[given criteria]{reset},{red}time:{reset}{white}%s{reset} {red}[the time]{reset},{red}result:{reset}%s {red}[the result]{reset}]\n",
+                maip_io_printf("{gray}[{red}CASE{gray}] {white}%s{reset} {red}[test case]{reset} --[{red}tags:{reset}{white}%s{reset} {red}[with tag]{reset},{red}criteria:{reset}{white}%s{reset} {red}[given criteria]{reset},{red}time:{reset}{white}%s{reset} {red}[the time]{reset},{red}result:{reset}%s {red}[the result]{reset}]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{red}::CASE::{reset} {white}%s{reset} --[{red}::TAGS::{reset}{white} %s{reset},{red}::CRITERIA::{reset}{white} %s{reset},{red}::TIME::{reset}{white} %s{reset},{red}::RESULT::{reset} %s]\n",
+                maip_io_printf("{gray}::{red}CASE{gray}:: {white}%s{reset} --[{red}::TAGS::{reset}{white} %s{reset},{red}::CRITERIA::{reset}{white} %s{reset},{red}::TIME::{reset}{white} %s{reset},{red}::RESULT::{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{red}[CASE]{reset} {white}%s{reset} --[{red}tags:{reset}{white}%s{reset},{red}criteria:{reset}{white}%s{reset},{red}time:{reset}{white}%s{reset},{red}result:{reset} %s]\n",
+                maip_io_printf("{gray}[{red}CASE{gray}] {white}%s{reset} --[{red}tags:{reset}{white}%s{reset},{red}criteria:{reset}{white}%s{reset},{red}time:{reset}{white}%s{reset},{red}result:{reset} %s]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            break;
+        case MAIP_THEME_MINT:
+            if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                maip_io_printf("{gray}[{green}CASE{gray}] {bright_cyan}%s{reset} {green}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset} {orange}[with tag]{reset},{orange}criteria:{reset}{white}%s{reset} {orange}[given criteria]{reset},{orange}time:{reset}{white}%s{reset} {orange}[the time]{reset},{orange}result:{reset}%s {reset} {orange}[the result]{reset}]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                maip_io_printf("{gray}::{green}CASE{gray}:: {bright_cyan}%s{reset} --[{orange}::TAGS::{reset}{white} %s{reset},{orange}::CRITERIA::{reset}{white} %s{reset},{orange}::TIME::{reset}{white} %s{reset},{orange}::RESULT::{reset} %s]\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else
+            { // plain or default
+                maip_io_printf("{gray}[{green}CASE{gray}] {bright_cyan}%s{reset} {green}[test case]{reset} --[{orange}tags:{reset}{white}%s{reset},{orange}criteria:{reset}{white}%s{reset},{orange}time:{reset}{white}%s{reset},{orange}result:{reset} %s]\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
@@ -426,68 +469,85 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
         case MAIP_THEME_FOSSIL:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
+                maip_io_printf("{gray}[{cyan}CASE{gray}] {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
+                maip_io_printf("{gray}::{cyan}CASE{gray}:: {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
+                maip_io_printf("{gray}[{blue}CASE{gray}] {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_LIGHT:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{bright_blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
+                maip_io_printf("{gray}[{bright_blue}CASE{gray}] {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{bright_blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
+                maip_io_printf("{gray}::{bright_blue}CASE{gray}:: {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{bright_blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
+                maip_io_printf("{gray}[{bright_blue}CASE{gray}] {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_DARK:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
+                maip_io_printf("{gray}[{blue}CASE{gray}] {cyan}%s{reset} {orange}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{blue}::CASE::{reset} {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
+                maip_io_printf("{gray}::{blue}CASE{gray}:: {cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{blue}[CASE]{reset} {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
+                maip_io_printf("{gray}[{blue}CASE{gray}] {cyan}%s{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;
         case MAIP_THEME_MAGA:
             if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
             {
-                maip_io_printf("{red}[CASE]{reset} {white}%s{reset} {red}[test case]{reset} ({red}Tags:{reset} {white}%s{reset} {red}[with tag]{reset}, {red}Criteria:{reset} {white}%s{reset} {red}[given criteria]{reset}, {red}Time:{reset} {white}%s{reset} {red}[the time]{reset}, {red}Result:{reset} %s {red}[the result]{reset})\n",
+                maip_io_printf("{gray}[{red}CASE{gray}] {white}%s{reset} {red}[test case]{reset} ({red}Tags:{reset} {white}%s{reset} {red}[with tag]{reset}, {red}Criteria:{reset} {white}%s{reset} {red}[given criteria]{reset}, {red}Time:{reset} {white}%s{reset} {red}[the time]{reset}, {red}Result:{reset} %s {red}[the result]{reset})\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
             {
-                maip_io_printf("{red}::CASE::{reset} {white}%s{reset} ( {red}::TAGS::{reset} {white}%s{reset}, {red}::CRITERIA::{reset} {white}%s{reset}, {red}::TIME::{reset} {white}%s{reset}, {red}::RESULT::{reset} %s )\n",
+                maip_io_printf("{gray}::{red}CASE{gray}:: {white}%s{reset} ( {red}::TAGS::{reset} {white}%s{reset}, {red}::CRITERIA::{reset} {white}%s{reset}, {red}::TIME::{reset} {white}%s{reset}, {red}::RESULT::{reset} %s )\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             else
             { // plain or default
-                maip_io_printf("{red}[CASE]{reset} {white}%s{reset} ({red}Tags:{reset} {white}%s{reset}, {red}Criteria:{reset} {white}%s{reset}, {red}Time:{reset} {white}%s{reset}, {red}Result:{reset} %s)\n",
+                maip_io_printf("{gray}[{red}CASE{gray}] {white}%s{reset} ({red}Tags:{reset} {white}%s{reset}, {red}Criteria:{reset} {white}%s{reset}, {red}Time:{reset} {white}%s{reset}, {red}Result:{reset} %s)\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            break;
+        case MAIP_THEME_MINT:
+            if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "doge") == 0)
+            {
+                maip_io_printf("{gray}[{green}CASE{gray}] {bright_cyan}%s{reset} {green}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset} {orange}[with tag]{reset}, {orange}Criteria:{reset} {white}%s{reset} {orange}[given criteria]{reset}, {orange}Time:{reset} {white}%s{reset} {orange}[the time]{reset}, {orange}Result:{reset} %s {orange}[the result]{reset})\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else if (engine && engine->pallet.show.verbose && maip_io_cstr_compare(engine->pallet.show.verbose, "ci") == 0)
+            {
+                maip_io_printf("{gray}::{green}CASE{gray}:: {bright_cyan}%s{reset} ( {orange}::TAGS::{reset} {white}%s{reset}, {orange}::CRITERIA::{reset} {white}%s{reset}, {orange}::TIME::{reset} {white}%s{reset}, {orange}::RESULT::{reset} %s )\n",
+                                test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
+            }
+            else
+            { // plain or default
+                maip_io_printf("{gray}[{green}CASE{gray}] {bright_cyan}%s{reset} {green}[test case]{reset} ({orange}Tags:{reset} {white}%s{reset}, {orange}Criteria:{reset} {white}%s{reset}, {orange}Time:{reset} {white}%s{reset}, {orange}Result:{reset} %s)\n",
                                 test_case->name, test_case->tags, test_case->criteria, fossil_maip_format_ns(test_case->elapsed_ns), result_str);
             }
             break;

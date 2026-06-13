@@ -37,13 +37,6 @@
 // exported flags
 // *****************************************************************************
 
-uint64_t G_MAIP_TIMEOUT = 60; // Default timeout in seconds
-int G_MAIP_DRY_RUN = 0;
-int G_MAIP_FAIL_FAST = 0;
-int G_MAIP_SKIP = 0;
-const char *G_MAIP_ONLY = null;
-int G_MAIP_REPEAT = 0;
-int G_MAIP_THREADS = 1;
 fossil_maip_cli_theme_t G_MAIP_THEME = MAIP_THEME_FOSSIL;
 
 // *****************************************************************************
@@ -176,11 +169,9 @@ typedef struct
     int command_index;
 
     // global flags
-    int dry_run;
     int show_version;
     int show_help;
     int show_info;
-    int show_host;
 
     const char *color_mode;
     const char *theme;
@@ -209,11 +200,8 @@ static void _show_help(void)
 {
     maip_io_printf("{blue}Usage: maip [options] [command]{reset}\n");
     maip_io_printf("{blue}Options:{reset}\n");
-    maip_io_printf("{cyan}  --version          {white}Show version information{reset}\n");
-    maip_io_printf("{cyan}  --dry-run          {white}Perform a dry run without executing commands{reset}\n");
-    maip_io_printf("{cyan}  --host             {white}Show information about the current host{reset}\n");
-    maip_io_printf("{cyan}  --help             {white}Show this help message{reset}\n");
-    maip_io_printf("{cyan}  --info             {white}Show detailed information about the environment{reset}\n");
+    maip_io_printf("{cyan}  --version -v       {white}Show version information{reset}\n");
+    maip_io_printf("{cyan}  --help    -h       {white}Show this help message{reset}\n");
     maip_io_printf("{blue}Commands:{reset}\n");
     maip_io_printf("{cyan}  run                {white}Execute tests with optional parameters{reset}\n");
     maip_io_printf("{cyan}  filter             {white}Filter tests based on criteria{reset}\n");
@@ -222,7 +210,19 @@ static void _show_help(void)
     maip_io_printf("{cyan}  show               {white}Show test cases with optional parameters{reset}\n");
     maip_io_printf("{cyan}  color <mode>       {white}Set color mode (enable, disable, auto){reset}\n");
     maip_io_printf("{cyan}  theme <name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
+    maip_io_printf("{cyan}  info               {white}Show detailed information about the environment{reset}\n");
     maip_io_printf("{cyan}  timeout=<seconds>  {white}Set the timeout for commands (default: 60 seconds){reset}\n");
+    exit(EXIT_SUCCESS);
+}
+
+static void _show_subhelp_info(void)
+{
+    maip_io_printf("{blue}Info command options:{reset}\n");
+    maip_io_printf("{cyan}  --os               {white}Filter by operating system{reset}\n");
+    maip_io_printf("{cyan}  --arch             {white}Filter by architecture{reset}\n");
+    maip_io_printf("{cyan}  --memory            {white}Show memory information{reset}\n");
+    maip_io_printf("{cyan}  --endian            {white}Show endianness information{reset}\n");
+    maip_io_printf("{cyan}  --self              {white}Show information about the test runner itself{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -233,7 +233,6 @@ static void _show_subhelp_run(void)
     maip_io_printf("{cyan}  --only <test>      {white}Run only the specified test{reset}\n");
     maip_io_printf("{cyan}  --skip <test>      {white}Skip the specified test{reset}\n");
     maip_io_printf("{cyan}  --repeat <count>   {white}Repeat the test a specified number of times{reset}\n");
-    maip_io_printf("{cyan}  --help             {white}Show help for run command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -253,7 +252,6 @@ static void _show_subhelp_report(void)
     maip_io_printf("{blue}Report command options:{reset}\n");
     maip_io_printf("{cyan}  --format <json/fson/yaml/csv>       {white}Set the output format{reset}\n");
     maip_io_printf("{cyan}  --destination <file/stdout>        {white}Set the output destination (default: stdout){reset}\n");
-    maip_io_printf("{cyan}  --help                              {white}Show help for report command{reset}\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -309,83 +307,94 @@ static void _show_subhelp_show(void)
     exit(EXIT_SUCCESS);
 }
 
-static void _show_info(void)
+static void _show_info(fossil_maip_pallet_t *pallet)
 {
-    maip_io_printf("{blue}Fossil Test Information:{reset}\n");
-    maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
-    maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
-    maip_io_printf("{cyan}  Website: {green}%s{reset}\n", FOSSIL_MAIP_WEBSITE);
+
+    if (pallet->info.self)
+    {
+        maip_io_printf("{blue}Fossil Test Runner Information:{reset}\n");
+        maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
+        maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
+        maip_io_printf("{cyan}  Website: {green}%s{reset}\n", FOSSIL_MAIP_WEBSITE);
+        return;
+    }
+
+    if (pallet->info.os)
+    {
+        maip_sys_hostinfo_system_t system_info;
+        if (maip_sys_hostinfo_get_system(&system_info) == 0)
+        {
+            maip_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
+            maip_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
+            maip_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
+            maip_io_printf("{blue}Hostname: {cyan}%s{reset}\n", system_info.hostname);
+            maip_io_printf("{blue}Username: {cyan}%s{reset}\n", system_info.username);
+            maip_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
+            maip_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
+            maip_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
+        }
+        else
+        {
+            maip_io_printf("{red}Error retrieving system information.{reset}\n");
+        }
+    }
+
+    if (pallet->info.arch)
+    {
+        maip_sys_hostinfo_architecture_t arch_info;
+        if (maip_sys_hostinfo_get_architecture(&arch_info) == 0)
+        {
+            maip_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
+            maip_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
+            maip_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
+            maip_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
+            maip_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
+            maip_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
+        }
+        else
+        {
+            maip_io_printf("{red}Error retrieving architecture information.{reset}\n");
+        }
+    }
+
+    if (pallet->info.memory)
+    {
+        maip_sys_hostinfo_memory_t memory_info;
+        if (maip_sys_hostinfo_get_memory(&memory_info) == 0)
+        {
+            maip_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
+            maip_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
+            maip_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
+            maip_io_printf("{blue}Available Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.available_memory);
+            maip_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
+            maip_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
+            maip_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
+        }
+        else
+        {
+            maip_io_printf("{red}Error retrieving memory information .{reset}\n");
+        }
+    }
+
+    if (pallet->info.endian)
+    {
+        maip_sys_hostinfo_endianness_t endianness_info;
+        if (maip_sys_hostinfo_get_endianness(&endianness_info) == 0)
+        {
+            maip_io_printf("{blue}Endianness: {cyan}%s{reset}\n",
+                           endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
+        }
+        else
+        {
+            maip_io_printf("{red}Error retrieving endianness information.{reset}\n");
+        }
+    }
     exit(EXIT_SUCCESS);
 }
 
 static void _show_version(void)
 {
     maip_io_printf("{blue}Fossil Test Version: {cyan}%s{reset}\n", FOSSIL_MAIP_VERSION);
-    exit(EXIT_SUCCESS);
-}
-
-static void _show_host(void)
-{
-    maip_sys_hostinfo_system_t system_info;
-    maip_sys_hostinfo_architecture_t arch_info;
-    maip_sys_hostinfo_memory_t memory_info;
-    maip_sys_hostinfo_endianness_t endianness_info;
-
-    if (maip_sys_hostinfo_get_system(&system_info) == 0)
-    {
-        maip_io_printf("{blue}Operating System: {cyan}%s{reset}\n", system_info.os_name);
-        maip_io_printf("{blue}OS Version: {cyan}%s{reset}\n", system_info.os_version);
-        maip_io_printf("{blue}Kernel Version: {cyan}%s{reset}\n", system_info.kernel_version);
-        maip_io_printf("{blue}Hostname: {cyan}%s{reset}\n", system_info.hostname);
-        maip_io_printf("{blue}Username: {cyan}%s{reset}\n", system_info.username);
-        maip_io_printf("{blue}Domain Name: {cyan}%s{reset}\n", system_info.domain_name);
-        maip_io_printf("{blue}Machine Type: {cyan}%s{reset}\n", system_info.machine_type);
-        maip_io_printf("{blue}Platform: {cyan}%s{reset}\n", system_info.platform);
-    }
-    else
-    {
-        maip_io_printf("{red}Error retrieving system information.{reset}\n");
-    }
-
-    if (maip_sys_hostinfo_get_architecture(&arch_info) == 0)
-    {
-        maip_io_printf("{blue}Architecture: {cyan}%s{reset}\n", arch_info.architecture);
-        maip_io_printf("{blue}CPU: {cyan}%s{reset}\n", arch_info.cpu);
-        maip_io_printf("{blue}CPU Cores: {cyan}%s{reset}\n", arch_info.cpu_cores);
-        maip_io_printf("{blue}CPU Threads: {cyan}%s{reset}\n", arch_info.cpu_threads);
-        maip_io_printf("{blue}CPU Frequency: {cyan}%s{reset}\n", arch_info.cpu_frequency);
-        maip_io_printf("{blue}CPU Architecture: {cyan}%s{reset}\n", arch_info.cpu_architecture);
-    }
-    else
-    {
-        maip_io_printf("{red}Error retrieving architecture information.{reset}\n");
-    }
-
-    if (maip_sys_hostinfo_get_memory(&memory_info) == 0)
-    {
-        maip_io_printf("{blue}Total Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_memory);
-        maip_io_printf("{blue}Free Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_memory);
-        maip_io_printf("{blue}Used Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_memory);
-        maip_io_printf("{blue}Available Memory: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.available_memory);
-        maip_io_printf("{blue}Total Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.total_swap);
-        maip_io_printf("{blue}Free Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.free_swap);
-        maip_io_printf("{blue}Used Swap: {cyan}%llu bytes{reset}\n", (unsigned long long)memory_info.used_swap);
-    }
-    else
-    {
-        maip_io_printf("{red}Error retrieving memory information.{reset}\n");
-    }
-
-    if (maip_sys_hostinfo_get_endianness(&endianness_info) == 0)
-    {
-        maip_io_printf("{blue}Endianness: {cyan}%s{reset}\n",
-                       endianness_info.is_little_endian ? "Little-endian" : "Big-endian");
-    }
-    else
-    {
-        maip_io_printf("{red}Error retrieving endianness information.{reset}\n");
-    }
-
     exit(EXIT_SUCCESS);
 }
 
@@ -400,7 +409,8 @@ typedef enum
     MAIP_CMD_REPORT,
     MAIP_CMD_HELP,
     MAIP_CMD_COLOR,
-    MAIP_CMD_THEME
+    MAIP_CMD_THEME,
+    MAIP_CMD_INFO
 } fossil_maip_cmd_t;
 
 typedef struct
@@ -419,6 +429,7 @@ static fossil_cmd_map_t CMD_MAP[] = {
     {MAIP_CMD_HELP, "help"},
     {MAIP_CMD_COLOR, "color"},
     {MAIP_CMD_THEME, "theme"},
+    {MAIP_CMD_INFO, "info"},
     {MAIP_CMD_NONE, NULL}};
 
 static int fossil_maip_parse_run(fossil_maip_pallet_t *p, int argc, char **argv, int i)
@@ -441,7 +452,6 @@ static int fossil_maip_parse_run(fossil_maip_pallet_t *p, int argc, char **argv,
         if (maip_io_cstr_compare(arg, "--fail-fast") == 0)
         {
             p->run.fail_fast = 1;
-            G_MAIP_FAIL_FAST = 1;
         }
         else if (maip_io_cstr_compare(arg, "--repeat") == 0 && j + 1 < argc)
         {
@@ -687,6 +697,10 @@ static int fossil_maip_parse_help(int argc, char **argv, int i)
         {
             _show_subhelp_theme();
         }
+        else if (maip_io_cstr_compare(subcmd, "info") == 0)
+        {
+            _show_subhelp_info();
+        }
     }
     else
     {
@@ -758,6 +772,11 @@ static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **arg
             G_MAIP_THEME = MAIP_THEME_MAGA;
             p->theme = MAIP_THEME_MAGA;
         }
+        else if (maip_io_cstr_compare(theme, "mint") == 0)
+        {
+            G_MAIP_THEME = MAIP_THEME_MINT;
+            p->theme = MAIP_THEME_MINT;
+        }
         else
         {
             maip_io_printf("{red}Invalid theme: %s{reset}\n", theme);
@@ -770,6 +789,53 @@ static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **arg
         exit(EXIT_FAILURE);
     }
     return i + 1; // Skip the theme argument
+}
+
+static int fossil_maip_parse_info(fossil_maip_pallet_t *p, int argc, char **argv, int i)
+{
+    // set defaults for info command
+    p->info.os = 0;
+    p->info.arch = 0;
+    p->info.memory = 0;
+    p->info.endian = 0;
+    p->info.self = 0;
+
+    for (int j = i + 1; j < argc; j++)
+    {
+        const char *arg = argv[j];
+
+        if (arg[0] != '-')
+        {
+            return j - 1; // stop when next command starts
+        }
+
+        if (maip_io_cstr_compare(arg, "--os") == 0)
+        {
+            p->info.os = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--arch") == 0)
+        {
+            p->info.arch = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--memory") == 0)
+        {
+            p->info.memory = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--endian") == 0)
+        {
+            p->info.endian = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--self") == 0)
+        {
+            p->info.self = 1;
+        }
+        else if (maip_io_cstr_compare(arg, "--help") == 0)
+        {
+            _show_subhelp_info();
+        }
+    }
+
+    return argc;
 }
 
 static int levenshtein_distance(const char *s1, const char *s2)
@@ -847,33 +913,15 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
         const char *arg = argv[i];
 
         // global flags first
-        if (maip_io_cstr_compare(arg, "--dry-run") == 0)
-        {
-            G_MAIP_DRY_RUN = 1;
-            continue;
-        }
-
-        if (maip_io_cstr_compare(arg, "--version") == 0)
+        if (maip_io_cstr_compare(arg, "--version") == 0 || maip_io_cstr_compare(arg, "-v") == 0)
         {
             _show_version();
             continue;
         }
 
-        if (maip_io_cstr_compare(arg, "--help") == 0)
+        if (maip_io_cstr_compare(arg, "--help") == 0 || maip_io_cstr_compare(arg, "-h") == 0)
         {
             _show_help();
-            continue;
-        }
-
-        if (maip_io_cstr_compare(arg, "--host") == 0)
-        {
-            _show_host();
-            continue;
-        }
-
-        if (maip_io_cstr_compare(arg, "--info") == 0)
-        {
-            _show_info();
             continue;
         }
 
@@ -922,6 +970,11 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 
         case MAIP_CMD_THEME:
             i = fossil_maip_parse_theme(&pallet, argc, argv, i);
+            break;
+
+        case MAIP_CMD_INFO:
+            i = fossil_maip_parse_info(&pallet, argc, argv, i);
+            _show_info(&pallet);
             break;
 
         default:
