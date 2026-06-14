@@ -224,7 +224,8 @@ typedef enum {
     MAIP_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
     MAIP_THEME_LIGHT,    // Light Theme for Fossil Test Framework
     MAIP_THEME_DARK,     // Dark Theme for Fossil Test Framework
-    MAIP_THEME_MAGA      // Maga Theme make unit testing great again!
+    MAIP_THEME_MAGA,     // Maga Theme make unit testing great again!
+    MAIP_THEME_MINT      // Mint Theme for Fossil Test Framework
 } fossil_maip_cli_theme_t;
 
 typedef enum {
@@ -234,8 +235,6 @@ typedef enum {
 } fossil_maip_cli_verbose_t;
 
 typedef struct {
-    int dry_run;                   // Flag for dry run mode
-
     struct {
         int fail_fast;             // Flag for --fail-fast
         const char* only;          // Value for --only
@@ -294,6 +293,14 @@ typedef struct {
         const char* destination;       // Output destination (file path or stdout)
     } report;                       // Report command flags
 
+    struct {
+        int os;                       // Flag for --os
+        int arch;                     // Flag for --arch
+        int memory;                   // Flag for --memory
+        int endian;                   // Flag for --endian
+        int self;                     // Flag for --self
+    } info;                        // Info command flags
+
     fossil_maip_cli_theme_t theme; // Theme option
 } fossil_maip_pallet_t;
 
@@ -301,12 +308,6 @@ typedef struct {
 // exported flags
 // *****************************************************************************
 
-extern uint64_t G_MAIP_TIMEOUT;
-extern int G_MAIP_DRY_RUN;
-extern int G_MAIP_FAIL_FAST;
-extern int G_MAIP_SKIP;
-extern const char* G_MAIP_ONLY;
-extern int G_MAIP_REPEAT;
 extern fossil_maip_cli_theme_t G_MAIP_THEME;
 
 /**

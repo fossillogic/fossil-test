@@ -31,24 +31,23 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 ### Commands and Options
 
-| Command          | Description                                                                                   | Notes                                                                                         |
-|-----------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `--version`,`-v` | Show version information.                                                                    | Immediately prints the version and exits.                                                     |
-| `--info`,`-i`    | Show detailed build, runtime, and framework information.                                     | Prints version, compiler, platform, build configuration, enabled features, and exits.         |
-| `--dry-run`      | Perform a dry run without executing commands.                                                | Sets an internal dry-run flag to simulate test execution.                                     |
-| `--host`         | Show information about the current host.                                                     | Prints system information.                                                                    |
-| `--help`,`-h`    | Show help and usage information.                                                             | Displays global usage instructions, available commands, options, examples, and exits.         |
-| `help`           | Display help information for commands and options.                                           | Equivalent to `--help`; supports `help <command>` and `<command> --help` for detailed documentation. |
-| `run`            | Execute tests with optional parameters.                                                      | Supports `--fail-fast`, `--only <tests>`, `--skip <tests>`, `--repeat <n>`, `--threads <n>`. |
-| `filter`         | Filter tests based on criteria.                                                              | Options: `--test-name`, `--suite-name`, `--tag`; supports multiple values and wildcards.      |
-| `sort`           | Sort tests by specified criteria.                                                            | Options: `--by <criteria>`, `--order <asc/desc>`; validated against built-in criteria.        |
-| `shuffle`        | Shuffle tests with optional parameters.                                                      | Options: `--seed <value>`, `--count <n>`, `--by <criteria>`.                                  |
-| `show`           | Show test cases with optional parameters.                                                    | Options: `--test-name`, `--suite-name`, `--tag`, `--result <fail/pass/all>`, `--mode <list/tree/graph>`, `--verbose <plain/ci/doge>`. Default mode is `list` and verbose is `plain`. |
-| `color <mode>`   | Set color mode.                                                                              | Options: `enable/disable/auto` (`auto` enables color only if stdout is a terminal).           |
-produce an error.                              |
-| `theme <name>`   | Set the theme for output.                                                                    | Options: `fossil/light/dark/maga`.                                                            |
-| `timeout=<sec>`  | Set the timeout for commands.                                                                | Default is 60 seconds; sets an internal timeout for all command execution.                     |
-| `report`         | Export test results for CI integration.                                                      | Supported formats: `json/fson/yaml/csv`.                                                      |
+| Command        | Description                                    | Flags / Options                                                                 |
+|---------------|------------------------------------------------|---------------------------------------------------------------------------------|
+| `--version, -v` | Show version information.                       | -                                                                               |
+| `--info, -i`    | Show detailed build, runtime, and framework information. | `--os, --arch, --memory, --endian, --self`                                   |
+| `--dry-run`     | Perform a dry run without executing commands.   | -                                                                               |
+| `--host`        | Show information about the current host.        | -                                                                               |
+| `--help, -h`    | Show help and usage information.                | -                                                                               |
+| `help`          | Display help for commands and options.          | `help <command>, <command> --help`                                                |
+| `run`           | Execute tests.                                  | `--fail-fast, --only <test>, --skip <test>, --repeat <count>`                    |
+| `filter`        | Filter tests based on criteria.                 | `--test-name <name>, --suite-name <name>, --tag <tag>, --help, --options`       |
+| `sort`          | Sort tests by specified criteria.               | `--by <criteria>, --order <asc/desc>, --help, --options`                         |
+| `shuffle`       | Shuffle tests.                                  | `--seed <seed>, --count <count>, --by <criteria>, --help, --options`            |
+| `show`          | Show test cases.                                | `--test-name <name>, --suite-name <name>, --tag <tag>, --result <result>, --verbose <level>, --mode <mode>` |
+| `color <mode>`  | Set color mode.                                 | `enable, disable, auto`                                                            |
+| `theme <name>`  | Set the theme for output.                       | `fossil, light, dark, maga`                                                        |
+| `timeout=<sec>` | Set the timeout for commands (default: 60s).    | -                                                                               |
+| `report`        | Export test results for CI integration.         | `--format <json/fson/yaml/csv>, --destination <file/stdout>`                     |
 
 > **Help System:** Fossil Test CLI provides both global and command-specific help. Running `--help` displays the main usage guide, available commands, global options, examples, and general documentation. You can also request detailed help for any command by using `help <command>` or `<command> --help` (for example, `help run`, `run --help`, `help filter`, or `filter --help`). Command-specific help includes syntax, supported options, defaults, examples, and additional notes relevant to that command. This allows documentation to be accessed directly from the terminal without requiring external references.
 

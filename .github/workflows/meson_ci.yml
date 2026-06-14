@@ -175,5 +175,5 @@ jobs:
                 --default-library=${{ matrix.libtype }} && \
               meson compile -C builddir_${{ matrix.libtype }} && \
               meson test -C builddir_${{ matrix.libtype }} -v \
-                --test-args='show --mode tree --verbose ci --result fail theme maga'
+                --test-args='show --mode tree --verbose ci --result fail theme mint'
             "
