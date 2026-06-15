@@ -385,25 +385,25 @@ FOSSIL_TEST(c_mock_io_compare_output_macro) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_mock_test_cases) {
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_initialization);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_addition);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_destruction);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_function_creation);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_alias_creation);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_struct_creation);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_type_handling);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_edge_cases);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_call_list_large_arguments);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_initialization);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_addition);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_destruction);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_function_creation);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_alias_creation);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_struct_creation);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_type_handling);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_edge_cases);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_call_list_large_arguments);
 
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_macro_initialization);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_macro_addition);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_macro_destruction);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_macro_initialization);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_macro_addition);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_macro_destruction);
 
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_capture_output);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_compare_output);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_redirect_stdout_macro);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_compare_output_macro);
-    FOSSIL_TEST_ADD(c_mock_suite, c_mock_io_compare_output);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_io_capture_output);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_io_compare_output);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_io_redirect_stdout_macro);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_io_compare_output_macro);
+    FOSSIL_SUITE_ADD(c_mock_suite, c_mock_io_compare_output);
 
     FOSSIL_TEST_REGISTER(c_mock_suite);
 } // end of group

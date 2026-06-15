@@ -432,7 +432,7 @@ extern "C"
  * @param suite The name of the suite to which the test case will be added.
  * @param test_case The name of the test case to add.
  */
-#define _FOSSIL_TEST_ADD(suite, test_case) \
+#define _FOSSIL_SUITE_ADD(suite, test_case) \
     fossil_maip_add_case(&suite_##suite, test_case_##test_case)
 
 /** @brief Macro to run a specific test suite.
@@ -782,8 +782,8 @@ extern "C"
  * @param suite The name of the suite to which the test case will be added.
  * @param test_case The name of the test case to add.
  */
-#define FOSSIL_TEST_ADD(suite, test_case) \
-    _FOSSIL_TEST_ADD(suite, test_case)
+#define FOSSIL_SUITE_ADD(suite, test_case) \
+    _FOSSIL_SUITE_ADD(suite, test_case)
 
 /** @brief Macro to run a specific test suite.
  *

@@ -192,11 +192,11 @@ FOSSIL_TEST(objc_ddd_service_layer) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(objc_ddd_test_cases) {
-    FOSSIL_TEST_ADD(objc_ddd_suite, objc_ddd_entity_creation);
-    FOSSIL_TEST_ADD(objc_ddd_suite, objc_ddd_value_object_equality);
-    FOSSIL_TEST_ADD(objc_ddd_suite, objc_ddd_aggregate_root_behavior);
-    FOSSIL_TEST_ADD(objc_ddd_suite, objc_ddd_repository_usage);
-    FOSSIL_TEST_ADD(objc_ddd_suite, objc_ddd_service_layer);
+    FOSSIL_SUITE_ADD(objc_ddd_suite, objc_ddd_entity_creation);
+    FOSSIL_SUITE_ADD(objc_ddd_suite, objc_ddd_value_object_equality);
+    FOSSIL_SUITE_ADD(objc_ddd_suite, objc_ddd_aggregate_root_behavior);
+    FOSSIL_SUITE_ADD(objc_ddd_suite, objc_ddd_repository_usage);
+    FOSSIL_SUITE_ADD(objc_ddd_suite, objc_ddd_service_layer);
 
     FOSSIL_TEST_REGISTER(objc_ddd_suite);
 } // end of group

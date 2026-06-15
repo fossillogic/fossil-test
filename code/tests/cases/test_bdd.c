@@ -219,14 +219,14 @@ FOSSIL_TEST(xbdd_remove_item_from_cart) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_bdd_test_cases) {
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_logic_test);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_user_account);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_empty_cart);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_valid_login);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_invalid_login);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_insufficient_balance);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_add_multiple_items_to_cart);
-    FOSSIL_TEST_ADD(bdd_suite, xbdd_remove_item_from_cart);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_logic_test);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_user_account);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_empty_cart);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_valid_login);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_invalid_login);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_insufficient_balance);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_add_multiple_items_to_cart);
+    FOSSIL_SUITE_ADD(bdd_suite, xbdd_remove_item_from_cart);
 
     FOSSIL_TEST_REGISTER(bdd_suite);
 } // end of group
