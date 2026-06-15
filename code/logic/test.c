@@ -153,17 +153,24 @@ void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t
 
 // --- Show Test Cases ---
 
-// Formats nanoseconds into a string: "Xs Yus Zns" and returns a heap-allocated string
+// Formats nanoseconds into a human-readable string and returns a heap-allocated string
 char *fossil_maip_format_ns(uint64_t ns)
 {
-    uint64_t sec = ns / 1000000000ULL;
-    uint64_t usec = (ns % 1000000000ULL) / 1000ULL;
-    uint64_t nsec = ns % 1000ULL;
-    char *buffer = (char *)maip_sys_memory_alloc(64);
+    uint64_t hours = ns / 3600000000000ULL;
+    uint64_t minutes = (ns % 3600000000000ULL) / 60000000000ULL;
+    uint64_t seconds = (ns % 60000000000ULL) / 1000000000ULL;
+    uint64_t microseconds = (ns % 1000000000ULL) / 1000ULL;
+    uint64_t nanoseconds = ns % 1000ULL;
+    char *buffer = (char *)maip_sys_memory_alloc(32);
+
     if (buffer)
     {
-        snprintf(buffer, 64, "%lu s %lu us %lu ns", (unsigned long)sec, (unsigned long)usec, (unsigned long)nsec);
-        buffer[63] = '\0';
+        snprintf(buffer, 32, "%02lu:%02lu:%02lu.%06lu,%03lu",
+                 (unsigned long)hours,
+                 (unsigned long)minutes,
+                 (unsigned long)seconds,
+                 (unsigned long)microseconds,
+                 (unsigned long)nanoseconds);
     }
 
     return buffer;
@@ -1266,6 +1273,64 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
     return message;
 }
 
+static const char *fossil_maip_elapsed_timer_ai_message(uint64_t total_elapsed_ns)
+{
+    static const char *fast_insights[] = {
+        "Execution was near-instant. Excellent optimization.",
+        "This run was blazing fast. Great job keeping the code lean.",
+        "Compact execution time indicates strong performance."
+    };
+
+    static const char *balanced_insights[] = {
+        "Solid execution time. Keep an eye on growth with new features.",
+        "Performance looks stable; continue monitoring test durations.",
+        "Reasonable elapsed time. Consider profiling if this grows."
+    };
+
+    static const char *slow_insights[] = {
+        "The elapsed time is longer than expected. Investigate slow suites.",
+        "Long-running execution detected. Check slow tests for bottlenecks.",
+        "Performance may benefit from optimization or test partitioning."
+    };
+
+    static const char *critical_insights[] = {
+        "Execution is very slow. Investigate slow paths and large test data.",
+        "High elapsed time suggests a performance issue to address.",
+        "Deep profiling is recommended for this run."
+    };
+
+    const char **selected = balanced_insights;
+    int count = sizeof(balanced_insights) / sizeof(*balanced_insights);
+
+    if (total_elapsed_ns < 1000000ULL)
+    {
+        selected = fast_insights;
+        count = sizeof(fast_insights) / sizeof(*fast_insights);
+    }
+    else if (total_elapsed_ns < 10000000ULL)
+    {
+        selected = fast_insights;
+        count = sizeof(fast_insights) / sizeof(*fast_insights);
+    }
+    else if (total_elapsed_ns < 500000000ULL)
+    {
+        selected = balanced_insights;
+        count = sizeof(balanced_insights) / sizeof(*balanced_insights);
+    }
+    else if (total_elapsed_ns < 2000000000ULL)
+    {
+        selected = slow_insights;
+        count = sizeof(slow_insights) / sizeof(*slow_insights);
+    }
+    else
+    {
+        selected = critical_insights;
+        count = sizeof(critical_insights) / sizeof(*critical_insights);
+    }
+
+    return selected[rand() % count];
+}
+
 void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
 {
     if (!engine)
@@ -1278,49 +1343,42 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
         total_elapsed_ns += engine->suites[i].time_elapsed_ns;
     }
 
-    // Derive time components directly from nanoseconds
-    uint64_t total_elapsed_s = total_elapsed_ns / 1000000000ULL;
-    uint64_t hours = total_elapsed_s / 3600;
-    uint64_t minutes = (total_elapsed_s % 3600) / 60;
-    uint64_t seconds = total_elapsed_s % 60;
-    uint64_t microseconds = (total_elapsed_ns / 1000ULL) % 1000000ULL;
-    uint64_t nanoseconds_part = total_elapsed_ns % 1000ULL;
-
-    char time_buffer[64];
-    snprintf(time_buffer, sizeof(time_buffer),
-             "%02llu:%02llu:%02llu.%06llu,%03llu",
-             (unsigned long long)hours,
-             (unsigned long long)minutes,
-             (unsigned long long)seconds,
-             (unsigned long long)microseconds,
-             (unsigned long long)nanoseconds_part);
+    // --- Format elapsed time using helper ---
+    char *formatted_time = fossil_maip_format_ns(total_elapsed_ns);
+    const char *elapsed_time_display = formatted_time ? formatted_time : "unknown";
+    const char *elapsed_insight = fossil_maip_elapsed_timer_ai_message(total_elapsed_ns);
 
     // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme)
     {
     case MAIP_THEME_FOSSIL:
         maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_LIGHT:
         maip_io_printf("{bright_blue,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_blue,bold}Elapsed Time:{white} %s {bright_blue}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_blue,bold}Elapsed Time:{white} %s {bright_blue}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_blue,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_blue,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_DARK:
         maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_MAGA:
         maip_io_printf("{red,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{red,bold}Elapsed Time:{white} %s {red}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{red,bold}Elapsed Time:{white} %s {red}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{red,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{red,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_MINT:
         maip_io_printf("{green,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{green,bold}Elapsed Time:{white} %s {green}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{green,bold}Elapsed Time:{white} %s {green}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{green,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{green,bold}=================================================================================={reset}\n");
         break;
     default:
