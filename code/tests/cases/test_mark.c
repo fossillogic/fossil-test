@@ -118,15 +118,15 @@ FOSSIL_TEST(c_mark_reset_benchmark) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_mark_test_cases) {
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_start_and_stop);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_benchmark);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_start);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_stop);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_multiple_benchmarks);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_invalid_benchmark_name);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_stop_without_start);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_nested_benchmarks);
-    FOSSIL_SUITE_ADD(c_mark_suite, c_mark_reset_benchmark);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_start_and_stop);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_benchmark);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_start);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_stop);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_multiple_benchmarks);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_invalid_benchmark_name);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_stop_without_start);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_nested_benchmarks);
+    FOSSIL_ADD_TEST(c_mark_suite, c_mark_reset_benchmark);
 
-    FOSSIL_TEST_REGISTER(c_mark_suite);
+    FOSSIL_ADD_SUITE(c_mark_suite);
 }

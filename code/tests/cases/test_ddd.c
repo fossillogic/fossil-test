@@ -192,11 +192,11 @@ FOSSIL_TEST(c_ddd_service_layer) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_ddd_test_cases) {
-    FOSSIL_SUITE_ADD(c_ddd_suite, c_ddd_entity_creation);
-    FOSSIL_SUITE_ADD(c_ddd_suite, c_ddd_value_object_equality);
-    FOSSIL_SUITE_ADD(c_ddd_suite, c_ddd_aggregate_root_behavior);
-    FOSSIL_SUITE_ADD(c_ddd_suite, c_ddd_repository_usage);
-    FOSSIL_SUITE_ADD(c_ddd_suite, c_ddd_service_layer);
+    FOSSIL_ADD_TEST(c_ddd_suite, c_ddd_entity_creation);
+    FOSSIL_ADD_TEST(c_ddd_suite, c_ddd_value_object_equality);
+    FOSSIL_ADD_TEST(c_ddd_suite, c_ddd_aggregate_root_behavior);
+    FOSSIL_ADD_TEST(c_ddd_suite, c_ddd_repository_usage);
+    FOSSIL_ADD_TEST(c_ddd_suite, c_ddd_service_layer);
 
-    FOSSIL_TEST_REGISTER(c_ddd_suite);
+    FOSSIL_ADD_SUITE(c_ddd_suite);
 } // end of group

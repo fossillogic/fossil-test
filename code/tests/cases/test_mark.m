@@ -132,16 +132,16 @@
  // * Fossil Logic Test Pool
  // * * * * * * * * * * * * * * * * * * * * * * * *
  FOSSIL_TEST_GROUP(objc_mark_test_cases) {
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_start_and_stop);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_benchmark);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_start);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_stop);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_multiple_benchmarks);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_elapsed_time);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_invalid_benchmark_name);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_stop_without_start);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_nested_benchmarks);
-     FOSSIL_SUITE_ADD(objc_mark_suite, objc_mark_reset_benchmark);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_start_and_stop);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_benchmark);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_start);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_stop);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_multiple_benchmarks);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_elapsed_time);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_invalid_benchmark_name);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_stop_without_start);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_nested_benchmarks);
+     FOSSIL_ADD_TEST(objc_mark_suite, objc_mark_reset_benchmark);
  
-     FOSSIL_TEST_REGISTER(objc_mark_suite);
+     FOSSIL_ADD_SUITE(objc_mark_suite);
  }

@@ -382,25 +382,25 @@ FOSSIL_TEST(cpp_mock_io_compare_output_macro) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_mock_test_cases) {
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_initialization);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_addition);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_destruction);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_function_creation);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_alias_creation);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_struct_creation);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_type_handling);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_edge_cases);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_call_list_large_arguments);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_initialization);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_addition);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_destruction);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_function_creation);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_alias_creation);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_struct_creation);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_type_handling);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_edge_cases);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_call_list_large_arguments);
 
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_macro_initialization);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_macro_addition);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_macro_destruction);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_macro_initialization);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_macro_addition);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_macro_destruction);
 
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_io_capture_output);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_io_compare_output);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_io_redirect_stdout_macro);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_io_compare_output_macro);
-    FOSSIL_SUITE_ADD(cpp_mock_suite, cpp_mock_io_compare_output);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_io_capture_output);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_io_compare_output);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_io_redirect_stdout_macro);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_io_compare_output_macro);
+    FOSSIL_ADD_TEST(cpp_mock_suite, cpp_mock_io_compare_output);
 
-    FOSSIL_TEST_REGISTER(cpp_mock_suite);
+    FOSSIL_ADD_SUITE(cpp_mock_suite);
 } // end of group

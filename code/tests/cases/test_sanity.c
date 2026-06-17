@@ -120,12 +120,12 @@ FOSSIL_TEST(c_sanity_sys_dir_exists) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_sanity_test_cases) {
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_execute);
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_getpid);
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_create_file);
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_file_exists);
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_create_dir);
-    FOSSIL_SUITE_ADD(c_sanity_suite, c_sanity_sys_dir_exists);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_execute);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_getpid);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_create_file);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_file_exists);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_create_dir);
+    FOSSIL_ADD_TEST(c_sanity_suite, c_sanity_sys_dir_exists);
 
-    FOSSIL_TEST_REGISTER(c_sanity_suite);
+    FOSSIL_ADD_SUITE(c_sanity_suite);
 } // end of group

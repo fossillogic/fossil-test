@@ -433,7 +433,7 @@ extern "C"
  * @param suite The name of the suite to which the test case will be added.
  * @param test_case The name of the test case to add.
  */
-#define _FOSSIL_SUITE_ADD(suite, test_case) \
+#define _FOSSIL_ADD_TEST(suite, test_case) \
     fossil_maip_add_case(&suite_##suite, test_case_##test_case)
 
 /** @brief Macro to run a specific test suite.
@@ -504,7 +504,7 @@ extern "C"
  *
  * @param suite The name of the suite to register.
  */
-#define _FOSSIL_TEST_REGISTER(suite) \
+#define _FOSSIL_ADD_SUITE(suite) \
     fossil_maip_add_suite(engine, suite_##suite)
 
 /**
@@ -783,8 +783,8 @@ extern "C"
  * @param suite The name of the suite to which the test case will be added.
  * @param test_case The name of the test case to add.
  */
-#define FOSSIL_SUITE_ADD(suite, test_case) \
-    _FOSSIL_SUITE_ADD(suite, test_case)
+#define FOSSIL_ADD_TEST(suite, test_case) \
+    _FOSSIL_ADD_TEST(suite, test_case)
 
 /** @brief Macro to run a specific test suite.
  *
@@ -850,8 +850,8 @@ extern "C"
  *
  * @param suite The name of the suite to register.
  */
-#define FOSSIL_TEST_REGISTER(suite) \
-    _FOSSIL_TEST_REGISTER(suite)
+#define FOSSIL_ADD_SUITE(suite) \
+    _FOSSIL_ADD_SUITE(suite)
 
 /**
  * @brief Macro to define a test group.
