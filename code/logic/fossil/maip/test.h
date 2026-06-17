@@ -97,7 +97,8 @@ extern "C"
     // In fossil_maip_engine_t
     typedef struct
     {
-        fossil_maip_suite_t *suites;
+        fossil_maip_suite_t *suites; // test suites
+        fossil_maip_suite_t shadow; // global cases
         size_t count;
         size_t capacity;
 
