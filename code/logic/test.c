@@ -86,7 +86,6 @@ int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suit
 }
 
 // --- Add Case ---
-#define FOSSIL_MAIP_HASH_HEX_LEN 65
 
 int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case)
 {
@@ -115,9 +114,9 @@ void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t
     if (!test_case || !suite)
         return;
 
-    if (test_case->result != FOSSIL_MAIP_CASE_EMPTY)
+    if (test_case->state != FOSSIL_MAIP_CASE_EMPTY)
     {
-        switch (test_case->result)
+        switch (test_case->state)
         {
         case FOSSIL_MAIP_CASE_PASS:
             suite->score.passed++;
@@ -185,11 +184,11 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
     const char *mode = (engine && engine->pallet.show.mode) ? engine->pallet.show.mode : "list";
 
     const char *result_str =
-        (test_case->result == FOSSIL_MAIP_CASE_EMPTY) ? "{cyan}empty{reset}" : (test_case->result == FOSSIL_MAIP_CASE_PASS)     ? "{green}pass{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_FAIL)       ? "{red}fail{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_TIMEOUT)    ? "{yellow}timeout{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_SKIPPED)    ? "{yellow}skipped{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}"
+        (test_case->state == FOSSIL_MAIP_CASE_EMPTY) ? "{cyan}empty{reset}" : (test_case->state == FOSSIL_MAIP_CASE_PASS)     ? "{green}pass{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_FAIL)       ? "{red}fail{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)    ? "{yellow}timeout{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_SKIPPED)    ? "{yellow}skipped{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}"
                                                                                                                                   : "{white}unknown{reset}";
 
     // Filtering logic
@@ -200,9 +199,9 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
             return;
     }
 
-    if (engine && engine->pallet.show.suite_name)
+    if (engine && engine->pallet.show.name)
     {
-        if (maip_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
+        if (maip_io_cstr_compare(suite->name, engine->pallet.show.name) != 0)
             return;
     }
 
@@ -216,17 +215,17 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
     if (engine && engine->pallet.show.result)
     {
         const char *result_plain = NULL;
-        if (test_case->result == FOSSIL_MAIP_CASE_EMPTY)
+        if (test_case->state == FOSSIL_MAIP_CASE_EMPTY)
             result_plain = "empty";
-        else if (test_case->result == FOSSIL_MAIP_CASE_PASS)
+        else if (test_case->state == FOSSIL_MAIP_CASE_PASS)
             result_plain = "pass";
-        else if (test_case->result == FOSSIL_MAIP_CASE_FAIL)
+        else if (test_case->state == FOSSIL_MAIP_CASE_FAIL)
             result_plain = "fail";
-        else if (test_case->result == FOSSIL_MAIP_CASE_TIMEOUT)
+        else if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)
             result_plain = "timeout";
-        else if (test_case->result == FOSSIL_MAIP_CASE_SKIPPED)
+        else if (test_case->state == FOSSIL_MAIP_CASE_SKIPPED)
             result_plain = "skipped";
-        else if (test_case->result == FOSSIL_MAIP_CASE_UNEXPECTED)
+        else if (test_case->state == FOSSIL_MAIP_CASE_UNEXPECTED)
             result_plain = "unexpected";
 
         if (!result_plain || maip_io_cstr_compare(result_plain, engine->pallet.show.result) != 0)
@@ -595,7 +594,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     if (engine->pallet.run.skip &&
         maip_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0)
     {
-        test_case->result = FOSSIL_MAIP_CASE_SKIPPED;
+        test_case->state = FOSSIL_MAIP_CASE_SKIPPED;
         fossil_maip_update_score(test_case, suite);
         return;
     }
@@ -608,7 +607,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
         if (test_case->setup)
             test_case->setup();
 
-        test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+        test_case->state = FOSSIL_MAIP_CASE_EMPTY;
         _ASSERT_COUNT = 0; // Reset before running test
         uint64_t start_time = fossil_maip_now_ns();
 
@@ -628,20 +627,20 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_TIMEOUT;
+                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
                 }
                 else if (_ASSERT_COUNT == 0)
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+                    test_case->state = FOSSIL_MAIP_CASE_EMPTY;
                 }
                 else
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_PASS;
+                    test_case->state = FOSSIL_MAIP_CASE_PASS;
                 }
             }
             else
             {
-                test_case->result = FOSSIL_MAIP_CASE_FAIL;
+                test_case->state = FOSSIL_MAIP_CASE_FAIL;
                 test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
 
                 if (engine->pallet.run.fail_fast)
@@ -654,7 +653,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
         }
         else
         {
-            test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+            test_case->state = FOSSIL_MAIP_CASE_EMPTY;
             test_case->elapsed_ns = 0;
         }
 
@@ -681,12 +680,12 @@ static int compare_name_desc(const void *a, const void *b)
 
 static int compare_result_asc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)a)->result - ((fossil_maip_case_t *)b)->result;
+    return ((fossil_maip_case_t *)a)->state - ((fossil_maip_case_t *)b)->state;
 }
 
 static int compare_result_desc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)b)->result - ((fossil_maip_case_t *)a)->result;
+    return ((fossil_maip_case_t *)b)->state - ((fossil_maip_case_t *)a)->state;
 }
 
 static int compare_time_asc(const void *a, const void *b)
@@ -763,7 +762,7 @@ size_t fossil_maip_filter_cases(fossil_maip_suite_t *suite, const fossil_maip_en
         {
             continue;
         }
-        if (engine->pallet.filter.suite_name && maip_io_cstr_compare(suite->suite_name, engine->pallet.filter.suite_name) != 0)
+        if (engine->pallet.filter.name && maip_io_cstr_compare(suite->name, engine->pallet.filter.name) != 0)
         {
             continue;
         }

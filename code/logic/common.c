@@ -477,7 +477,7 @@ static int fossil_maip_parse_filter(fossil_maip_pallet_t *p, int argc, char **ar
 {
     // set defaults for filter command
     p->filter.test_name = null;
-    p->filter.suite_name = null;
+    p->filter.name = null;
     p->filter.tag = "fossil"; // default tag
 
     for (int j = i + 1; j < argc; j++)
@@ -495,7 +495,7 @@ static int fossil_maip_parse_filter(fossil_maip_pallet_t *p, int argc, char **ar
         }
         else if (maip_io_cstr_compare(arg, "--suite-name") == 0 && j + 1 < argc)
         {
-            p->filter.suite_name = argv[++j];
+            p->filter.name = argv[++j];
         }
         else if (maip_io_cstr_compare(arg, "--tag") == 0 && j + 1 < argc)
         {
@@ -587,7 +587,7 @@ static int fossil_maip_parse_show(fossil_maip_pallet_t *p, int argc, char **argv
     p->show.mode = "list";
     p->show.result = "all";
     p->show.test_name = null;
-    p->show.suite_name = null;
+    p->show.name = null;
     p->show.tag = null;
 
     for (int j = i + 1; j < argc; j++)
@@ -605,7 +605,7 @@ static int fossil_maip_parse_show(fossil_maip_pallet_t *p, int argc, char **argv
         }
         else if (maip_io_cstr_compare(arg, "--suite-name") == 0 && j + 1 < argc)
         {
-            p->show.suite_name = argv[++j];
+            p->show.name = argv[++j];
         }
         else if (maip_io_cstr_compare(arg, "--tag") == 0 && j + 1 < argc)
         {

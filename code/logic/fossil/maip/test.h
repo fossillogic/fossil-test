@@ -47,7 +47,7 @@ extern "C"
         FOSSIL_MAIP_CASE_TIMEOUT,
         FOSSIL_MAIP_CASE_SKIPPED,
         FOSSIL_MAIP_CASE_UNEXPECTED
-    } fossil_maip_case_result_t;
+    } fossil_maip_state_t;
 
     // --- Score Struct ---
     typedef struct
@@ -73,13 +73,13 @@ extern "C"
 
         uint64_t elapsed_ns;               // Timing in nanoseconds
         int64_t priority;                  // Priority level (lower = higher priority)
-        fossil_maip_case_result_t result; // Outcome of the test case
+        fossil_maip_state_t state; // Outcome of the test case
     } fossil_maip_case_t;
 
     // --- Test Suite ---
     typedef struct
     {
-        char *suite_name;
+        char *name;
         fossil_maip_case_t *cases;
         size_t count;
         size_t capacity;
@@ -97,8 +97,7 @@ extern "C"
     // In fossil_maip_engine_t
     typedef struct
     {
-        fossil_maip_suite_t *suites; // test suites
-        fossil_maip_suite_t shadow; // global cases
+        fossil_maip_suite_t *suites;
         size_t count;
         size_t capacity;
 
@@ -274,7 +273,7 @@ extern "C"
         .run = test_name##_run,                          \
         .elapsed_ns = 0,                                 \
         .priority = 0,                                   \
-        .result = FOSSIL_MAIP_CASE_EMPTY};              \
+        .state = FOSSIL_MAIP_CASE_EMPTY};              \
     void test_name##_run(void)
 #endif
 
@@ -299,7 +298,7 @@ extern "C"
  * @param skip The skip message to assign to the test case.
  */
 #define _FOSSIL_TEST_SET_SKIP(test_name, skip)                \
-    test_case_##test_name.result = FOSSIL_MAIP_CASE_SKIPPED; \
+    test_case_##test_name.state = FOSSIL_MAIP_CASE_SKIPPED; \
     test_case_##test_name.tags = skip                         \
                                      test_case_##test_name.teardown = _on_skip(skip)
 
@@ -345,7 +344,7 @@ extern "C"
  * that are related to each other. The test suite can be executed as a whole to
  * verify the correctness of a group of functionalities.
  *
- * @param suite_name The name of the suite to define.
+ * @param name The name of the suite to define.
  */
 #ifdef __cplusplus
 #define _FOSSIL_SUITE(suite)                                \
@@ -368,7 +367,7 @@ extern "C"
     void setup_##suite(void);                     \
     void teardown_##suite(void);                  \
     static fossil_maip_suite_t suite_##suite = { \
-        .suite_name = #suite,                     \
+        .name = #suite,                     \
         .cases = NULL,                            \
         .count = 0,                               \
         .capacity = 0,                            \
@@ -725,7 +724,7 @@ extern "C"
  * that are related to each other. The test suite can be executed as a whole to
  * verify the correctness of a group of functionalities.
  *
- * @param suite_name The name of the suite to define.
+ * @param name The name of the suite to define.
  */
 #define FOSSIL_SUITE(suite) \
     _FOSSIL_SUITE(suite)
