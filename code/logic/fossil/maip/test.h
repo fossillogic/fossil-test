@@ -32,203 +32,203 @@ extern "C"
 {
 #endif
 
-    // --- Return codes ---
-    enum
-    {
-        FOSSIL_MAIP_SUCCESS = 0,
-        FOSSIL_MAIP_FAILURE = -1
-    };
+// --- Return codes ---
+enum
+{
+    FOSSIL_MAIP_SUCCESS = 0,
+    FOSSIL_MAIP_FAILURE = -1
+};
 
-    typedef enum
-    {
-        FOSSIL_MAIP_CASE_EMPTY = 0,
-        FOSSIL_MAIP_CASE_PASS,
-        FOSSIL_MAIP_CASE_FAIL,
-        FOSSIL_MAIP_CASE_TIMEOUT,
-        FOSSIL_MAIP_CASE_SKIPPED,
-        FOSSIL_MAIP_CASE_UNEXPECTED
-    } fossil_maip_state_t;
+typedef enum
+{
+    FOSSIL_MAIP_CASE_EMPTY = 0,
+    FOSSIL_MAIP_CASE_PASS,
+    FOSSIL_MAIP_CASE_FAIL,
+    FOSSIL_MAIP_CASE_TIMEOUT,
+    FOSSIL_MAIP_CASE_SKIPPED,
+    FOSSIL_MAIP_CASE_UNEXPECTED
+} fossil_maip_state_t;
 
-    // --- Score Struct ---
-    typedef struct
-    {
-        int passed;
-        int failed;
-        int skipped;
-        int timeout;
-        int unexpected;
-        int empty;
-    } fossil_maip_score_t;
+// --- Score Struct ---
+typedef struct
+{
+    int passed;
+    int failed;
+    int skipped;
+    int timeout;
+    int unexpected;
+    int empty;
+} fossil_maip_score_t;
 
-    // --- Test Case ---
-    typedef struct
-    {
-        char *name;     // Test name
-        char *tags;     // Comma-separated tags
-        char *criteria; // Description or expectations
+// --- Test Case ---
+typedef struct
+{
+    char *name;     // Test name
+    char *tags;     // Comma-separated tags
+    char *criteria; // Description or expectations
 
-        void (*setup)(void);    // Optional setup
-        void (*teardown)(void); // Optional teardown
-        void (*run)(void);      // Test execution function
+    void (*setup)(void);    // Optional setup
+    void (*teardown)(void); // Optional teardown
+    void (*run)(void);      // Test execution function
 
-        uint64_t elapsed_ns;               // Timing in nanoseconds
-        int64_t priority;                  // Priority level (lower = higher priority)
-        fossil_maip_state_t state; // Outcome of the test case
-    } fossil_maip_case_t;
+    uint64_t elapsed_ns;               // Timing in nanoseconds
+    int64_t priority;                  // Priority level (lower = higher priority)
+    fossil_maip_state_t state; // Outcome of the test case
+} fossil_maip_case_t;
 
-    // --- Test Suite ---
-    typedef struct
-    {
-        char *name;
-        fossil_maip_case_t *cases;
-        size_t count;
-        size_t capacity;
+// --- Test Suite ---
+typedef struct
+{
+    char *name;
+    fossil_maip_case_t *cases;
+    size_t count;
+    size_t capacity;
 
-        void (*setup)(void);
-        void (*teardown)(void);
+    void (*setup)(void);
+    void (*teardown)(void);
 
-        uint64_t time_elapsed_ns;
-        int total_score;
-        int total_possible;
+    uint64_t time_elapsed_ns;
+    int total_score;
+    int total_possible;
 
-        fossil_maip_score_t score;
-    } fossil_maip_suite_t;
+    fossil_maip_score_t score;
+} fossil_maip_suite_t;
 
-    // In fossil_maip_engine_t
-    typedef struct
-    {
-        fossil_maip_suite_t *suites;
-        size_t count;
-        size_t capacity;
+// In fossil_maip_engine_t
+typedef struct
+{
+    fossil_maip_suite_t *suites;
+    size_t count;
+    size_t capacity;
 
-        int score_total;
-        int score_possible;
+    int score_total;
+    int score_possible;
 
-        fossil_maip_score_t score;
+    fossil_maip_score_t score;
 
-        fossil_maip_pallet_t pallet; // CLI + config
-    } fossil_maip_engine_t;
+    fossil_maip_pallet_t pallet; // CLI + config
+} fossil_maip_engine_t;
 
-    // --- Initialization ---
+// --- Initialization ---
 
-    /** * Initializes a new fossil_maip_engine_t instance.
-     * @param engine Pointer to the engine to initialize.
-     * @param argc The number of command line arguments.
-     * @param argv The command line arguments.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_MAIP_API int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv);
+/** * Initializes a new fossil_maip_engine_t instance.
+ * @param engine Pointer to the engine to initialize.
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return 0 on success, -1 on failure.
+ */
+FOSSIL_MAIP_API int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv);
 
-    // --- Adding Test Suites and Cases ---
+// --- Adding Test Suites and Cases ---
 
-    /** Adds a test suite to the engine.
-     * @param engine Pointer to the engine instance.
-     * @param suite The suite to add.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_MAIP_API int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite);
+/** Adds a test suite to the engine.
+ * @param engine Pointer to the engine instance.
+ * @param suite The suite to add.
+ * @return 0 on success, -1 on failure.
+ */
+FOSSIL_MAIP_API int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite);
 
-    /** Adds a test case to a suite.
-     * @param suite Pointer to the suite instance.
-     * @param test_case Pointer to the test case to add.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_MAIP_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
+/** Adds a test case to a suite.
+ * @param suite Pointer to the suite instance.
+ * @param test_case Pointer to the test case to add.
+ * @return 0 on success, -1 on failure.
+ */
+FOSSIL_MAIP_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
 
-    // --- Execution ---
+// --- Execution ---
 
-    /** Runs a single test suite.
-     * @param suite Pointer to the suite instance.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_MAIP_API int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite);
+/** Runs a single test suite.
+ * @param suite Pointer to the suite instance.
+ * @return 0 on success, -1 on failure.
+ */
+FOSSIL_MAIP_API int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite);
 
-    /** Runs all test suites in the engine.
-     * @param engine Pointer to the engine instance.
-     * @return 0 on success, -1 on failure.
-     */
-    FOSSIL_MAIP_API int fossil_maip_run_all(fossil_maip_engine_t *engine);
+/** Runs all test suites in the engine.
+ * @param engine Pointer to the engine instance.
+ * @return 0 on success, -1 on failure.
+ */
+FOSSIL_MAIP_API int fossil_maip_run_all(fossil_maip_engine_t *engine);
 
-    // --- Summary + Teardown ---
+// --- Summary + Teardown ---
 
-    /** Prints a summary of the test results.
-     * @param engine Pointer to the engine instance.
-     */
-    FOSSIL_MAIP_API void fossil_maip_summary(const fossil_maip_engine_t *engine);
+/** Prints a summary of the test results.
+ * @param engine Pointer to the engine instance.
+ */
+FOSSIL_MAIP_API void fossil_maip_summary(const fossil_maip_engine_t *engine);
 
-    /** Cleans up and ends the test engine.
-     * @param engine Pointer to the engine instance.
-     */
-    FOSSIL_MAIP_API int32_t fossil_maip_end(fossil_maip_engine_t *engine);
+/** Cleans up and ends the test engine.
+ * @param engine Pointer to the engine instance.
+ */
+FOSSIL_MAIP_API int32_t fossil_maip_end(fossil_maip_engine_t *engine);
 
-    /**
-     * @brief Internal function to handle assertions with anomaly detection.
-     *
-     * This function is used internally by the test framework to handle assertions
-     * and detect duplicate assertions. It is not intended to be called directly.
-     *
-     * @param condition The condition to check.
-     * @param message The message to display if the condition is false.
-     * @param file The file name where the assertion occurred.
-     * @param line The line number where the assertion occurred.
-     * @param func The function name where the assertion occurred.
-     */
-    FOSSIL_MAIP_API void maip_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
+/**
+ * @brief Internal function to handle assertions with anomaly detection.
+ *
+ * This function is used internally by the test framework to handle assertions
+ * and detect duplicate assertions. It is not intended to be called directly.
+ *
+ * @param condition The condition to check.
+ * @param message The message to display if the condition is false.
+ * @param file The file name where the assertion occurred.
+ * @param line The line number where the assertion occurred.
+ * @param func The function name where the assertion occurred.
+ */
+FOSSIL_MAIP_API void maip_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
-    /**
-     * @brief Internal function to handle assertions with message formatting.
-     *
-     * This function is used internally by the test framework to handle assertions
-     * and format messages. It is not intended to be called directly.
-     *
-     * @param message The message to format.
-     * @return A formatted message string.
-     */
-    FOSSIL_MAIP_API char *maip_test_assert_messagef(const char *message, ...);
+/**
+ * @brief Internal function to handle assertions with message formatting.
+ *
+ * This function is used internally by the test framework to handle assertions
+ * and format messages. It is not intended to be called directly.
+ *
+ * @param message The message to format.
+ * @return A formatted message string.
+ */
+FOSSIL_MAIP_API char *maip_test_assert_messagef(const char *message, ...);
 
-    // *********************************************************************************************
-    // internal messages
-    // *********************************************************************************************
+// *********************************************************************************************
+// internal messages
+// *********************************************************************************************
 
-    /**
-     * @brief Internal function to handle the "given" step in a test case.
-     *
-     * This function is used to set up the context for a test case. It is not
-     * intended to be called directly.
-     *
-     * @param description The description of the given step.
-     */
-    FOSSIL_MAIP_API void _given(const char *description);
+/**
+ * @brief Internal function to handle the "given" step in a test case.
+ *
+ * This function is used to set up the context for a test case. It is not
+ * intended to be called directly.
+ *
+ * @param description The description of the given step.
+ */
+FOSSIL_MAIP_API void _given(const char *description);
 
-    /**
-     * @brief Internal function to handle the "when" step in a test case.
-     *
-     * This function is used to set up the action for a test case. It is not
-     * intended to be called directly.
-     *
-     * @param description The description of the when step.
-     */
-    FOSSIL_MAIP_API void _when(const char *description);
+/**
+ * @brief Internal function to handle the "when" step in a test case.
+ *
+ * This function is used to set up the action for a test case. It is not
+ * intended to be called directly.
+ *
+ * @param description The description of the when step.
+ */
+FOSSIL_MAIP_API void _when(const char *description);
 
-    /**
-     * @brief Internal function to handle the "then" step in a test case.
-     *
-     * This function is used to set up the expected outcome for a test case. It is
-     * not intended to be called directly.
-     *
-     * @param description The description of the then step.
-     */
-    FOSSIL_MAIP_API void _then(const char *description);
+/**
+ * @brief Internal function to handle the "then" step in a test case.
+ *
+ * This function is used to set up the expected outcome for a test case. It is
+ * not intended to be called directly.
+ *
+ * @param description The description of the then step.
+ */
+FOSSIL_MAIP_API void _then(const char *description);
 
-    /**
-     * @brief Internal function to handle the "skip" step in a test case.
-     *
-     * This function is used to skip a test case. It is not intended to be called
-     * directly.
-     *
-     * @param description The description of the skip step.
-     */
-    FOSSIL_MAIP_API void _on_skip(const char *description);
+/**
+ * @brief Internal function to handle the "skip" step in a test case.
+ *
+ * This function is used to skip a test case. It is not intended to be called
+ * directly.
+ *
+ * @param description The description of the skip step.
+ */
+FOSSIL_MAIP_API void _on_skip(const char *description);
 
 #ifdef __cplusplus
 }
