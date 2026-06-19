@@ -2361,6 +2361,34 @@ void _when(const char *description)
     }
 }
 
+void _and(const char *description)
+{
+    if (description)
+    {
+        switch (G_MAIP_THEME)
+        {
+        case MAIP_THEME_FOSSIL:
+            maip_io_printf("{blue}[::] And {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_LIGHT:
+            maip_io_printf("{bright_blue}[::] And {bright_cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_DARK:
+            maip_io_printf("{blue}[::] And {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MAGA:
+            maip_io_printf("{red}[::] And {white}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MINT:
+            maip_io_printf("{green}[::] And {white}%s{reset}\n", description);
+            break;
+        default:
+            maip_io_printf("And: %s\n", description);
+            break;
+        }
+    }
+}
+
 void _then(const char *description)
 {
     if (description)
@@ -2388,6 +2416,8 @@ void _then(const char *description)
         }
     }
 }
+
+//
 
 void _on_skip(const char *description)
 {

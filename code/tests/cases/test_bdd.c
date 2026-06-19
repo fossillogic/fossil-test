@@ -51,13 +51,18 @@ FOSSIL_TEST(xbdd_logic_test) {
             // Perform the login action
             bool whenExecuted = true;
             
-            THEN("we validate everything was worked") {
-                // Check the expected outcome
-                bool thenExecuted = true;
+            AND("all preconditions are satisfied") {
+                bool andExecuted = true;
 
-                FOSSIL_TEST_ASSUME(givenExecuted, "Given statement should have executed");
-                FOSSIL_TEST_ASSUME(whenExecuted, "When statement should have executed");
-                FOSSIL_TEST_ASSUME(thenExecuted, "Then statement should have executed");
+                THEN("we validate everything was worked") {
+                    // Check the expected outcome
+                    bool thenExecuted = true;
+
+                    FOSSIL_TEST_ASSUME(givenExecuted, "Given statement should have executed");
+                    FOSSIL_TEST_ASSUME(whenExecuted, "When statement should have executed");
+                    FOSSIL_TEST_ASSUME(andExecuted, "And step should have executed");
+                    FOSSIL_TEST_ASSUME(thenExecuted, "Then statement should have executed");
+                }
             }
         }
     }

@@ -211,6 +211,16 @@ FOSSIL_MAIP_API void _given(const char *description);
 FOSSIL_MAIP_API void _when(const char *description);
 
 /**
+ * @brief Internal function to handle the "and" step in a test case.
+ *
+ * This function is used to add an additional step in a test case. It is not
+ * intended to be called directly.
+ *
+ * @param description The description of the and step.
+ */
+FOSSIL_MAIP_API void _and(const char *description);
+
+/**
  * @brief Internal function to handle the "then" step in a test case.
  *
  * This function is used to set up the expected outcome for a test case. It is
@@ -219,6 +229,8 @@ FOSSIL_MAIP_API void _when(const char *description);
  * @param description The description of the then step.
  */
 FOSSIL_MAIP_API void _then(const char *description);
+
+//
 
 /**
  * @brief Internal function to handle the "skip" step in a test case.
@@ -275,6 +287,14 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
         .priority = 0,                                   \
         .state = FOSSIL_MAIP_CASE_EMPTY};              \
     void test_name##_run(void)
+#endif
+
+
+#ifdef __cplusplus
+#define _FOSSIL_TEST_DEPEND_ON(test_name, dep_cases)
+#define _FOSSIL_TEST_PARAM(test_name, params)
+#else
+
 #endif
 
 /** @brief Macro to set a test case's tags.
@@ -618,6 +638,21 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     }
 
 /**
+ * @brief Macro for defining an And step in a behavior-driven development test.
+ *
+ * This macro is used to define an And step in a behavior-driven development test.
+ * The And step is used to add an additional condition or continuation to a
+ * previously defined Given, When, or Then step.
+ *
+ * @param description The description of the And step.
+ */
+#define _AND(description)   \
+    if (0)                  \
+    {                       \
+        _and(description);  \
+    }
+
+/**
  * @brief Macro for defining a Then step in a behavior-driven development test.
  *
  * This macro is used to define a Then step in a behavior-driven development test.
@@ -630,6 +665,8 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     {                       \
         _then(description); \
     }
+
+//
     
 /**
  * @brief Macro for defining a Subcases for scoping edge cases within test cases.
@@ -936,6 +973,18 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
  */
 #define THEN(description) \
     _THEN(description)
+
+/**
+ * @brief Macro for defining an And step in a behavior-driven development test.
+ *
+ * This macro is used to define an And step in a behavior-driven development test.
+ * The And step is used to add an additional condition or continuation to a
+ * previously defined Given, When, or Then step.
+ *
+ * @param description The description of the And step.
+ */
+#define AND(description)   \
+    _AND(description)
 
 /**
  * @brief Macro for defining a Subcases for scoping edge cases within test cases.
