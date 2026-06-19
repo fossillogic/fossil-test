@@ -683,7 +683,7 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
  * @param description The description of the Subcase.
  */
 #define _FOSSIL_SUBCASE(description) \
-    _subcase(description)            \
+    _subcase(description);           \
     if (true)                        \
         for (const char *__subcase_desc = description; __subcase_desc; __subcase_desc = NULL)
 
