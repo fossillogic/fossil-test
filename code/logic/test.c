@@ -86,7 +86,6 @@ int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suit
 }
 
 // --- Add Case ---
-#define FOSSIL_MAIP_HASH_HEX_LEN 65
 
 int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case)
 {
@@ -115,9 +114,9 @@ void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t
     if (!test_case || !suite)
         return;
 
-    if (test_case->result != FOSSIL_MAIP_CASE_EMPTY)
+    if (test_case->state != FOSSIL_MAIP_CASE_EMPTY)
     {
-        switch (test_case->result)
+        switch (test_case->state)
         {
         case FOSSIL_MAIP_CASE_PASS:
             suite->score.passed++;
@@ -153,17 +152,24 @@ void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t
 
 // --- Show Test Cases ---
 
-// Formats nanoseconds into a string: "Xs Yus Zns" and returns a heap-allocated string
+// Formats nanoseconds into a human-readable string and returns a heap-allocated string
 char *fossil_maip_format_ns(uint64_t ns)
 {
-    uint64_t sec = ns / 1000000000ULL;
-    uint64_t usec = (ns % 1000000000ULL) / 1000ULL;
-    uint64_t nsec = ns % 1000ULL;
-    char *buffer = (char *)maip_sys_memory_alloc(64);
+    uint64_t hours = ns / 3600000000000ULL;
+    uint64_t minutes = (ns % 3600000000000ULL) / 60000000000ULL;
+    uint64_t seconds = (ns % 60000000000ULL) / 1000000000ULL;
+    uint64_t microseconds = (ns % 1000000000ULL) / 1000ULL;
+    uint64_t nanoseconds = ns % 1000ULL;
+    char *buffer = (char *)maip_sys_memory_alloc(32);
+
     if (buffer)
     {
-        snprintf(buffer, 64, "%lu s %lu us %lu ns", (unsigned long)sec, (unsigned long)usec, (unsigned long)nsec);
-        buffer[63] = '\0';
+        snprintf(buffer, 32, "%02lu:%02lu:%02lu.%06lu,%03lu",
+                 (unsigned long)hours,
+                 (unsigned long)minutes,
+                 (unsigned long)seconds,
+                 (unsigned long)microseconds,
+                 (unsigned long)nanoseconds);
     }
 
     return buffer;
@@ -178,11 +184,11 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
     const char *mode = (engine && engine->pallet.show.mode) ? engine->pallet.show.mode : "list";
 
     const char *result_str =
-        (test_case->result == FOSSIL_MAIP_CASE_EMPTY) ? "{cyan}empty{reset}" : (test_case->result == FOSSIL_MAIP_CASE_PASS)     ? "{green}pass{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_FAIL)       ? "{red}fail{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_TIMEOUT)    ? "{yellow}timeout{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_SKIPPED)    ? "{yellow}skipped{reset}"
-                                                                            : (test_case->result == FOSSIL_MAIP_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}"
+        (test_case->state == FOSSIL_MAIP_CASE_EMPTY) ? "{cyan}empty{reset}" : (test_case->state == FOSSIL_MAIP_CASE_PASS)     ? "{green}pass{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_FAIL)       ? "{red}fail{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)    ? "{yellow}timeout{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_SKIPPED)    ? "{yellow}skipped{reset}"
+                                                                            : (test_case->state == FOSSIL_MAIP_CASE_UNEXPECTED) ? "{magenta}unexpected{reset}"
                                                                                                                                   : "{white}unknown{reset}";
 
     // Filtering logic
@@ -193,9 +199,9 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
             return;
     }
 
-    if (engine && engine->pallet.show.suite_name)
+    if (engine && engine->pallet.show.name)
     {
-        if (maip_io_cstr_compare(suite->suite_name, engine->pallet.show.suite_name) != 0)
+        if (maip_io_cstr_compare(suite->name, engine->pallet.show.name) != 0)
             return;
     }
 
@@ -209,17 +215,17 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
     if (engine && engine->pallet.show.result)
     {
         const char *result_plain = NULL;
-        if (test_case->result == FOSSIL_MAIP_CASE_EMPTY)
+        if (test_case->state == FOSSIL_MAIP_CASE_EMPTY)
             result_plain = "empty";
-        else if (test_case->result == FOSSIL_MAIP_CASE_PASS)
+        else if (test_case->state == FOSSIL_MAIP_CASE_PASS)
             result_plain = "pass";
-        else if (test_case->result == FOSSIL_MAIP_CASE_FAIL)
+        else if (test_case->state == FOSSIL_MAIP_CASE_FAIL)
             result_plain = "fail";
-        else if (test_case->result == FOSSIL_MAIP_CASE_TIMEOUT)
+        else if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)
             result_plain = "timeout";
-        else if (test_case->result == FOSSIL_MAIP_CASE_SKIPPED)
+        else if (test_case->state == FOSSIL_MAIP_CASE_SKIPPED)
             result_plain = "skipped";
-        else if (test_case->result == FOSSIL_MAIP_CASE_UNEXPECTED)
+        else if (test_case->state == FOSSIL_MAIP_CASE_UNEXPECTED)
             result_plain = "unexpected";
 
         if (!result_plain || maip_io_cstr_compare(result_plain, engine->pallet.show.result) != 0)
@@ -588,7 +594,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     if (engine->pallet.run.skip &&
         maip_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0)
     {
-        test_case->result = FOSSIL_MAIP_CASE_SKIPPED;
+        test_case->state = FOSSIL_MAIP_CASE_SKIPPED;
         fossil_maip_update_score(test_case, suite);
         return;
     }
@@ -601,7 +607,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
         if (test_case->setup)
             test_case->setup();
 
-        test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+        test_case->state = FOSSIL_MAIP_CASE_EMPTY;
         _ASSERT_COUNT = 0; // Reset before running test
         uint64_t start_time = fossil_maip_now_ns();
 
@@ -621,20 +627,20 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_TIMEOUT;
+                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
                 }
                 else if (_ASSERT_COUNT == 0)
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+                    test_case->state = FOSSIL_MAIP_CASE_EMPTY;
                 }
                 else
                 {
-                    test_case->result = FOSSIL_MAIP_CASE_PASS;
+                    test_case->state = FOSSIL_MAIP_CASE_PASS;
                 }
             }
             else
             {
-                test_case->result = FOSSIL_MAIP_CASE_FAIL;
+                test_case->state = FOSSIL_MAIP_CASE_FAIL;
                 test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
 
                 if (engine->pallet.run.fail_fast)
@@ -647,7 +653,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
         }
         else
         {
-            test_case->result = FOSSIL_MAIP_CASE_EMPTY;
+            test_case->state = FOSSIL_MAIP_CASE_EMPTY;
             test_case->elapsed_ns = 0;
         }
 
@@ -674,12 +680,12 @@ static int compare_name_desc(const void *a, const void *b)
 
 static int compare_result_asc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)a)->result - ((fossil_maip_case_t *)b)->result;
+    return ((fossil_maip_case_t *)a)->state - ((fossil_maip_case_t *)b)->state;
 }
 
 static int compare_result_desc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)b)->result - ((fossil_maip_case_t *)a)->result;
+    return ((fossil_maip_case_t *)b)->state - ((fossil_maip_case_t *)a)->state;
 }
 
 static int compare_time_asc(const void *a, const void *b)
@@ -756,7 +762,7 @@ size_t fossil_maip_filter_cases(fossil_maip_suite_t *suite, const fossil_maip_en
         {
             continue;
         }
-        if (engine->pallet.filter.suite_name && maip_io_cstr_compare(suite->suite_name, engine->pallet.filter.suite_name) != 0)
+        if (engine->pallet.filter.name && maip_io_cstr_compare(suite->name, engine->pallet.filter.name) != 0)
         {
             continue;
         }
@@ -1266,6 +1272,64 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
     return message;
 }
 
+static const char *fossil_maip_elapsed_timer_ai_message(uint64_t total_elapsed_ns)
+{
+    static const char *fast_insights[] = {
+        "Execution was near-instant. Excellent optimization.",
+        "This run was blazing fast. Great job keeping the code lean.",
+        "Compact execution time indicates strong performance."
+    };
+
+    static const char *balanced_insights[] = {
+        "Solid execution time. Keep an eye on growth with new features.",
+        "Performance looks stable; continue monitoring test durations.",
+        "Reasonable elapsed time. Consider profiling if this grows."
+    };
+
+    static const char *slow_insights[] = {
+        "The elapsed time is longer than expected. Investigate slow suites.",
+        "Long-running execution detected. Check slow tests for bottlenecks.",
+        "Performance may benefit from optimization or test partitioning."
+    };
+
+    static const char *critical_insights[] = {
+        "Execution is very slow. Investigate slow paths and large test data.",
+        "High elapsed time suggests a performance issue to address.",
+        "Deep profiling is recommended for this run."
+    };
+
+    const char **selected = balanced_insights;
+    int count = sizeof(balanced_insights) / sizeof(*balanced_insights);
+
+    if (total_elapsed_ns < 1000000ULL)
+    {
+        selected = fast_insights;
+        count = sizeof(fast_insights) / sizeof(*fast_insights);
+    }
+    else if (total_elapsed_ns < 10000000ULL)
+    {
+        selected = fast_insights;
+        count = sizeof(fast_insights) / sizeof(*fast_insights);
+    }
+    else if (total_elapsed_ns < 500000000ULL)
+    {
+        selected = balanced_insights;
+        count = sizeof(balanced_insights) / sizeof(*balanced_insights);
+    }
+    else if (total_elapsed_ns < 2000000000ULL)
+    {
+        selected = slow_insights;
+        count = sizeof(slow_insights) / sizeof(*slow_insights);
+    }
+    else
+    {
+        selected = critical_insights;
+        count = sizeof(critical_insights) / sizeof(*critical_insights);
+    }
+
+    return selected[rand() % count];
+}
+
 void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
 {
     if (!engine)
@@ -1278,49 +1342,42 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
         total_elapsed_ns += engine->suites[i].time_elapsed_ns;
     }
 
-    // Derive time components directly from nanoseconds
-    uint64_t total_elapsed_s = total_elapsed_ns / 1000000000ULL;
-    uint64_t hours = total_elapsed_s / 3600;
-    uint64_t minutes = (total_elapsed_s % 3600) / 60;
-    uint64_t seconds = total_elapsed_s % 60;
-    uint64_t microseconds = (total_elapsed_ns / 1000ULL) % 1000000ULL;
-    uint64_t nanoseconds_part = total_elapsed_ns % 1000ULL;
-
-    char time_buffer[64];
-    snprintf(time_buffer, sizeof(time_buffer),
-             "%02llu:%02llu:%02llu.%06llu,%03llu",
-             (unsigned long long)hours,
-             (unsigned long long)minutes,
-             (unsigned long long)seconds,
-             (unsigned long long)microseconds,
-             (unsigned long long)nanoseconds_part);
+    // --- Format elapsed time using helper ---
+    char *formatted_time = fossil_maip_format_ns(total_elapsed_ns);
+    const char *elapsed_time_display = formatted_time ? formatted_time : "unknown";
+    const char *elapsed_insight = fossil_maip_elapsed_timer_ai_message(total_elapsed_ns);
 
     // --- Theme-Aware Elapsed Time Display ---
     switch (engine->pallet.theme)
     {
     case MAIP_THEME_FOSSIL:
         maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_LIGHT:
         maip_io_printf("{bright_blue,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_blue,bold}Elapsed Time:{white} %s {bright_blue}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_blue,bold}Elapsed Time:{white} %s {bright_blue}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_blue,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_blue,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_DARK:
         maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_MAGA:
         maip_io_printf("{red,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{red,bold}Elapsed Time:{white} %s {red}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{red,bold}Elapsed Time:{white} %s {red}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{red,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{red,bold}=================================================================================={reset}\n");
         break;
     case MAIP_THEME_MINT:
         maip_io_printf("{green,bold}\n=================================================================================={reset}\n");
-        maip_io_printf("{green,bold}Elapsed Time:{white} %s {green}(hh:mm:ss.micro,nano){reset}\n", time_buffer);
+        maip_io_printf("{green,bold}Elapsed Time:{white} %s {green}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
+        maip_io_printf("{green,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
         maip_io_printf("{green,bold}=================================================================================={reset}\n");
         break;
     default:
@@ -2299,6 +2356,62 @@ void _when(const char *description)
             break;
         default:
             maip_io_printf("When: %s\n", description);
+            break;
+        }
+    }
+}
+
+void _subcase(const char *description)
+{
+    if (description)
+    {
+        switch (G_MAIP_THEME)
+        {
+        case MAIP_THEME_FOSSIL:
+            maip_io_printf("{blue}[::] Subcase {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_LIGHT:
+            maip_io_printf("{bright_blue}[::] Subcase {bright_cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_DARK:
+            maip_io_printf("{blue}[::] Subcase {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MAGA:
+            maip_io_printf("{red}[::] Subcase {white}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MINT:
+            maip_io_printf("{green}[::] Subcase {white}%s{reset}\n", description);
+            break;
+        default:
+            maip_io_printf("Subcase: %s\n", description);
+            break;
+        }
+    }
+}
+
+void _and(const char *description)
+{
+    if (description)
+    {
+        switch (G_MAIP_THEME)
+        {
+        case MAIP_THEME_FOSSIL:
+            maip_io_printf("{blue}[::] And {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_LIGHT:
+            maip_io_printf("{bright_blue}[::] And {bright_cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_DARK:
+            maip_io_printf("{blue}[::] And {cyan}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MAGA:
+            maip_io_printf("{red}[::] And {white}%s{reset}\n", description);
+            break;
+        case MAIP_THEME_MINT:
+            maip_io_printf("{green}[::] And {white}%s{reset}\n", description);
+            break;
+        default:
+            maip_io_printf("And: %s\n", description);
             break;
         }
     }

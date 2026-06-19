@@ -254,10 +254,10 @@ typedef struct {
         int test_name_has_wildcard;     // 1 if any test name contains '*', 0 otherwise
         int test_name_inverted;         // 1 if --not-test-name is used
 
-        const char* suite_name;         // Value for --suite-name
-        cstr *suite_name_list;          // Array of suite names (split by ',')
-        size_t suite_name_count;        // Number of suite names
-        int suite_name_has_wildcard;    // 1 if any suite name contains '*', 0 otherwise
+        const char* name;         // Value for --suite-name
+        cstr *name_list;          // Array of suite names (split by ',')
+        size_t name_count;        // Number of suite names
+        int name_has_wildcard;    // 1 if any suite name contains '*', 0 otherwise
 
         const char* tag;                // Value for --tag
         cstr *tag_list;                 // Array of tags (split by ',')
@@ -280,7 +280,7 @@ typedef struct {
 
     struct {
         const char* test_name;         // Name of the test case to show
-        const char* suite_name;        // Name of the suite to show
+        const char* name;        // Name of the suite to show
         const char* tag;               // Tag to filter which test cases to show
         const char* result;            // Result to filter which test cases to show
         const char* mode;              // Mode to filter which test cases to show (list/tree/graph)

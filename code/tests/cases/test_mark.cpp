@@ -118,16 +118,16 @@
  // * Fossil Logic Test Pool
  // * * * * * * * * * * * * * * * * * * * * * * * *
  FOSSIL_TEST_GROUP(cpp_mark_test_cases) {
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_start_and_stop);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_benchmark);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_start);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_stop);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_multiple_benchmarks);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_invalid_benchmark_name);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_stop_without_start);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_nested_benchmarks);
-     FOSSIL_TEST_ADD(cpp_mark_suite, cpp_mark_reset_benchmark);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_start_and_stop);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_benchmark);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_start);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_stop);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_multiple_benchmarks);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_invalid_benchmark_name);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_stop_without_start);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_nested_benchmarks);
+     FOSSIL_ADD_TEST(cpp_mark_suite, cpp_mark_reset_benchmark);
  
-     FOSSIL_TEST_REGISTER(cpp_mark_suite);
+     FOSSIL_ADD_SUITE(cpp_mark_suite);
  }
  

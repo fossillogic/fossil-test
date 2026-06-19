@@ -98,13 +98,13 @@ FOSSIL_TEST(objc_test_input_equal) {
 }
 
 FOSSIL_TEST_GROUP(objc_sample_test_cases) {
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_increment);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_decrement);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_double);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_half);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_modulo);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_square);
-    FOSSIL_TEST_ADD(objc_sample_suite, objc_test_input_equal);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_increment);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_decrement);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_double);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_half);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_modulo);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_square);
+    FOSSIL_ADD_TEST(objc_sample_suite, objc_test_input_equal);
 
-    FOSSIL_TEST_REGISTER(objc_sample_suite);
+    FOSSIL_ADD_SUITE(objc_sample_suite);
 }

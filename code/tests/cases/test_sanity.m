@@ -120,12 +120,12 @@ FOSSIL_TEST(objc_sanity_sys_dir_exists) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(objc_sanity_test_cases) {
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_execute);
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_getpid);
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_create_file);
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_file_exists);
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_create_dir);
-    FOSSIL_TEST_ADD(objc_sanity_suite, objc_sanity_sys_dir_exists);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_execute);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_getpid);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_create_file);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_file_exists);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_create_dir);
+    FOSSIL_ADD_TEST(objc_sanity_suite, objc_sanity_sys_dir_exists);
 
-    FOSSIL_TEST_REGISTER(objc_sanity_suite);
+    FOSSIL_ADD_SUITE(objc_sanity_suite);
 } // end of group

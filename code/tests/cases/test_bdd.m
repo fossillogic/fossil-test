@@ -219,14 +219,14 @@ FOSSIL_TEST(objc_xbdd_remove_item_from_cart) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(objc_bdd_test_cases) {
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_logic_test);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_user_account);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_empty_cart);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_valid_login);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_invalid_login);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_insufficient_balance);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_add_multiple_items_to_cart);
-    FOSSIL_TEST_ADD(objc_bdd_suite, objc_xbdd_remove_item_from_cart);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_logic_test);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_user_account);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_empty_cart);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_valid_login);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_invalid_login);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_insufficient_balance);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_add_multiple_items_to_cart);
+    FOSSIL_ADD_TEST(objc_bdd_suite, objc_xbdd_remove_item_from_cart);
 
-    FOSSIL_TEST_REGISTER(objc_bdd_suite);
+    FOSSIL_ADD_SUITE(objc_bdd_suite);
 } // end of group

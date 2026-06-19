@@ -185,23 +185,23 @@ FOSSIL_TEST(second_test_case)
 
 FOSSIL_TEST_GROUP(c_sample_test_cases)
 {
-    FOSSIL_TEST_ADD(sample_suite, test_input_increment);
-    FOSSIL_TEST_ADD(sample_suite, test_input_decrement);
-    FOSSIL_TEST_ADD(sample_suite, test_input_double);
-    FOSSIL_TEST_ADD(sample_suite, test_input_half);
-    FOSSIL_TEST_ADD(sample_suite, test_input_modulo);
-    FOSSIL_TEST_ADD(sample_suite, test_input_square);
-    FOSSIL_TEST_ADD(sample_suite, test_input_equal);
-    FOSSIL_TEST_ADD(sample_suite, edge_cases);
-    FOSSIL_TEST_ADD(sample_suite, math_addition_scopes);
-    // FOSSIL_TEST_ADD(sample_suite, test_empty_case);
+    FOSSIL_ADD_TEST(sample_suite, test_input_increment);
+    FOSSIL_ADD_TEST(sample_suite, test_input_decrement);
+    FOSSIL_ADD_TEST(sample_suite, test_input_double);
+    FOSSIL_ADD_TEST(sample_suite, test_input_half);
+    FOSSIL_ADD_TEST(sample_suite, test_input_modulo);
+    FOSSIL_ADD_TEST(sample_suite, test_input_square);
+    FOSSIL_ADD_TEST(sample_suite, test_input_equal);
+    FOSSIL_ADD_TEST(sample_suite, edge_cases);
+    FOSSIL_ADD_TEST(sample_suite, math_addition_scopes);
+    // FOSSIL_ADD_TEST(sample_suite, test_empty_case);
 
-    FOSSIL_TEST_REGISTER(sample_suite);
+    FOSSIL_ADD_SUITE(sample_suite);
 }
 
 FOSSIL_TEST_GROUP(c_second_test_cases)
 {
-    FOSSIL_TEST_ADD(second_suite, second_test_case);
+    FOSSIL_ADD_TEST(second_suite, second_test_case);
 
-    FOSSIL_TEST_REGISTER(second_suite);
+    FOSSIL_ADD_SUITE(second_suite);
 }
