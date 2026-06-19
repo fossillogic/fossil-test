@@ -230,7 +230,15 @@ FOSSIL_MAIP_API void _and(const char *description);
  */
 FOSSIL_MAIP_API void _then(const char *description);
 
-//
+/**
+ * @brief Internal function to handle a subcase within a test case.
+ *
+ * This function is used to define a nested subcase or variant of a test case.
+ * It is not intended to be called directly.
+ *
+ * @param description The description of the subcase.
+ */
+FOSSIL_MAIP_API void _subcase(const char *description);
 
 /**
  * @brief Internal function to handle the "skip" step in a test case.
@@ -666,8 +674,6 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
         _then(description); \
     }
 
-//
-    
 /**
  * @brief Macro for defining a Subcases for scoping edge cases within test cases.
  * 
@@ -677,7 +683,8 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
  * @param description The description of the Subcase.
  */
 #define _FOSSIL_SUBCASE(description) \
-    if (true)                          \
+    _subcase(description)            \
+    if (true)                        \
         for (const char *__subcase_desc = description; __subcase_desc; __subcase_desc = NULL)
 
 // *****************************************************************************
