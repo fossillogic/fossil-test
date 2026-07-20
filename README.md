@@ -57,7 +57,7 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 
 To get started, ensure you have the following installed:
 
-- **Meson Build System**: If you don’t have Meson `1.8.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Meson Build System**: If you don’t have Meson `1.10.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
 
 ---
 
@@ -74,7 +74,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v2.0.1
+revision = v2.0.2
 
 [provide]
 dependency_names = fossil-test
