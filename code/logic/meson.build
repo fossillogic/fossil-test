@@ -3,7 +3,7 @@ cc = meson.get_compiler('c')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
 add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'cpp')
 
-test_code = ['mock.c', 'test.c', 'mark.c', 'sanity.c', 'common.c']
+test_code = ['mock.c', 'test.c', 'mark.c', 'mutate.c', 'sanity.c', 'common.c']
 
 fossil_test_lib = library('fossil_test',
     test_code,

@@ -28,8 +28,9 @@
 #include "common.h"
 #include "assume.h"
 #include "sanity.h"
+#include "mutate.h"
 #include "mark.h"
-#include "test.h"
 #include "mock.h"
+#include "test.h"
 
 #endif
