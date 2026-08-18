@@ -23,6 +23,7 @@ With Fossil Test, developers can build clean, structured tests that fit naturall
 | **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., maip, catch, doctest) to match your preferred style of feedback.                    |
 | **Tag-Based Test Filtering**       | Execute subsets of tests based on custom tags for better test suite organization and faster iteration.                                |
 | **Detailed Performance Insights**  | In-depth statistics on execution time, memory usage, and test stability to help improve code performance and reliability.              |
+| **Mutation Testing**               | Advanced mutation testing capabilities to evaluate test suite robustness by introducing code mutations and verifying test effectiveness. |
 | **Objective-C & Objective-C++ Support (macOS)** | Full compatibility with Objective-C and Objective-C++ projects on macOS, allowing testing of Apple-specific frameworks and apps.  |
 
 ## Command-Line
@@ -74,7 +75,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v2.0.2
+revision = v2.0.3
 
 [provide]
 dependency_names = fossil-test
