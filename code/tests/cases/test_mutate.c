@@ -58,9 +58,7 @@ FOSSIL_TEST(c_test_mutate_create_destroy)
 {
     fossil_mutate_t *mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -76,17 +74,13 @@ FOSSIL_TEST(c_test_mutate_clear)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.clear");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     FOSSIL_MUTATE_CLEAR(mutate);
 
@@ -94,9 +88,7 @@ FOSSIL_TEST(c_test_mutate_clear)
      * The context should remain valid after clearing its mutations.
      */
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should remain valid after clear");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -112,17 +104,13 @@ FOSSIL_TEST(c_test_mutate_create_case)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.case");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     FOSSIL_TEST_ASSERT(
         strcmp(
@@ -140,17 +128,13 @@ FOSSIL_TEST(c_test_mutate_destroy_case)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.destroy_case");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     /* Ensure the public macro for destroying cases is exercised. */
     FOSSIL_MUTATE_DESTROY_CASE(mutation);
@@ -170,9 +154,7 @@ FOSSIL_TEST(c_test_mutate_create_target)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
