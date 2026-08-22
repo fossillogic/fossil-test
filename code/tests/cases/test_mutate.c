@@ -49,9 +49,7 @@ FOSSIL_TEST(c_test_mutate_create)
 {
     fossil_mutate_t *mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
