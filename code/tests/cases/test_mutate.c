@@ -112,11 +112,9 @@ FOSSIL_TEST(c_test_mutate_create_case)
 
     ASSUME_NOT_CNULL(mutation);
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
+    ASSUME_ITS_EQUAL_CSTR(
             fossil_mutate_get_id(mutation),
-            "mutation.case") == 0,
-        "Mutation ID should match");
+            "mutation.case");
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -160,9 +158,7 @@ FOSSIL_TEST(c_test_mutate_create_target)
         mutate,
         "mutation.target");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     target = FOSSIL_MUTATE_CREATE_TARGET(
         mutation,
@@ -170,23 +166,17 @@ FOSSIL_TEST(c_test_mutate_create_target)
         10,
         5);
 
-    FOSSIL_TEST_ASSERT(
-        target != NULL,
-        "Mutation target should be created");
+    ASSUME_NOT_CNULL(target);
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_get_target_file(target),
-            "sample.c") == 0,
-        "Mutation target file should match");
+    ASSUME_ITS_EQUAL_CSTR(
+        fossil_mutate_get_target_file(target),
+            "sample.c");
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_line(target) == 10,
-        "Mutation target line should match");
+    ASSUME_ITS_EQUAL_I32(
+        fossil_mutate_get_target_line(target), 10);
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_column(target) == 5,
-        "Mutation target column should match");
+    ASSUME_ITS_EQUAL_I32(
+        fossil_mutate_get_target_column(target), 5);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
