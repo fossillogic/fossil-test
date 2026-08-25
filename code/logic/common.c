@@ -767,7 +767,7 @@ static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **arg
             G_MAIP_THEME = MAIP_THEME_DARK;
             p->theme = MAIP_THEME_DARK;
         }
-        else if (maip_io_cstr_compare(theme, "maga") == 0)
+        else if (maip_io_cstr_compare(theme, "maga") == 0 || maip_io_cstr_compare(theme, "usa") == 0)
         {
             G_MAIP_THEME = MAIP_THEME_MAGA;
             p->theme = MAIP_THEME_MAGA;
