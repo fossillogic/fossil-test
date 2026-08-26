@@ -879,7 +879,18 @@ bool fossil_mutate_apply(
         return false;
     }
 
-    if (!fossil_mutate_validate(mutation))
+    if (!mutation->id ||
+        !mutation->original ||
+        !target->file ||
+        target->line == 0 ||
+        target->column == 0 ||
+        !opr->original ||
+        !opr->replacement)
+    {
+        return false;
+    }
+
+    if (target->mutation != mutation)
     {
         return false;
     }
@@ -889,24 +900,37 @@ bool fossil_mutate_apply(
             target,
             opr))
     {
-        free(mutation->status);
+        fossil_mutate_replace_string(
+            &mutation->status,
+            FOSSIL_MUTATE_STATUS_INVALID);
 
-        mutation->status =
-            maip_io_cstr_dup(FOSSIL_MUTATE_STATUS_INVALID);
+        mutation->applied = false;
 
         return false;
+    }
+
+    if (mutation->target &&
+        mutation->target != target)
+    {
+        fossil_mutate_free_target(mutation->target);
+    }
+
+    if (mutation->opr &&
+        mutation->opr != opr)
+    {
+        fossil_mutate_free_operator(mutation->opr);
     }
 
     mutation->target = target;
     mutation->opr = opr;
     mutation->applied = true;
 
-    free(mutation->status);
+    mutation->tests = 0;
+    mutation->failures = 0;
 
-    mutation->status =
-        maip_io_cstr_dup(FOSSIL_MUTATE_STATUS_APPLIED);
-
-    return mutation->status != NULL;
+    return fossil_mutate_replace_string(
+        &mutation->status,
+        FOSSIL_MUTATE_STATUS_APPLIED);
 }
 
 bool fossil_mutate_reset(
@@ -921,13 +945,12 @@ bool fossil_mutate_reset(
 
     mutation->modified = NULL;
     mutation->applied = false;
+    mutation->tests = 0;
+    mutation->failures = 0;
 
-    free(mutation->status);
-
-    mutation->status =
-        maip_io_cstr_dup(FOSSIL_MUTATE_STATUS_PENDING);
-
-    return mutation->status != NULL;
+    return fossil_mutate_replace_string(
+        &mutation->status,
+        FOSSIL_MUTATE_STATUS_PENDING);
 }
 
 bool fossil_mutate_validate(
@@ -1028,7 +1051,14 @@ bool fossil_mutate_record_result(
     size_t failures)
 {
     if (!mutation ||
+        !mutation->applied ||
+        !mutation->modified ||
         !fossil_mutate_status_valid(status))
+    {
+        return false;
+    }
+
+    if (failures > tests)
     {
         return false;
     }
@@ -1095,18 +1125,70 @@ bool fossil_mutate_compare(
         return true;
     }
 
-    if (!first->original ||
-        !second->original ||
-        !first->modified ||
-        !second->modified)
+    if (!first->id || !second->id)
     {
         return false;
     }
 
-    return strcmp(
-               first->original,
-               second->original) == 0 &&
-           strcmp(
-               first->modified,
-               second->modified) == 0;
+    if (strcmp(first->id, second->id) != 0)
+    {
+        return false;
+    }
+
+    if (first->target && second->target)
+    {
+        if (!first->target->file ||
+            !second->target->file ||
+            strcmp(
+                first->target->file,
+                second->target->file) != 0 ||
+            first->target->line != second->target->line ||
+            first->target->column != second->target->column)
+        {
+            return false;
+        }
+    }
+    else if (first->target != second->target)
+    {
+        return false;
+    }
+
+    if (first->opr && second->opr)
+    {
+        if (!first->opr->id ||
+            !second->opr->id ||
+            strcmp(
+                first->opr->id,
+                second->opr->id) != 0)
+        {
+            return false;
+        }
+    }
+    else if (first->opr != second->opr)
+    {
+        return false;
+    }
+
+    if (first->original && second->original)
+    {
+        if (strcmp(
+                first->original,
+                second->original) != 0)
+        {
+            return false;
+        }
+    }
+    else if (first->original != second->original)
+    {
+        return false;
+    }
+
+    if (first->modified && second->modified)
+    {
+        return strcmp(
+                   first->modified,
+                   second->modified) == 0;
+    }
+
+    return first->modified == second->modified;
 }

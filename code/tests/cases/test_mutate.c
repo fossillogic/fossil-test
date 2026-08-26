@@ -49,9 +49,7 @@ FOSSIL_TEST(c_test_mutate_create)
 {
     fossil_mutate_t *mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -60,9 +58,7 @@ FOSSIL_TEST(c_test_mutate_create_destroy)
 {
     fossil_mutate_t *mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -78,17 +74,13 @@ FOSSIL_TEST(c_test_mutate_clear)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.clear");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     FOSSIL_MUTATE_CLEAR(mutate);
 
@@ -96,9 +88,7 @@ FOSSIL_TEST(c_test_mutate_clear)
      * The context should remain valid after clearing its mutations.
      */
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should remain valid after clear");
+    ASSUME_NOT_CNULL(mutate);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -114,23 +104,17 @@ FOSSIL_TEST(c_test_mutate_create_case)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.case");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
+    ASSUME_ITS_EQUAL_CSTR(
             fossil_mutate_get_id(mutation),
-            "mutation.case") == 0,
-        "Mutation ID should match");
+            "mutation.case");
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -142,17 +126,13 @@ FOSSIL_TEST(c_test_mutate_destroy_case)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.destroy_case");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     /* Ensure the public macro for destroying cases is exercised. */
     FOSSIL_MUTATE_DESTROY_CASE(mutation);
@@ -172,17 +152,13 @@ FOSSIL_TEST(c_test_mutate_create_target)
 
     mutate = FOSSIL_MUTATE_CREATE();
 
-    FOSSIL_TEST_ASSERT(
-        mutate != NULL,
-        "Mutation context should be created");
+    ASSUME_NOT_CNULL(mutate);
 
     mutation = FOSSIL_MUTATE_CREATE_CASE(
         mutate,
         "mutation.target");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
     target = FOSSIL_MUTATE_CREATE_TARGET(
         mutation,
@@ -190,23 +166,17 @@ FOSSIL_TEST(c_test_mutate_create_target)
         10,
         5);
 
-    FOSSIL_TEST_ASSERT(
-        target != NULL,
-        "Mutation target should be created");
+    ASSUME_NOT_CNULL(target);
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_get_target_file(target),
-            "sample.c") == 0,
-        "Mutation target file should match");
+    ASSUME_ITS_EQUAL_CSTR(
+        fossil_mutate_get_target_file(target),
+            "sample.c");
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_line(target) == 10,
-        "Mutation target line should match");
+    ASSUME_ITS_EQUAL_I32(
+        fossil_mutate_get_target_line(target), 10);
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_column(target) == 5,
-        "Mutation target column should match");
+    ASSUME_ITS_EQUAL_I32(
+        fossil_mutate_get_target_column(target), 5);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -233,41 +203,21 @@ FOSSIL_TEST(c_test_mutate_target_setters)
         1,
         1);
 
-    FOSSIL_TEST_ASSERT(
-        target != NULL,
-        "Mutation target should be created");
+    ASSUME_NOT_CNULL(target);
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_set_target_file(
-            target,
-            "modified.c"),
-        "Target file should be updated");
+    ASSUME_ITS_TRUE(fossil_mutate_set_target_file(
+        target, "modified.c"));
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_set_target_line(
-            target,
-            25),
-        "Target line should be updated");
+    ASSUME_ITS_TRUE(fossil_mutate_set_target_line(target, 25));
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_set_target_column(
-            target,
-            12),
-        "Target column should be updated");
+    ASSUME_ITS_TRUE(fossil_mutate_set_target_column(target, 12));
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_get_target_file(target),
-            "modified.c") == 0,
-        "Updated target file should match");
+    ASSUME_ITS_EQUAL_CSTR(
+        fossil_mutate_get_target_file(target), "modified.c");
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_line(target) == 25,
-        "Updated target line should match");
+    ASSUME_ITS_EQUAL_I32(fossil_mutate_get_target_line(target), 25);
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_get_target_column(target) == 12,
-        "Updated target column should match");
+    ASSUME_ITS_EQUAL_I32(fossil_mutate_get_target_column(target), 12);
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -287,33 +237,20 @@ FOSSIL_TEST(c_test_mutate_case_metadata)
         mutate,
         "mutation.metadata");
 
-    FOSSIL_TEST_ASSERT(
-        mutation != NULL,
-        "Mutation case should be created");
+    ASSUME_NOT_CNULL(mutation);
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_set_name(
-            mutation,
-            "Greater Than Mutation"),
-        "Mutation name should be set");
+    ASSUME_ITS_TRUE(fossil_mutate_set_name(
+        mutation, "Greater Than Mutation"));
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_set_description(
-            mutation,
-            "Changes greater-than comparison to greater-than-or-equal"),
-        "Mutation description should be set");
+    ASSUME_ITS_TRUE(fossil_mutate_set_description(
+        mutation, "Changes greater-than comparison to greater-than-or-equal"));
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_get_name(mutation),
-            "Greater Than Mutation") == 0,
-        "Mutation name should match");
+    ASSUME_ITS_EQUAL_CSTR(
+        fossil_mutate_get_name(mutation), "Greater Than Mutation");
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_get_description(mutation),
-            "Changes greater-than comparison to greater-than-or-equal") == 0,
-        "Mutation description should match");
+    ASSUME_ITS_EQUAL_CSTR(
+        fossil_mutate_get_description(mutation),
+        "Changes greater-than comparison to greater-than-or-equal");
 
     FOSSIL_MUTATE_DESTROY(mutate);
 }
@@ -330,9 +267,7 @@ FOSSIL_TEST(c_test_mutate_create_operator)
         "greater_to_greater_equal",
         FOSSIL_MUTATE_OPERATOR_RELATIONAL);
 
-    FOSSIL_TEST_ASSERT(
-        opr != NULL,
-        "Mutation operator should be created");
+    ASSUME_NOT_CNULL(opr);
 
     FOSSIL_TEST_ASSERT(
         strcmp(
@@ -365,29 +300,13 @@ FOSSIL_TEST(c_test_mutate_operator_values)
         opr != NULL,
         "Mutation operator should be created");
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_operator_set_original(
-            opr,
-            ">"),
-        "Original operator should be set");
+    ASSUME_ITS_TRUE(fossil_mutate_operator_set_original(opr, ">"));
 
-    FOSSIL_TEST_ASSERT(
-        fossil_mutate_operator_set_replacement(
-            opr,
-            ">="),
-        "Replacement operator should be set");
+    ASSUME_ITS_TRUE(fossil_mutate_operator_set_replacement(opr, ">="));
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_operator_original(opr),
-            ">") == 0,
-        "Original operator should match");
+    ASSUME_ITS_EQUAL_CSTR(fossil_mutate_operator_original(opr), ">");
 
-    FOSSIL_TEST_ASSERT(
-        strcmp(
-            fossil_mutate_operator_replacement(opr),
-            ">=") == 0,
-        "Replacement operator should match");
+    ASSUME_ITS_EQUAL_CSTR(fossil_mutate_operator_replacement(opr), ">=");
 
     fossil_mutate_destroy_operator(opr);
 }
