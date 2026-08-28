@@ -228,12 +228,6 @@ typedef enum {
     MAIP_THEME_MINT      // Mint Theme for Fossil Test Framework
 } fossil_maip_cli_theme_t;
 
-typedef enum {
-    MAIP_VERBOSE_PLAIN,
-    MAIP_VERBOSE_CI,
-    MAIP_VERBOSE_DOGE
-} fossil_maip_cli_verbose_t;
-
 typedef struct {
     struct {
         int fail_fast;             // Flag for --fail-fast
