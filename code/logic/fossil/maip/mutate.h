@@ -769,6 +769,31 @@ fossil_mutate_compare(
     const fossil_mutation_t* second
 );
 
+/**
+ * @brief Discovers mutation targets in source code.
+ *
+ * This function scans the provided source code for mutation targets based on
+ * the specified operator type. It identifies potential mutation points and
+ * creates corresponding mutation cases in the provided mutation context.
+ *
+ * @param mutate Mutation context.
+ * @param file Source file name.
+ * @param source Source code to scan.
+ * @param operator_type Type of operator to discover (e.g., relational, arithmetic).
+ * @param first_line First line number to consider for discovery (0 for no limit).
+ * @param last_line Last line number to consider for discovery (0 for no limit).
+ *
+ * @return Number of mutation cases created.
+ */
+FOSSIL_MAIP_API size_t
+fossil_mutate_discover(
+    fossil_mutate_t *mutate,
+    const char *file,
+    const char *source,
+    const char *operator_type,
+    size_t first_line,
+    size_t last_line
+);
 
 /*
  * *****************************************************************************
@@ -885,6 +910,9 @@ fossil_mutate_compare(
     (fossil_mutate_is_applied(mutation) && \
      strcmp(fossil_mutate_status(mutation), FOSSIL_MUTATE_STATUS_KILLED) == 0)
 
+#define _FOSSIL_MUTATE_DISCOVER(mutate, file, source, operator_type, first_line, last_line) \
+    fossil_mutate_discover(mutate, file, source, operator_type, first_line, last_line)
+
 /*
  * *****************************************************************************
  * Public API Macros
@@ -996,6 +1024,25 @@ fossil_mutate_compare(
 
 #define FOSSIL_MUTATE_KILLED(mutation) \
     _FOSSIL_MUTATE_KILLED(mutation)
+
+/**
+ * @brief Discovers mutation targets in source code.
+ *
+ * This function scans the provided source code for mutation targets based on
+ * the specified operator type. It identifies potential mutation points and
+ * creates corresponding mutation cases in the provided mutation context.
+ *
+ * @param mutate Mutation context.
+ * @param file Source file name.
+ * @param source Source code to scan.
+ * @param operator_type Type of operator to discover (e.g., relational, arithmetic).
+ * @param first_line First line number to consider for discovery (0 for no limit).
+ * @param last_line Last line number to consider for discovery (0 for no limit).
+ *
+ * @return Number of mutation cases created.
+ */
+#define FOSSIL_MUTATE_DISCOVER(mutate, file, source, operator_type, first_line, last_line) \
+    _FOSSIL_MUTATE_DISCOVER(mutate, file, source, operator_type, first_line, last_line)
 
 #ifdef __cplusplus
 }
