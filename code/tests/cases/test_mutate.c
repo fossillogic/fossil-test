@@ -744,6 +744,34 @@ FOSSIL_TEST(c_test_mutate_edge_cases)
 }
 
 /*
+ * Mutation Target Discovery
+ */
+
+FOSSIL_TEST(c_test_mutate_discover)
+{
+    fossil_mutate_t *mutate;
+    int discovered;
+
+    mutate = FOSSIL_MUTATE_CREATE();
+
+    discovered = FOSSIL_MUTATE_DISCOVER(
+        mutate,
+        "sample.c",
+        "if (value > limit) { return value < maximum; }",
+        FOSSIL_MUTATE_OPERATOR_RELATIONAL,
+        0,
+        0);
+
+    FOSSIL_TEST_ASSERT(
+        discovered > 0,
+        "Relational target discovery should find mutation cases");
+
+    FOSSIL_MUTATE_DESTROY(mutate);
+}
+
+//
+
+/*
  * *****************************************************************************
  * Test Group
  * *****************************************************************************
@@ -778,6 +806,7 @@ FOSSIL_TEST_GROUP(c_mutate_test_cases)
     FOSSIL_ADD_TEST(c_mutate_suite, c_test_mutate_destroy_case);
 
     FOSSIL_ADD_TEST(c_mutate_suite, c_test_mutate_edge_cases);
+    FOSSIL_ADD_TEST(c_mutate_suite, c_test_mutate_discover);
 
     FOSSIL_ADD_SUITE(c_mutate_suite);
 } // end of group
