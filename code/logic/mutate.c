@@ -25,6 +25,7 @@
 #include "fossil/maip/mutate.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 /*
@@ -900,12 +901,6 @@ bool fossil_mutate_apply(
             target,
             opr))
     {
-        fossil_mutate_replace_string(
-            &mutation->status,
-            FOSSIL_MUTATE_STATUS_INVALID);
-
-        mutation->applied = false;
-
         return false;
     }
 
@@ -1051,8 +1046,6 @@ bool fossil_mutate_record_result(
     size_t failures)
 {
     if (!mutation ||
-        !mutation->applied ||
-        !mutation->modified ||
         !fossil_mutate_status_valid(status))
     {
         return false;
@@ -1125,16 +1118,6 @@ bool fossil_mutate_compare(
         return true;
     }
 
-    if (!first->id || !second->id)
-    {
-        return false;
-    }
-
-    if (strcmp(first->id, second->id) != 0)
-    {
-        return false;
-    }
-
     if (first->target && second->target)
     {
         if (!first->target->file ||
@@ -1155,11 +1138,16 @@ bool fossil_mutate_compare(
 
     if (first->opr && second->opr)
     {
-        if (!first->opr->id ||
-            !second->opr->id ||
-            strcmp(
-                first->opr->id,
-                second->opr->id) != 0)
+        if (!first->opr->type ||
+            !second->opr->type ||
+            strcmp(first->opr->type, second->opr->type) != 0 ||
+            !first->opr->original ||
+            !second->opr->original ||
+            strcmp(first->opr->original, second->opr->original) != 0 ||
+            !first->opr->replacement ||
+            !second->opr->replacement ||
+            strcmp(first->opr->replacement,
+                   second->opr->replacement) != 0)
         {
             return false;
         }
@@ -1191,4 +1179,329 @@ bool fossil_mutate_compare(
     }
 
     return first->modified == second->modified;
+}
+
+/*
+ * *****************************************************************************
+ * Automatic Mutation Discovery
+ * *****************************************************************************
+ */
+
+static bool
+fossil_mutate_auto_emit(
+    fossil_mutate_t *mutate,
+    const char *file,
+    const char *source,
+    size_t offset,
+    size_t line,
+    size_t column,
+    size_t length,
+    const char *type,
+    const char *replacement,
+    size_t variant)
+{
+    fossil_mutation_t *mutation;
+    fossil_mutate_target_t *target;
+    fossil_mutate_operator_t *op;
+    char id[96];
+    char *original;
+
+    original = maip_sys_memory_alloc(length + 1);
+    if (!original)
+    {
+        return false;
+    }
+
+    maip_sys_memory_copy(original, (maip_sys_memory_t)(source + offset), length);
+    original[length] = '\0';
+
+    (void)snprintf(id, sizeof(id), "auto-%zu-%zu", offset, variant);
+    mutation = fossil_mutate_create_case(mutate, id);
+    if (!mutation ||
+        !fossil_mutate_set_original(mutation, source))
+    {
+        if (mutation)
+        {
+            fossil_mutate_destroy_case(mutation);
+        }
+        maip_sys_memory_free(original);
+        return false;
+    }
+
+    target = fossil_mutate_create_target(mutation, file, line, column);
+    op = fossil_mutate_create_operator(id, type);
+    if (!target || !op ||
+        !fossil_mutate_operator_set_original(op, original) ||
+        !fossil_mutate_operator_set_replacement(op, replacement) ||
+        !fossil_mutate_apply(mutation, target, op))
+    {
+        if (op)
+        {
+            fossil_mutate_destroy_operator(op);
+        }
+        fossil_mutate_destroy_case(mutation);
+        maip_sys_memory_free(original);
+        return false;
+    }
+
+    maip_sys_memory_free(original);
+    return true;
+}
+
+static bool
+fossil_mutate_auto_type_matches(
+    const char *filter,
+    const char *type)
+{
+    const char *cursor;
+    const char *end;
+    size_t length;
+
+    if (!type || type[0] == '\0')
+    {
+        return false;
+    }
+
+    if (!filter || filter[0] == '\0' || strcmp(filter, "all") == 0)
+    {
+        return true;
+    }
+
+    cursor = filter;
+    while (*cursor)
+    {
+        while (*cursor == ' ' || *cursor == '\t' || *cursor == ',' ||
+               *cursor == ';' || *cursor == '|')
+        {
+            cursor++;
+        }
+
+        if (*cursor == '\0')
+        {
+            break;
+        }
+
+        end = cursor;
+        while (*end && *end != ',' && *end != ';' && *end != '|' &&
+               *end != ' ' && *end != '\t')
+        {
+            end++;
+        }
+
+        length = (size_t)(end - cursor);
+        if (length == strlen(type) && strncmp(cursor, type, length) == 0)
+        {
+            return true;
+        }
+
+        cursor = end;
+    }
+
+    return false;
+}
+
+/*
+ * Scan one in-memory C source file and add mutants for recognized tokens.
+ * A NULL/empty type filter enables all supported categories; line bounds are
+ * inclusive and zero means unbounded. The file argument is stored on targets.
+ */
+size_t
+fossil_mutate_discover(
+    fossil_mutate_t *mutate,
+    const char *file,
+    const char *source,
+    const char *operator_type,
+    size_t first_line,
+    size_t last_line)
+{
+    static const char *const relational[][2] = {
+        {"<", "<="}, {"<=", "<"}, {">", ">="}, {">=", ">"},
+        {"==", "!="}, {"!=", "=="}
+    };
+    static const char *const arithmetic[][2] = {
+        {"+", "-"}, {"-", "+"}, {"*", "/"}, {"/", "*"},
+        {"%", "*"}
+    };
+    static const char *const logical[][2] = {
+        {"&&", "||"}, {"||", "&&"}
+    };
+    size_t offset = 0;
+    size_t line = 1;
+    size_t column = 1;
+    size_t created = 0;
+    size_t variant = 0;
+    size_t i;
+
+    if (!mutate || !file || file[0] == '\0' || !source)
+    {
+        return 0;
+    }
+
+    if (first_line != 0 && last_line != 0 && first_line > last_line)
+    {
+        return 0;
+    }
+
+    while (source[offset] != '\0')
+    {
+        size_t length = 0;
+        const char *type = NULL;
+        const char *replacement = NULL;
+        size_t replacements = 0;
+        bool in_range = (!first_line || line >= first_line) &&
+                        (!last_line || line <= last_line);
+
+        /* Ignore comments and quoted literals so their contents are not tokens. */
+        if (source[offset] == '/' && source[offset + 1] == '/')
+        {
+            while (source[offset] && source[offset] != '\n')
+            {
+                offset++;
+                column++;
+            }
+            continue;
+        }
+        if (source[offset] == '/' && source[offset + 1] == '*')
+        {
+            offset += 2;
+            column += 2;
+            while (source[offset] &&
+                   !(source[offset] == '*' && source[offset + 1] == '/'))
+            {
+                if (source[offset++] == '\n')
+                {
+                    line++;
+                    column = 1;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            if (source[offset])
+            {
+                offset += 2;
+                column += 2;
+            }
+            continue;
+        }
+        if (source[offset] == '\'' || source[offset] == '"')
+        {
+            char quote = source[offset];
+            offset++;
+            column++;
+            while (source[offset] && source[offset] != quote)
+            {
+                if (source[offset] == '\\' && source[offset + 1])
+                {
+                    offset++;
+                    column++;
+                }
+                if (source[offset++] == '\n')
+                {
+                    line++;
+                    column = 1;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            if (source[offset])
+            {
+                offset++;
+                column++;
+            }
+            continue;
+        }
+
+        if (in_range && source[offset] >= '0' && source[offset] <= '9' &&
+            (offset == 0 || !((source[offset - 1] >= 'a' && source[offset - 1] <= 'z') ||
+                              (source[offset - 1] >= 'A' && source[offset - 1] <= 'Z') ||
+                              source[offset - 1] == '_')) &&
+            fossil_mutate_auto_type_matches(operator_type, "constant"))
+        {
+            length = 1;
+            while ((source[offset + length] >= '0' && source[offset + length] <= '9') ||
+                   (source[offset + length] >= 'a' && source[offset + length] <= 'z') ||
+                   (source[offset + length] >= 'A' && source[offset + length] <= 'Z') ||
+                   source[offset + length] == '.' || source[offset + length] == '_')
+            {
+                length++;
+            }
+            replacement = (length == 1 && source[offset] == '0') ? "1" : "0";
+            type = "constant";
+            replacements = 1;
+        }
+        else if (in_range && fossil_mutate_auto_type_matches(operator_type, "logical"))
+        {
+            for (i = 0; i < sizeof(logical) / sizeof(logical[0]); ++i)
+            {
+                length = strlen(logical[i][0]);
+                if (strncmp(source + offset, logical[i][0], length) == 0)
+                {
+                    type = "logical";
+                    replacement = logical[i][1];
+                    replacements = 1;
+                    break;
+                }
+            }
+        }
+
+        if (!replacement && in_range &&
+            fossil_mutate_auto_type_matches(operator_type, "relational"))
+        {
+            for (i = 0; i < sizeof(relational) / sizeof(relational[0]); ++i)
+            {
+                length = strlen(relational[i][0]);
+                if (strncmp(source + offset, relational[i][0], length) == 0 &&
+                    (length != 1 ||
+                     (source[offset + 1] != '=' && source[offset + 1] != '>')))
+                {
+                    type = "relational";
+                    replacement = relational[i][1];
+                    replacements = 1;
+                    break;
+                }
+            }
+        }
+        if (!replacement && in_range &&
+            fossil_mutate_auto_type_matches(operator_type, "arithmetic"))
+        {
+            for (i = 0; i < sizeof(arithmetic) / sizeof(arithmetic[0]); ++i)
+            {
+                if (source[offset] == arithmetic[i][0][0] &&
+                    (offset == 0 || source[offset - 1] != source[offset]) &&
+                    source[offset + 1] != source[offset])
+                {
+                    length = 1;
+                    type = "arithmetic";
+                    replacement = arithmetic[i][1];
+                    replacements = 1;
+                    break;
+                }
+            }
+        }
+
+        if (replacement && type && replacements &&
+            fossil_mutate_auto_emit(mutate, file, source, offset, line,
+                                    column, length, type, replacement,
+                                    variant++))
+        {
+            created++;
+        }
+
+        if (source[offset] == '\n')
+        {
+            line++;
+            column = 1;
+        }
+        else
+        {
+            column++;
+        }
+        offset++;
+    }
+
+    return created;
 }
