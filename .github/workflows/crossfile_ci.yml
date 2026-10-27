@@ -13,7 +13,7 @@ on:
 jobs:
   build_cross:
     name: Building on Bedrock ${{ matrix.architecture }}
-    runs-on: ubuntu-latest  # Using Ubuntu as the base system for cross-compilation
+    runs-on: ubuntu-22.04  # Keeps the MIPS cross-compilation packages available
 
     strategy:
       matrix:
