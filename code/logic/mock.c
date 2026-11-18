@@ -28,6 +28,46 @@
 // Function declarations
 // *****************************************************************************
 
+static void fossil_mock_free_call(fossil_mock_call_t *call) {
+    if (!call) {
+        return;
+    }
+    maip_sys_memory_free(call->function_name);
+    maip_sys_memory_free(call->arguments);
+    maip_sys_memory_free(call);
+}
+
+static bool fossil_mock_values_equal(fossil_mock_maip_type_t type,
+                                     fossil_mock_maip_value_t left,
+                                     fossil_mock_maip_value_t right) {
+    switch (type) {
+        case FOSSIL_MOCK_MAIP_TYPE_I8: return left.as.i8 == right.as.i8;
+        case FOSSIL_MOCK_MAIP_TYPE_I16: return left.as.i16 == right.as.i16;
+        case FOSSIL_MOCK_MAIP_TYPE_I32: return left.as.i32 == right.as.i32;
+        case FOSSIL_MOCK_MAIP_TYPE_I64: return left.as.i64 == right.as.i64;
+        case FOSSIL_MOCK_MAIP_TYPE_U8: return left.as.u8 == right.as.u8;
+        case FOSSIL_MOCK_MAIP_TYPE_U16: return left.as.u16 == right.as.u16;
+        case FOSSIL_MOCK_MAIP_TYPE_U32: return left.as.u32 == right.as.u32;
+        case FOSSIL_MOCK_MAIP_TYPE_U64: return left.as.u64 == right.as.u64;
+        case FOSSIL_MOCK_MAIP_TYPE_HEX: return left.as.hex == right.as.hex;
+        case FOSSIL_MOCK_MAIP_TYPE_OCTAL: return left.as.octal == right.as.octal;
+        case FOSSIL_MOCK_MAIP_TYPE_FLOAT: return left.as.f32 == right.as.f32;
+        case FOSSIL_MOCK_MAIP_TYPE_DOUBLE: return left.as.f64 == right.as.f64;
+        case FOSSIL_MOCK_MAIP_TYPE_WSTR:
+            if (!left.as.wstr || !right.as.wstr) return left.as.wstr == right.as.wstr;
+            return wcscmp(left.as.wstr, right.as.wstr) == 0;
+        case FOSSIL_MOCK_MAIP_TYPE_CSTR:
+            if (!left.as.cstr || !right.as.cstr) return left.as.cstr == right.as.cstr;
+            return strcmp(left.as.cstr, right.as.cstr) == 0;
+        case FOSSIL_MOCK_MAIP_TYPE_CCHAR: return left.as.cchar == right.as.cchar;
+        case FOSSIL_MOCK_MAIP_TYPE_WCHAR: return left.as.wchar == right.as.wchar;
+        case FOSSIL_MOCK_MAIP_TYPE_BOOL: return left.as.boolean == right.as.boolean;
+        case FOSSIL_MOCK_MAIP_TYPE_SIZE: return left.as.size == right.as.size;
+        case FOSSIL_MOCK_MAIP_TYPE_ANY: return left.as.any == right.as.any;
+        default: return false;
+    }
+}
+
 void fossil_mock_init(fossil_mock_calllist_t *list) {
     if (!list) {
         return;
@@ -35,7 +75,6 @@ void fossil_mock_init(fossil_mock_calllist_t *list) {
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
-    list->global_ai_context = NULL;
 }
 
 void fossil_mock_destroy(fossil_mock_calllist_t *list) {
@@ -46,32 +85,8 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
     fossil_mock_call_t *current = list->head;
     while (current) {
         fossil_mock_call_t *next = current->next;
-        maip_sys_memory_free(current->function_name);
-        for (int i = 0; i < current->num_args; ++i) {
-            maip_sys_memory_free(current->arguments[i].value.data);
-            maip_sys_memory_free(current->arguments[i].attribute.name);
-            maip_sys_memory_free(current->arguments[i].attribute.description);
-            maip_sys_memory_free(current->arguments[i].attribute.id);
-        }
-        maip_sys_memory_free(current->arguments);
-
-        if (current->ai_context) {
-            maip_sys_memory_free(current->ai_context->context_info);
-            maip_sys_memory_free(current->ai_context->expected_behavior);
-            maip_sys_memory_free(current->ai_context->ai_notes);
-            maip_sys_memory_free(current->ai_context);
-        }
-
-        maip_sys_memory_free(current);
+        fossil_mock_free_call(current);
         current = next;
-    }
-
-    if (list->global_ai_context) {
-        maip_sys_memory_free(list->global_ai_context->context_info);
-        maip_sys_memory_free(list->global_ai_context->expected_behavior);
-        maip_sys_memory_free(list->global_ai_context->ai_notes);
-        maip_sys_memory_free(list->global_ai_context);
-        list->global_ai_context = NULL;
     }
 
     list->head = NULL;
@@ -80,7 +95,7 @@ void fossil_mock_destroy(fossil_mock_calllist_t *list) {
 }
 
 void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_name, fossil_mock_maip_t *arguments, int num_args) {
-    if (!list || !function_name || (num_args > 0 && !arguments)) {
+    if (!list || !function_name || num_args < 0 || (num_args > 0 && !arguments)) {
         return;
     }
 
@@ -90,68 +105,28 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
     }
 
     call->function_name = maip_io_cstr_dup(function_name);
+    call->arguments = NULL;
+    call->num_args = num_args;
+    call->return_value = (fossil_mock_maip_value_t){0};
+    call->stub = NULL;
+    call->stub_user_data = NULL;
+    call->next = NULL;
+
     if (!call->function_name) {
         maip_sys_memory_free(call);
         return;
     }
 
     if (num_args > 0) {
-        call->arguments = (fossil_mock_maip_t *)maip_sys_memory_alloc(num_args * sizeof(fossil_mock_maip_t));
+        call->arguments = (fossil_mock_maip_t *)maip_sys_memory_alloc((size_t)num_args * sizeof(fossil_mock_maip_t));
         if (!call->arguments) {
             maip_sys_memory_free(call->function_name);
             maip_sys_memory_free(call);
             return;
         }
 
-        for (int i = 0; i < num_args; ++i) {
-            call->arguments[i].type = arguments[i].type;
-            call->arguments[i].value.data = arguments[i].value.data ? maip_io_cstr_dup(arguments[i].value.data) : NULL;
-            call->arguments[i].value.mutable_flag = arguments[i].value.mutable_flag;
-            call->arguments[i].attribute.name = arguments[i].attribute.name ? maip_io_cstr_dup(arguments[i].attribute.name) : NULL;
-            call->arguments[i].attribute.description = arguments[i].attribute.description ? maip_io_cstr_dup(arguments[i].attribute.description) : NULL;
-            call->arguments[i].attribute.id = arguments[i].attribute.id ? maip_io_cstr_dup(arguments[i].attribute.id) : NULL;
-
-            // AI trick: If argument type is string and value is NULL, auto-fill with "AI_NULL"
-            if ((call->arguments[i].type == FOSSIL_MOCK_MAIP_TYPE_CSTR ||
-                 call->arguments[i].type == FOSSIL_MOCK_MAIP_TYPE_WSTR) &&
-                !call->arguments[i].value.data) {
-                call->arguments[i].value.data = maip_io_cstr_dup("AI_NULL");
-            }
-
-            if ((arguments[i].value.data && !call->arguments[i].value.data) ||
-                (arguments[i].attribute.name && !call->arguments[i].attribute.name) ||
-                (arguments[i].attribute.description && !call->arguments[i].attribute.description) ||
-                (arguments[i].attribute.id && !call->arguments[i].attribute.id)) {
-                for (int j = 0; j <= i; ++j) {
-                    maip_sys_memory_free(call->arguments[j].value.data);
-                    maip_sys_memory_free(call->arguments[j].attribute.name);
-                    maip_sys_memory_free(call->arguments[j].attribute.description);
-                    maip_sys_memory_free(call->arguments[j].attribute.id);
-                }
-                maip_sys_memory_free(call->arguments);
-                maip_sys_memory_free(call->function_name);
-                maip_sys_memory_free(call);
-                return;
-            }
-        }
-    } else {
-        call->arguments = NULL;
+        memcpy(call->arguments, arguments, (size_t)num_args * sizeof(*arguments));
     }
-
-    call->num_args = num_args;
-    call->ai_context = NULL;
-
-    // AI trick: If global_ai_context exists, auto-attach to call if not set
-    if (list->global_ai_context) {
-        call->ai_context = (fossil_mock_ai_context_t *)maip_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
-        if (call->ai_context) {
-            call->ai_context->context_info = list->global_ai_context->context_info ? maip_io_cstr_dup(list->global_ai_context->context_info) : NULL;
-            call->ai_context->expected_behavior = list->global_ai_context->expected_behavior ? maip_io_cstr_dup(list->global_ai_context->expected_behavior) : NULL;
-            call->ai_context->ai_notes = list->global_ai_context->ai_notes ? maip_io_cstr_dup(list->global_ai_context->ai_notes) : NULL;
-        }
-    }
-
-    call->next = NULL;
 
     if (list->tail) {
         list->tail->next = call;
@@ -172,56 +147,32 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     while (current) {
         maip_io_printf("{cyan,bold}[%d] Function:{normal} {yellow}%s{reset}\n", call_index, current->function_name);
 
-        // If AI context is present, print AI context info
-        if (current->ai_context) {
-            maip_io_printf("  {green}AI Context:{reset}\n");
-            maip_io_printf("    {blue}Info:{reset} %s\n", current->ai_context->context_info ? current->ai_context->context_info : "NULL");
-            maip_io_printf("    {blue}Expected:{reset} %s\n", current->ai_context->expected_behavior ? current->ai_context->expected_behavior : "NULL");
-            maip_io_printf("    {blue}Notes:{reset} %s\n", current->ai_context->ai_notes ? current->ai_context->ai_notes : "NULL");
-        } else if (list->global_ai_context) {
-            maip_io_printf("  {green}Global AI Context:{reset}\n");
-            maip_io_printf("    {blue}Info:{reset} %s\n", list->global_ai_context->context_info ? list->global_ai_context->context_info : "NULL");
-            maip_io_printf("    {blue}Expected:{reset} %s\n", list->global_ai_context->expected_behavior ? list->global_ai_context->expected_behavior : "NULL");
-            maip_io_printf("    {blue}Notes:{reset} %s\n", list->global_ai_context->ai_notes ? list->global_ai_context->ai_notes : "NULL");
-        }
-
         maip_io_printf("{magenta}Arguments:{reset}\n");
         for (int i = 0; i < current->num_args; ++i) {
             maip_io_printf("  {blue}Type:{reset} %d\n", current->arguments[i].type);
-
-            // Print value based on type
+            fossil_mock_maip_value_t value = current->arguments[i].value;
             switch (current->arguments[i].type) {
-                case FOSSIL_MOCK_MAIP_TYPE_I8:
-                case FOSSIL_MOCK_MAIP_TYPE_I16:
-                case FOSSIL_MOCK_MAIP_TYPE_I32:
-                case FOSSIL_MOCK_MAIP_TYPE_I64:
-                case FOSSIL_MOCK_MAIP_TYPE_U8:
-                case FOSSIL_MOCK_MAIP_TYPE_U16:
-                case FOSSIL_MOCK_MAIP_TYPE_U32:
-                case FOSSIL_MOCK_MAIP_TYPE_U64:
-                case FOSSIL_MOCK_MAIP_TYPE_HEX:
-                case FOSSIL_MOCK_MAIP_TYPE_OCTAL:
-                case FOSSIL_MOCK_MAIP_TYPE_SIZE:
-                    maip_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
-                    break;
-                case FOSSIL_MOCK_MAIP_TYPE_FLOAT:
-                case FOSSIL_MOCK_MAIP_TYPE_DOUBLE:
-                    maip_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
-                    break;
-                case FOSSIL_MOCK_MAIP_TYPE_WSTR:
-                case FOSSIL_MOCK_MAIP_TYPE_CSTR:
-                    maip_io_printf("  {blue}Value:{reset} \"%s\"\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
-                    break;
-                case FOSSIL_MOCK_MAIP_TYPE_CCHAR:
-                case FOSSIL_MOCK_MAIP_TYPE_WCHAR:
-                    maip_io_printf("  {blue}Value:{reset} '%s'\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
-                    break;
-                case FOSSIL_MOCK_MAIP_TYPE_BOOL:
-                    maip_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
-                    break;
-                case FOSSIL_MOCK_MAIP_TYPE_ANY:
+                case FOSSIL_MOCK_MAIP_TYPE_I8: maip_io_printf("  {blue}Value:{reset} %d\n", (int)value.as.i8); break;
+                case FOSSIL_MOCK_MAIP_TYPE_I16: maip_io_printf("  {blue}Value:{reset} %d\n", (int)value.as.i16); break;
+                case FOSSIL_MOCK_MAIP_TYPE_I32: maip_io_printf("  {blue}Value:{reset} %d\n", value.as.i32); break;
+                case FOSSIL_MOCK_MAIP_TYPE_I64: maip_io_printf("  {blue}Value:{reset} %lld\n", (long long)value.as.i64); break;
+                case FOSSIL_MOCK_MAIP_TYPE_U8: maip_io_printf("  {blue}Value:{reset} %u\n", (unsigned)value.as.u8); break;
+                case FOSSIL_MOCK_MAIP_TYPE_U16: maip_io_printf("  {blue}Value:{reset} %u\n", (unsigned)value.as.u16); break;
+                case FOSSIL_MOCK_MAIP_TYPE_U32: maip_io_printf("  {blue}Value:{reset} %u\n", (unsigned)value.as.u32); break;
+                case FOSSIL_MOCK_MAIP_TYPE_U64: maip_io_printf("  {blue}Value:{reset} %llu\n", (unsigned long long)value.as.u64); break;
+                case FOSSIL_MOCK_MAIP_TYPE_HEX: maip_io_printf("  {blue}Value:{reset} 0x%llx\n", (unsigned long long)value.as.hex); break;
+                case FOSSIL_MOCK_MAIP_TYPE_OCTAL: maip_io_printf("  {blue}Value:{reset} 0%llo\n", (unsigned long long)value.as.octal); break;
+                case FOSSIL_MOCK_MAIP_TYPE_FLOAT: maip_io_printf("  {blue}Value:{reset} %g\n", (double)value.as.f32); break;
+                case FOSSIL_MOCK_MAIP_TYPE_DOUBLE: maip_io_printf("  {blue}Value:{reset} %g\n", value.as.f64); break;
+                case FOSSIL_MOCK_MAIP_TYPE_WSTR: maip_io_printf("  {blue}Value:{reset} \"%ls\"\n", value.as.wstr ? value.as.wstr : L"NULL"); break;
+                case FOSSIL_MOCK_MAIP_TYPE_CSTR: maip_io_printf("  {blue}Value:{reset} \"%s\"\n", value.as.cstr ? value.as.cstr : "NULL"); break;
+                case FOSSIL_MOCK_MAIP_TYPE_CCHAR: maip_io_printf("  {blue}Value:{reset} '%c'\n", value.as.cchar); break;
+                case FOSSIL_MOCK_MAIP_TYPE_WCHAR: maip_io_printf("  {blue}Value:{reset} '%lc'\n", value.as.wchar); break;
+                case FOSSIL_MOCK_MAIP_TYPE_BOOL: maip_io_printf("  {blue}Value:{reset} %s\n", value.as.boolean ? "true" : "false"); break;
+                case FOSSIL_MOCK_MAIP_TYPE_SIZE: maip_io_printf("  {blue}Value:{reset} %zu\n", value.as.size); break;
+                case FOSSIL_MOCK_MAIP_TYPE_ANY: maip_io_printf("  {blue}Value:{reset} %p\n", value.as.any); break;
                 default:
-                    maip_io_printf("  {blue}Value:{reset} %s\n", current->arguments[i].value.data ? current->arguments[i].value.data : "NULL");
+                    maip_io_printf("  {blue}Value:{reset} <invalid>\n");
                     break;
             }
 
@@ -235,73 +186,45 @@ void fossil_mock_print(fossil_mock_calllist_t *list) {
     }
 }
 
-void fossil_mock_set_ai_context(fossil_mock_call_t *call, fossil_mock_ai_context_t *ai_context) {
+void fossil_mock_set_stub(fossil_mock_call_t *call, fossil_mock_stub_fn stub, void *user_data) {
     if (!call) return;
-    if (call->ai_context) {
-        fossil_mock_destroy_ai_context(call->ai_context);
+    call->stub = stub;
+    call->stub_user_data = user_data;
+}
+
+void fossil_mock_set_return_value(fossil_mock_call_t *call, fossil_mock_maip_value_t value) {
+    if (!call) return;
+    call->return_value = value;
+}
+
+int fossil_mock_count_calls(const fossil_mock_calllist_t *list, const char *function_name) {
+    if (!list || !function_name) return 0;
+    int count = 0;
+    for (const fossil_mock_call_t *call = list->head; call; call = call->next) {
+        if (call->function_name && strcmp(call->function_name, function_name) == 0) ++count;
     }
-    call->ai_context = NULL;
-    if (ai_context) {
-        call->ai_context = (fossil_mock_ai_context_t *)maip_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
-        if (call->ai_context) {
-            call->ai_context->context_info = ai_context->context_info ? maip_io_cstr_dup(ai_context->context_info) : NULL;
-            call->ai_context->expected_behavior = ai_context->expected_behavior ? maip_io_cstr_dup(ai_context->expected_behavior) : NULL;
-            // AI trick: Clamp confidence to [0.0, 1.0] and print a warning if out of range
-            if (ai_context->confidence < 0.0) {
-                maip_io_printf("{yellow}AI Trick:{reset} Confidence below 0.0, clamped to 0.0\n");
-                call->ai_context->confidence = 0.0;
-            } else if (ai_context->confidence > 1.0) {
-                maip_io_printf("{yellow}AI Trick:{reset} Confidence above 1.0, clamped to 1.0\n");
-                call->ai_context->confidence = 1.0;
-            } else {
-                call->ai_context->confidence = ai_context->confidence;
-            }
-            // AI trick: If ai_notes is NULL, auto-fill with "No notes provided"
-            call->ai_context->ai_notes = ai_context->ai_notes ? maip_io_cstr_dup(ai_context->ai_notes) : maip_io_cstr_dup("No notes provided");
+    return count;
+}
+
+bool fossil_mock_verify_call(const fossil_mock_call_t *call, const fossil_mock_maip_t *arguments, int num_args) {
+    if (!call || num_args < 0 || call->num_args != num_args || (num_args > 0 && (!arguments || !call->arguments))) return false;
+    for (int i = 0; i < num_args; ++i) {
+        if (call->arguments[i].type != arguments[i].type ||
+            call->arguments[i].value.mutable_flag != arguments[i].value.mutable_flag ||
+            !fossil_mock_values_equal(call->arguments[i].type, call->arguments[i].value, arguments[i].value)) {
+            return false;
         }
     }
+    return true;
 }
 
-// AI trick: If confidence is not in [0.0, 1.0], clamp it and print a warning.
-fossil_mock_ai_context_t *fossil_mock_create_ai_context(const char *context_info, const char *expected_behavior, double confidence, const char *ai_notes) {
-    fossil_mock_ai_context_t *ctx = (fossil_mock_ai_context_t *)maip_sys_memory_alloc(sizeof(fossil_mock_ai_context_t));
-    if (!ctx) return NULL;
-    ctx->context_info = context_info ? maip_io_cstr_dup(context_info) : NULL;
-    ctx->expected_behavior = expected_behavior ? maip_io_cstr_dup(expected_behavior) : NULL;
-    // Clamp confidence to [0.0, 1.0]
-    if (confidence < 0.0) {
-        maip_io_printf("{yellow}AI Trick:{reset} Confidence below 0.0, clamped to 0.0\n");
-        ctx->confidence = 0.0;
-    } else if (confidence > 1.0) {
-        maip_io_printf("{yellow}AI Trick:{reset} Confidence above 1.0, clamped to 1.0\n");
-        ctx->confidence = 1.0;
-    } else {
-        ctx->confidence = confidence;
+bool fossil_mock_verify_order(const fossil_mock_calllist_t *list, const char *const *function_names, int count) {
+    if (!list || count < 0 || (count > 0 && !function_names) || list->size != count) return false;
+    const fossil_mock_call_t *call = list->head;
+    for (int i = 0; i < count; ++i, call = call->next) {
+        if (!call || !call->function_name || !function_names[i] || strcmp(call->function_name, function_names[i]) != 0) return false;
     }
-    // AI trick: If ai_notes is NULL, auto-fill with "No notes provided"
-    ctx->ai_notes = ai_notes ? maip_io_cstr_dup(ai_notes) : maip_io_cstr_dup("No notes provided");
-    return ctx;
-}
-
-void fossil_mock_destroy_ai_context(fossil_mock_ai_context_t *ai_context) {
-    if (!ai_context) return;
-    maip_sys_memory_free(ai_context->context_info);
-    maip_sys_memory_free(ai_context->expected_behavior);
-    maip_sys_memory_free(ai_context->ai_notes);
-    maip_sys_memory_free(ai_context);
-}
-
-// AI trick: Print a warning if confidence is below a threshold (e.g., 0.5)
-void fossil_mock_print_ai_context(const fossil_mock_ai_context_t *ai_context) {
-    if (!ai_context) return;
-    maip_io_printf("  {green}AI Context:{reset}\n");
-    maip_io_printf("    {blue}Info:{reset} %s\n", ai_context->context_info ? ai_context->context_info : "NULL");
-    maip_io_printf("    {blue}Expected:{reset} %s\n", ai_context->expected_behavior ? ai_context->expected_behavior : "NULL");
-    maip_io_printf("    {blue}Confidence:{reset} %.2f\n", ai_context->confidence);
-    if (ai_context->confidence < 0.5) {
-        maip_io_printf("    {red,bold}Warning:{reset} Confidence is low!\n");
-    }
-    maip_io_printf("    {blue}Notes:{reset} %s\n", ai_context->ai_notes ? ai_context->ai_notes : "NULL");
+    return call == NULL;
 }
 
 int fossil_mock_capture_output(char *buffer, size_t size, void (*function)(void)) {
