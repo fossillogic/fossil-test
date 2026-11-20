@@ -610,6 +610,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     {
         test_case->state = FOSSIL_MAIP_CASE_SKIPPED;
         fossil_maip_update_score(test_case, suite);
+        fossil_maip_show_cases(suite, test_case, engine);
         return;
     }
 
@@ -676,6 +677,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     }
 
     fossil_maip_update_score(test_case, suite);
+    fossil_maip_show_cases(suite, test_case, engine);
 }
 
 // --- Algorithmic modifications ---
