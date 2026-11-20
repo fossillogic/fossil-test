@@ -37,38 +37,54 @@ extern "C" {
 
 // **************************************************
 //
-// Boolean assumtions
+// Boolean assumptions
 //
 // **************************************************
 
 /**
- * @brief Assumes that the given boolean expression is true.
+ * @brief Assumes that the given Boolean expression is true.
  *
- * @param actual The boolean expression to be evaluated.
+ * @param actual The Boolean expression to evaluate.
+ *
+ * @return None. The macro records an assumption failure when the expression is false.
+ *
+ * @note The expression is evaluated by the underlying test-assumption mechanism.
  */
 #define ASSUME_ITS_TRUE(actual) \
     FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be true", (actual) ? "true" : "false"))
 
 /**
- * @brief Assumes that the given boolean expression is false.
+ * @brief Assumes that the given Boolean expression is false.
  *
- * @param actual The boolean expression to be evaluated.
+ * @param actual The Boolean expression to evaluate.
+ *
+ * @return None. The macro records an assumption failure when the expression is true.
+ *
+ * @note The expression is evaluated by the underlying test-assumption mechanism.
  */
 #define ASSUME_ITS_FALSE(actual) \
     FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to be false", (actual) ? "true" : "false"))
 
 /**
- * @brief Assumes that the given boolean expression is not true.
+ * @brief Assumes that the given Boolean expression is not true.
  *
- * @param actual The boolean expression to be evaluated.
+ * @param actual The Boolean expression to evaluate.
+ *
+ * @return None. The macro records an assumption failure when the expression is true.
+ *
+ * @note This macro expresses the same logical condition as ASSUME_ITS_FALSE().
  */
 #define ASSUME_NOT_TRUE(actual) \
     FOSSIL_TEST_ASSUME(!(actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be true", (actual) ? "true" : "false"))
 
 /**
- * @brief Assumes that the given boolean expression is not false.
+ * @brief Assumes that the given Boolean expression is not false.
  *
- * @param actual The boolean expression to be evaluated.
+ * @param actual The Boolean expression to evaluate.
+ *
+ * @return None. The macro records an assumption failure when the expression is false.
+ *
+ * @note This macro expresses the same logical condition as ASSUME_ITS_TRUE().
  */
 #define ASSUME_NOT_FALSE(actual) \
     FOSSIL_TEST_ASSUME((actual), _FOSSIL_TEST_ASSUME_MESSAGE("Expected " #actual " of value %s to not be false", (actual) ? "true" : "false"))
