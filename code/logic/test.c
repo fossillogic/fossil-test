@@ -25,11 +25,11 @@
 #include "fossil/maip/test.h"
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <setjmp.h>
 #include <stdio.h>
 #include <time.h>
-#include <sys/time.h>
+
+extern uint64_t get_maip_time_microseconds(void);
 
 jmp_buf test_jump_buffer;     // This will hold the jump buffer for longjmp
 static int _ASSERT_COUNT = 0; // Counter for the number of assertions
@@ -37,9 +37,7 @@ static int _ASSERT_COUNT = 0; // Counter for the number of assertions
 // --- Internal helper for timing ---
 static uint64_t fossil_maip_now_ns(void)
 {
-    struct timeval tv;
-    gettimeofday(&tv, null);
-    return (uint64_t)tv.tv_sec * 1000000000ULL + (uint64_t)tv.tv_usec * 1000ULL;
+    return get_maip_time_microseconds() * 1000ULL;
 }
 
 // --- Start ---
@@ -80,6 +78,27 @@ int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suit
         engine->capacity = new_cap;
     }
 
+    // The engine owns its suite and case arrays.  Copy dynamically-added
+    // suites so caller-owned storage can be released independently.
+    if (suite.count > 0)
+    {
+        if (!suite.cases)
+            return FOSSIL_MAIP_FAILURE;
+
+        fossil_maip_case_t *cases = maip_sys_memory_alloc(suite.count * sizeof(*cases));
+        if (!cases)
+            return FOSSIL_MAIP_FAILURE;
+
+        maip_sys_memory_copy(cases, suite.cases, suite.count * sizeof(*cases));
+        suite.cases = cases;
+        suite.capacity = suite.count;
+    }
+    else
+    {
+        suite.cases = NULL;
+        suite.capacity = 0;
+    }
+
     // Add to engine
     engine->suites[engine->count++] = suite;
     return FOSSIL_MAIP_SUCCESS;
@@ -114,30 +133,27 @@ void fossil_maip_update_score(fossil_maip_case_t *test_case, fossil_maip_suite_t
     if (!test_case || !suite)
         return;
 
-    if (test_case->state != FOSSIL_MAIP_CASE_EMPTY)
+    switch (test_case->state)
     {
-        switch (test_case->state)
-        {
-        case FOSSIL_MAIP_CASE_PASS:
-            suite->score.passed++;
-            break;
-        case FOSSIL_MAIP_CASE_FAIL:
-            suite->score.failed++;
-            break;
-        case FOSSIL_MAIP_CASE_TIMEOUT:
-            suite->score.timeout++;
-            break;
-        case FOSSIL_MAIP_CASE_SKIPPED:
-            suite->score.skipped++;
-            break;
-        case FOSSIL_MAIP_CASE_UNEXPECTED:
-            suite->score.unexpected++;
-            break;
-        case FOSSIL_MAIP_CASE_EMPTY:
-        default:
-            suite->score.empty++;
-            break;
-        }
+    case FOSSIL_MAIP_CASE_PASS:
+        suite->score.passed++;
+        break;
+    case FOSSIL_MAIP_CASE_FAIL:
+        suite->score.failed++;
+        break;
+    case FOSSIL_MAIP_CASE_TIMEOUT:
+        suite->score.timeout++;
+        break;
+    case FOSSIL_MAIP_CASE_SKIPPED:
+        suite->score.skipped++;
+        break;
+    case FOSSIL_MAIP_CASE_UNEXPECTED:
+        suite->score.unexpected++;
+        break;
+    case FOSSIL_MAIP_CASE_EMPTY:
+    default:
+        suite->score.empty++;
+        break;
     }
 
     // --- Recompute suite totals for safety ---
@@ -583,14 +599,12 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     if (!test_case || !suite || !engine)
         return;
 
-    // --- Filter: --only ---
     if (engine->pallet.run.only &&
         maip_io_cstr_compare(engine->pallet.run.only, test_case->name) != 0)
     {
         return;
     }
 
-    // --- Filter: --skip ---
     if (engine->pallet.run.skip &&
         maip_io_cstr_compare(engine->pallet.run.skip, test_case->name) == 0)
     {
@@ -608,7 +622,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
             test_case->setup();
 
         test_case->state = FOSSIL_MAIP_CASE_EMPTY;
-        _ASSERT_COUNT = 0; // Reset before running test
+        _ASSERT_COUNT = 0;
         uint64_t start_time = fossil_maip_now_ns();
 
         if (test_case->run)
@@ -617,8 +631,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
             {
                 test_case->run();
 
-                uint64_t end_time = fossil_maip_now_ns();
-                uint64_t elapsed = end_time - start_time;
+                uint64_t elapsed = fossil_maip_now_ns() - start_time;
                 test_case->elapsed_ns = elapsed;
 
 #ifndef FOSSIL_MAIP_TIMEOUT
@@ -629,6 +642,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                 {
                     test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
                 }
+                // EMPTY means the case ran without producing any assertions.
                 else if (_ASSERT_COUNT == 0)
                 {
                     test_case->state = FOSSIL_MAIP_CASE_EMPTY;
@@ -662,50 +676,67 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     }
 
     fossil_maip_update_score(test_case, suite);
-    fossil_maip_show_cases(suite, test_case, engine);
 }
 
 // --- Algorithmic modifications ---
 
 // --- Sorting Test Cases ---
-static int compare_name_asc(const void *a, const void *b)
+static int compare_priority_desc(const void *a, const void *b)
 {
-    return maip_io_cstr_compare(((fossil_maip_case_t *)a)->name, ((fossil_maip_case_t *)b)->name);
-}
-
-static int compare_name_desc(const void *a, const void *b)
-{
-    return maip_io_cstr_compare(((fossil_maip_case_t *)b)->name, ((fossil_maip_case_t *)a)->name);
-}
-
-static int compare_result_asc(const void *a, const void *b)
-{
-    return ((fossil_maip_case_t *)a)->state - ((fossil_maip_case_t *)b)->state;
-}
-
-static int compare_result_desc(const void *a, const void *b)
-{
-    return ((fossil_maip_case_t *)b)->state - ((fossil_maip_case_t *)a)->state;
-}
-
-static int compare_time_asc(const void *a, const void *b)
-{
-    return ((fossil_maip_case_t *)a)->elapsed_ns - ((fossil_maip_case_t *)b)->elapsed_ns;
-}
-
-static int compare_time_desc(const void *a, const void *b)
-{
-    return ((fossil_maip_case_t *)b)->elapsed_ns - ((fossil_maip_case_t *)a)->elapsed_ns;
+    int priority_a = ((const fossil_maip_case_t *)a)->priority;
+    int priority_b = ((const fossil_maip_case_t *)b)->priority;
+    return (priority_a < priority_b) - (priority_a > priority_b);
 }
 
 static int compare_priority_asc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)a)->priority - ((fossil_maip_case_t *)b)->priority;
+    int priority_a = ((const fossil_maip_case_t *)a)->priority;
+    int priority_b = ((const fossil_maip_case_t *)b)->priority;
+    return (priority_a > priority_b) - (priority_a < priority_b);
 }
 
-static int compare_priority_desc(const void *a, const void *b)
+static int compare_name_asc(const void *a, const void *b)
 {
-    return ((fossil_maip_case_t *)b)->priority - ((fossil_maip_case_t *)a)->priority;
+    int result = maip_io_cstr_compare(((const fossil_maip_case_t *)a)->name, ((const fossil_maip_case_t *)b)->name);
+    return result ? result : compare_priority_desc(a, b);
+}
+
+static int compare_name_desc(const void *a, const void *b)
+{
+    int result = maip_io_cstr_compare(((const fossil_maip_case_t *)b)->name, ((const fossil_maip_case_t *)a)->name);
+    return result ? result : compare_priority_desc(a, b);
+}
+
+static int compare_result_asc(const void *a, const void *b)
+{
+    int state_a = ((const fossil_maip_case_t *)a)->state;
+    int state_b = ((const fossil_maip_case_t *)b)->state;
+    int result = (state_a > state_b) - (state_a < state_b);
+    return result ? result : compare_priority_desc(a, b);
+}
+
+static int compare_result_desc(const void *a, const void *b)
+{
+    int state_a = ((const fossil_maip_case_t *)a)->state;
+    int state_b = ((const fossil_maip_case_t *)b)->state;
+    int result = (state_b > state_a) - (state_b < state_a);
+    return result ? result : compare_priority_desc(a, b);
+}
+
+static int compare_time_asc(const void *a, const void *b)
+{
+    uint64_t time_a = ((const fossil_maip_case_t *)a)->elapsed_ns;
+    uint64_t time_b = ((const fossil_maip_case_t *)b)->elapsed_ns;
+    int result = (time_a > time_b) - (time_a < time_b);
+    return result ? result : compare_priority_desc(a, b);
+}
+
+static int compare_time_desc(const void *a, const void *b)
+{
+    uint64_t time_a = ((const fossil_maip_case_t *)a)->elapsed_ns;
+    uint64_t time_b = ((const fossil_maip_case_t *)b)->elapsed_ns;
+    int result = (time_b > time_a) - (time_b < time_a);
+    return result ? result : compare_priority_desc(a, b);
 }
 
 void fossil_maip_sort_cases(fossil_maip_suite_t *suite, const fossil_maip_engine_t *engine)
@@ -833,21 +864,29 @@ int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_
     suite->total_possible = 0;
     maip_sys_memory_set(&suite->score, 0, sizeof(suite->score));
 
-    // --- Filtering ---
-    fossil_maip_case_t *filtered_cases[suite->count];
-    size_t filtered_count = fossil_maip_filter_cases(suite, engine, filtered_cases);
+    // Sort and shuffle before filtering so the filtered pointers refer to the
+    // cases in their final execution order.
+    fossil_maip_sort_cases(suite, engine);
+    fossil_maip_shuffle_cases(suite, engine);
 
-    if (filtered_count > 0)
+    // Allocate the pointer list on the heap rather than using a suite-sized
+    // VLA, which can exhaust the stack for large suites.
+    fossil_maip_case_t **filtered_cases =
+        (fossil_maip_case_t **)malloc(suite->count * sizeof(*filtered_cases));
+    if (!filtered_cases && suite->count > 0)
     {
-        fossil_maip_sort_cases(suite, engine);
-        fossil_maip_shuffle_cases(suite, engine);
-
-        for (size_t i = 0; i < filtered_count; ++i)
-        {
-            fossil_maip_case_t *test_case = filtered_cases[i];
-            fossil_maip_run_test(engine, test_case, suite);
-        }
+        suite->time_elapsed_ns = fossil_maip_now_ns() - suite->time_elapsed_ns;
+        if (suite->teardown)
+            suite->teardown();
+        return FOSSIL_MAIP_FAILURE;
     }
+
+    size_t filtered_count = fossil_maip_filter_cases(suite, engine, filtered_cases);
+    for (size_t i = 0; i < filtered_count; ++i)
+    {
+        fossil_maip_run_test(engine, filtered_cases[i], suite);
+    }
+    free(filtered_cases);
 
     suite->time_elapsed_ns = fossil_maip_now_ns() - suite->time_elapsed_ns;
 
@@ -913,7 +952,7 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
         "Perfect score! Your code is robust and reliable.",
         "All green! No issues detected.",
         "Impeccable work. Every test case passed.",
-        "100% success rate. Your code is production-ready.",
+        "100%% success rate. Your code is production-ready.",
         "No failures, no warnings. Just perfection.",
         "All systems go. Excellent job.",
         "Every test passed. You nailed it.",
@@ -937,7 +976,7 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
         "All assertions true. Brilliant work.",
         "No failures. Your code is perfect.",
         "All tests green. You're unstoppable.",
-        "100% pass rate. Legendary performance.",
+        "100%% pass rate. Legendary performance.",
 
         // 30-59: Near-perfect
         "Almost perfect! Just a minor issue.",
