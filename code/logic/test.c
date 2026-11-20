@@ -623,7 +623,7 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         test_case->state = FOSSIL_MAIP_CASE_EMPTY;
         _ASSERT_COUNT = 0;
-        uint64_t start_time = fossil_maip_now_ns();
+        volatile uint64_t start_time = fossil_maip_now_ns();
 
         if (test_case->run)
         {
