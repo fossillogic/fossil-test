@@ -111,78 +111,114 @@ typedef struct
 
 // --- Initialization ---
 
-/** * Initializes a new fossil_maip_engine_t instance.
+/** * 
+ * @brief Initializes a new fossil_maip_engine_t instance.
+ * 
  * @param engine Pointer to the engine to initialize.
  * @param argc The number of command line arguments.
  * @param argv The command line arguments.
+ * 
  * @return 0 on success, -1 on failure.
+ * 
+ * @note This function sets up the test engine, preparing it to run test suites and cases.
  */
 FOSSIL_MAIP_API int fossil_maip_start(fossil_maip_engine_t *engine, int argc, char **argv);
 
 // --- Adding Test Suites and Cases ---
 
-/** Adds a test suite to the engine.
+/** 
+ * @brief Adds a test suite to the engine.
+ * 
  * @param engine Pointer to the engine instance.
  * @param suite The suite to add.
+ * 
  * @return 0 on success, -1 on failure.
+ * 
+ * @note The engine takes ownership of the suite and its cases. The suite's case array is copied to ensure that the engine can manage its own memory.
  */
 FOSSIL_MAIP_API int fossil_maip_add_suite(fossil_maip_engine_t *engine, fossil_maip_suite_t suite);
 
-/** Adds a test case to a suite.
+/** 
+ * @brief Adds a test case to a suite.
+ * 
  * @param suite Pointer to the suite instance.
  * @param test_case Pointer to the test case to add.
+ * 
  * @return 0 on success, -1 on failure.
+ * 
+ * @note The suite takes ownership of the test case. The test case is copied into the suite's case array, and the suite manages its own memory.
  */
 FOSSIL_MAIP_API int fossil_maip_add_case(fossil_maip_suite_t *suite, fossil_maip_case_t test_case);
 
 // --- Execution ---
 
-/** Runs a single test suite.
+/** 
+ * @brief Runs a single test suite.
+ * 
+ * @param engine Pointer to the engine instance.
  * @param suite Pointer to the suite instance.
+ * 
  * @return 0 on success, -1 on failure.
+ * 
+ * @note This function executes all test cases in the suite, applying any setup and teardown functions defined for the suite. It also updates the suite's score and timing information.
  */
 FOSSIL_MAIP_API int fossil_maip_run_suite(const fossil_maip_engine_t *engine, fossil_maip_suite_t *suite);
 
-/** Runs all test suites in the engine.
+/** 
+ * @brief Runs all test suites in the engine.
+ * 
  * @param engine Pointer to the engine instance.
+ * 
  * @return 0 on success, -1 on failure.
+ * 
+ * @note This function iterates through all test suites in the engine, executing each one and accumulating the overall score and timing information. It is the main entry point for running all tests.
  */
 FOSSIL_MAIP_API int fossil_maip_run_all(fossil_maip_engine_t *engine);
 
 // --- Summary + Teardown ---
 
-/** Prints a summary of the test results.
+/** 
+ * @brief Prints a summary of the test results.
+ * 
  * @param engine Pointer to the engine instance.
+ * 
+ * @note This function outputs a summary of the test results, including the number of passed, failed, skipped, and unexpected test cases. It also provides timing information and any AI-generated feedback if applicable.
  */
 FOSSIL_MAIP_API void fossil_maip_summary(const fossil_maip_engine_t *engine);
 
-/** Cleans up and ends the test engine.
+/** 
+ * @brief Cleans up and ends the test engine.
+ * 
  * @param engine Pointer to the engine instance.
+ * 
+ * @return 0 on success, -1 on failure.
+ * 
+ * @note This function releases all memory allocated for the test suites and cases, and performs any necessary teardown operations. It should be called after all tests have been executed and the summary has been printed.
  */
 FOSSIL_MAIP_API int32_t fossil_maip_end(fossil_maip_engine_t *engine);
 
 /**
  * @brief Internal function to handle assertions with anomaly detection.
  *
- * This function is used internally by the test framework to handle assertions
- * and detect duplicate assertions. It is not intended to be called directly.
- *
  * @param condition The condition to check.
  * @param message The message to display if the condition is false.
  * @param file The file name where the assertion occurred.
  * @param line The line number where the assertion occurred.
  * @param func The function name where the assertion occurred.
+ * 
+ * @note This function is used internally by the test framework to handle assertions and detect anomalies. It is not intended to be called directly.
  */
 FOSSIL_MAIP_API void maip_test_assert_internal(bool condition, const char *message, const char *file, int line, const char *func);
 
 /**
  * @brief Internal function to handle assertions with message formatting.
  *
- * This function is used internally by the test framework to handle assertions
- * and format messages. It is not intended to be called directly.
- *
  * @param message The message to format.
+ * @param ... Additional arguments for formatting the message.
+ * 
  * @return A formatted message string.
+ * 
+ * @note This function is used internally by the test framework to format assertion messages. It is not intended to be called directly.
  */
 FOSSIL_MAIP_API char *maip_test_assert_messagef(const char *message, ...);
 
@@ -190,64 +226,16 @@ FOSSIL_MAIP_API char *maip_test_assert_messagef(const char *message, ...);
 // internal messages
 // *********************************************************************************************
 
-/**
- * @brief Internal function to handle the "given" step in a test case.
- *
- * This function is used to set up the context for a test case. It is not
- * intended to be called directly.
- *
- * @param description The description of the given step.
- */
 FOSSIL_MAIP_API void _given(const char *description);
 
-/**
- * @brief Internal function to handle the "when" step in a test case.
- *
- * This function is used to set up the action for a test case. It is not
- * intended to be called directly.
- *
- * @param description The description of the when step.
- */
 FOSSIL_MAIP_API void _when(const char *description);
 
-/**
- * @brief Internal function to handle the "and" step in a test case.
- *
- * This function is used to add an additional step in a test case. It is not
- * intended to be called directly.
- *
- * @param description The description of the and step.
- */
 FOSSIL_MAIP_API void _and(const char *description);
 
-/**
- * @brief Internal function to handle the "then" step in a test case.
- *
- * This function is used to set up the expected outcome for a test case. It is
- * not intended to be called directly.
- *
- * @param description The description of the then step.
- */
 FOSSIL_MAIP_API void _then(const char *description);
 
-/**
- * @brief Internal function to handle a subcase within a test case.
- *
- * This function is used to define a nested subcase or variant of a test case.
- * It is not intended to be called directly.
- *
- * @param description The description of the subcase.
- */
 FOSSIL_MAIP_API void _subcase(const char *description);
 
-/**
- * @brief Internal function to handle the "skip" step in a test case.
- *
- * This function is used to skip a test case. It is not intended to be called
- * directly.
- *
- * @param description The description of the skip step.
- */
 FOSSIL_MAIP_API void _on_skip(const char *description);
 
 #ifdef __cplusplus
@@ -257,15 +245,6 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
 // *********************************************************************************************
 // Private API Macros
 // *********************************************************************************************
-
-/** @brief Macro to define a test case.
- *
- * This macro is used to define a test case, which is a single unit of testing
- * that verifies a specific functionality or behavior. The test case can be
- * executed independently or as part of a test suite.
- *
- * @param test_name The name of the test case to define.
- */
 
 #ifdef __cplusplus
 #define _FOSSIL_TEST(test_name)                          \
@@ -297,7 +276,6 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     void test_name##_run(void)
 #endif
 
-
 #ifdef __cplusplus
 #define _FOSSIL_TEST_DEPEND_ON(test_name, dep_cases)
 #define _FOSSIL_TEST_PARAM(test_name, params)
@@ -305,75 +283,23 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
 
 #endif
 
-/** @brief Macro to set a test case's tags.
- *
- * This macro is used to specify tags for a test case. Tags can be used to
- * categorize or filter test cases based on specific criteria.
- *
- * @param test_name The name of the test case.
- * @param tags The tags to assign to the test case.
- */
 #define _FOSSIL_TEST_SET_TAGS(test_name, tags) \
     test_case_##test_name.tags = tags
 
-/** @brief Macro to set a test case's skip message.
- *
- * This macro is used to specify a skip message for a test case. The skip
- * message indicates that the test case is intentionally skipped and provides
- * a reason for the skip.
- *
- * @param test_name The name of the test case.
- * @param skip The skip message to assign to the test case.
- */
 #define _FOSSIL_TEST_SET_SKIP(test_name, skip)                \
     test_case_##test_name.state = FOSSIL_MAIP_CASE_SKIPPED; \
     test_case_##test_name.tags = skip                         \
                                      test_case_##test_name.teardown = _on_skip(skip)
 
-/** @brief Macro to set a test case's criteria.
- *
- * This macro is used to specify criteria for a test case. The criteria can be
- * used to filter or categorize test cases based on specific conditions or
- * requirements.
- *
- * @param test_name The name of the test case.
- * @param criteria The criteria to assign to the test case.
- */
 #define _FOSSIL_TEST_SET_CRITERIA(test_name, criteria) \
     test_case_##test_name.criteria = criteria
 
-/** @brief Macro to set a test case's setup function.
- *
- * This macro is used to specify a setup function for a test case. The setup
- * function will be called before the test case is executed, allowing for any
- * necessary initialization or preparation.
- *
- * @param test_name The name of the test case.
- * @param before The name of the setup function to call before the test case.
- */
 #define _FOSSIL_TEST_SET_BEFORE(test_name, before) \
     test_case_##test_name.setup = setup_before_##before
 
-/** @brief Macro to set a test case's setup function.
- *
- * This macro is used to specify a setup function for a test case. The setup
- * function will be called before the test case is executed, allowing for any
- * necessary initialization or preparation.
- *
- * @param test_name The name of the test case.
- * @param before The name of the setup function to call before the test case.
- */
 #define _FOSSIL_TEST_SET_AFTER(test_name, after) \
     test_case_##test_name.teardown = teardown_after_##after
 
-/** @brief Macro to define a test suite.
- *
- * This macro is used to define a test suite, which is a collection of test cases
- * that are related to each other. The test suite can be executed as a whole to
- * verify the correctness of a group of functionalities.
- *
- * @param name The name of the suite to define.
- */
 #ifdef __cplusplus
 #define _FOSSIL_SUITE(suite)                                \
     void setup_##suite(void);                               \
@@ -407,82 +333,24 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
         .score = {0, 0, 0, 0, 0, 0}}
 #endif
 
-/** @brief Macro to define a test setup function.
- *
- * This macro is used to define a setup function for a test case or suite. The
- * setup function will be called before the test case or suite is executed, and
- * can be used to initialize resources or set up the test environment.
- *
- * @param test_setup The name of the setup function to define.
- */
 #define _FOSSIL_SETUP(test_setup) \
     inline void setup_##test_setup(void)
 
-/** @brief Macro to define a test setup function.
- *
- * This macro is used to define a setup function for a test case or suite. The
- * setup function will be called before the test case or suite is executed, and
- * can be used to initialize resources or set up the test environment.
- *
- * @param test_setup The name of the setup function to define.
- */
 #define _FOSSIL_TEARDOWN(test_teardown) \
     inline void teardown_##test_teardown(void)
 
-/** @brief Macro to define a test setup function.
- *
- * This macro is used to define a setup function for a test case or suite. The
- * setup function will be called before the test case or suite is executed, and
- * can be used to initialize resources or set up the test environment.
- *
- * @param test_setup The name of the setup function to define.
- */
 #define _FOSSIL_BEFORE(test_setup) \
     inline void setup_before_##test_setup(void)
 
-/** @brief Macro to define a test teardown function.
- *
- * This macro is used to define a teardown function for a test case or suite. The
- * teardown function will be called after the test case or suite has been executed, and
- * can be used to clean up resources or reset the test environment.
- *
- * @param test_teardown The name of the teardown function to define.
- */
 #define _FOSSIL_AFTER(test_teardown) \
     inline void teardown_after_##test_teardown(void)
 
-/** @brief Macro to add a test case to a specific suite.
- *
- * This macro is used to add a test case to a specific test suite that has been
- * defined in the test engine. It will link the test case to the suite and
- * ensure it is executed when the suite is run.
- *
- * @param suite The name of the suite to which the test case will be added.
- * @param test_case The name of the test case to add.
- */
 #define _FOSSIL_ADD_TEST(suite, test_case) \
     fossil_maip_add_case(&suite_##suite, test_case_##test_case)
 
-/** @brief Macro to run a specific test suite.
- *
- * This macro is used to run a specific test suite that has been defined in the
- * test engine. It will execute all test cases within the specified suite and
- * print the results.
- *
- * @param suite The name of the suite to run.
- */
 #define _FOSSIL_RUN_SUITE(suite) \
     fossil_maip_run_suite(&engine, &suite_##suite)
 
-/** @brief Macro to start the test engine.
- *
- * This macro is used to initialize and start the test engine. It should be called
- * at the beginning of the test execution to set up the environment for running
- * tests.
- *
- * @param argc The number of command line arguments.
- * @param argv The command line arguments.
- */
 #define _FOSSIL_TEST_START(argc, argv)                                   \
     fossil_maip_engine_t engine;                                        \
     if (fossil_maip_start(&engine, argc, argv) != FOSSIL_MAIP_SUCCESS) \
@@ -490,59 +358,18 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
         return FOSSIL_MAIP_FAILURE;                                     \
     }
 
-/** @brief Macro to print a summary of the test results.
- *
- * This macro is used to print a summary of the test results after all tests have
- * been run. It provides an overview of the number of tests passed, failed, and
- * skipped.
- *
- * @param engine The engine instance containing the test results.
- */
 #define _FOSSIL_SUMMARY() \
     fossil_maip_summary(&engine)
 
-/** @brief Macro to run all test suites in the engine.
- *
- * This macro is used to run all test suites that have been added to the test
- * engine. It will execute each suite and its associated test cases, collecting
- * results and printing a summary at the end.
- *
- * @param engine The engine instance containing the test suites.
- */
 #define _FOSSIL_RUN_ALL() \
     fossil_maip_run_all(&engine)
 
-/** @brief Macro to end the test engine.
- *
- * This macro is used to clean up and end the test engine after all tests have
- * been run. It should be called at the end of the test execution.
- *
- * @param engine The engine instance to end.
- */
 #define _FOSSIL_END() \
     fossil_maip_end(&engine)
 
-/**
- * @brief Macro to register a test suite with the engine.
- *
- * This macro is used to register a test suite with the test engine. It will
- * ensure that the suite is added to the engine and can be executed when the
- * test runner is run.
- *
- * @param suite The name of the suite to register.
- */
 #define _FOSSIL_ADD_SUITE(suite) \
     fossil_maip_add_suite(engine, suite_##suite)
 
-/**
- * @brief Macro to define a test group.
- *
- * This macro is used to define a test group, which is a collection of test cases
- * that are related to each other. The test group can be executed as a whole to
- * verify the correctness of a group of functionalities.
- *
- * @param name The name of the test group.
- */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_GROUP(name) \
     extern "C" void name##_test_group(fossil_maip_engine_t *engine)
@@ -551,14 +378,6 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     void name##_test_group(fossil_maip_engine_t *engine)
 #endif
 
-/**
- * @brief Macro to export a test group.
- *
- * This macro is used to export a test group from a test file. The test group
- * will be available to other test files that import it.
- *
- * @param name The name of the test group to export.
- */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_EXPORT(name) \
     extern "C" void name##_test_group(fossil_maip_engine_t *engine)
@@ -567,14 +386,6 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     void name##_test_group(fossil_maip_engine_t *engine)
 #endif
 
-/**
- * @brief Macro to import a test group.
- *
- * This macro is used to import a test group into the test runner. The test group
- * will be executed when the test runner is run.
- *
- * @param name The name of the test group to import.
- */
 #ifdef __cplusplus
 #define _FOSSIL_TEST_IMPORT(name) \
     extern "C" void name##_test_group(fossil_maip_engine_t *engine)
@@ -583,30 +394,12 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     name##_test_group(&engine)
 #endif
 
-/**
- * @brief Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
- */
 #define _FOSSIL_TEST_ASSUME(condition, message) \
     maip_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
-/**
- * @brief Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
- */
 #define _FOSSIL_TEST_ASSERT(condition, message) \
     maip_test_assert_internal((condition), (message), __FILE__, __LINE__, __func__)
 
-/**
- * @brief Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
- */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
 // C23: __VA_OPT__ is available
 #define _FOSSIL_TEST_ASSUME_MESSAGE(message, ...) \
@@ -617,71 +410,30 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
     maip_test_assert_messagef(__VA_ARGS__)
 #endif
 
-/**
- * @brief Macro for defining a Given step in a behavior-driven development test.
- *
- * This macro is used to define a Given step in a behavior-driven development test.
- * The Given step is used to specify the initial context of a test case.
- *
- * @param description The description of the Given step.
- */
 #define _GIVEN(description)  \
     if (0)                   \
     {                        \
         _given(description); \
     }
 
-/**
- * @brief Macro for defining a When step in a behavior-driven development test.
- *
- * This macro is used to define a When step in a behavior-driven development test.
- * The When step is used to specify the action that is being tested.
- *
- * @param description The description of the When step.
- */
 #define _WHEN(description)  \
     if (0)                  \
     {                       \
         _when(description); \
     }
 
-/**
- * @brief Macro for defining an And step in a behavior-driven development test.
- *
- * This macro is used to define an And step in a behavior-driven development test.
- * The And step is used to add an additional condition or continuation to a
- * previously defined Given, When, or Then step.
- *
- * @param description The description of the And step.
- */
 #define _AND(description)   \
     if (0)                  \
     {                       \
         _and(description);  \
     }
 
-/**
- * @brief Macro for defining a Then step in a behavior-driven development test.
- *
- * This macro is used to define a Then step in a behavior-driven development test.
- * The Then step is used to specify the expected outcome of a test case.
- *
- * @param description The description of the Then step.
- */
 #define _THEN(description)  \
     if (0)                  \
     {                       \
         _then(description); \
     }
 
-/**
- * @brief Macro for defining a Subcases for scoping edge cases within test cases.
- * 
- * This macro is used to define a Subcase for scoping edge cases within test cases.
- * The Subcase is used to specify the context of a test case.
- * 
- * @param description The description of the Subcase.
- */
 #define _FOSSIL_SUBCASE(description) \
     _subcase(description);           \
     if (true)                        \
@@ -691,315 +443,379 @@ FOSSIL_MAIP_API void _on_skip(const char *description);
 // Public API Macros
 // *****************************************************************************
 
-/** @brief Macro to define a test case.
+/**
+ * @brief Defines and registers a test case.
  *
- * This macro is used to define a test case, which is a single unit of testing
- * that verifies a specific functionality or behavior. The test case can be
- * executed independently or as part of a test suite.
+ * Declares a single unit of testing that verifies a specific functionality or
+ * behavior. The test case may be executed independently or as part of a suite.
  *
  * @param test_name The name of the test case to define.
+ *
+ * @note The test name should uniquely identify the test within the containing
+ *       source file or test group.
  */
-
 #define FOSSIL_TEST(test_name) \
     _FOSSIL_TEST(test_name)
 
-/** @brief Macro to set a test case's tags.
+/**
+ * @brief Sets tags for a test case.
  *
- * This macro is used to specify tags for a test case. Tags can be used to
- * categorize or filter test cases based on specific criteria.
+ * Associates one or more tags with a test case so it can be categorized and
+ * included or excluded when tests are filtered.
  *
- * @param test_name The name of the test case.
+ * @param test_name The name of the test case whose tags are to be changed.
  * @param tags The tags to assign to the test case.
+ *
+ * @note Tag syntax and filtering behavior are determined by the test engine.
  */
 #define FOSSIL_TEST_SET_TAGS(test_name, tags) \
     _FOSSIL_TEST_SET_TAGS(test_name, tags)
 
-/** @brief Macro to set a test case's skip message.
+/**
+ * @brief Sets a skip reason for a test case.
  *
- * This macro is used to specify a skip message for a test case. The skip
- * message indicates that the test case is intentionally skipped and provides
- * a reason for the skip.
+ * Marks a test case as intentionally skipped and associates a human-readable
+ * reason with the skipped execution.
  *
- * @param test_name The name of the test case.
- * @param skip The skip message to assign to the test case.
+ * @param test_name The name of the test case whose skip state is to be set.
+ * @param skip The message describing why the test is skipped.
+ *
+ * @note Skipped tests are reported separately and are not treated as failures.
  */
 #define FOSSIL_TEST_SET_SKIP(test_name, skip) \
     _FOSSIL_TEST_SET_SKIP(test_name, skip)
 
-/** @brief Macro to set a test case's criteria.
+/**
+ * @brief Sets criteria for a test case.
  *
- * This macro is used to specify criteria for a test case. The criteria can be
- * used to filter or categorize test cases based on specific conditions or
- * requirements.
+ * Associates filtering or categorization criteria with a test case. Criteria
+ * may be used by the test engine to decide when the test is eligible to run.
  *
- * @param test_name The name of the test case.
+ * @param test_name The name of the test case whose criteria are to be changed.
  * @param criteria The criteria to assign to the test case.
+ *
+ * @note Supported criteria and their semantics depend on the test engine.
  */
 #define FOSSIL_TEST_SET_CRITERIA(test_name, criteria) \
     _FOSSIL_TEST_SET_CRITERIA(test_name, criteria)
 
-/** @brief Macro to set a test case's setup function.
+/**
+ * @brief Sets a setup function for a test case.
  *
- * This macro is used to specify a setup function for a test case. The setup
- * function will be called before the test case is executed, allowing for any
- * necessary initialization or preparation.
+ * Registers a function that is invoked before the named test case executes.
+ * The function can initialize state or allocate resources required by the test.
  *
- * @param test_name The name of the test case.
- * @param before The name of the setup function to call before the test case.
+ * @param test_name The name of the test case to configure.
+ * @param before The setup function to call before the test case.
+ *
+ * @note The setup function must match the callback signature required by the
+ *       test engine.
  */
 #define FOSSIL_TEST_SET_BEFORE(test_name, before) \
     _FOSSIL_TEST_SET_BEFORE(test_name, before)
 
-/** @brief Macro to set a test case's setup function.
+/**
+ * @brief Sets a teardown function for a test case.
  *
- * This macro is used to specify a setup function for a test case. The setup
- * function will be called before the test case is executed, allowing for any
- * necessary initialization or preparation.
+ * Registers a function that is invoked after the named test case completes.
+ * The function can release resources or restore state changed by the test.
  *
- * @param test_name The name of the test case.
- * @param before The name of the setup function to call before the test case.
+ * @param test_name The name of the test case to configure.
+ * @param after The teardown function to call after the test case.
+ *
+ * @note The teardown function must match the callback signature required by the
+ *       test engine.
  */
 #define FOSSIL_TEST_SET_AFTER(test_name, after) \
     _FOSSIL_TEST_SET_AFTER(test_name, after)
 
-/** @brief Macro to define a test suite.
+/**
+ * @brief Defines a test suite.
  *
- * This macro is used to define a test suite, which is a collection of test cases
- * that are related to each other. The test suite can be executed as a whole to
- * verify the correctness of a group of functionalities.
+ * Creates a named collection of related test cases that can be executed together
+ * to verify a group of functionalities.
  *
- * @param name The name of the suite to define.
+ * @param suite The name of the suite to define.
+ *
+ * @note Suite names should be unique within the test runner registration scope.
  */
 #define FOSSIL_SUITE(suite) \
     _FOSSIL_SUITE(suite)
 
-/** @brief Macro to define a test setup function.
+/**
+ * @brief Defines a setup function.
  *
- * This macro is used to define a setup function for a test case or suite. The
- * setup function will be called before the test case or suite is executed, and
- * can be used to initialize resources or set up the test environment.
+ * Declares a setup function that initializes resources or state before test
+ * execution begins for a test case or suite.
  *
  * @param test_setup The name of the setup function to define.
+ *
+ * @note Exactly when the setup runs is determined by whether it is attached
+ *       to a suite or individual test case.
  */
 #define FOSSIL_SETUP(test_setup) \
     _FOSSIL_SETUP(test_setup)
 
-/** @brief Macro to define a test teardown function.
+/**
+ * @brief Defines a teardown function.
  *
- * This macro is used to define a teardown function for a test case or suite. The
- * teardown function will be called after the test case or suite has been executed, and
- * can be used to clean up resources or reset the test environment.
+ * Declares a teardown function that cleans up resources or restores state after
+ * test execution finishes for a test case or suite.
  *
  * @param test_teardown The name of the teardown function to define.
+ *
+ * @note Teardown should avoid leaving state that could affect later tests.
  */
 #define FOSSIL_TEARDOWN(test_teardown) \
     _FOSSIL_TEARDOWN(test_teardown)
 
-/** @brief Macro to define a test setup function.
+/**
+ * @brief Defines a function to run before a test scope.
  *
- * This macro is used to define a setup function for a test case or suite. The
- * setup function will be called before the test case or suite is executed, and
- * can be used to initialize resources or set up the test environment.
+ * Declares a before hook that prepares the environment before a test case or
+ * suite begins executing.
  *
- * @param test_setup The name of the setup function to define.
+ * @param test_setup The name of the before function to define.
+ *
+ * @note Use FOSSIL_AFTER() to define the corresponding cleanup hook.
  */
 #define FOSSIL_BEFORE(test_setup) \
     _FOSSIL_BEFORE(test_setup)
 
-/** @brief Macro to define a test teardown function.
+/**
+ * @brief Defines a function to run after a test scope.
  *
- * This macro is used to define a teardown function for a test case or suite. The
- * teardown function will be called after the test case or suite has been executed, and
- * can be used to clean up resources or reset the test environment.
+ * Declares an after hook that cleans up or restores the environment after a
+ * test case or suite finishes executing.
  *
- * @param test_teardown The name of the teardown function to define.
+ * @param test_teardown The name of the after function to define.
+ *
+ * @note Use FOSSIL_BEFORE() to define the corresponding setup hook.
  */
 #define FOSSIL_AFTER(test_teardown) \
     _FOSSIL_AFTER(test_teardown)
 
-/** @brief Macro to add a test case to a specific suite.
+/**
+ * @brief Adds a test case to a suite.
  *
- * This macro is used to add a test case to a specific test suite that has been
- * defined in the test engine. It will link the test case to the suite and
- * ensure it is executed when the suite is run.
+ * Registers an existing test case as a member of the named suite so it runs when
+ * the suite is executed.
  *
- * @param suite The name of the suite to which the test case will be added.
+ * @param suite The name of the suite that receives the test case.
  * @param test_case The name of the test case to add.
+ *
+ * @note Both identifiers must refer to test definitions visible to the runner.
  */
 #define FOSSIL_ADD_TEST(suite, test_case) \
     _FOSSIL_ADD_TEST(suite, test_case)
 
-/** @brief Macro to run a specific test suite.
+/**
+ * @brief Runs a specific test suite.
  *
- * This macro is used to run a specific test suite that has been defined in the
- * test engine. It will execute all test cases within the specified suite and
- * print the results.
+ * Executes all test cases registered with the named suite and collects their
+ * results using the test engine.
  *
- * @param suite The name of the suite to run.
+ * @param suite The name of the suite to execute.
+ *
+ * @note The suite must have been defined and registered before this macro runs.
  */
 #define FOSSIL_RUN_SUITE(suite) \
     _FOSSIL_RUN_SUITE(suite)
 
-/** @brief Macro to start the test engine.
+/**
+ * @brief Starts the test engine.
  *
- * This macro is used to initialize and start the test engine. It should be called
- * at the beginning of the test execution to set up the environment for running
- * tests.
+ * Initializes the test engine and processes command-line arguments that control
+ * test selection and execution.
  *
- * @param argc The number of command line arguments.
- * @param argv The command line arguments.
+ * @param argc The number of command-line arguments.
+ * @param argv The command-line argument array.
+ *
+ * @note Call this before registering or running tests when engine initialization
+ *       is required.
  */
 #define FOSSIL_TEST_START(argc, argv) \
     _FOSSIL_TEST_START(argc, argv)
 
-/** @brief Macro to print a summary of the test results.
+/**
+ * @brief Prints the test result summary.
  *
- * This macro is used to print a summary of the test results after all tests have
- * been run. It provides an overview of the number of tests passed, failed, and
- * skipped.
+ * Outputs aggregate counts and status information for tests that have finished,
+ * including passed, failed, and skipped tests.
  *
- * @param engine The engine instance containing the test results.
+ * @note Call after test execution and before FOSSIL_END() for a complete summary.
  */
 #define FOSSIL_SUMMARY() \
     _FOSSIL_SUMMARY()
 
-/** @brief Macro to run all test suites in the engine.
+/**
+ * @brief Runs all registered test suites.
  *
- * This macro is used to run all test suites that have been added to the test
- * engine. It will execute each suite and its associated test cases, collecting
- * results and printing a summary at the end.
+ * Executes every suite and test case registered with the test engine, collecting
+ * and reporting results for the complete test run.
  *
- * @param engine The engine instance containing the test suites.
+ * @note Suites do not run unless they have been registered before this macro.
  */
 #define FOSSIL_RUN_ALL() \
     _FOSSIL_RUN_ALL()
 
-/** @brief Macro to end the test engine.
+/**
+ * @brief Ends the test engine.
  *
- * This macro is used to clean up and end the test engine after all tests have
- * been run. It should be called at the end of the test execution.
+ * Releases test-engine resources and finalizes the test run. This should be the
+ * final test-runner operation after suites and summaries have been handled.
  *
- * @param engine The engine instance to end.
+ * @note Do not run tests or print summaries after the engine has been ended.
  */
 #define FOSSIL_END() \
     _FOSSIL_END()
 
 /**
- * @brief Macro to register a test suite with the engine.
+ * @brief Registers a test suite with the engine.
  *
- * This macro is used to register a test suite with the test engine. It will
- * ensure that the suite is added to the engine and can be executed when the
- * test runner is run.
+ * Adds an already-defined suite to the engine so the suite can be discovered,
+ * selected, and executed by the test runner.
  *
  * @param suite The name of the suite to register.
+ *
+ * @note Registration should occur before suite execution or FOSSIL_RUN_ALL().
  */
 #define FOSSIL_ADD_SUITE(suite) \
     _FOSSIL_ADD_SUITE(suite)
 
 /**
- * @brief Macro to define a test group.
+ * @brief Defines a test group.
  *
- * This macro is used to define a test group, which is a collection of test cases
- * that are related to each other. The test group can be executed as a whole to
- * verify the correctness of a group of functionalities.
+ * Creates a named collection of test cases that can be exported or imported
+ * across test source files.
  *
- * @param name The name of the test group.
+ * @param name The name of the test group to define.
+ *
+ * @note Group names should be unique within the linking scope used by the runner.
  */
 #define FOSSIL_TEST_GROUP(name) \
     _FOSSIL_TEST_GROUP(name)
 
 /**
- * @brief Macro to export a test group.
+ * @brief Exports a test group.
  *
- * This macro is used to export a test group from a test file. The test group
- * will be available to other test files that import it.
+ * Makes the named test group available to test runner source files that import
+ * it through FOSSIL_TEST_IMPORT().
  *
  * @param name The name of the test group to export.
+ *
+ * @note Export declarations must correspond to groups defined in the exporting
+ *       test source.
  */
 #define FOSSIL_TEST_EXPORT(name) \
     _FOSSIL_TEST_EXPORT(name)
 
 /**
- * @brief Macro to import a test group.
+ * @brief Imports a test group.
  *
- * This macro is used to import a test group into the test runner. The test group
- * will be executed when the test runner is run.
+ * Adds the named exported test group to the current test runner so its test
+ * cases participate in discovery and execution.
  *
  * @param name The name of the test group to import.
+ *
+ * @note The named group must be exported by a linked test source file.
  */
 #define FOSSIL_TEST_IMPORT(name) \
     _FOSSIL_TEST_IMPORT(name)
 
 /**
- * @brief Macro to assume a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
+ * @brief Makes an assumption in a test runner.
+ *
+ * Checks whether a condition is valid for continuing the test. If the condition
+ * is false, the engine reports the supplied message and applies the engine's
+ * assumption failure behavior.
+ *
+ * @param condition The condition that must evaluate to true.
+ * @param message The diagnostic message associated with a failed assumption.
+ *
+ * @note Assumptions may stop or skip the affected test instead of counting as a
+ *       normal assertion failure.
  */
 #define FOSSIL_TEST_ASSUME(condition, message) \
     _FOSSIL_TEST_ASSUME(condition, message)
 
 /**
- * @brief Macro to assert a condition in a test runner.
- * This macro is used to assert that a specific condition is true within a test
- * runner. If the condition is false, the test runner will output the specified
- * message and may abort the execution of the test case or test suite.
+ * @brief Asserts a condition in a test runner.
+ *
+ * Checks whether a condition is true while a test is executing. If the condition
+ * is false, the engine reports the supplied message and records a test failure.
+ *
+ * @param condition The condition that must evaluate to true.
+ * @param message The diagnostic message associated with a failed assertion.
+ *
+ * @note Assertion behavior, including execution continuation, is controlled by
+ *       the test engine implementation.
  */
 #define FOSSIL_TEST_ASSERT(condition, message) \
     _FOSSIL_TEST_ASSERT(condition, message)
 
 /**
- * @brief Macro for defining a Given step in a behavior-driven development test.
+ * @brief Defines a Given behavior step.
  *
- * This macro is used to define a Given step in a behavior-driven development test.
- * The Given step is used to specify the initial context of a test case.
+ * Records the initial context or precondition for a behavior-driven development
+ * test before an action is performed.
  *
- * @param description The description of the Given step.
+ * @param description The human-readable description of the Given step.
+ *
+ * @note Given steps should describe the state of the system before the action.
  */
 #define GIVEN(description) \
     _GIVEN(description)
 
 /**
- * @brief Macro for defining a When step in a behavior-driven development test.
+ * @brief Defines a When behavior step.
  *
- * This macro is used to define a When step in a behavior-driven development test.
- * The When step is used to specify the action that is being tested.
+ * Records the action or event being evaluated in a behavior-driven development
+ * test.
  *
- * @param description The description of the When step.
+ * @param description The human-readable description of the When step.
+ *
+ * @note When steps should describe an observable action rather than an outcome.
  */
 #define WHEN(description) \
     _WHEN(description)
 
 /**
- * @brief Macro for defining a Then step in a behavior-driven development test.
+ * @brief Defines a Then behavior step.
  *
- * This macro is used to define a Then step in a behavior-driven development test.
- * The Then step is used to specify the expected outcome of a test case.
+ * Records the expected outcome or postcondition of a behavior-driven development
+ * test after the action has occurred.
  *
- * @param description The description of the Then step.
+ * @param description The human-readable description of the Then step.
+ *
+ * @note Then steps should state an observable result that can be verified.
  */
 #define THEN(description) \
     _THEN(description)
 
 /**
- * @brief Macro for defining an And step in a behavior-driven development test.
+ * @brief Defines an And continuation step.
  *
- * This macro is used to define an And step in a behavior-driven development test.
- * The And step is used to add an additional condition or continuation to a
- * previously defined Given, When, or Then step.
+ * Adds another condition or statement to the behavior-driven step that precedes
+ * it, without changing the required Given, When, or Then context.
  *
- * @param description The description of the And step.
+ * @param description The human-readable description of the continuation step.
+ *
+ * @note Use AND() after a Given, When, or Then step to extend that step.
  */
 #define AND(description)   \
     _AND(description)
 
 /**
- * @brief Macro for defining a Subcases for scoping edge cases within test cases.
- * 
- * This macro is used to define a Subcase for scoping edge cases within test cases.
- * The Subcase is used to specify the context of a test case.
- * 
- * @param description The description of the Subcase.
+ * @brief Defines a subcase for scoped edge-case testing.
+ *
+ * Creates a scoped subcase within a test case for running variations of an edge
+ * case while retaining the test case's surrounding setup and teardown.
+ *
+ * @param description The human-readable description of the subcase.
+ *
+ * @note Subcase scope should contain only setup and assertions specific to that
+ *       variation of the test.
  */
 #define FOSSIL_SUBCASE(description) \
     _FOSSIL_SUBCASE(description)
