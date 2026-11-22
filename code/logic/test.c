@@ -31,8 +31,24 @@
 
 extern uint64_t get_maip_time_microseconds(void);
 
-jmp_buf test_jump_buffer;     // This will hold the jump buffer for longjmp
-static int _ASSERT_COUNT = 0; // Counter for the number of assertions
+/*
+ * Assertion execution state must not be shared between engines, threads, or
+ * concurrent test runners.  Keep the setjmp buffer and assertion count in
+ * thread-local storage; the old process-wide variables allowed one run to
+ * overwrite another run's recovery state.
+ */
+#if defined(_Thread_local)
+static _Thread_local jmp_buf test_jump_buffer;
+static _Thread_local int _ASSERT_COUNT = 0;
+#elif defined(__GNUC__) || defined(__clang__)
+static __thread jmp_buf test_jump_buffer;
+static __thread int _ASSERT_COUNT = 0;
+#elif defined(_MSC_VER)
+static __declspec(thread) jmp_buf test_jump_buffer;
+static __declspec(thread) int _ASSERT_COUNT = 0;
+#else
+#error "This implementation requires thread-local storage for test execution state."
+#endif
 
 // --- Internal helper for timing ---
 static uint64_t fossil_maip_now_ns(void)
