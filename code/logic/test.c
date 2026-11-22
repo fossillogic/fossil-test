@@ -28,6 +28,14 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <time.h>
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#include <signal.h>
+#include <sys/time.h>
+#endif
+
+#ifndef FOSSIL_MAIP_TIMEOUT
+#define FOSSIL_MAIP_TIMEOUT 60
+#endif
 
 extern uint64_t get_maip_time_microseconds(void);
 
@@ -37,17 +45,42 @@ extern uint64_t get_maip_time_microseconds(void);
  * thread-local storage; the old process-wide variables allowed one run to
  * overwrite another run's recovery state.
  */
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#define FOSSIL_MAIP_JMP_BUF sigjmp_buf
+#define FOSSIL_MAIP_SETJMP() sigsetjmp(test_jump_buffer, 1)
+#define FOSSIL_MAIP_LONGJMP() siglongjmp(test_jump_buffer, 1)
+#else
+#define FOSSIL_MAIP_JMP_BUF jmp_buf
+#define FOSSIL_MAIP_SETJMP() setjmp(test_jump_buffer)
+#define FOSSIL_MAIP_LONGJMP() longjmp(test_jump_buffer, 1)
+#endif
+
 #if defined(_Thread_local)
-static _Thread_local jmp_buf test_jump_buffer;
+static _Thread_local FOSSIL_MAIP_JMP_BUF test_jump_buffer;
 static _Thread_local int _ASSERT_COUNT = 0;
+#if !defined(_WIN32) && !defined(_MSC_VER)
+static _Thread_local volatile sig_atomic_t test_timed_out = 0;
+#endif
 #elif defined(__GNUC__) || defined(__clang__)
-static __thread jmp_buf test_jump_buffer;
+static __thread FOSSIL_MAIP_JMP_BUF test_jump_buffer;
 static __thread int _ASSERT_COUNT = 0;
+#if !defined(_WIN32) && !defined(_MSC_VER)
+static __thread volatile sig_atomic_t test_timed_out = 0;
+#endif
 #elif defined(_MSC_VER)
 static __declspec(thread) jmp_buf test_jump_buffer;
 static __declspec(thread) int _ASSERT_COUNT = 0;
 #else
 #error "This implementation requires thread-local storage for test execution state."
+#endif
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+static void fossil_maip_timeout_handler(int signal_number)
+{
+    (void)signal_number;
+    test_timed_out = 1;
+    FOSSIL_MAIP_LONGJMP();
+}
 #endif
 
 // --- Internal helper for timing ---
@@ -644,16 +677,30 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         if (test_case->run)
         {
-            if (setjmp(test_jump_buffer) == 0)
+            test_timed_out = 0;
+#if !defined(_WIN32) && !defined(_MSC_VER)
+            struct sigaction timeout_action;
+            struct sigaction previous_action;
+            struct itimerval timeout_timer = {{0, 0}, {FOSSIL_MAIP_TIMEOUT, 0}};
+            timeout_action.sa_handler = fossil_maip_timeout_handler;
+            sigemptyset(&timeout_action.sa_mask);
+            timeout_action.sa_flags = 0;
+            sigaction(SIGALRM, &timeout_action, &previous_action);
+#endif
+            if (FOSSIL_MAIP_SETJMP() == 0)
             {
+#if !defined(_WIN32) && !defined(_MSC_VER)
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
+#endif
                 test_case->run();
 
+#if !defined(_WIN32) && !defined(_MSC_VER)
+                timeout_timer.it_value.tv_sec = 0;
+                timeout_timer.it_value.tv_usec = 0;
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
+#endif
                 uint64_t elapsed = fossil_maip_now_ns() - start_time;
                 test_case->elapsed_ns = elapsed;
-
-#ifndef FOSSIL_MAIP_TIMEOUT
-#define FOSSIL_MAIP_TIMEOUT 60
-#endif
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
                 {
@@ -671,8 +718,14 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
             }
             else
             {
-                test_case->state = FOSSIL_MAIP_CASE_FAIL;
+                test_case->state = test_timed_out ? FOSSIL_MAIP_CASE_TIMEOUT : FOSSIL_MAIP_CASE_FAIL;
                 test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+                timeout_timer.it_value.tv_sec = 0;
+                timeout_timer.it_value.tv_usec = 0;
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
+#endif
 
                 if (engine->pallet.run.fail_fast)
                 {
@@ -681,6 +734,9 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                     return;
                 }
             }
+#if !defined(_WIN32) && !defined(_MSC_VER)
+            sigaction(SIGALRM, &previous_action, NULL);
+#endif
         }
         else
         {
@@ -2354,7 +2410,7 @@ void maip_test_assert_internal(bool condition, const char *message, const char *
         // Enhanced output includes anomaly count and root cause
         maip_test_assert_internal_output(message, file, line, func, anomaly_count, root_cause_code);
 
-        longjmp(test_jump_buffer, 1);
+        FOSSIL_MAIP_LONGJMP();
     }
 }
 
