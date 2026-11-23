@@ -1430,18 +1430,24 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
         "The bugs are telling jokes."};
 
     // --- Compose Final Message ---
+    size_t feedback_group;
     if (pass_rate == 100.0)
-        snprintf(message, sizeof(message), "All tests passed.");
+        feedback_group = 0;
     else if (pass_rate >= 90.0)
-        snprintf(message, sizeof(message), "Nearly all tests passed.");
+        feedback_group = 30;
     else if (pass_rate >= 70.0)
-        snprintf(message, sizeof(message), "Most tests passed.");
+        feedback_group = 60;
+    else if (fail_rate >= 80.0)
+        feedback_group = 120;
     else if (fail_rate >= 60.0)
-        snprintf(message, sizeof(message), "Most tests failed.");
+        feedback_group = 90;
     else if (pass_rate >= 50.0)
-        snprintf(message, sizeof(message), "About half of the tests passed.");
+        feedback_group = 180;
     else
-        snprintf(message, sizeof(message), "Many tests failed.");
+        feedback_group = 150;
+
+    size_t feedback_index = feedback_group + (size_t)total % 30;
+    snprintf(message, sizeof(message), "%s", ai_feedback[feedback_index]);
 
     return message;
 }
