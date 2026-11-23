@@ -32,6 +32,9 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <time.h>
+#if defined(_WIN32) || defined(_MSC_VER)
+#include <windows.h>
+#endif
 #if !defined(_WIN32) && !defined(_MSC_VER)
 #include <signal.h>
 #include <sys/time.h>
@@ -649,6 +652,50 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds)
     return seconds * 1000000000ULL;
 }
 
+#if defined(_WIN32) || defined(_MSC_VER)
+typedef struct fossil_maip_windows_run_context
+{
+    fossil_maip_case_t *test_case;
+    volatile uint64_t start_time;
+    uint64_t elapsed_ns;
+    int timed_out;
+} fossil_maip_windows_run_context_t;
+
+static DWORD WINAPI fossil_maip_windows_test_worker(LPVOID parameter)
+{
+    fossil_maip_windows_run_context_t *context =
+        (fossil_maip_windows_run_context_t *)parameter;
+
+    context->timed_out = 0;
+    _ASSERT_COUNT = 0;
+
+    if (FOSSIL_MAIP_SETJMP() == 0)
+    {
+        context->test_case->run();
+
+        context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+        context->test_case->elapsed_ns = context->elapsed_ns;
+
+        if (context->elapsed_ns > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
+            context->test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+        else if (_ASSERT_COUNT == 0)
+            context->test_case->state = FOSSIL_MAIP_CASE_EMPTY;
+        else
+            context->test_case->state = FOSSIL_MAIP_CASE_PASS;
+    }
+    else
+    {
+        context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+        context->test_case->elapsed_ns = context->elapsed_ns;
+        context->test_case->state = context->timed_out
+                                        ? FOSSIL_MAIP_CASE_TIMEOUT
+                                        : FOSSIL_MAIP_CASE_FAIL;
+    }
+
+    return 0;
+}
+#endif
+
 // from sanity, should be implemented and placed in common.c
 extern uint64_t get_maip_time_microseconds(void);
 
@@ -676,52 +723,6 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
     size_t repeat_count =
         (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
-
-#if defined(_WIN32) || defined(_MSC_VER)
-#include <windows.h>
-
-    typedef struct fossil_maip_windows_run_context
-    {
-        fossil_maip_case_t *test_case;
-        volatile uint64_t start_time;
-        uint64_t elapsed_ns;
-        int timed_out;
-    } fossil_maip_windows_run_context_t;
-
-    static DWORD WINAPI fossil_maip_windows_test_worker(LPVOID parameter)
-    {
-        fossil_maip_windows_run_context_t *context =
-            (fossil_maip_windows_run_context_t *)parameter;
-
-        context->timed_out = 0;
-        _ASSERT_COUNT = 0;
-
-        if (FOSSIL_MAIP_SETJMP() == 0)
-        {
-            context->test_case->run();
-
-            context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
-            context->test_case->elapsed_ns = context->elapsed_ns;
-
-            if (context->elapsed_ns > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
-                context->test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-            else if (_ASSERT_COUNT == 0)
-                context->test_case->state = FOSSIL_MAIP_CASE_EMPTY;
-            else
-                context->test_case->state = FOSSIL_MAIP_CASE_PASS;
-        }
-        else
-        {
-            context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
-            context->test_case->elapsed_ns = context->elapsed_ns;
-            context->test_case->state = context->timed_out
-                                            ? FOSSIL_MAIP_CASE_TIMEOUT
-                                            : FOSSIL_MAIP_CASE_FAIL;
-        }
-
-        return 0;
-    }
-#endif
 
     for (size_t i = 0; i < repeat_count; ++i)
     {
