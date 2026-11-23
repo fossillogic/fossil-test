@@ -84,8 +84,6 @@ static __thread volatile sig_atomic_t test_timed_out = 0;
 #else
 static volatile sig_atomic_t test_timed_out = 0;
 #endif
-#else
-static int test_timed_out = 0; /* Dummy for non-POSIX platforms */
 #endif
 
 #if !defined(_WIN32) && !defined(_MSC_VER)
