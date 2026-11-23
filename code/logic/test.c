@@ -1429,47 +1429,19 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
         "The tests are painting.",
         "The bugs are telling jokes."};
 
-    // --- AI Feedback Selection Logic ---
-    const char *chosen = NULL;
-    if (pass_rate == 100.0)
-    {
-        chosen = ai_feedback[rand() % 30]; // 0-29: Perfect
-    }
-    else if (pass_rate > 90.0)
-    {
-        chosen = ai_feedback[30 + rand() % 30]; // 30-59: Near-perfect
-    }
-    else if (pass_rate > 70.0)
-    {
-        chosen = ai_feedback[60 + rand() % 30]; // 60-89: Good/Mixed
-    }
-    else if (fail_rate > 40.0)
-    {
-        chosen = ai_feedback[90 + rand() % 30]; // 90-119: Warning
-    }
-    else if (fail_rate > 60.0)
-    {
-        chosen = ai_feedback[120 + rand() % 30]; // 120-149: Critical
-    }
-    else if (pass_rate > 50.0)
-    {
-        chosen = ai_feedback[180 + rand() % 30]; // 180-209: Encouragement
-    }
-    else if (pass_rate > 30.0)
-    {
-        chosen = ai_feedback[210 + rand() % 30]; // 210-239: Suggestions
-    }
-    else if (pass_rate > 10.0)
-    {
-        chosen = ai_feedback[240 + rand() % 30]; // 240-269: Motivation
-    }
-    else
-    {
-        chosen = ai_feedback[270 + rand() % 30]; // 270-299: Humor
-    }
-
     // --- Compose Final Message ---
-    snprintf(message, sizeof(message), "%s", chosen);
+    if (pass_rate == 100.0)
+        snprintf(message, sizeof(message), "All tests passed.");
+    else if (pass_rate >= 90.0)
+        snprintf(message, sizeof(message), "Nearly all tests passed.");
+    else if (pass_rate >= 70.0)
+        snprintf(message, sizeof(message), "Most tests passed.");
+    else if (fail_rate >= 60.0)
+        snprintf(message, sizeof(message), "Most tests failed.");
+    else if (pass_rate >= 50.0)
+        snprintf(message, sizeof(message), "About half of the tests passed.");
+    else
+        snprintf(message, sizeof(message), "Many tests failed.");
 
     return message;
 }
@@ -1477,27 +1449,27 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
 static const char *fossil_maip_elapsed_timer_ai_message(uint64_t total_elapsed_ns)
 {
     static const char *fast_insights[] = {
-        "Execution was near-instant. Excellent optimization.",
-        "This run was blazing fast. Great job keeping the code lean.",
-        "Compact execution time indicates strong performance."
+        "Very short test run.",
+        "Test execution completed quickly.",
+        "Total runtime was under 10 milliseconds."
     };
 
     static const char *balanced_insights[] = {
-        "Solid execution time. Keep an eye on growth with new features.",
-        "Performance looks stable; continue monitoring test durations.",
-        "Reasonable elapsed time. Consider profiling if this grows."
+        "Test runtime was under 500 milliseconds.",
+        "Total execution time was within the expected range.",
+        "Test run completed in a moderate amount of time."
     };
 
     static const char *slow_insights[] = {
-        "The elapsed time is longer than expected. Investigate slow suites.",
-        "Long-running execution detected. Check slow tests for bottlenecks.",
-        "Performance may benefit from optimization or test partitioning."
+        "Test run exceeded 500 milliseconds.",
+        "Total runtime exceeded 500 milliseconds; review suite durations if needed.",
+        "Test execution took longer than 500 milliseconds."
     };
 
     static const char *critical_insights[] = {
-        "Execution is very slow. Investigate slow paths and large test data.",
-        "High elapsed time suggests a performance issue to address.",
-        "Deep profiling is recommended for this run."
+        "Test run exceeded 2 seconds.",
+        "Total runtime exceeded 2 seconds; review suite durations.",
+        "Test execution took longer than 2 seconds."
     };
 
     const char **selected = balanced_insights;
@@ -1663,7 +1635,7 @@ void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
                               ? ((double)engine->score_total / engine->score_possible) * 100.0
                               : 0.0;
 
-    // AI calculations: reliability, stability, risk, health
+    // Calculate reliability, stability, risk, and health metrics.
     double reliability = pass_pct - (fail_pct + unexpected_pct + timeout_pct);
     double stability   = 100.0 - fail_pct - timeout_pct - unexpected_pct;
     double risk        = fail_pct + timeout_pct + unexpected_pct;
