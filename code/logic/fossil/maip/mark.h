@@ -59,60 +59,91 @@ typedef struct {
 
 /**
  * @brief Initializes a fossil_mark_t object with the given name.
+ * 
  * @param benchmark The fossil_mark_t object to initialize.
  * @param name The name of the benchmark.
+ * 
+ * @note The benchmark object must be allocated before calling this function. The name should be a valid string.
  */
 FOSSIL_MAIP_API void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name);
 
 /**
  * @brief Starts the benchmark timer.
+ * 
  * @param benchmark The fossil_mark_t object to start.
+ * 
+ * @note This function should be called before the code section to be benchmarked. It records the start time of the benchmark.
  */
 FOSSIL_MAIP_API void fossil_benchmark_start(fossil_mark_t* benchmark);
 
 /**
  * @brief Stops the benchmark timer.
+ * 
  * @param benchmark The fossil_mark_t object to stop.
+ * 
+ * @note This function should be called after the code section to be benchmarked. It records the end time of the benchmark and calculates the elapsed time.
  */
 FOSSIL_MAIP_API void fossil_benchmark_stop(fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the total elapsed time in seconds.
+ * 
  * @param benchmark The fossil_mark_t object to get the elapsed time from.
+ * 
  * @return The total elapsed time in seconds.
+ * 
+ * @note This function returns the total duration of the benchmark, which is the sum of all elapsed times recorded during the benchmark.
  */
 FOSSIL_MAIP_API double fossil_benchmark_elapsed_seconds(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the minimum elapsed time in seconds.
+ * 
  * @param benchmark The fossil_mark_t object to get the minimum time from.
+ * 
  * @return The minimum elapsed time in seconds.
+ * 
+ * @note This function returns the minimum duration recorded during the benchmark. If no samples have been recorded, it returns 0.0.
  */
 FOSSIL_MAIP_API double fossil_benchmark_min_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the maximum elapsed time in seconds.
+ * 
  * @param benchmark The fossil_mark_t object to get the maximum time from.
+ * 
  * @return The maximum elapsed time in seconds.
+ * 
+ * @note This function returns the maximum duration recorded during the benchmark. If no samples have been recorded, it returns 0.0.
  */
 FOSSIL_MAIP_API double fossil_benchmark_max_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Returns the average elapsed time in seconds.
+ * 
  * @param benchmark The fossil_mark_t object to get the average time from.
+ * 
  * @return The average elapsed time in seconds.
+ * 
+ * @note This function returns the average duration recorded during the benchmark. If no samples have been recorded, it returns 0.0.
  */
 FOSSIL_MAIP_API double fossil_benchmark_avg_time(const fossil_mark_t* benchmark);
 
 /**
  * @brief Resets the benchmark statistics.
+ * 
  * @param benchmark The fossil_mark_t object to reset.
+ * 
+ * @note This function resets all the statistics of the benchmark, including the number of samples, total duration, minimum and maximum durations, mean duration, median duration, and standard deviation. It does not free any allocated memory for iteration times.
  */
 FOSSIL_MAIP_API void fossil_benchmark_reset(fossil_mark_t* benchmark);
 
 /**
  * @brief Prints a report of the benchmark statistics.
+ * 
  * @param benchmark The fossil_mark_t object to report.
+ * 
+ * @note This function prints the benchmark name, number of iterations, total time, mean time, median time, minimum time, maximum time, and standard deviation to the console. It provides a summary of the benchmark results.
  */
 FOSSIL_MAIP_API void fossil_benchmark_report(const fossil_mark_t* benchmark);
 
@@ -122,35 +153,47 @@ typedef struct {
 
 /**
  * @brief Initializes a fossil_scoped_mark_t object with the given benchmark.
+ * 
  * @param scoped_benchmark The fossil_scoped_mark_t object to initialize.
  * @param benchmark The benchmark to be scoped.
+ * 
+ * @note This function initializes the scoped benchmark and starts the benchmark timer. It is typically used to measure the duration of a specific code block within a function.
  */
 FOSSIL_MAIP_API void fossil_scoped_benchmark_init(fossil_scoped_mark_t* scoped_benchmark, fossil_mark_t* benchmark);
 
 /**
  * @brief Destroys a fossil_scoped_mark_t object.
+ * 
  * @param scoped_benchmark The fossil_scoped_mark_t object to destroy.
+ * 
+ * @note This function stops the benchmark timer and cleans up any resources associated with the scoped benchmark. It should be called at the end of the code block being measured.
  */
 FOSSIL_MAIP_API void fossil_scoped_benchmark_destroy(fossil_scoped_mark_t* scoped_benchmark);
 
 /**
- * Function to test benchmark with specified duration type, expected value, and actual value.
+ * @brief Marks a test case as timeout with a specified time and prints it to stderr.
  * 
  * @param duration_type The duration type to test.
  * @param expected The expected value.
  * @param actual The actual value.
+ * 
+ * @note This function is used to mark a test case as timeout with a specified time and prints the result to stderr. It compares the expected and actual values based on the specified duration type.
  */
 FOSSIL_MAIP_API void fossil_test_benchmark(char* duration_type, double expected, double actual);
 
 /**
- * Function to start the benchmark.
+ * @brief Function to start the benchmark.
+ * 
+ * @note This function starts the benchmark timer.
  */
 FOSSIL_MAIP_API void fossil_test_start_benchmark(void);
 
 /**
- * Function to stop the benchmark and return the elapsed time in nanoseconds.
+ * @brief Function to stop the benchmark and return the elapsed time in nanoseconds.
  * 
  * @return The elapsed time in nanoseconds.
+ * 
+ * @note This function stops the benchmark timer and returns the elapsed time in nanoseconds. It is used to measure the duration of a specific code block or function.
  */
 FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
 
@@ -159,213 +202,183 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
 // *****************************************************************************
 
 /**
- * @brief Define macro for marking a benchmark.
- * 
- * This macro is used to mark a benchmark with a given name. It initializes
- * the benchmark structure and sets the name of the benchmark.
- * 
- * @param name The name of the benchmark.
+ * @def _MARK_BENCHMARK(name)
+ * @brief Declares and initializes a benchmark named `name`.
+ * @param name Identifier used for the benchmark variable and label.
+ * @return None; expands to a declaration and initialization statement.
+ * @note The generated benchmark variable is named `benchmark_##name`.
  */
 #define _MARK_BENCHMARK(name) \
     fossil_mark_t benchmark_##name; \
     fossil_benchmark_init(&benchmark_##name, #name)
 
 /**
- * @brief Define macro for starting a benchmark.
- * 
- * This macro is used to start a benchmark with a given name. It starts the
- * timer for the benchmark.
- * 
- * @param name The name of the benchmark.
+ * @def _MARK_START(name)
+ * @brief Starts the named benchmark.
+ * @param name Identifier of a benchmark previously declared with _MARK_BENCHMARK.
+ * @return None.
+ * @note The benchmark must be initialized before it is started.
  */
 #define _MARK_START(name) \
     fossil_benchmark_start(&benchmark_##name)
 
 /**
- * @brief Define macro for stopping a benchmark.
- * 
- * This macro is used to stop a benchmark with a given name. It stops the
- * timer for the benchmark.
- * 
- * @param name The name of the benchmark.
+ * @def _MARK_STOP(name)
+ * @brief Stops the named benchmark and records its sample.
+ * @param name Identifier of an initialized benchmark.
+ * @return None.
+ * @note The benchmark should be running when this macro is invoked.
  */
 #define _MARK_STOP(name) \
     fossil_benchmark_stop(&benchmark_##name)
 
 /**
- * @brief Define macro for reporting a benchmark.
- * 
- * This macro is used to report the results of a benchmark with a given name.
- * It prints the benchmark name and the elapsed time.
- * 
- * @param name The name of the benchmark.
+ * @def _MARK_REPORT(name)
+ * @brief Reports statistics for the named benchmark.
+ * @param name Identifier of an initialized benchmark.
+ * @return None.
+ * @note The report is produced by fossil_benchmark_report.
  */
 #define _MARK_REPORT(name) \
     fossil_benchmark_report(&benchmark_##name)
 
 /**
- * @brief Define macro for scoped benchmarking.
- * 
- * This macro is used to create a scoped benchmark with a given name. It
- * initializes the scoped benchmark structure and sets the benchmark to be
- * used.
- * 
- * @param name The name of the benchmark.
+ * @def _MARK_SCOPED(name)
+ * @brief Declares and initializes a scoped benchmark for `name`.
+ * @param name Identifier of an initialized benchmark.
+ * @return None; expands to a declaration and initialization statement.
+ * @note The generated scoped variable is named `scoped_benchmark_##name`.
  */
 #define _MARK_SCOPED(name) \
     fossil_scoped_mark_t scoped_benchmark_##name; \
     fossil_scoped_benchmark_init(&scoped_benchmark_##name, &benchmark_##name)
 
-// =================================================================
-// Bench specific commands
-// =================================================================
-
 /**
- * @brief Define macro for starting a benchmark.
- * 
- * This macro is used to mark the start of a benchmark. It typically initializes
- * any necessary resources or variables required for benchmarking.
+ * @def _TEST_BENCHMARK()
+ * @brief Starts the test benchmark timer.
+ * @param None.
+ * @return None.
+ * @note Expands to fossil_test_start_benchmark().
  */
 #define _TEST_BENCHMARK() fossil_test_start_benchmark()
 
 /**
- * @brief Define macro for getting the current time.
- * 
- * This macro is used to retrieve the current time, which is typically used
- * in conjunction with TEST_BENCHMARK to calculate the elapsed time for a benchmark.
+ * @def _TEST_CURRENT_TIME()
+ * @brief Stops the test benchmark timer and retrieves elapsed time.
+ * @param None.
+ * @return Elapsed time in nanoseconds as a uint64_t value.
+ * @note Expands to fossil_test_stop_benchmark().
  */
 #define _TEST_CURRENT_TIME() fossil_test_stop_benchmark()
 
 /**
- * @brief Define macro for reporting test duration with a given timeout.
- * 
- * This macro is used to report the duration of a test with a given timeout.
- * It takes the timeout duration, elapsed time, and actual duration as arguments
- * and reports the results, typically in the form of logs or console output.
- * 
- * @param duration The duration unit (e.g., "minutes", "seconds").
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION(duration, elapsed, actual)
+ * @brief Reports a test duration using the specified unit.
+ * @param duration Duration unit string.
+ * @param elapsed Expected or permitted duration.
+ * @param actual Measured duration.
+ * @return None.
+ * @note The duration value is cast to char* for fossil_test_benchmark.
  */
 #define _TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((char*)duration, elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in minutes.
- * 
- * This macro is a shorthand for reporting test duration in minutes using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in minutes.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_MIN(elapsed, actual)
+ * @brief Reports a test duration in minutes.
+ * @param elapsed Expected or permitted duration in minutes.
+ * @param actual Measured duration in minutes.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "minutes" unit.
  */
 #define _TEST_DURATION_MIN(elapsed, actual) _TEST_DURATION((char*)"minutes", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in seconds.
- * 
- * This macro is a shorthand for reporting test duration in seconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in seconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_SEC(elapsed, actual)
+ * @brief Reports a test duration in seconds.
+ * @param elapsed Expected or permitted duration in seconds.
+ * @param actual Measured duration in seconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "seconds" unit.
  */
 #define _TEST_DURATION_SEC(elapsed, actual) _TEST_DURATION((char*)"seconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in milliseconds.
- * 
- * This macro is a shorthand for reporting test duration in milliseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in milliseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_MIL(elapsed, actual)
+ * @brief Reports a test duration in milliseconds.
+ * @param elapsed Expected or permitted duration in milliseconds.
+ * @param actual Measured duration in milliseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "milliseconds" unit.
  */
 #define _TEST_DURATION_MIL(elapsed, actual) _TEST_DURATION((char*)"milliseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in microseconds.
- * 
- * This macro is a shorthand for reporting test duration in microseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in microseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_MIC(elapsed, actual)
+ * @brief Reports a test duration in microseconds.
+ * @param elapsed Expected or permitted duration in microseconds.
+ * @param actual Measured duration in microseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "microseconds" unit.
  */
 #define _TEST_DURATION_MIC(elapsed, actual) _TEST_DURATION((char*)"microseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in nanoseconds.
- * 
- * This macro is a shorthand for reporting test duration in nanoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in nanoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_NAN(elapsed, actual)
+ * @brief Reports a test duration in nanoseconds.
+ * @param elapsed Expected or permitted duration in nanoseconds.
+ * @param actual Measured duration in nanoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "nanoseconds" unit.
  */
 #define _TEST_DURATION_NAN(elapsed, actual) _TEST_DURATION((char*)"nanoseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in picoseconds.
- * 
- * This macro is a shorthand for reporting test duration in picoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in picoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_PIC(elapsed, actual)
+ * @brief Reports a test duration in picoseconds.
+ * @param elapsed Expected or permitted duration in picoseconds.
+ * @param actual Measured duration in picoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "picoseconds" unit.
  */
 #define _TEST_DURATION_PIC(elapsed, actual) _TEST_DURATION((char*)"picoseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in femtoseconds.
- * 
- * This macro is a shorthand for reporting test duration in femtoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in femtoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_FEM(elapsed, actual)
+ * @brief Reports a test duration in femtoseconds.
+ * @param elapsed Expected or permitted duration in femtoseconds.
+ * @param actual Measured duration in femtoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "femtoseconds" unit.
  */
 #define _TEST_DURATION_FEM(elapsed, actual) _TEST_DURATION((char*)"femtoseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in attoseconds.
- * 
- * This macro is a shorthand for reporting test duration in attoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in attoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_ATT(elapsed, actual)
+ * @brief Reports a test duration in attoseconds.
+ * @param elapsed Expected or permitted duration in attoseconds.
+ * @param actual Measured duration in attoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "attoseconds" unit.
  */
 #define _TEST_DURATION_ATT(elapsed, actual) _TEST_DURATION((char*)"attoseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in zeptoseconds.
- * 
- * This macro is a shorthand for reporting test duration in zeptoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in zeptoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_ZEP(elapsed, actual)
+ * @brief Reports a test duration in zeptoseconds.
+ * @param elapsed Expected or permitted duration in zeptoseconds.
+ * @param actual Measured duration in zeptoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "zeptoseconds" unit.
  */
 #define _TEST_DURATION_ZEP(elapsed, actual) _TEST_DURATION((char*)"zeptoseconds", elapsed, actual)
 
 /**
- * @brief Define macro for reporting test duration in yoctoseconds.
- * 
- * This macro is a shorthand for reporting test duration in yoctoseconds using TEST_DURATION.
- * It takes the elapsed time and actual duration as arguments and reports the results
- * in yoctoseconds.
- * 
- * @param elapsed The elapsed time since the benchmark started.
- * @param actual The actual duration of the test.
+ * @def _TEST_DURATION_YOC(elapsed, actual)
+ * @brief Reports a test duration in yoctoseconds.
+ * @param elapsed Expected or permitted duration in yoctoseconds.
+ * @param actual Measured duration in yoctoseconds.
+ * @return None.
+ * @note Shorthand for _TEST_DURATION with the "yoctoseconds" unit.
  */
 #define _TEST_DURATION_YOC(elapsed, actual) _TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
 
@@ -374,50 +387,63 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
 // *****************************************************************************
 
 /**
+ * @def MARK_BENCHMARK(name)
  * @brief Define macro for marking a benchmark.
  * 
  * This macro is used to mark a benchmark with a given name. It initializes
  * the benchmark structure and sets the name of the benchmark.
  * 
  * @param name The name of the benchmark.
+ * @return None; declares and initializes the named benchmark.
+ * @note The benchmark identifier must be valid in the current scope.
  */
 #define MARK_BENCHMARK(name) \
     _MARK_BENCHMARK(name)
 
 /**
+ * @def MARK_START(name)
  * @brief Define macro for starting a benchmark.
  * 
  * This macro is used to start a benchmark with a given name. It starts the
  * timer for the benchmark.
  * 
  * @param name The name of the benchmark.
+ * @return None.
+ * @note The benchmark must have been declared with MARK_BENCHMARK.
  */
 #define MARK_START(name) \
     _MARK_START(name)
 
 /**
+ * @def MARK_STOP(name)
  * @brief Define macro for stopping a benchmark.
  * 
  * This macro is used to stop a benchmark with a given name. It stops the
  * timer for the benchmark.
  * 
  * @param name The name of the benchmark.
+ * @return None.
+ * @note Call after the measured code section.
  */
 #define MARK_STOP(name) \
     _MARK_STOP(name)
 
 /**
+ * @def MARK_REPORT(name)
  * @brief Define macro for reporting a benchmark.
  * 
  * This macro is used to report the results of a benchmark with a given name.
  * It prints the benchmark name and the elapsed time.
  * 
  * @param name The name of the benchmark.
+ * @return None.
+ * @note Reports the statistics collected for the named benchmark.
  */
 #define MARK_REPORT(name) \
     _MARK_REPORT(name)
 
 /**
+ * @def MARK_SCOPED(name)
  * @brief Define macro for scoped benchmarking.
  * 
  * This macro is used to create a scoped benchmark with a given name. It
@@ -425,6 +451,8 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * used.
  * 
  * @param name The name of the benchmark.
+ * @return None; declares and initializes a scoped benchmark.
+ * @note The scoped benchmark must leave scope or be destroyed to stop timing.
  */
 #define MARK_SCOPED(name) \
     _MARK_SCOPED(name)
@@ -434,24 +462,33 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
 // =================================================================
 
 /**
+ * @def TEST_BENCHMARK()
  * @brief Define macro for starting a benchmark.
  * 
  * This macro is used to mark the start of a benchmark. It typically initializes
  * any necessary resources or variables required for benchmarking.
+ * @param None.
+ * @return None.
+ * @note Starts the test benchmark timer.
  */
 #define TEST_BENCHMARK() \
     _TEST_BENCHMARK()
 
 /**
+ * @def TEST_CURRENT_TIME()
  * @brief Define macro for getting the current time.
  * 
  * This macro is used to retrieve the current time, which is typically used
  * in conjunction with TEST_BENCHMARK to calculate the elapsed time for a benchmark.
+ * @param None.
+ * @return Elapsed time in nanoseconds.
+ * @note Stops the test benchmark timer and returns its elapsed duration.
  */
 #define TEST_CURRENT_TIME() \
     _TEST_CURRENT_TIME()
 
 /**
+ * @def TEST_DURATION(duration, elapsed, actual)
  * @brief Define macro for reporting test duration with a given timeout.
  * 
  * This macro is used to report the duration of a test with a given timeout.
@@ -461,11 +498,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * @param duration The duration unit (e.g., "minutes", "seconds").
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note The duration unit is passed through to the test duration reporter.
  */
 #define TEST_DURATION(duration, elapsed, actual) \
     _TEST_DURATION(duration, elapsed, actual)
 
 /**
+ * @def TEST_DURATION_MIN(elapsed, actual)
  * @brief Define macro for reporting test duration in minutes.
  * 
  * This macro is a shorthand for reporting test duration in minutes using TEST_DURATION.
@@ -474,11 +514,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "minutes" unit.
  */
 #define TEST_DURATION_MIN(elapsed, actual) \
     _TEST_DURATION_MIN(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_SEC(elapsed, actual)
  * @brief Define macro for reporting test duration in seconds.
  * 
  * This macro is a shorthand for reporting test duration in seconds using TEST_DURATION.
@@ -487,11 +530,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "seconds" unit.
  */
 #define TEST_DURATION_SEC(elapsed, actual) \
     _TEST_DURATION_SEC(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_MIL(elapsed, actual)
  * @brief Define macro for reporting test duration in milliseconds.
  * 
  * This macro is a shorthand for reporting test duration in milliseconds using TEST_DURATION.
@@ -500,11 +546,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "milliseconds" unit.
  */
 #define TEST_DURATION_MIL(elapsed, actual) \
     _TEST_DURATION_MIL(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_MIC(elapsed, actual)
  * @brief Define macro for reporting test duration in microseconds.
  * 
  * This macro is a shorthand for reporting test duration in microseconds using TEST_DURATION.
@@ -513,11 +562,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "microseconds" unit.
  */
 #define TEST_DURATION_MIC(elapsed, actual) \
     _TEST_DURATION_MIC(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_NAN(elapsed, actual)
  * @brief Define macro for reporting test duration in nanoseconds.
  * 
  * This macro is a shorthand for reporting test duration in nanoseconds using TEST_DURATION.
@@ -526,11 +578,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "nanoseconds" unit.
  */
 #define TEST_DURATION_NAN(elapsed, actual) \
     _TEST_DURATION_NAN(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_PIC(elapsed, actual)
  * @brief Define macro for reporting test duration in picoseconds.
  * 
  * This macro is a shorthand for reporting test duration in picoseconds using TEST_DURATION.
@@ -539,11 +594,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "picoseconds" unit.
  */
 #define TEST_DURATION_PIC(elapsed, actual) \
     _TEST_DURATION_PIC(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_FEM(elapsed, actual)
  * @brief Define macro for reporting test duration in femtoseconds.
  * 
  * This macro is a shorthand for reporting test duration in femtoseconds using TEST_DURATION.
@@ -552,11 +610,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "femtoseconds" unit.
  */
 #define TEST_DURATION_FEM(elapsed, actual) \
     _TEST_DURATION_FEM(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_ATT(elapsed, actual)
  * @brief Define macro for reporting test duration in attoseconds.
  * 
  * This macro is a shorthand for reporting test duration in attoseconds using TEST_DURATION.
@@ -565,11 +626,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "attoseconds" unit.
  */
 #define TEST_DURATION_ATT(elapsed, actual) \
     _TEST_DURATION_ATT(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_ZEP(elapsed, actual)
  * @brief Define macro for reporting test duration in zeptoseconds.
  * 
  * This macro is a shorthand for reporting test duration in zeptoseconds using TEST_DURATION.
@@ -578,11 +642,14 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "zeptoseconds" unit.
  */
 #define TEST_DURATION_ZEP(elapsed, actual) \
     _TEST_DURATION_ZEP(elapsed, actual)
 
 /**
+ * @def TEST_DURATION_YOC(elapsed, actual)
  * @brief Define macro for reporting test duration in yoctoseconds.
  * 
  * This macro is a shorthand for reporting test duration in yoctoseconds using TEST_DURATION.
@@ -591,6 +658,8 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
  * 
  * @param elapsed The elapsed time since the benchmark started.
  * @param actual The actual duration of the test.
+ * @return None.
+ * @note Equivalent to TEST_DURATION with the "yoctoseconds" unit.
  */
 #define TEST_DURATION_YOC(elapsed, actual) \
     _TEST_DURATION_YOC(elapsed, actual)
