@@ -1539,34 +1539,34 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
     switch (engine->pallet.theme)
     {
     case MAIP_THEME_FOSSIL:
-        maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}AI Insight  :{white} %s{reset}\n", elapsed_insight);
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_LIGHT:
-        maip_io_printf("{bright_blue,bold}\n=================================================================================={reset}\n");
+        maip_io_printf("{bright_blue,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{bright_blue,bold}Elapsed Time:{white} %s {bright_blue}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-        maip_io_printf("{bright_blue,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
-        maip_io_printf("{bright_blue,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_blue,bold}AI Insight  :{white} %s{reset}\n", elapsed_insight);
+        maip_io_printf("{bright_blue,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_DARK:
-        maip_io_printf("{bright_black,bold}\n=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{bright_black,bold}Elapsed Time:{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-        maip_io_printf("{bright_black,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}AI Insight  :{white} %s{reset}\n", elapsed_insight);
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_MAGA:
-        maip_io_printf("{red,bold}\n=================================================================================={reset}\n");
+        maip_io_printf("{red,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{red,bold}Elapsed Time:{white} %s {red}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-        maip_io_printf("{red,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
-        maip_io_printf("{red,bold}=================================================================================={reset}\n");
+        maip_io_printf("{red,bold}AI Insight  :{white} %s{reset}\n", elapsed_insight);
+        maip_io_printf("{red,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_MINT:
-        maip_io_printf("{green,bold}\n=================================================================================={reset}\n");
+        maip_io_printf("{green,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{green,bold}Elapsed Time:{white} %s {green}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-        maip_io_printf("{green,bold}AI Insight:{white} %s{reset}\n", elapsed_insight);
-        maip_io_printf("{green,bold}=================================================================================={reset}\n");
+        maip_io_printf("{green,bold}AI Insight  :{white} %s{reset}\n", elapsed_insight);
+        maip_io_printf("{green,bold}___________________________________________________________________________________{reset}\n");
         break;
     default:
         maip_io_printf("Unknown theme. Unable to display elapsed time.\n");
@@ -1596,35 +1596,35 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
                         avg_suite_ns, avg_suite_us, avg_suite_ms);
         maip_io_printf("{bright_black,bold}Average Time per Test :{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
                         avg_test_ns, avg_test_us, avg_test_ms);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
         break;
     case MAIP_THEME_LIGHT:
         maip_io_printf("{white,bold}Average Time per Suite:{white} %12.2f ns {bright_blue}({cyan}%8.2f us{bright_blue} | {cyan}%8.3f ms{bright_blue}){reset}\n",
                         avg_suite_ns, avg_suite_us, avg_suite_ms);
         maip_io_printf("{white,bold}Average Time per Test :{white} %12.2f ns {bright_blue}({cyan}%8.2f us{bright_blue} | {cyan}%8.3f ms{bright_blue}){reset}\n",
                         avg_test_ns, avg_test_us, avg_test_ms);
-        maip_io_printf("{white,bold}=================================================================================={reset}\n");
+        maip_io_printf("{white,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_DARK:
         maip_io_printf("{bright_black,bold}Average Time per Suite:{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
                         avg_suite_ns, avg_suite_us, avg_suite_ms);
         maip_io_printf("{bright_black,bold}Average Time per Test :{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
                         avg_test_ns, avg_test_us, avg_test_ms);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
         break;
     case MAIP_THEME_MAGA:
         maip_io_printf("{red,bold}Average Time per Suite:{white} %12.2f ns {red}({cyan}%8.2f us{red} | {cyan}%8.3f ms{red}){reset}\n",
                         avg_suite_ns, avg_suite_us, avg_suite_ms);
         maip_io_printf("{red,bold}Average Time per Test :{white} %12.2f ns {red}({cyan}%8.2f us{red} | {cyan}%8.3f ms{red}){reset}\n",
                         avg_test_ns, avg_test_us, avg_test_ms);
-        maip_io_printf("{red,bold}=================================================================================={reset}\n");
+        maip_io_printf("{red,bold}___________________________________________________________________________________{reset}\n");
         break;
     case MAIP_THEME_MINT:
         maip_io_printf("{green,bold}Average Time per Suite:{white} %12.2f ns {green}({cyan}%8.2f us{green} | {cyan}%8.3f ms{green}){reset}\n",
                         avg_suite_ns, avg_suite_us, avg_suite_ms);
         maip_io_printf("{green,bold}Average Time per Test :{white} %12.2f ns {green}({cyan}%8.2f us{green} | {cyan}%8.3f ms{green}){reset}\n",
                         avg_test_ns, avg_test_us, avg_test_ms);
-        maip_io_printf("{green,bold}=================================================================================={reset}\n");
+        maip_io_printf("{green,bold}___________________________________________________________________________________{reset}\n");
         break;
     default:
         maip_io_printf("Unknown theme. Unable to display average times.\n");
@@ -1731,38 +1731,38 @@ void fossil_maip_summary_heading(const fossil_maip_engine_t *engine)
     switch (engine->pallet.theme)
     {
     case MAIP_THEME_FOSSIL:
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{bright_black}[{cyan}::{bright_black}] Test Summary [{cyan}::{bright_black}] OS {cyan}%s{bright_black}, Endianness: %s%s{bright_black}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black,bold}___________________________________________________________________________________{reset}\n");
         break;
 
     case MAIP_THEME_LIGHT:
-        maip_io_printf("{white,bold}=================================================================================={reset}\n");
+        maip_io_printf("{white,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{white}[{cyan}::{white}] Test Summary [{cyan}::{white}] OS {cyan}%s{white}, Endianness: %s%s{white}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
-        maip_io_printf("{white,bold}=================================================================================={reset}\n");
+        maip_io_printf("{white,bold}___________________________________________________________________________________{reset}\n");
         break;
 
     case MAIP_THEME_DARK:
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
         maip_io_printf("{bright_black}[{cyan}::{bright_black}] Test Summary [{cyan}::{bright_black}] OS {cyan}%s{bright_black}, Endianness: %s%s{bright_black}, Architecture: {cyan}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
-        maip_io_printf("{bright_black,bold}=================================================================================={reset}\n");
+        maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
         break;
     
     case MAIP_THEME_MAGA:
-        maip_io_printf("{red,bold}=================================================================================={reset}\n");
+        maip_io_printf("{red,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{red}[{cyan}::{red}] {white}Test Summary{red} {red}[{cyan}::{red}] OS {white}%s{red}, Endianness: %s%s{red}, Architecture: {white}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
-        maip_io_printf("{red,bold}=================================================================================={reset}\n");
+        maip_io_printf("{red,bold}___________________________________________________________________________________{reset}\n");
         break;
     
     case MAIP_THEME_MINT:
-        maip_io_printf("{green,bold}=================================================================================={reset}\n");
+        maip_io_printf("{green,bold}___________________________________________________________________________________{reset}\n");
         maip_io_printf("{green}[{cyan}::{green}] {white}Test Summary{green} {green}[{cyan}::{green}] OS {white}%s{green}, Endianness: %s%s{green}, Architecture: {white}%s{reset}\n",
                         system_info.os_name, endian_color, endian_str, arch_info.architecture);
-        maip_io_printf("{green,bold}=================================================================================={reset}\n");
+        maip_io_printf("{green,bold}___________________________________________________________________________________{reset}\n");
         break;
 
     default:
@@ -1781,22 +1781,22 @@ void fossil_maip_ai_feedback(const fossil_maip_engine_t *engine)
     switch (engine->pallet.theme)
     {
     case MAIP_THEME_FOSSIL:
-        maip_io_printf("\n{bright_black}[{cyan}::{bright_black}] Feedback [{cyan}::{bright_black}] {white}%s{reset}\n", feedback);
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] Feedback [{cyan}::{bright_black}] {white}%s{reset}\n", feedback);
         break;
     case MAIP_THEME_LIGHT:
-        maip_io_printf("\n{white}[{cyan}::{white}] Feedback [{cyan}::{white}] {white}%s{reset}\n", feedback);
+        maip_io_printf("{white}[{cyan}::{white}] Feedback [{cyan}::{white}] {white}%s{reset}\n", feedback);
         break;
     case MAIP_THEME_DARK:
-        maip_io_printf("\n{bright_black}[{cyan}::{bright_black}] Feedback [{cyan}::{bright_black}] {white}%s{reset}\n", feedback);
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] Feedback [{cyan}::{bright_black}] {white}%s{reset}\n", feedback);
         break;
     case MAIP_THEME_MAGA:
-        maip_io_printf("\n{red,bold}[Feedback]:{reset} {white}%s{reset}\n", feedback);
+        maip_io_printf("{red,bold}[Feedback]:{reset} {white}%s{reset}\n", feedback);
         break;
     case MAIP_THEME_MINT:
-        maip_io_printf("\n{green,bold}[Feedback]:{reset} {white}%s{reset}\n", feedback);
+        maip_io_printf("{green,bold}[Feedback]:{reset} {white}%s{reset}\n", feedback);
         break;
     default:
-        maip_io_printf("\nFeedback: %s\n", feedback);
+        maip_io_printf("Feedback: %s\n", feedback);
         break;
     }
 }
