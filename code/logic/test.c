@@ -677,6 +677,52 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
     size_t repeat_count =
         (size_t)(engine->pallet.run.repeat > 0 ? engine->pallet.run.repeat : 1);
 
+#if defined(_WIN32) || defined(_MSC_VER)
+#include <windows.h>
+
+    typedef struct fossil_maip_windows_run_context
+    {
+        fossil_maip_case_t *test_case;
+        volatile uint64_t start_time;
+        uint64_t elapsed_ns;
+        int timed_out;
+    } fossil_maip_windows_run_context_t;
+
+    static DWORD WINAPI fossil_maip_windows_test_worker(LPVOID parameter)
+    {
+        fossil_maip_windows_run_context_t *context =
+            (fossil_maip_windows_run_context_t *)parameter;
+
+        context->timed_out = 0;
+        _ASSERT_COUNT = 0;
+
+        if (FOSSIL_MAIP_SETJMP() == 0)
+        {
+            context->test_case->run();
+
+            context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+            context->test_case->elapsed_ns = context->elapsed_ns;
+
+            if (context->elapsed_ns > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
+                context->test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+            else if (_ASSERT_COUNT == 0)
+                context->test_case->state = FOSSIL_MAIP_CASE_EMPTY;
+            else
+                context->test_case->state = FOSSIL_MAIP_CASE_PASS;
+        }
+        else
+        {
+            context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+            context->test_case->elapsed_ns = context->elapsed_ns;
+            context->test_case->state = context->timed_out
+                                            ? FOSSIL_MAIP_CASE_TIMEOUT
+                                            : FOSSIL_MAIP_CASE_FAIL;
+        }
+
+        return 0;
+    }
+#endif
+
     for (size_t i = 0; i < repeat_count; ++i)
     {
         if (test_case->setup)
@@ -688,8 +734,54 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         if (test_case->run)
         {
+#if defined(_WIN32) || defined(_MSC_VER)
+            fossil_maip_windows_run_context_t context;
+            context.test_case = test_case;
+            context.start_time = start_time;
+            context.elapsed_ns = 0;
+            context.timed_out = 0;
+
+            HANDLE worker = CreateThread(NULL, 0, fossil_maip_windows_test_worker,
+                                         &context, 0, NULL);
+            if (!worker)
+            {
+                test_case->state = FOSSIL_MAIP_CASE_FAIL;
+                test_case->elapsed_ns = 0;
+            }
+            else
+            {
+                uint64_t timeout_ms64 = (uint64_t)FOSSIL_MAIP_TIMEOUT * 1000ULL;
+                DWORD timeout_ms = timeout_ms64 > 0xffffffffULL
+                                       ? INFINITE
+                                       : (DWORD)timeout_ms64;
+                DWORD wait_result = WaitForSingleObject(worker, timeout_ms);
+
+                if (wait_result == WAIT_TIMEOUT)
+                {
+                    context.timed_out = 1;
+                    test_timed_out = 1;
+                    TerminateThread(worker, 1);
+                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+                    test_case->elapsed_ns = seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT);
+                }
+                else
+                {
+                    test_case->elapsed_ns = context.elapsed_ns;
+                    /* The worker wrote the final state before signaling. */
+                }
+
+                CloseHandle(worker);
+
+                if (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
+                    engine->pallet.run.fail_fast)
+                {
+                    fossil_maip_update_score(test_case, suite);
+                    fossil_maip_show_cases(suite, test_case, engine);
+                    return;
+                }
+            }
+#else
             test_timed_out = 0;
-#if !defined(_WIN32) && !defined(_MSC_VER)
             struct sigaction timeout_action;
             struct sigaction previous_action;
             struct itimerval timeout_timer = {{0, 0}, {FOSSIL_MAIP_TIMEOUT, 0}};
@@ -697,46 +789,33 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
             sigemptyset(&timeout_action.sa_mask);
             timeout_action.sa_flags = 0;
             sigaction(SIGALRM, &timeout_action, &previous_action);
-#endif
+
             if (FOSSIL_MAIP_SETJMP() == 0)
             {
-#if !defined(_WIN32) && !defined(_MSC_VER)
                 setitimer(ITIMER_REAL, &timeout_timer, NULL);
-#endif
                 test_case->run();
 
-#if !defined(_WIN32) && !defined(_MSC_VER)
                 timeout_timer.it_value.tv_sec = 0;
                 timeout_timer.it_value.tv_usec = 0;
                 setitimer(ITIMER_REAL, &timeout_timer, NULL);
-#endif
                 uint64_t elapsed = fossil_maip_now_ns() - start_time;
                 test_case->elapsed_ns = elapsed;
 
                 if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
-                {
                     test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-                }
-                // EMPTY means the case ran without producing any assertions.
                 else if (_ASSERT_COUNT == 0)
-                {
                     test_case->state = FOSSIL_MAIP_CASE_EMPTY;
-                }
                 else
-                {
                     test_case->state = FOSSIL_MAIP_CASE_PASS;
-                }
             }
             else
             {
                 test_case->state = test_timed_out ? FOSSIL_MAIP_CASE_TIMEOUT : FOSSIL_MAIP_CASE_FAIL;
                 test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
 
-#if !defined(_WIN32) && !defined(_MSC_VER)
                 timeout_timer.it_value.tv_sec = 0;
                 timeout_timer.it_value.tv_usec = 0;
                 setitimer(ITIMER_REAL, &timeout_timer, NULL);
-#endif
 
                 if (engine->pallet.run.fail_fast)
                 {
@@ -745,7 +824,6 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                     return;
                 }
             }
-#if !defined(_WIN32) && !defined(_MSC_VER)
             sigaction(SIGALRM, &previous_action, NULL);
 #endif
         }
@@ -2374,17 +2452,10 @@ void maip_test_assert_internal_output(const char *message, const char *file, int
     }
 }
 
-static int maip_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func)
+static int maip_test_assert_internal_detect_ti(const uint8_t current_hash[FOSSIL_MAIP_HASH_SIZE])
 {
     static uint8_t last_hash[FOSSIL_MAIP_HASH_SIZE] = {0};
     static int anomaly_count = 0;
-
-    char input_buf[512], output_buf[64];
-    snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
-    snprintf(output_buf, sizeof(output_buf), "%s", message);
-
-    uint8_t current_hash[FOSSIL_MAIP_HASH_SIZE];
-    fossil_maip_hash(input_buf, output_buf, current_hash);
 
     bool same_hash = memcmp(last_hash, current_hash, FOSSIL_MAIP_HASH_SIZE) == 0;
 
@@ -2407,15 +2478,14 @@ void maip_test_assert_internal(bool condition, const char *message, const char *
 
     if (!condition)
     {
-        int anomaly_count = maip_test_assert_internal_detect_ti(message, file, line, func);
-
-        // Compute hash for clustering
+        // Compute the failure hash once for anomaly detection and clustering.
         char input_buf[512], output_buf[64];
         snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
         snprintf(output_buf, sizeof(output_buf), "%s", message);
         uint8_t hash[FOSSIL_MAIP_HASH_SIZE];
         fossil_maip_hash(input_buf, output_buf, hash);
 
+        int anomaly_count = maip_test_assert_internal_detect_ti(hash);
         int root_cause_code = maip_test_detect_root_cause(message);
 
         // Enhanced output includes anomaly count and root cause
