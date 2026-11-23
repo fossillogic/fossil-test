@@ -22,6 +22,10 @@
  * Copyright (C) 2013-Current Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE
+#endif
+
 #include "fossil/maip/test.h"
 #include <stdlib.h>
 #include <string.h>
