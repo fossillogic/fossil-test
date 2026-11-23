@@ -22,17 +22,80 @@
  * Copyright (C) 2013-Current Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE
+#endif
+
 #include "fossil/maip/test.h"
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
 #include <stdio.h>
 #include <time.h>
+#if defined(_WIN32) || defined(_MSC_VER)
+#include <windows.h>
+#endif
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#include <signal.h>
+#include <sys/time.h>
+#endif
+
+#ifndef FOSSIL_MAIP_TIMEOUT
+#define FOSSIL_MAIP_TIMEOUT 60
+#endif
 
 extern uint64_t get_maip_time_microseconds(void);
 
-jmp_buf test_jump_buffer;     // This will hold the jump buffer for longjmp
-static int _ASSERT_COUNT = 0; // Counter for the number of assertions
+/*
+ * Assertion execution state must not be shared between engines, threads, or
+ * concurrent test runners.  Keep the setjmp buffer and assertion count in
+ * thread-local storage; the old process-wide variables allowed one run to
+ * overwrite another run's recovery state.
+ */
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#define FOSSIL_MAIP_JMP_BUF sigjmp_buf
+#define FOSSIL_MAIP_SETJMP() sigsetjmp(test_jump_buffer, 1)
+#define FOSSIL_MAIP_LONGJMP() siglongjmp(test_jump_buffer, 1)
+#else
+#define FOSSIL_MAIP_JMP_BUF jmp_buf
+#define FOSSIL_MAIP_SETJMP() setjmp(test_jump_buffer)
+#define FOSSIL_MAIP_LONGJMP() longjmp(test_jump_buffer, 1)
+#endif
+
+
+#if defined(_Thread_local)
+static _Thread_local FOSSIL_MAIP_JMP_BUF test_jump_buffer;
+static _Thread_local int _ASSERT_COUNT = 0;
+#elif defined(__GNUC__) || defined(__clang__)
+static __thread FOSSIL_MAIP_JMP_BUF test_jump_buffer;
+static __thread int _ASSERT_COUNT = 0;
+#elif defined(_MSC_VER)
+static __declspec(thread) jmp_buf test_jump_buffer;
+static __declspec(thread) int _ASSERT_COUNT = 0;
+#else
+#error "This implementation requires thread-local storage for test execution state."
+#endif
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#if defined(_Thread_local)
+static _Thread_local volatile sig_atomic_t test_timed_out = 0;
+#elif defined(__GNUC__) || defined(__clang__)
+static __thread volatile sig_atomic_t test_timed_out = 0;
+#else
+static volatile sig_atomic_t test_timed_out = 0;
+#endif
+#else
+static int test_timed_out = 0; /* Dummy for non-POSIX platforms */
+#endif
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+static void fossil_maip_timeout_handler(int signal_number)
+{
+    (void)signal_number;
+    test_timed_out = 1;
+    FOSSIL_MAIP_LONGJMP();
+}
+#endif
 
 // --- Internal helper for timing ---
 static uint64_t fossil_maip_now_ns(void)
@@ -589,6 +652,50 @@ static uint64_t seconds_to_nanoseconds(uint64_t seconds)
     return seconds * 1000000000ULL;
 }
 
+#if defined(_WIN32) || defined(_MSC_VER)
+typedef struct fossil_maip_windows_run_context
+{
+    fossil_maip_case_t *test_case;
+    volatile uint64_t start_time;
+    uint64_t elapsed_ns;
+    int timed_out;
+} fossil_maip_windows_run_context_t;
+
+static DWORD WINAPI fossil_maip_windows_test_worker(LPVOID parameter)
+{
+    fossil_maip_windows_run_context_t *context =
+        (fossil_maip_windows_run_context_t *)parameter;
+
+    context->timed_out = 0;
+    _ASSERT_COUNT = 0;
+
+    if (FOSSIL_MAIP_SETJMP() == 0)
+    {
+        context->test_case->run();
+
+        context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+        context->test_case->elapsed_ns = context->elapsed_ns;
+
+        if (context->elapsed_ns > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
+            context->test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+        else if (_ASSERT_COUNT == 0)
+            context->test_case->state = FOSSIL_MAIP_CASE_EMPTY;
+        else
+            context->test_case->state = FOSSIL_MAIP_CASE_PASS;
+    }
+    else
+    {
+        context->elapsed_ns = fossil_maip_now_ns() - context->start_time;
+        context->test_case->elapsed_ns = context->elapsed_ns;
+        context->test_case->state = context->timed_out
+                                        ? FOSSIL_MAIP_CASE_TIMEOUT
+                                        : FOSSIL_MAIP_CASE_FAIL;
+    }
+
+    return 0;
+}
+#endif
+
 // from sanity, should be implemented and placed in common.c
 extern uint64_t get_maip_time_microseconds(void);
 
@@ -628,35 +735,88 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         if (test_case->run)
         {
-            if (setjmp(test_jump_buffer) == 0)
+#if defined(_WIN32) || defined(_MSC_VER)
+            fossil_maip_windows_run_context_t context;
+            context.test_case = test_case;
+            context.start_time = start_time;
+            context.elapsed_ns = 0;
+            context.timed_out = 0;
+
+            HANDLE worker = CreateThread(NULL, 0, fossil_maip_windows_test_worker,
+                                         &context, 0, NULL);
+            if (!worker)
             {
-                test_case->run();
-
-                uint64_t elapsed = fossil_maip_now_ns() - start_time;
-                test_case->elapsed_ns = elapsed;
-
-#ifndef FOSSIL_MAIP_TIMEOUT
-#define FOSSIL_MAIP_TIMEOUT 60
-#endif
-
-                if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
-                {
-                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-                }
-                // EMPTY means the case ran without producing any assertions.
-                else if (_ASSERT_COUNT == 0)
-                {
-                    test_case->state = FOSSIL_MAIP_CASE_EMPTY;
-                }
-                else
-                {
-                    test_case->state = FOSSIL_MAIP_CASE_PASS;
-                }
+                test_case->state = FOSSIL_MAIP_CASE_FAIL;
+                test_case->elapsed_ns = 0;
             }
             else
             {
-                test_case->state = FOSSIL_MAIP_CASE_FAIL;
+                uint64_t timeout_ms64 = (uint64_t)FOSSIL_MAIP_TIMEOUT * 1000ULL;
+                DWORD timeout_ms = timeout_ms64 > 0xffffffffULL
+                                       ? INFINITE
+                                       : (DWORD)timeout_ms64;
+                DWORD wait_result = WaitForSingleObject(worker, timeout_ms);
+
+                if (wait_result == WAIT_TIMEOUT)
+                {
+                    context.timed_out = 1;
+                    test_timed_out = 1;
+                    TerminateThread(worker, 1);
+                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+                    test_case->elapsed_ns = seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT);
+                }
+                else
+                {
+                    test_case->elapsed_ns = context.elapsed_ns;
+                    /* The worker wrote the final state before signaling. */
+                }
+
+                CloseHandle(worker);
+
+                if (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
+                    engine->pallet.run.fail_fast)
+                {
+                    fossil_maip_update_score(test_case, suite);
+                    fossil_maip_show_cases(suite, test_case, engine);
+                    return;
+                }
+            }
+#else
+            test_timed_out = 0;
+            struct sigaction timeout_action;
+            struct sigaction previous_action;
+            struct itimerval timeout_timer = {{0, 0}, {FOSSIL_MAIP_TIMEOUT, 0}};
+            timeout_action.sa_handler = fossil_maip_timeout_handler;
+            sigemptyset(&timeout_action.sa_mask);
+            timeout_action.sa_flags = 0;
+            sigaction(SIGALRM, &timeout_action, &previous_action);
+
+            if (FOSSIL_MAIP_SETJMP() == 0)
+            {
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
+                test_case->run();
+
+                timeout_timer.it_value.tv_sec = 0;
+                timeout_timer.it_value.tv_usec = 0;
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
+                uint64_t elapsed = fossil_maip_now_ns() - start_time;
+                test_case->elapsed_ns = elapsed;
+
+                if (elapsed > seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT))
+                    test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+                else if (_ASSERT_COUNT == 0)
+                    test_case->state = FOSSIL_MAIP_CASE_EMPTY;
+                else
+                    test_case->state = FOSSIL_MAIP_CASE_PASS;
+            }
+            else
+            {
+                test_case->state = test_timed_out ? FOSSIL_MAIP_CASE_TIMEOUT : FOSSIL_MAIP_CASE_FAIL;
                 test_case->elapsed_ns = fossil_maip_now_ns() - start_time;
+
+                timeout_timer.it_value.tv_sec = 0;
+                timeout_timer.it_value.tv_usec = 0;
+                setitimer(ITIMER_REAL, &timeout_timer, NULL);
 
                 if (engine->pallet.run.fail_fast)
                 {
@@ -665,6 +825,8 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                     return;
                 }
             }
+            sigaction(SIGALRM, &previous_action, NULL);
+#endif
         }
         else
         {
@@ -1268,47 +1430,25 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
         "The tests are painting.",
         "The bugs are telling jokes."};
 
-    // --- AI Feedback Selection Logic ---
-    const char *chosen = NULL;
-    if (pass_rate == 100.0)
-    {
-        chosen = ai_feedback[rand() % 30]; // 0-29: Perfect
-    }
-    else if (pass_rate > 90.0)
-    {
-        chosen = ai_feedback[30 + rand() % 30]; // 30-59: Near-perfect
-    }
-    else if (pass_rate > 70.0)
-    {
-        chosen = ai_feedback[60 + rand() % 30]; // 60-89: Good/Mixed
-    }
-    else if (fail_rate > 40.0)
-    {
-        chosen = ai_feedback[90 + rand() % 30]; // 90-119: Warning
-    }
-    else if (fail_rate > 60.0)
-    {
-        chosen = ai_feedback[120 + rand() % 30]; // 120-149: Critical
-    }
-    else if (pass_rate > 50.0)
-    {
-        chosen = ai_feedback[180 + rand() % 30]; // 180-209: Encouragement
-    }
-    else if (pass_rate > 30.0)
-    {
-        chosen = ai_feedback[210 + rand() % 30]; // 210-239: Suggestions
-    }
-    else if (pass_rate > 10.0)
-    {
-        chosen = ai_feedback[240 + rand() % 30]; // 240-269: Motivation
-    }
-    else
-    {
-        chosen = ai_feedback[270 + rand() % 30]; // 270-299: Humor
-    }
-
     // --- Compose Final Message ---
-    snprintf(message, sizeof(message), "%s", chosen);
+    size_t feedback_group;
+    if (pass_rate == 100.0)
+        feedback_group = 0;
+    else if (pass_rate >= 90.0)
+        feedback_group = 30;
+    else if (pass_rate >= 70.0)
+        feedback_group = 60;
+    else if (fail_rate >= 80.0)
+        feedback_group = 120;
+    else if (fail_rate >= 60.0)
+        feedback_group = 90;
+    else if (pass_rate >= 50.0)
+        feedback_group = 180;
+    else
+        feedback_group = 150;
+
+    size_t feedback_index = feedback_group + (size_t)total % 30;
+    snprintf(message, sizeof(message), "%s", ai_feedback[feedback_index]);
 
     return message;
 }
@@ -1316,27 +1456,27 @@ const char *fossil_test_summary_feedback(const fossil_maip_score_t *score)
 static const char *fossil_maip_elapsed_timer_ai_message(uint64_t total_elapsed_ns)
 {
     static const char *fast_insights[] = {
-        "Execution was near-instant. Excellent optimization.",
-        "This run was blazing fast. Great job keeping the code lean.",
-        "Compact execution time indicates strong performance."
+        "Very short test run.",
+        "Test execution completed quickly.",
+        "Total runtime was under 10 milliseconds."
     };
 
     static const char *balanced_insights[] = {
-        "Solid execution time. Keep an eye on growth with new features.",
-        "Performance looks stable; continue monitoring test durations.",
-        "Reasonable elapsed time. Consider profiling if this grows."
+        "Test runtime was under 500 milliseconds.",
+        "Total execution time was within the expected range.",
+        "Test run completed in a moderate amount of time."
     };
 
     static const char *slow_insights[] = {
-        "The elapsed time is longer than expected. Investigate slow suites.",
-        "Long-running execution detected. Check slow tests for bottlenecks.",
-        "Performance may benefit from optimization or test partitioning."
+        "Test run exceeded 500 milliseconds.",
+        "Total runtime exceeded 500 milliseconds; review suite durations if needed.",
+        "Test execution took longer than 500 milliseconds."
     };
 
     static const char *critical_insights[] = {
-        "Execution is very slow. Investigate slow paths and large test data.",
-        "High elapsed time suggests a performance issue to address.",
-        "Deep profiling is recommended for this run."
+        "Test run exceeded 2 seconds.",
+        "Total runtime exceeded 2 seconds; review suite durations.",
+        "Test execution took longer than 2 seconds."
     };
 
     const char **selected = balanced_insights;
@@ -1502,7 +1642,7 @@ void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
                               ? ((double)engine->score_total / engine->score_possible) * 100.0
                               : 0.0;
 
-    // AI calculations: reliability, stability, risk, health
+    // Calculate reliability, stability, risk, and health metrics.
     double reliability = pass_pct - (fail_pct + unexpected_pct + timeout_pct);
     double stability   = 100.0 - fail_pct - timeout_pct - unexpected_pct;
     double risk        = fail_pct + timeout_pct + unexpected_pct;
@@ -2291,17 +2431,10 @@ void maip_test_assert_internal_output(const char *message, const char *file, int
     }
 }
 
-static int maip_test_assert_internal_detect_ti(const char *message, const char *file, int line, const char *func)
+static int maip_test_assert_internal_detect_ti(const uint8_t current_hash[FOSSIL_MAIP_HASH_SIZE])
 {
     static uint8_t last_hash[FOSSIL_MAIP_HASH_SIZE] = {0};
     static int anomaly_count = 0;
-
-    char input_buf[512], output_buf[64];
-    snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
-    snprintf(output_buf, sizeof(output_buf), "%s", message);
-
-    uint8_t current_hash[FOSSIL_MAIP_HASH_SIZE];
-    fossil_maip_hash(input_buf, output_buf, current_hash);
 
     bool same_hash = memcmp(last_hash, current_hash, FOSSIL_MAIP_HASH_SIZE) == 0;
 
@@ -2324,21 +2457,20 @@ void maip_test_assert_internal(bool condition, const char *message, const char *
 
     if (!condition)
     {
-        int anomaly_count = maip_test_assert_internal_detect_ti(message, file, line, func);
-
-        // Compute hash for clustering
+        // Compute the failure hash once for anomaly detection and clustering.
         char input_buf[512], output_buf[64];
         snprintf(input_buf, sizeof(input_buf), "%s:%d:%s", file, line, func);
         snprintf(output_buf, sizeof(output_buf), "%s", message);
         uint8_t hash[FOSSIL_MAIP_HASH_SIZE];
         fossil_maip_hash(input_buf, output_buf, hash);
 
+        int anomaly_count = maip_test_assert_internal_detect_ti(hash);
         int root_cause_code = maip_test_detect_root_cause(message);
 
         // Enhanced output includes anomaly count and root cause
         maip_test_assert_internal_output(message, file, line, func, anomaly_count, root_cause_code);
 
-        longjmp(test_jump_buffer, 1);
+        FOSSIL_MAIP_LONGJMP();
     }
 }
 
