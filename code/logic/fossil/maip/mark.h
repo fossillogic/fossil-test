@@ -201,185 +201,47 @@ FOSSIL_MAIP_API uint64_t fossil_test_stop_benchmark(void);
 // Macro definitions
 // *****************************************************************************
 
-/**
- * @def _MARK_BENCHMARK(name)
- * @brief Declares and initializes a benchmark named `name`.
- * @param name Identifier used for the benchmark variable and label.
- * @return None; expands to a declaration and initialization statement.
- * @note The generated benchmark variable is named `benchmark_##name`.
- */
 #define _MARK_BENCHMARK(name) \
     fossil_mark_t benchmark_##name; \
     fossil_benchmark_init(&benchmark_##name, #name)
 
-/**
- * @def _MARK_START(name)
- * @brief Starts the named benchmark.
- * @param name Identifier of a benchmark previously declared with _MARK_BENCHMARK.
- * @return None.
- * @note The benchmark must be initialized before it is started.
- */
 #define _MARK_START(name) \
     fossil_benchmark_start(&benchmark_##name)
 
-/**
- * @def _MARK_STOP(name)
- * @brief Stops the named benchmark and records its sample.
- * @param name Identifier of an initialized benchmark.
- * @return None.
- * @note The benchmark should be running when this macro is invoked.
- */
 #define _MARK_STOP(name) \
     fossil_benchmark_stop(&benchmark_##name)
 
-/**
- * @def _MARK_REPORT(name)
- * @brief Reports statistics for the named benchmark.
- * @param name Identifier of an initialized benchmark.
- * @return None.
- * @note The report is produced by fossil_benchmark_report.
- */
 #define _MARK_REPORT(name) \
     fossil_benchmark_report(&benchmark_##name)
 
-/**
- * @def _MARK_SCOPED(name)
- * @brief Declares and initializes a scoped benchmark for `name`.
- * @param name Identifier of an initialized benchmark.
- * @return None; expands to a declaration and initialization statement.
- * @note The generated scoped variable is named `scoped_benchmark_##name`.
- */
 #define _MARK_SCOPED(name) \
     fossil_scoped_mark_t scoped_benchmark_##name; \
     fossil_scoped_benchmark_init(&scoped_benchmark_##name, &benchmark_##name)
 
-/**
- * @def _TEST_BENCHMARK()
- * @brief Starts the test benchmark timer.
- * @param None.
- * @return None.
- * @note Expands to fossil_test_start_benchmark().
- */
 #define _TEST_BENCHMARK() fossil_test_start_benchmark()
 
-/**
- * @def _TEST_CURRENT_TIME()
- * @brief Stops the test benchmark timer and retrieves elapsed time.
- * @param None.
- * @return Elapsed time in nanoseconds as a uint64_t value.
- * @note Expands to fossil_test_stop_benchmark().
- */
 #define _TEST_CURRENT_TIME() fossil_test_stop_benchmark()
 
-/**
- * @def _TEST_DURATION(duration, elapsed, actual)
- * @brief Reports a test duration using the specified unit.
- * @param duration Duration unit string.
- * @param elapsed Expected or permitted duration.
- * @param actual Measured duration.
- * @return None.
- * @note The duration value is cast to char* for fossil_test_benchmark.
- */
 #define _TEST_DURATION(duration, elapsed, actual) fossil_test_benchmark((char*)duration, elapsed, actual)
 
-/**
- * @def _TEST_DURATION_MIN(elapsed, actual)
- * @brief Reports a test duration in minutes.
- * @param elapsed Expected or permitted duration in minutes.
- * @param actual Measured duration in minutes.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "minutes" unit.
- */
 #define _TEST_DURATION_MIN(elapsed, actual) _TEST_DURATION((char*)"minutes", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_SEC(elapsed, actual)
- * @brief Reports a test duration in seconds.
- * @param elapsed Expected or permitted duration in seconds.
- * @param actual Measured duration in seconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "seconds" unit.
- */
 #define _TEST_DURATION_SEC(elapsed, actual) _TEST_DURATION((char*)"seconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_MIL(elapsed, actual)
- * @brief Reports a test duration in milliseconds.
- * @param elapsed Expected or permitted duration in milliseconds.
- * @param actual Measured duration in milliseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "milliseconds" unit.
- */
 #define _TEST_DURATION_MIL(elapsed, actual) _TEST_DURATION((char*)"milliseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_MIC(elapsed, actual)
- * @brief Reports a test duration in microseconds.
- * @param elapsed Expected or permitted duration in microseconds.
- * @param actual Measured duration in microseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "microseconds" unit.
- */
 #define _TEST_DURATION_MIC(elapsed, actual) _TEST_DURATION((char*)"microseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_NAN(elapsed, actual)
- * @brief Reports a test duration in nanoseconds.
- * @param elapsed Expected or permitted duration in nanoseconds.
- * @param actual Measured duration in nanoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "nanoseconds" unit.
- */
 #define _TEST_DURATION_NAN(elapsed, actual) _TEST_DURATION((char*)"nanoseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_PIC(elapsed, actual)
- * @brief Reports a test duration in picoseconds.
- * @param elapsed Expected or permitted duration in picoseconds.
- * @param actual Measured duration in picoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "picoseconds" unit.
- */
 #define _TEST_DURATION_PIC(elapsed, actual) _TEST_DURATION((char*)"picoseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_FEM(elapsed, actual)
- * @brief Reports a test duration in femtoseconds.
- * @param elapsed Expected or permitted duration in femtoseconds.
- * @param actual Measured duration in femtoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "femtoseconds" unit.
- */
 #define _TEST_DURATION_FEM(elapsed, actual) _TEST_DURATION((char*)"femtoseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_ATT(elapsed, actual)
- * @brief Reports a test duration in attoseconds.
- * @param elapsed Expected or permitted duration in attoseconds.
- * @param actual Measured duration in attoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "attoseconds" unit.
- */
 #define _TEST_DURATION_ATT(elapsed, actual) _TEST_DURATION((char*)"attoseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_ZEP(elapsed, actual)
- * @brief Reports a test duration in zeptoseconds.
- * @param elapsed Expected or permitted duration in zeptoseconds.
- * @param actual Measured duration in zeptoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "zeptoseconds" unit.
- */
 #define _TEST_DURATION_ZEP(elapsed, actual) _TEST_DURATION((char*)"zeptoseconds", elapsed, actual)
 
-/**
- * @def _TEST_DURATION_YOC(elapsed, actual)
- * @brief Reports a test duration in yoctoseconds.
- * @param elapsed Expected or permitted duration in yoctoseconds.
- * @param actual Measured duration in yoctoseconds.
- * @return None.
- * @note Shorthand for _TEST_DURATION with the "yoctoseconds" unit.
- */
 #define _TEST_DURATION_YOC(elapsed, actual) _TEST_DURATION((char*)"yoctoseconds", elapsed, actual)
 
 // *****************************************************************************
