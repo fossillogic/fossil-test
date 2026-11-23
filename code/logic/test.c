@@ -84,8 +84,6 @@ static __thread volatile sig_atomic_t test_timed_out = 0;
 #else
 static volatile sig_atomic_t test_timed_out = 0;
 #endif
-#else
-static int test_timed_out = 0; /* Dummy for non-POSIX platforms */
 #endif
 
 #if !defined(_WIN32) && !defined(_MSC_VER)
@@ -756,24 +754,28 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                                        ? INFINITE
                                        : (DWORD)timeout_ms64;
                 DWORD wait_result = WaitForSingleObject(worker, timeout_ms);
+                int wait_timed_out = wait_result == WAIT_TIMEOUT;
 
-                if (wait_result == WAIT_TIMEOUT)
+                if (wait_timed_out)
                 {
-                    context.timed_out = 1;
-                    test_timed_out = 1;
+                    /* Terminate the worker when the test exceeds its timeout.
+                     * A timed-out test must not hang the test runner forever,
+                     * even if the test is blocked in user or CRT code. */
                     TerminateThread(worker, 1);
+                    WaitForSingleObject(worker, INFINITE);
+                    context.elapsed_ns = fossil_maip_now_ns() - context.start_time;
+                    context.test_case->elapsed_ns = context.elapsed_ns;
+                    context.test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
+                }
+
+                test_case->elapsed_ns = context.elapsed_ns;
+                if (wait_timed_out)
                     test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-                    test_case->elapsed_ns = seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT);
-                }
-                else
-                {
-                    test_case->elapsed_ns = context.elapsed_ns;
-                    /* The worker wrote the final state before signaling. */
-                }
 
                 CloseHandle(worker);
 
-                if (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
+                if ((test_case->state == FOSSIL_MAIP_CASE_FAIL ||
+                     test_case->state == FOSSIL_MAIP_CASE_TIMEOUT) &&
                     engine->pallet.run.fail_fast)
                 {
                     fossil_maip_update_score(test_case, suite);
@@ -836,6 +838,9 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         if (test_case->teardown)
             test_case->teardown();
+
+        if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)
+            break;
     }
 
     fossil_maip_update_score(test_case, suite);

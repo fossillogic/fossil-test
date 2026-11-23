@@ -24,14 +24,23 @@
  */
 #include "fossil/maip/mark.h"
 #include "fossil/maip/common.h"
+#include <assert.h>
+
+#if defined(_MSC_VER)
+#define FOSSIL_THREAD_LOCAL __declspec(thread)
+#elif defined(__GNUC__) || defined(__clang__)
+#define FOSSIL_THREAD_LOCAL __thread
+#else
+#define FOSSIL_THREAD_LOCAL _Thread_local
+#endif
 
 #if defined(_WIN32)
-static LARGE_INTEGER frequency;
-static LARGE_INTEGER start_time;
+static FOSSIL_THREAD_LOCAL LARGE_INTEGER frequency;
+static FOSSIL_THREAD_LOCAL LARGE_INTEGER start_time;
 #elif defined(__APPLE__)
-clock_t start_time;
+static FOSSIL_THREAD_LOCAL uint64_t start_time;
 #else
-clock_t start_time;
+static FOSSIL_THREAD_LOCAL uint64_t start_time;
 #endif
 
 #ifndef CLOCK_MONOTONIC
@@ -60,7 +69,9 @@ uint64_t fossil_test_stop_benchmark(void) {
     uint64_t end_time = mach_absolute_time();
     mach_timebase_info_data_t timebase;
     mach_timebase_info(&timebase);
-    return (end_time - start_time) * timebase.numer / timebase.denom;
+    uint64_t elapsed = end_time - start_time;
+    return (elapsed / timebase.denom) * timebase.numer +
+           ((elapsed % timebase.denom) * timebase.numer) / timebase.denom;
 #else
     struct timeval tv;
     gettimeofday(&tv, null);
@@ -71,10 +82,12 @@ uint64_t fossil_test_stop_benchmark(void) {
 
 void assume_duration(double expected, double actual, double unit) {
     uint64_t elapsed_time = fossil_test_stop_benchmark();
-    double elapsed_seconds = elapsed_time / (1e9 / unit);  // Convert to the desired time unit
+    double elapsed_in_unit = (elapsed_time / 1e9) / unit;
+    (void)actual;
     
-    if (elapsed_seconds < expected) {
-        maip_io_printf("Benchmark failed: expected %f, got %f\n", expected, actual);
+    if (elapsed_in_unit > expected) {
+        maip_io_printf("Benchmark failed: expected at most %f, got %f\n", expected, elapsed_in_unit);
+        assert(elapsed_in_unit <= expected);
     }
 }
 
@@ -133,6 +146,10 @@ void fossil_benchmark_init(fossil_mark_t* benchmark, const char* name) {
     benchmark->std_dev = 0.0;
     benchmark->capacity = 100;
     benchmark->iteration_times = (uint64_t*)malloc(benchmark->capacity * sizeof(uint64_t));
+    if (benchmark->iteration_times == null) {
+        benchmark->capacity = 0;
+        maip_io_printf("Error: unable to allocate benchmark samples\n");
+    }
     benchmark->running = 0;
 }
 
@@ -148,6 +165,8 @@ void fossil_benchmark_start(fossil_mark_t* benchmark) {
     }
 }
 
+void fossil_benchmark_calculate_stats(fossil_mark_t* benchmark);
+
 void fossil_benchmark_stop(fossil_mark_t* benchmark) {
     if (benchmark == null) {
         maip_io_printf("Error: benchmark is null\n");
@@ -158,16 +177,25 @@ void fossil_benchmark_stop(fossil_mark_t* benchmark) {
         uint64_t elapsed = fossil_test_stop_benchmark();
         
         if (benchmark->num_iterations >= benchmark->num_warmup) {
-            if (benchmark->num_iterations >= benchmark->capacity) {
-                benchmark->capacity *= 2;
-                benchmark->iteration_times = (uint64_t*)realloc(benchmark->iteration_times, 
-                                                                  benchmark->capacity * sizeof(uint64_t));
+            if (benchmark->num_samples >= benchmark->capacity) {
+                size_t new_capacity = benchmark->capacity ? benchmark->capacity * 2 : 100;
+                uint64_t* new_times = (uint64_t*)realloc(benchmark->iteration_times,
+                                                         new_capacity * sizeof(uint64_t));
+                if (new_times == null) {
+                    maip_io_printf("Error: unable to grow benchmark sample buffer\n");
+                    benchmark->num_iterations++;
+                    benchmark->running = 0;
+                    return;
+                }
+                benchmark->iteration_times = new_times;
+                benchmark->capacity = new_capacity;
             }
-            benchmark->iteration_times[benchmark->num_iterations - benchmark->num_warmup] = elapsed;
+            benchmark->iteration_times[benchmark->num_samples] = elapsed;
             benchmark->total_duration += elapsed / 1e9;
             benchmark->min_duration = (elapsed / 1e9 < benchmark->min_duration) ? (elapsed / 1e9) : benchmark->min_duration;
             benchmark->max_duration = (elapsed / 1e9 > benchmark->max_duration) ? (elapsed / 1e9) : benchmark->max_duration;
             benchmark->num_samples++;
+            fossil_benchmark_calculate_stats(benchmark);
         }
         benchmark->num_iterations++;
         benchmark->running = 0;

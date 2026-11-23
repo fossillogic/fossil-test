@@ -24,6 +24,7 @@
  */
 #define _DARWIN_C_SOURCE
 #include "fossil/maip/sanity.h"
+#include <errno.h>    // errno, EINTR
 #include <stdlib.h>   // getenv, setenv
 #include <time.h>     // localtime_r, strftime
 #include <sys/time.h> // gettimeofday
@@ -40,6 +41,8 @@
 #endif
 
 int maip_sys_call_execute(const char *command) {
+    // This invokes a shell; only pass trusted command strings.
+    if (!command) return -1;
 #ifdef _WIN32
     return system(command); // On Windows, use the system function to execute the command.
 #else
@@ -56,10 +59,17 @@ int maip_sys_call_getpid(void) {
 }
 
 void maip_sys_call_sleep(int milliseconds) {
+    if (milliseconds <= 0) return;
 #ifdef _WIN32
     Sleep(milliseconds); // On Windows, use the Sleep function to sleep for the specified number of milliseconds.
 #else
-    sleep(milliseconds * 1000); // On Unix-like systems, use the usleep function to sleep for the specified number of microseconds.
+    struct timespec requested = {
+        milliseconds / 1000,
+        (long)(milliseconds % 1000) * 1000000L
+    };
+    while (nanosleep(&requested, &requested) == -1 && errno == EINTR) {
+        /* Resume for the remaining duration after a signal. */
+    }
 #endif
 }
 
