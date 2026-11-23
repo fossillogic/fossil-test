@@ -149,6 +149,8 @@ typedef struct fossil_mutate_result_s
  * @brief Creates a mutation context.
  *
  * @return Mutation context, or NULL on failure.
+ *
+ * @note The caller owns the returned context and must destroy it.
  */
 FOSSIL_MAIP_API fossil_mutate_t*
 fossil_mutate_create(void);
@@ -156,6 +158,8 @@ fossil_mutate_create(void);
 
 /**
  * @brief Destroys a mutation context.
+ *
+ * @note Passing NULL is undefined; callers should only destroy valid contexts.
  *
  * @param mutate Mutation context.
  */
@@ -181,6 +185,8 @@ fossil_mutate_clear(
  */
 
 /**
+ *
+ * @note The returned case remains owned and managed by the mutation context.
  * @brief Creates a mutation case.
  *
  * @param mutate Mutation context.
@@ -801,110 +807,35 @@ fossil_mutate_discover(
  * *****************************************************************************
  */
 
-/**
- * @brief Creates a mutation context.
- *
- * @return Mutation context, or NULL on failure.
- */
 #define _FOSSIL_MUTATE_CREATE() \
     fossil_mutate_create()
 
-/**
- * @brief Destroys a mutation context.
- *
- * @param mutate Mutation context.
- */
 #define _FOSSIL_MUTATE_DESTROY(mutate) \
     fossil_mutate_destroy(mutate)
 
-/**
- * @brief Clears all mutations from a mutation context.
- *
- * @param mutate Mutation context.
- */
 #define _FOSSIL_MUTATE_CLEAR(mutate) \
     fossil_mutate_clear(mutate)
 
-/**
- * @brief Creates a mutation case.
- *
- * @param mutate Mutation context.
- * @param id String identifier for the mutation.
- *
- * @return Mutation case, or NULL on failure.
- */
 #define _FOSSIL_MUTATE_CREATE_CASE(mutate, id) \
     fossil_mutate_create_case(mutate, id)
 
-/**
- * @brief Destroys a mutation case.
- *
- * @param mutation Mutation case.
- */
 #define _FOSSIL_MUTATE_DESTROY_CASE(mutation) \
     fossil_mutate_destroy_case(mutation)
 
-/**
- * @brief Creates a mutation target.
- *
- * A mutation target identifies the source location to be mutated.
- *
- * @param mutation Mutation case.
- * @param file Source file.
- * @param line Source line.
- * @param column Source column.
- *
- * @return Mutation target, or NULL on failure.
- */
 #define _FOSSIL_MUTATE_CREATE_TARGET(mutation, file, line, column) \
     fossil_mutate_create_target(mutation, file, line, column)
 
-/**
- * @brief Creates a mutation opr.
- *
- * @param id String identifier for the opr.
- * @param type Operator type.
- *
- * @return Mutation opr, or NULL on failure.
- */
 #define _FOSSIL_MUTATE_CREATE_OPERATOR(id, type) \
     fossil_mutate_create_operator(id, type)
 
-/**
- * @brief Applies a mutation opr to a mutation target.
- *
- * This function prepares the mutated representation. It does not execute
- * the Fossil Test runner.
- *
- * @param mutation Mutation case.
- * @param target Mutation target.
- * @param opr Mutation opr.
- *
- * @return true on success, false on failure.
- */
 #define _FOSSIL_MUTATE_APPLY(mutation, target, opr) \
     fossil_mutate_apply(mutation, target, opr)
 
-/**
- * @brief Restores the original mutation state.
- *
- * @param mutation Mutation case.
- *
- * @return true on success, false on failure.
- */
 #define _FOSSIL_MUTATE_RESET(mutation) \
     fossil_mutate_reset(mutation)
 
-/**
- * @brief Validates whether a mutation can be applied.
- *
- * @param mutation Mutation case.
- *
- * @return true if valid, false otherwise.
- */
 #define _FOSSIL_MUTATE_VALIDATE(mutation) \
     fossil_mutate_validate(mutation)
-
 
 #define _FOSSIL_MUTATE_KILLED(mutation) \
     (fossil_mutate_is_applied(mutation) && \
@@ -920,6 +851,7 @@ fossil_mutate_discover(
  */
 
 /**
+ * @def FOSSIL_MUTATE_CREATE
  * @brief Creates a mutation context.
  *
  * @return Mutation context, or NULL on failure.
@@ -928,22 +860,29 @@ fossil_mutate_discover(
     _FOSSIL_MUTATE_CREATE()
 
 /**
+ * @def FOSSIL_MUTATE_DESTROY
  * @brief Destroys a mutation context.
  *
  * @param mutate Mutation context.
+ *
+ * @return void
  */
 #define FOSSIL_MUTATE_DESTROY(mutate) \
     _FOSSIL_MUTATE_DESTROY(mutate)
 
 /**
+ * @def FOSSIL_MUTATE_CLEAR
  * @brief Clears all mutations from a mutation context.
  *
  * @param mutate Mutation context.
+ *
+ * @return void
  */
 #define FOSSIL_MUTATE_CLEAR(mutate) \
     _FOSSIL_MUTATE_CLEAR(mutate)
 
 /**
+ * @def FOSSIL_MUTATE_CREATE_CASE
  * @brief Creates a mutation case.
  *
  * @param mutate Mutation context.
@@ -955,14 +894,18 @@ fossil_mutate_discover(
     _FOSSIL_MUTATE_CREATE_CASE(mutate, id)
 
 /**
+ * @def FOSSIL_MUTATE_DESTROY_CASE
  * @brief Destroys a mutation case.
  *
  * @param mutation Mutation case.
+ *
+ * @return void
  */
 #define FOSSIL_MUTATE_DESTROY_CASE(mutation) \
     _FOSSIL_MUTATE_DESTROY_CASE(mutation)
 
 /**
+ * @def FOSSIL_MUTATE_CREATE_TARGET
  * @brief Creates a mutation target.
  *
  * A mutation target identifies the source location to be mutated.
@@ -978,25 +921,27 @@ fossil_mutate_discover(
     _FOSSIL_MUTATE_CREATE_TARGET(mutation, file, line, column)
 
 /**
- * @brief Creates a mutation opr.
+ * @def FOSSIL_MUTATE_CREATE_OPERATOR
+ * @brief Creates a mutation operator.
  *
- * @param id String identifier for the opr.
+ * @param id String identifier for the operator.
  * @param type Operator type.
  *
- * @return Mutation opr, or NULL on failure.
+ * @return Mutation operator, or NULL on failure.
  */
 #define FOSSIL_MUTATE_CREATE_OPERATOR(id, type) \
     _FOSSIL_MUTATE_CREATE_OPERATOR(id, type)
 
 /**
- * @brief Applies a mutation opr to a mutation target.
+ * @def FOSSIL_MUTATE_APPLY
+ * @brief Applies a mutation operator to a mutation target.
  *
- * This function prepares the mutated representation. It does not execute
+ * This macro prepares the mutated representation. It does not execute
  * the Fossil Test runner.
  *
  * @param mutation Mutation case.
  * @param target Mutation target.
- * @param opr Mutation opr.
+ * @param opr Mutation operator.
  *
  * @return true on success, false on failure.
  */
@@ -1004,6 +949,7 @@ fossil_mutate_discover(
     _FOSSIL_MUTATE_APPLY(mutation, target, opr)
 
 /**
+ * @def FOSSIL_MUTATE_RESET
  * @brief Restores the original mutation state.
  *
  * @param mutation Mutation case.
@@ -1014,30 +960,43 @@ fossil_mutate_discover(
     _FOSSIL_MUTATE_RESET(mutation)
 
 /**
+ * @def FOSSIL_MUTATE_VALIDATE
  * @brief Validates whether a mutation can be applied.
  *
  * @param mutation Mutation case.
+ *
  * @return true if valid, false otherwise.
  */
 #define FOSSIL_MUTATE_VALIDATE(mutation) \
     _FOSSIL_MUTATE_VALIDATE(mutation)
 
+/**
+ * @def FOSSIL_MUTATE_KILLED
+ * @brief Checks whether a mutation is applied and has been killed.
+ *
+ * @param mutation Mutation case.
+ *
+ * @return true if the mutation is applied and killed, false otherwise.
+ */
 #define FOSSIL_MUTATE_KILLED(mutation) \
     _FOSSIL_MUTATE_KILLED(mutation)
 
 /**
+ * @def FOSSIL_MUTATE_DISCOVER
  * @brief Discovers mutation targets in source code.
  *
- * This function scans the provided source code for mutation targets based on
- * the specified operator type. It identifies potential mutation points and
- * creates corresponding mutation cases in the provided mutation context.
+ * This macro scans the provided source code for mutation targets based on
+ * the specified operator type and creates corresponding mutation cases
+ * in the provided mutation context.
  *
  * @param mutate Mutation context.
  * @param file Source file name.
  * @param source Source code to scan.
- * @param operator_type Type of operator to discover (e.g., relational, arithmetic).
+ * @param operator_type Type of operator to discover (for example, relational or arithmetic).
  * @param first_line First line number to consider for discovery (0 for no limit).
  * @param last_line Last line number to consider for discovery (0 for no limit).
+ *
+ * @note Discovery is limited to the requested line range and operator type.
  *
  * @return Number of mutation cases created.
  */

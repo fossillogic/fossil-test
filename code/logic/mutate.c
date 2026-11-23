@@ -201,6 +201,31 @@ fossil_mutate_free_operator(
     maip_sys_memory_free(op);
 }
 
+static fossil_mutate_operator_t *
+fossil_mutate_clone_operator(
+    const fossil_mutate_operator_t *op)
+{
+    fossil_mutate_operator_t *copy;
+
+    if (!op || !op->id || !op->type ||
+        !op->original || !op->replacement)
+    {
+        return NULL;
+    }
+
+    copy = fossil_mutate_create_operator(op->id, op->type);
+
+    if (!copy ||
+        !fossil_mutate_operator_set_original(copy, op->original) ||
+        !fossil_mutate_operator_set_replacement(copy, op->replacement))
+    {
+        fossil_mutate_free_operator(copy);
+        return NULL;
+    }
+
+    return copy;
+}
+
 static void
 fossil_mutate_free_case(
     fossil_mutation_t *mutation)
@@ -875,6 +900,8 @@ bool fossil_mutate_apply(
     fossil_mutate_target_t *target,
     fossil_mutate_operator_t *opr)
 {
+    fossil_mutate_operator_t *owned_opr;
+
     if (!mutation || !target || !opr)
     {
         return false;
@@ -896,11 +923,20 @@ bool fossil_mutate_apply(
         return false;
     }
 
+    /* Keep an independent copy; callers retain ownership of the supplied op. */
+    owned_opr = fossil_mutate_clone_operator(opr);
+
+    if (!owned_opr)
+    {
+        return false;
+    }
+
     if (!fossil_mutate_apply_operator(
             mutation,
             target,
-            opr))
+            owned_opr))
     {
+        fossil_mutate_free_operator(owned_opr);
         return false;
     }
 
@@ -917,7 +953,7 @@ bool fossil_mutate_apply(
     }
 
     mutation->target = target;
-    mutation->opr = opr;
+    mutation->opr = owned_opr;
     mutation->applied = true;
 
     mutation->tests = 0;
@@ -1300,6 +1336,52 @@ fossil_mutate_auto_type_matches(
     return false;
 }
 
+static bool
+fossil_mutate_auto_operator_is_standalone(
+    const char *source,
+    size_t offset,
+    size_t length,
+    const char *type)
+{
+    char first;
+    char previous;
+    char next;
+
+    first = source[offset];
+    previous = offset == 0 ? '\0' : source[offset - 1];
+    next = source[offset + length];
+
+    if (strcmp(type, "relational") == 0)
+    {
+        return previous != '<' && previous != '>' && previous != '=' &&
+                   previous != '!' && next != '<' && next != '>' &&
+                   next != '=' && next != '!' ? true : false;
+    }
+
+    if (strcmp(type, "logical") == 0)
+    {
+        return previous != first && next != first &&
+               previous != '=' && next != '=';
+    }
+
+    if (strcmp(type, "arithmetic") == 0)
+    {
+        if (previous == first || next == first || next == '=')
+        {
+            return false;
+        }
+
+        if (first == '-' && next == '>')
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    return true;
+}
+
 /*
  * Scan one in-memory C source file and add mutants for recognized tokens.
  * A NULL/empty type filter enables all supported categories; line bounds are
@@ -1456,7 +1538,9 @@ fossil_mutate_discover(
                 length = strlen(relational[i][0]);
                 if (strncmp(source + offset, relational[i][0], length) == 0 &&
                     (length != 1 ||
-                     (source[offset + 1] != '=' && source[offset + 1] != '>')))
+                     (source[offset + 1] != '=' && source[offset + 1] != '>')) &&
+                    fossil_mutate_auto_operator_is_standalone(
+                        source, offset, length, "relational"))
                 {
                     type = "relational";
                     replacement = relational[i][1];
@@ -1472,7 +1556,9 @@ fossil_mutate_discover(
             {
                 if (source[offset] == arithmetic[i][0][0] &&
                     (offset == 0 || source[offset - 1] != source[offset]) &&
-                    source[offset + 1] != source[offset])
+                    source[offset + 1] != source[offset] &&
+                    fossil_mutate_auto_operator_is_standalone(
+                        source, offset, 1, "arithmetic"))
                 {
                     length = 1;
                     type = "arithmetic";
