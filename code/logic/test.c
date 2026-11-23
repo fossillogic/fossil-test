@@ -55,23 +55,30 @@ extern uint64_t get_maip_time_microseconds(void);
 #define FOSSIL_MAIP_LONGJMP() longjmp(test_jump_buffer, 1)
 #endif
 
+
 #if defined(_Thread_local)
 static _Thread_local FOSSIL_MAIP_JMP_BUF test_jump_buffer;
 static _Thread_local int _ASSERT_COUNT = 0;
-#if !defined(_WIN32) && !defined(_MSC_VER)
-static _Thread_local volatile sig_atomic_t test_timed_out = 0;
-#endif
 #elif defined(__GNUC__) || defined(__clang__)
 static __thread FOSSIL_MAIP_JMP_BUF test_jump_buffer;
 static __thread int _ASSERT_COUNT = 0;
-#if !defined(_WIN32) && !defined(_MSC_VER)
-static __thread volatile sig_atomic_t test_timed_out = 0;
-#endif
 #elif defined(_MSC_VER)
 static __declspec(thread) jmp_buf test_jump_buffer;
 static __declspec(thread) int _ASSERT_COUNT = 0;
 #else
 #error "This implementation requires thread-local storage for test execution state."
+#endif
+
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#if defined(_Thread_local)
+static _Thread_local volatile sig_atomic_t test_timed_out = 0;
+#elif defined(__GNUC__) || defined(__clang__)
+static __thread volatile sig_atomic_t test_timed_out = 0;
+#else
+static volatile sig_atomic_t test_timed_out = 0;
+#endif
+#else
+static int test_timed_out = 0; /* Dummy for non-POSIX platforms */
 #endif
 
 #if !defined(_WIN32) && !defined(_MSC_VER)
