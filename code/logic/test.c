@@ -774,9 +774,11 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
                 CloseHandle(worker);
 
-                if ((test_case->state == FOSSIL_MAIP_CASE_FAIL ||
-                     test_case->state == FOSSIL_MAIP_CASE_TIMEOUT) &&
-                    engine->pallet.run.fail_fast)
+                 /* TerminateThread may leave process-wide locks or heap state
+                  * inconsistent, so do not run additional tests after a timeout. */
+                 if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT ||
+                    (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
+                     engine->pallet.run.fail_fast))
                 {
                     fossil_maip_update_score(test_case, suite);
                     fossil_maip_show_cases(suite, test_case, engine);
