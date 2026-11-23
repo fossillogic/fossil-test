@@ -760,16 +760,19 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
                 if (wait_timed_out)
                 {
-                    /* Do not kill a thread while it may own CRT or user locks.
-                     * Let it finish before accessing its context or continuing
-                     * with teardown and later tests. */
+                    /* Terminate the worker when the test exceeds its timeout.
+                     * A timed-out test must not hang the test runner forever,
+                     * even if the test is blocked in user or CRT code. */
+                    TerminateThread(worker, 1);
                     WaitForSingleObject(worker, INFINITE);
+                    context.elapsed_ns = fossil_maip_now_ns() - context.start_time;
+                    context.test_case->elapsed_ns = context.elapsed_ns;
+                    context.test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
                 }
 
                 test_case->elapsed_ns = context.elapsed_ns;
                 if (wait_timed_out)
                     test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-                /* The worker wrote the final state before signaling. */
 
                 CloseHandle(worker);
 
