@@ -756,24 +756,25 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                                        ? INFINITE
                                        : (DWORD)timeout_ms64;
                 DWORD wait_result = WaitForSingleObject(worker, timeout_ms);
+                int wait_timed_out = wait_result == WAIT_TIMEOUT;
 
-                if (wait_result == WAIT_TIMEOUT)
+                if (wait_timed_out)
                 {
-                    context.timed_out = 1;
-                    test_timed_out = 1;
-                    TerminateThread(worker, 1);
+                    /* Do not kill a thread while it may own CRT or user locks.
+                     * Let it finish before accessing its context or continuing
+                     * with teardown and later tests. */
+                    WaitForSingleObject(worker, INFINITE);
+                }
+
+                test_case->elapsed_ns = context.elapsed_ns;
+                if (wait_timed_out)
                     test_case->state = FOSSIL_MAIP_CASE_TIMEOUT;
-                    test_case->elapsed_ns = seconds_to_nanoseconds(FOSSIL_MAIP_TIMEOUT);
-                }
-                else
-                {
-                    test_case->elapsed_ns = context.elapsed_ns;
-                    /* The worker wrote the final state before signaling. */
-                }
+                /* The worker wrote the final state before signaling. */
 
                 CloseHandle(worker);
 
-                if (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
+                if ((test_case->state == FOSSIL_MAIP_CASE_FAIL ||
+                     test_case->state == FOSSIL_MAIP_CASE_TIMEOUT) &&
                     engine->pallet.run.fail_fast)
                 {
                     fossil_maip_update_score(test_case, suite);
@@ -836,6 +837,9 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
 
         if (test_case->teardown)
             test_case->teardown();
+
+        if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT)
+            break;
     }
 
     fossil_maip_update_score(test_case, suite);
