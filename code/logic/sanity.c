@@ -26,6 +26,7 @@
 #include "fossil/maip/sanity.h"
 #include <errno.h>    // errno, EINTR
 #include <stdlib.h>   // getenv, setenv
+#include <string.h>   // strlen, strtok
 #include <time.h>     // localtime_r, strftime
 #include <sys/time.h> // gettimeofday
 #include <signal.h>   // kill, SIGTERM
@@ -38,15 +39,58 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 #endif
 
 int maip_sys_call_execute(const char *command) {
-    // This invokes a shell; only pass trusted command strings.
-    if (!command) return -1;
+    if (!command || !*command) return -1;
+    char *command_copy = (char *)malloc(strlen(command) + 1);
+    if (!command_copy) return -1;
+    strcpy(command_copy, command);
 #ifdef _WIN32
-    return system(command); // On Windows, use the system function to execute the command.
+    STARTUPINFOA startup_info = {0};
+    PROCESS_INFORMATION process_info = {0};
+    startup_info.cb = sizeof(startup_info);
+    if (!CreateProcessA(NULL, command_copy, NULL, NULL, FALSE, 0, NULL, NULL,
+                        &startup_info, &process_info)) {
+        free(command_copy);
+        return -1;
+    }
+    free(command_copy);
+    WaitForSingleObject(process_info.hProcess, INFINITE);
+    DWORD exit_code = 0;
+    BOOL got_exit_code = GetExitCodeProcess(process_info.hProcess, &exit_code);
+    CloseHandle(process_info.hThread);
+    CloseHandle(process_info.hProcess);
+    return got_exit_code ? (int)exit_code : -1;
 #else
-    return system(command); // On Unix-like systems, use the system function to execute the command.
+    char *argv[256];
+    size_t argc = 0;
+    for (char *token = strtok(command_copy, " \t\r\n"); token;
+         token = strtok(NULL, " \t\r\n")) {
+        if (argc == sizeof(argv) / sizeof(argv[0]) - 1) {
+            free(command_copy);
+            return -1;
+        }
+        argv[argc++] = token;
+    }
+    if (argc == 0) {
+        free(command_copy);
+        return -1;
+    }
+    argv[argc] = NULL;
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(argv[0], argv);
+        _exit(127);
+    }
+    free(command_copy);
+    if (pid < 0) return -1;
+    int status;
+    while (waitpid(pid, &status, 0) == -1) {
+        if (errno != EINTR) return -1;
+    }
+    return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 #endif
 }
 

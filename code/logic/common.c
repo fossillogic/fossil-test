@@ -29,7 +29,7 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_MAIP_VERSION "2.0.4"
+#define FOSSIL_MAIP_VERSION "2.0.5"
 #define FOSSIL_MAIP_AUTHOR "Fossil Logic"
 #define FOSSIL_MAIP_WEBSITE "https://fossillogic.com"
 

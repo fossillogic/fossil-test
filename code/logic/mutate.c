@@ -946,8 +946,7 @@ bool fossil_mutate_apply(
         fossil_mutate_free_target(mutation->target);
     }
 
-    if (mutation->opr &&
-        mutation->opr != opr)
+    if (mutation->opr)
     {
         fossil_mutate_free_operator(mutation->opr);
     }
@@ -1032,11 +1031,7 @@ fossil_mutate_status(
 bool fossil_mutate_is_applied(
     const fossil_mutation_t *mutation)
 {
-    return mutation &&
-           mutation->status &&
-           strcmp(
-               mutation->status,
-               FOSSIL_MUTATE_STATUS_APPLIED) == 0;
+    return mutation && mutation->applied;
 }
 
 bool fossil_mutate_is_survived(
