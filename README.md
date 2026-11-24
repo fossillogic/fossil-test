@@ -46,7 +46,6 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `shuffle`       | Shuffle tests.                                  | `--seed <seed>, --count <count>, --by <criteria>, --help, --options`            |
 | `show`          | Show test cases.                                | `--test-name <name>, --suite-name <name>, --tag <tag>, --result <result>, --verbose <level>, --mode <mode>` |
 | `color <mode>`  | Set color mode.                                 | `enable, disable, auto`                                                            |
-| `theme <name>`  | Set the theme for output.                       | `fossil, light, dark, usa`                                                         |
 | `timeout=<sec>` | Set the timeout for commands (default: 60s).    | -                                                                               |
 | `report`        | Export test results for CI integration.         | `--format <json/fson/yaml/csv>, --destination <file/stdout>`                     |
 
@@ -75,7 +74,7 @@ Add the `fossil-test.wrap` file in your `subprojects` directory and include the 
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v2.0.5
+revision = v2.0.6
 
 [provide]
 dependency_names = fossil-test

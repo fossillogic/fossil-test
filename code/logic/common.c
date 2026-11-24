@@ -29,15 +29,9 @@
 // macro definitions
 // *****************************************************************************
 
-#define FOSSIL_MAIP_VERSION "2.0.5"
+#define FOSSIL_MAIP_VERSION "2.0.6"
 #define FOSSIL_MAIP_AUTHOR "Fossil Logic"
 #define FOSSIL_MAIP_WEBSITE "https://fossillogic.com"
-
-// *****************************************************************************
-// exported flags
-// *****************************************************************************
-
-fossil_maip_cli_theme_t G_MAIP_THEME = MAIP_THEME_FOSSIL;
 
 // *****************************************************************************
 // Hashing algorithm
@@ -174,7 +168,6 @@ typedef struct
     int show_info;
 
     const char *color_mode;
-    const char *theme;
     int timeout;
 } fossil_maip_scan_t;
 
@@ -209,7 +202,6 @@ static void _show_help(void)
     maip_io_printf("{cyan}  shuffle            {white}Shuffle tests with optional parameters{reset}\n");
     maip_io_printf("{cyan}  show               {white}Show test cases with optional parameters{reset}\n");
     maip_io_printf("{cyan}  color <mode>       {white}Set color mode (enable, disable, auto){reset}\n");
-    maip_io_printf("{cyan}  theme <name>       {white}Set the theme (fossil, catch, doctest, etc.){reset}\n");
     maip_io_printf("{cyan}  info               {white}Show detailed information about the environment{reset}\n");
     maip_io_printf("{cyan}  timeout=<seconds>  {white}Set the timeout for commands (default: 60 seconds){reset}\n");
     exit(EXIT_SUCCESS);
@@ -285,16 +277,6 @@ static void _show_subhelp_color(void)
     exit(EXIT_SUCCESS);
 }
 
-static void _show_subhelp_theme(void)
-{
-    maip_io_printf("{blue}Theme command options:{reset}\n");
-    maip_io_printf("{cyan}  fossil            {white}Fossil theme{reset}\n");
-    maip_io_printf("{cyan}  light             {white}Light theme{reset}\n");
-    maip_io_printf("{cyan}  dark              {white}Dark theme{reset}\n");
-    maip_io_printf("{cyan}  maga              {white}MAGA theme{reset}\n");
-    exit(EXIT_SUCCESS);
-}
-
 static void _show_subhelp_show(void)
 {
     maip_io_printf("{blue}Show command options:{reset}\n");
@@ -302,7 +284,7 @@ static void _show_subhelp_show(void)
     maip_io_printf("{cyan}  --suite-name <name>  {white}Filter by suite name{reset}\n");
     maip_io_printf("{cyan}  --tag <tag>          {white}Filter by tag{reset}\n");
     maip_io_printf("{cyan}  --result <result>    {white}Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
-    maip_io_printf("{cyan}  --verbose <level>    {white}Set verbosity level (plain, ci, doge){reset}\n");
+    maip_io_printf("{cyan}  --verbose <level>    {white}Set verbosity level (plain, ci){reset}\n");
     maip_io_printf("{cyan}  --mode <mode>        {white}Show mode (list, tree, graph){reset}\n");
     exit(EXIT_SUCCESS);
 }
@@ -316,7 +298,6 @@ static void _show_info(fossil_maip_pallet_t *pallet)
         maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
         maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
         maip_io_printf("{cyan}  Website: {green}%s{reset}\n", FOSSIL_MAIP_WEBSITE);
-        return;
     }
 
     if (pallet->info.os)
@@ -409,7 +390,6 @@ typedef enum
     MAIP_CMD_REPORT,
     MAIP_CMD_HELP,
     MAIP_CMD_COLOR,
-    MAIP_CMD_THEME,
     MAIP_CMD_INFO
 } fossil_maip_cmd_t;
 
@@ -428,7 +408,6 @@ static fossil_cmd_map_t CMD_MAP[] = {
     {MAIP_CMD_REPORT, "report"},
     {MAIP_CMD_HELP, "help"},
     {MAIP_CMD_COLOR, "color"},
-    {MAIP_CMD_THEME, "theme"},
     {MAIP_CMD_INFO, "info"},
     {MAIP_CMD_NONE, NULL}};
 
@@ -693,10 +672,6 @@ static int fossil_maip_parse_help(int argc, char **argv, int i)
         {
             _show_subhelp_color();
         }
-        else if (maip_io_cstr_compare(subcmd, "theme") == 0)
-        {
-            _show_subhelp_theme();
-        }
         else if (maip_io_cstr_compare(subcmd, "info") == 0)
         {
             _show_subhelp_info();
@@ -745,50 +720,6 @@ static int fossil_maip_parse_color(int argc, char **argv, int i)
         exit(EXIT_FAILURE);
     }
     return i + 1; // Skip the mode argument
-}
-
-static int fossil_maip_parse_theme(fossil_maip_pallet_t *p, int argc, char **argv, int i)
-{
-    if (i + 1 < argc)
-    {
-        const char *theme = argv[i + 1];
-        if (maip_io_cstr_compare(theme, "fossil") == 0)
-        {
-            G_MAIP_THEME = MAIP_THEME_FOSSIL;
-            p->theme = MAIP_THEME_FOSSIL;
-        }
-        else if (maip_io_cstr_compare(theme, "light") == 0)
-        {
-            G_MAIP_THEME = MAIP_THEME_LIGHT;
-            p->theme = MAIP_THEME_LIGHT;
-        }
-        else if (maip_io_cstr_compare(theme, "dark") == 0)
-        {
-            G_MAIP_THEME = MAIP_THEME_DARK;
-            p->theme = MAIP_THEME_DARK;
-        }
-        else if (maip_io_cstr_compare(theme, "maga") == 0 || maip_io_cstr_compare(theme, "usa") == 0)
-        {
-            G_MAIP_THEME = MAIP_THEME_MAGA;
-            p->theme = MAIP_THEME_MAGA;
-        }
-        else if (maip_io_cstr_compare(theme, "mint") == 0)
-        {
-            G_MAIP_THEME = MAIP_THEME_MINT;
-            p->theme = MAIP_THEME_MINT;
-        }
-        else
-        {
-            maip_io_printf("{red}Invalid theme: %s{reset}\n", theme);
-            exit(EXIT_FAILURE);
-        }
-    }
-    else
-    {
-        maip_io_printf("{red}Theme command requires a theme argument (fossil, light, dark, maga){reset}\n");
-        exit(EXIT_FAILURE);
-    }
-    return i + 1; // Skip the theme argument
 }
 
 static int fossil_maip_parse_info(fossil_maip_pallet_t *p, int argc, char **argv, int i)
@@ -966,10 +897,6 @@ fossil_maip_pallet_t fossil_maip_pallet_create(int argc, char **argv)
 
         case MAIP_CMD_COLOR:
             i = fossil_maip_parse_color(argc, argv, i);
-            break;
-
-        case MAIP_CMD_THEME:
-            i = fossil_maip_parse_theme(&pallet, argc, argv, i);
             break;
 
         case MAIP_CMD_INFO:
