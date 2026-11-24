@@ -284,7 +284,7 @@ static void _show_subhelp_show(void)
     maip_io_printf("{cyan}  --suite-name <name>  {white}Filter by suite name{reset}\n");
     maip_io_printf("{cyan}  --tag <tag>          {white}Filter by tag{reset}\n");
     maip_io_printf("{cyan}  --result <result>    {white}Filter by result (pass, fail, timeout, skipped, unexpected){reset}\n");
-    maip_io_printf("{cyan}  --verbose <level>    {white}Set verbosity level (plain, ci, doge){reset}\n");
+    maip_io_printf("{cyan}  --verbose <level>    {white}Set verbosity level (plain, ci){reset}\n");
     maip_io_printf("{cyan}  --mode <mode>        {white}Show mode (list, tree, graph){reset}\n");
     exit(EXIT_SUCCESS);
 }

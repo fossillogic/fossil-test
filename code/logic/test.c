@@ -1233,15 +1233,6 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
         total_elapsed_ns += engine->suites[i].time_elapsed_ns;
     }
 
-    // --- Format elapsed time using helper ---
-    char *formatted_time = fossil_maip_format_ns(total_elapsed_ns);
-    const char *elapsed_time_display = formatted_time ? formatted_time : "unknown";
-    const char *elapsed_insight = fossil_maip_elapsed_timer_ai_message(total_elapsed_ns);
-
-    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Elapsed Time  :{white} %s {bright_black}(hh:mm:ss.micro,nano){reset}\n", elapsed_time_display);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}AI Insight    :{white} %s{reset}\n", elapsed_insight);
-
     // --- Average Times ---
     if (engine->count == 0 || engine->score_possible == 0)
     {
@@ -1257,9 +1248,11 @@ void fossil_maip_summary_timestamp(const fossil_maip_engine_t *engine)
     double avg_test_us = avg_test_ns / 1e3;
     double avg_test_ms = avg_test_ns / 1e6;
 
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Time per Suite:{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
+    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Runtime insight   :{white} %s{reset}\n", fossil_maip_elapsed_timer_ai_message(total_elapsed_ns));
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Average per Suite :{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
                    avg_suite_ns, avg_suite_us, avg_suite_ms);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Time per Test :{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {bright_black,bold}Average per Test  :{white} %12.2f ns {bright_black}({cyan}%8.2f us{bright_black} | {cyan}%8.3f ms{bright_black}){reset}\n",
                    avg_test_ns, avg_test_us, avg_test_ms);
     maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
 }
@@ -1287,14 +1280,14 @@ void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
     double risk = fail_pct + timeout_pct + unexpected_pct;
     double health = reliability * 0.75 + stability * 0.25;
 
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Suites run   {reset}: {cyan}%zu{reset}  {blue,bold}Tests run    {reset}: {cyan}%d{reset}  {blue,bold}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Suites run   {reset}: {cyan}%zu{reset}  {blue,bold}Tests run    {reset}: {cyan}%d{reset}  {blue,bold}Score {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Passed       {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Failed       {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Skipped      {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Timeouts     {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Unexpected   {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Empty        {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue,bold}Health{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Stability:{reset} | {cyan}%06.2f%%{reset} | {blue,bold}Health{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
 }
 
 void fossil_maip_summary_heading(void)
@@ -1311,10 +1304,10 @@ void fossil_maip_summary_heading(void)
     const char *endian_str = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
     const char *endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
 
-    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] Test Summary [{cyan}::{bright_black}] OS {cyan}%s{bright_black}, Endianness: %s%s{bright_black}, Architecture: {cyan}%s{reset}\n",
+    maip_io_printf("{bright_black,bold}[{cyan}___________________________________________________________________________________{bright_black}]\n");
+    maip_io_printf("{bright_black,bold}[{cyan}::{bright_black}] Test Summary [{cyan}::{bright_black}] OS {cyan}%s{bright_black}, Endianness: %s%s{bright_black}, Architecture: {cyan}%s{reset}\n",
                    system_info.os_name, endian_color, endian_str, arch_info.architecture);
-    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
+    maip_io_printf("{bright_black,bold}[{cyan}___________________________________________________________________________________{bright_black}]\n");
 }
 
 void fossil_maip_ai_feedback(const fossil_maip_engine_t *engine)

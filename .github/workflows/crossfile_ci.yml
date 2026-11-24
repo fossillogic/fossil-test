@@ -107,4 +107,4 @@ jobs:
 
       - name: Test the Project
         run: |
-          meson test -C builddir -v --test-args='show --mode tree --verbose ci --result fail'
+          meson test -C builddir -v --test-args='show --mode json --verbose ci --result fail'

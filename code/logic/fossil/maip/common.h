@@ -269,8 +269,8 @@ typedef struct {
         const char* name;        // Name of the suite to show
         const char* tag;               // Tag to filter which test cases to show
         const char* result;            // Result to filter which test cases to show
-        const char* mode;              // Mode to filter which test cases to show (list/tree/graph)
-        const char* verbose;           // Verbosity level (plain/ci/doge)
+        const char* mode;              // Mode to filter which test cases to show (list/tree/graph/json)
+        const char* verbose;           // Verbosity level (plain/ci)
         int enabled;                   // Flag to indicate if show command is enabled
     } show;                        // Show command flags
 
