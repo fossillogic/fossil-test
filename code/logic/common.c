@@ -298,7 +298,6 @@ static void _show_info(fossil_maip_pallet_t *pallet)
         maip_io_printf("{cyan}  Version: {green}%s{reset}\n", FOSSIL_MAIP_VERSION);
         maip_io_printf("{cyan}  Author: {green}%s{reset}\n", FOSSIL_MAIP_AUTHOR);
         maip_io_printf("{cyan}  Website: {green}%s{reset}\n", FOSSIL_MAIP_WEBSITE);
-        return;
     }
 
     if (pallet->info.os)
