@@ -1297,7 +1297,7 @@ void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue,bold}Health{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
 }
 
-void fossil_maip_summary_heading(const fossil_maip_engine_t *engine)
+void fossil_maip_summary_heading(void)
 {
     maip_sys_hostinfo_system_t system_info;
     maip_sys_hostinfo_endianness_t endianness_info;
@@ -1333,7 +1333,7 @@ void fossil_maip_summary(const fossil_maip_engine_t *engine)
         return;
 
     // Classic Summary Components
-    fossil_maip_summary_heading(engine);
+    fossil_maip_summary_heading();
     fossil_maip_summary_scoreboard(engine);
     fossil_maip_summary_timestamp(engine);
 
