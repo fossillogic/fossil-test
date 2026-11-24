@@ -220,14 +220,6 @@ FOSSIL_MAIP_API void fossil_maip_hash(const char *input, const char *output, uin
 // Command Pallet
 // *****************************************************************************
 
-typedef enum {
-    MAIP_THEME_FOSSIL,   // Default Fossil Logic Theme for Fossil Test Framework
-    MAIP_THEME_LIGHT,    // Light Theme for Fossil Test Framework
-    MAIP_THEME_DARK,     // Dark Theme for Fossil Test Framework
-    MAIP_THEME_MAGA,     // Maga Theme make unit testing great again!
-    MAIP_THEME_MINT      // Mint Theme for Fossil Test Framework
-} fossil_maip_cli_theme_t;
-
 typedef struct {
     struct {
         int fail_fast;             // Flag for --fail-fast
@@ -295,14 +287,11 @@ typedef struct {
         int self;                     // Flag for --self
     } info;                        // Info command flags
 
-    fossil_maip_cli_theme_t theme; // Theme option
 } fossil_maip_pallet_t;
 
 // *****************************************************************************
 // exported flags
 // *****************************************************************************
-
-extern fossil_maip_cli_theme_t G_MAIP_THEME;
 
 /**
  * @brief Parses command line arguments and populates the pallet structure.

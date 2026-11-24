@@ -46,7 +46,6 @@ The Fossil Test CLI provides an efficient way to run and manage tests directly f
 | `shuffle`       | Shuffle tests.                                  | `--seed <seed>, --count <count>, --by <criteria>, --help, --options`            |
 | `show`          | Show test cases.                                | `--test-name <name>, --suite-name <name>, --tag <tag>, --result <result>, --verbose <level>, --mode <mode>` |
 | `color <mode>`  | Set color mode.                                 | `enable, disable, auto`                                                            |
-| `theme <name>`  | Set the theme for output.                       | `fossil, light, dark, usa`                                                         |
 | `timeout=<sec>` | Set the timeout for commands (default: 60s).    | -                                                                               |
 | `report`        | Export test results for CI integration.         | `--format <json/fson/yaml/csv>, --destination <file/stdout>`                     |
 
