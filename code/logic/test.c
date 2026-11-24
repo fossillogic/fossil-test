@@ -320,30 +320,30 @@ void fossil_maip_show_cases(const fossil_maip_suite_t *suite, const fossil_maip_
         if (maip_io_cstr_compare(mode, "json") == 0)
         {
             if (ci)
-                maip_io_printf("CASE name={cyan}%s{reset} tags={blue}%s{reset} criteria={white}%s{reset} time={yellow}%s{reset} result=%s\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}CASE::{reset} {cyan}%s{reset} -- {blue}TAGS::{reset} {blue}%s{reset} {white}CRITERIA::{reset} {white}%s{reset} {yellow}TIME::{reset} {yellow}%s{reset} {green}RESULT::{reset} {green}%s{reset}\n", name, tags, criteria, time, result_str);
             else
                 maip_io_printf("{\"case\":\"{cyan}%s{reset}\",\"tags\":\"{blue}%s{reset}\",\"criteria\":\"{white}%s{reset}\",\"time\":\"{yellow}%s{reset}\",\"result\":\"%s\"}\n", name, tags, criteria, time, result_str);
         }
         else if (maip_io_cstr_compare(mode, "tree") == 0)
         {
             if (ci)
-                maip_io_printf("::CASE:: {cyan}%s{reset}\n  ::TAGS:: {blue}%s{reset}\n  ::CRITERIA:: {white}%s{reset}\n  ::TIME:: {yellow}%s{reset}\n  ::RESULT:: %s\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}CASE::{reset} {cyan}%s{reset}\n  ::TAGS:: {blue}%s{reset}\n  ::CRITERIA:: {white}%s{reset}\n  ::TIME:: {yellow}%s{reset}\n  ::RESULT:: %s\n", name, tags, criteria, time, result_str);
             else
                 maip_io_printf("├─ {cyan}%s{reset}\n│  ├─ Tags: {blue}%s{reset}\n│  ├─ Criteria: {white}%s{reset}\n│  ├─ Time: {yellow}%s{reset}\n│  └─ Result: %s\n", name, tags, criteria, time, result_str);
         }
         else if (maip_io_cstr_compare(mode, "graph") == 0)
         {
             if (ci)
-                maip_io_printf("CASE::{cyan}%s{reset} -- TAGS::{blue}%s{reset} CRITERIA::{white}%s{reset} TIME::{yellow}%s{reset} RESULT::%s\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}CASE::{reset} {cyan}%s{reset} -- {blue}TAGS::{reset} {blue}%s{reset} {white}CRITERIA::{reset} {white}%s{reset} {yellow}TIME::{reset} {yellow}%s{reset} {green}RESULT::{reset} {green}%s{reset}\n", name, tags, criteria, time, result_str);
             else
-                maip_io_printf("[{cyan}%s{reset}] -- [tags:{blue}%s{reset}, criteria:{white}%s{reset}, time:{yellow}%s{reset}, result:%s]\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}%s{reset}] -- [tags:{blue}%s{reset}, criteria:{white}%s{reset}, time:{yellow}%s{reset}, result:%s]\n", name, tags, criteria, time, result_str);
         }
         else
         {
             if (ci)
-                maip_io_printf("CASE:: {cyan}%s{reset} (TAGS:: {blue}%s{reset}, CRITERIA:: {white}%s{reset}, TIME:: {yellow}%s{reset}, RESULT:: %s)\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}CASE::{reset} {cyan}%s{reset} (TAGS:: {blue}%s{reset}, CRITERIA:: {white}%s{reset}, TIME:: {yellow}%s{reset}, RESULT:: %s)\n", name, tags, criteria, time, result_str);
             else
-                maip_io_printf("{cyan}%s{reset} (Tags: {blue}%s{reset}, Criteria: {white}%s{reset}, Time: {yellow}%s{reset}, Result: %s)\n", name, tags, criteria, time, result_str);
+                maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}CASE::{reset} {cyan}%s{reset} (TAGS:: {blue}%s{reset}, CRITERIA:: {white}%s{reset}, TIME:: {yellow}%s{reset}, RESULT:: %s)\n", name, tags, criteria, time, result_str);
         }
     }
     return;
@@ -1869,7 +1869,7 @@ void maip_test_assert_internal_output(const char *message, const char *file, int
                    message, file, line, func);
     if (root_cause_str || hint_str)
     {
-        maip_io_printf("{cyan,bold}Root Cause:{reset} {orange}%s{reset}%s%s\n",
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}Root Cause:{reset} {orange}%s{reset}%s%s\n",
                        root_cause_str ? root_cause_str : "Unknown",
                        (root_cause_str && hint_str) ? " {orange}-{reset} " : "",
                        hint_str ? hint_str : "");
