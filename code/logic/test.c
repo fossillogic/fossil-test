@@ -1945,10 +1945,11 @@ void _when(const char *description)
 
 void _subcase(const char *description)
 {
-    if (description)
-    {
-        maip_io_printf("{bright_black}[{cyan}::{bright_black}] Subcase {cyan}%s{reset}\n", description);
-    }
+    (void)description;
+    // if (description)
+    // {
+    //     maip_io_printf("{bright_black}[{cyan}::{bright_black}] Subcase {cyan}%s{reset}\n", description);
+    // }
 }
 
 void _and(const char *description)
