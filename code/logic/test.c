@@ -1288,12 +1288,12 @@ void fossil_maip_summary_scoreboard(const fossil_maip_engine_t *engine)
     double health = reliability * 0.75 + stability * 0.25;
 
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Suites run   {reset}: {cyan}%zu{reset}  {blue,bold}Tests run    {reset}: {cyan}%d{reset}  {blue,bold}Score        {reset}: {cyan}%d{reset}/{white}%d{reset}\n", engine->count, engine->score_possible, engine->score_total, engine->score_possible);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Passed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Failed       {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Skipped      {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Timeouts     {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Unexpected   {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
-    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Empty        {reset}: {cyan}%d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Passed       {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.passed, pass_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Failed       {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.failed, fail_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Skipped      {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.skipped, skip_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Timeouts     {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.timeout, timeout_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Unexpected   {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.unexpected, unexpected_pct);
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Empty        {reset}: {cyan}%03d{reset} ({cyan}%06.2f%%{reset})\n", engine->score.empty, empty_pct);
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] {blue,bold}Stability: {reset} | {cyan}%06.2f%%{reset} | {blue,bold}Health{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Success Rate{reset}: {cyan}%06.2f%%{reset} | {blue,bold}Risk  {reset}: {cyan}%06.2f%%{reset}\n", stability, health, success_rate, risk);
 }
 
@@ -1311,10 +1311,10 @@ void fossil_maip_summary_heading(void)
     const char *endian_str = endianness_info.is_little_endian ? "Little-endian" : "Big-endian";
     const char *endian_color = endianness_info.is_little_endian ? "{cyan}" : "{red}";
 
-    maip_io_printf("{bright_black,bold}[---------------------------------------------------------------------------------]{reset}\n");
+    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
     maip_io_printf("{bright_black}[{cyan}::{bright_black}] Test Summary [{cyan}::{bright_black}] OS {cyan}%s{bright_black}, Endianness: %s%s{bright_black}, Architecture: {cyan}%s{reset}\n",
                    system_info.os_name, endian_color, endian_str, arch_info.architecture);
-    maip_io_printf("{bright_black,bold}[---------------------------------------------------------------------------------]{reset}\n");
+    maip_io_printf("{bright_black}[{cyan}___________________________________________________________________________________{bright_black}]\n");
 }
 
 void fossil_maip_ai_feedback(const fossil_maip_engine_t *engine)
@@ -1865,18 +1865,18 @@ void maip_test_assert_internal_output(const char *message, const char *file, int
         }
     }
 
-    maip_io_printf("{blue,bold}Assertion failed:{reset} {red}%s{reset} {orange}(%s:%d in %s){reset}\n",
+    maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}Assertion failed:{reset} {red}%s{reset} {orange}(%s:%d in %s){reset}\n",
                    message, file, line, func);
     if (root_cause_str || hint_str)
     {
-        maip_io_printf("{cyan}Root Cause:{reset} %s%s%s\n",
+        maip_io_printf("{cyan,bold}Root Cause:{reset} {orange}%s{reset}%s%s\n",
                        root_cause_str ? root_cause_str : "Unknown",
-                       (root_cause_str && hint_str) ? " - " : "",
+                       (root_cause_str && hint_str) ? " {orange}-{reset} " : "",
                        hint_str ? hint_str : "");
     }
     if (anomaly_count > 0)
     {
-        maip_io_printf("{cyan}Duplicate or similar assertion detected {reset}{blue}[Anomaly Count: %d]{reset}\n", anomaly_count);
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] {cyan,bold}Duplicate or similar assertion detected {reset}{blue,bold}[Anomaly Count:{reset} {orange}%d{reset}{blue,bold}]{reset}\n", anomaly_count);
     }
 }
 
@@ -1931,7 +1931,7 @@ void _given(const char *description)
 {
     if (description)
     {
-        maip_io_printf("{blue}[::] Given {cyan}%s{reset}\n", description);
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] Given {cyan}%s{reset}\n", description);
     }
 }
 
@@ -1939,7 +1939,7 @@ void _when(const char *description)
 {
     if (description)
     {
-        maip_io_printf("{blue}[::] When {cyan}%s{reset}\n", description);
+        maip_io_printf("{bright_black}[{cyan}::{bright_black}] When {cyan}%s{reset}\n", description);
     }
 }
 
