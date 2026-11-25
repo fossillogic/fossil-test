@@ -28,12 +28,32 @@
 // Function declarations
 // *****************************************************************************
 
+static void fossil_mock_free_arguments(fossil_mock_maip_t *arguments, int num_args) {
+    if (!arguments) {
+        return;
+    }
+
+    for (int i = 0; i < num_args; ++i) {
+        switch (arguments[i].type) {
+            case FOSSIL_MOCK_MAIP_TYPE_CSTR:
+                maip_sys_memory_free((void *)arguments[i].value.as.cstr);
+                break;
+            case FOSSIL_MOCK_MAIP_TYPE_WSTR:
+                maip_sys_memory_free((void *)arguments[i].value.as.wstr);
+                break;
+            default:
+                break;
+        }
+    }
+    maip_sys_memory_free(arguments);
+}
+
 static void fossil_mock_free_call(fossil_mock_call_t *call) {
     if (!call) {
         return;
     }
     maip_sys_memory_free(call->function_name);
-    maip_sys_memory_free(call->arguments);
+    fossil_mock_free_arguments(call->arguments, call->num_args);
     maip_sys_memory_free(call);
 }
 
@@ -126,6 +146,29 @@ void fossil_mock_add_call(fossil_mock_calllist_t *list, const char *function_nam
         }
 
         memcpy(call->arguments, arguments, (size_t)num_args * sizeof(*arguments));
+        for (int i = 0; i < num_args; ++i) {
+            if (call->arguments[i].type == FOSSIL_MOCK_MAIP_TYPE_CSTR && arguments[i].value.as.cstr) {
+                char *copy = maip_io_cstr_dup(arguments[i].value.as.cstr);
+                if (!copy) {
+                    fossil_mock_free_arguments(call->arguments, i);
+                    maip_sys_memory_free(call->function_name);
+                    maip_sys_memory_free(call);
+                    return;
+                }
+                call->arguments[i].value.as.cstr = copy;
+            } else if (call->arguments[i].type == FOSSIL_MOCK_MAIP_TYPE_WSTR && arguments[i].value.as.wstr) {
+                size_t length = wcslen(arguments[i].value.as.wstr);
+                wchar_t *copy = (wchar_t *)maip_sys_memory_alloc((length + 1) * sizeof(*copy));
+                if (!copy) {
+                    fossil_mock_free_arguments(call->arguments, i);
+                    maip_sys_memory_free(call->function_name);
+                    maip_sys_memory_free(call);
+                    return;
+                }
+                wcscpy(copy, arguments[i].value.as.wstr);
+                call->arguments[i].value.as.wstr = copy;
+            }
+        }
     }
 
     if (list->tail) {
