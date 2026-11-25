@@ -482,7 +482,8 @@ void fossil_maip_run_test(const fossil_maip_engine_t *engine,
                 CloseHandle(worker);
 
                 /* TerminateThread may leave process-wide locks or heap state
-                 * inconsistent, so do not run additional tests after a timeout. */
+                 * inconsistent, so a timeout may end the process run; do not
+                 * run additional tests after a timeout. */
                 if (test_case->state == FOSSIL_MAIP_CASE_TIMEOUT ||
                     (test_case->state == FOSSIL_MAIP_CASE_FAIL &&
                      engine->pallet.run.fail_fast))
