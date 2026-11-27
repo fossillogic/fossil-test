@@ -1,5 +1,5 @@
 # Use a specific Debian Bookworm base image
-FROM debian:bookworm
+FROM debian:bookworm-slim
 
 # Set environment variables to avoid interaction
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # Install system dependencies and clean up
 RUN apt-get update && \
+    apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends \
     build-essential \
     clang \

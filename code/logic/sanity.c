@@ -42,27 +42,110 @@
 #include <sys/wait.h>
 #endif
 
-int maip_sys_call_execute(const char *command) {
+static char *maip_sys_call_read_capture(FILE *stream) {
+    if (!stream) return NULL;
+    rewind(stream);
+
+    size_t capacity = 4096;
+    size_t length = 0;
+    char *buffer = (char *)malloc(capacity);
+    if (!buffer) return NULL;
+
+    for (;;) {
+        if (length + 1 == capacity) {
+            if (capacity > (size_t)-1 / 2) {
+                free(buffer);
+                return NULL;
+            }
+            capacity *= 2;
+            char *grown = (char *)realloc(buffer, capacity);
+            if (!grown) {
+                free(buffer);
+                return NULL;
+            }
+            buffer = grown;
+        }
+        size_t count = fread(buffer + length, 1, capacity - length - 1, stream);
+        length += count;
+        if (count == 0) {
+            if (ferror(stream)) {
+                free(buffer);
+                return NULL;
+            }
+            break;
+        }
+    }
+    buffer[length] = '\0';
+    return buffer;
+}
+
+/* Execute trusted commands directly, without a shell. POSIX arguments are
+ * split on whitespace; quoting and escaping are not supported. Capture buffers
+ * are malloc-allocated and owned by the caller. Pass NULL for unused captures.
+ * Returns 0 when execution succeeds; the child's status is stored separately.
+ */
+int maip_sys_call_execute_capture(const char *command, char **stdout_output,
+                                  char **stderr_output, int *exit_code) {
+    if (stdout_output) *stdout_output = NULL;
+    if (stderr_output) *stderr_output = NULL;
+    if (exit_code) *exit_code = -1;
     if (!command || !*command) return -1;
+
+    FILE *stdout_file = stdout_output ? tmpfile() : NULL;
+    FILE *stderr_file = stderr_output ? tmpfile() : NULL;
+    if ((stdout_output && !stdout_file) || (stderr_output && !stderr_file)) {
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
+        return -1;
+    }
+
     char *command_copy = (char *)malloc(strlen(command) + 1);
-    if (!command_copy) return -1;
+    if (!command_copy) {
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
+        return -1;
+    }
     strcpy(command_copy, command);
+
 #ifdef _WIN32
     STARTUPINFOA startup_info = {0};
     PROCESS_INFORMATION process_info = {0};
     startup_info.cb = sizeof(startup_info);
-    if (!CreateProcessA(NULL, command_copy, NULL, NULL, FALSE, 0, NULL, NULL,
+    startup_info.dwFlags = STARTF_USESTDHANDLES;
+    startup_info.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    startup_info.hStdOutput = stdout_file
+        ? (HANDLE)_get_osfhandle(_fileno(stdout_file))
+        : GetStdHandle(STD_OUTPUT_HANDLE);
+    startup_info.hStdError = stderr_file
+        ? (HANDLE)_get_osfhandle(_fileno(stderr_file))
+        : GetStdHandle(STD_ERROR_HANDLE);
+    if ((stdout_file && (startup_info.hStdOutput == INVALID_HANDLE_VALUE ||
+                         !SetHandleInformation(startup_info.hStdOutput,
+                                               HANDLE_FLAG_INHERIT,
+                                               HANDLE_FLAG_INHERIT))) ||
+        (stderr_file && (startup_info.hStdError == INVALID_HANDLE_VALUE ||
+                         !SetHandleInformation(startup_info.hStdError,
+                                               HANDLE_FLAG_INHERIT,
+                                               HANDLE_FLAG_INHERIT)))) {
+        free(command_copy);
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
+        return -1;
+    }
+    if (!CreateProcessA(NULL, command_copy, NULL, NULL, TRUE, 0, NULL, NULL,
                         &startup_info, &process_info)) {
         free(command_copy);
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
         return -1;
     }
     free(command_copy);
     WaitForSingleObject(process_info.hProcess, INFINITE);
-    DWORD exit_code = 0;
-    BOOL got_exit_code = GetExitCodeProcess(process_info.hProcess, &exit_code);
+    DWORD process_exit_code = 0;
+    BOOL got_exit_code = GetExitCodeProcess(process_info.hProcess, &process_exit_code);
     CloseHandle(process_info.hThread);
     CloseHandle(process_info.hProcess);
-    return got_exit_code ? (int)exit_code : -1;
+    int code = got_exit_code ? (int)process_exit_code : -1;
 #else
     char *argv[256];
     size_t argc = 0;
@@ -70,28 +153,75 @@ int maip_sys_call_execute(const char *command) {
          token = strtok(NULL, " \t\r\n")) {
         if (argc == sizeof(argv) / sizeof(argv[0]) - 1) {
             free(command_copy);
+            if (stdout_file) fclose(stdout_file);
+            if (stderr_file) fclose(stderr_file);
             return -1;
         }
         argv[argc++] = token;
     }
     if (argc == 0) {
         free(command_copy);
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
         return -1;
     }
     argv[argc] = NULL;
     pid_t pid = fork();
     if (pid == 0) {
+        if ((stdout_file && dup2(fileno(stdout_file), STDOUT_FILENO) == -1) ||
+            (stderr_file && dup2(fileno(stderr_file), STDERR_FILENO) == -1))
+            _exit(126);
         execvp(argv[0], argv);
         _exit(127);
     }
     free(command_copy);
-    if (pid < 0) return -1;
+    if (pid < 0) {
+        if (stdout_file) fclose(stdout_file);
+        if (stderr_file) fclose(stderr_file);
+        return -1;
+    }
     int status;
     while (waitpid(pid, &status, 0) == -1) {
-        if (errno != EINTR) return -1;
+        if (errno != EINTR) {
+            if (stdout_file) fclose(stdout_file);
+            if (stderr_file) fclose(stderr_file);
+            return -1;
+        }
     }
-    return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    int code = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 #endif
+
+    int result = 0;
+    if (stdout_file) {
+        *stdout_output = maip_sys_call_read_capture(stdout_file);
+        if (!*stdout_output) result = -1;
+    }
+    if (stderr_file) {
+        *stderr_output = maip_sys_call_read_capture(stderr_file);
+        if (!*stderr_output) result = -1;
+    }
+    if (stdout_file) fclose(stdout_file);
+    if (stderr_file) fclose(stderr_file);
+    if (result != 0) {
+        if (stdout_output && *stdout_output) {
+            free(*stdout_output);
+            *stdout_output = NULL;
+        }
+        if (stderr_output && *stderr_output) {
+            free(*stderr_output);
+            *stderr_output = NULL;
+        }
+        return -1;
+    }
+    if (exit_code) *exit_code = code;
+    return 0;
+}
+
+int maip_sys_call_execute(const char *command) {
+    int exit_code = -1;
+    if (maip_sys_call_execute_capture(command, NULL, NULL, &exit_code) != 0)
+        return -1;
+    return exit_code;
 }
 
 int maip_sys_call_getpid(void) {
@@ -124,7 +254,7 @@ int maip_sys_call_create_file(const char *filename) {
     CloseHandle(hFile); // Close the file handle.
     return 0; // Return success.
 #else
-    int fd = open(filename, O_CREAT | O_WRONLY, 0644); // On Unix-like systems, use the open function to create the file.
+    int fd = open(filename, O_CREAT | O_WRONLY | O_EXCL, 0644); // Match CREATE_NEW: fail if the file already exists.
     if (fd == -1) return -1; // If the file descriptor is invalid, return an error code.
     close(fd); // Close the file descriptor.
     return 0; // Return success.

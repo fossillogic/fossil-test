@@ -42,7 +42,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <unistd.h>   // POSIX
 #include <limits.h>
 #include <float.h>
 #include <stdio.h>
@@ -50,6 +49,11 @@
 #include <time.h>
 #include <math.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef _WIN32
     #include <windows.h>
