@@ -73,7 +73,7 @@ Place a wrap file under `subprojects` (for example `fossil-test.wrap`):
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v2.0.6
+revision = v2.0.7
 
 [provide]
 dependency_names = fossil-test
