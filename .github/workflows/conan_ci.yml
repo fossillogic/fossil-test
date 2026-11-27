@@ -1,0 +1,146 @@
+name: Conan CI
+
+on:
+  schedule:
+    - cron: '15 21 * * *'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# =========================================================
+# Windows (MSVC)
+# =========================================================
+jobs:
+  build_msvc:
+    name: Windows MSVC ${{ matrix.msvc_version }} (${{ matrix.libtype }})
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        msvc_version: [2019, 2022]
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install MSVC and Conan
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install conan ninja meson
+
+          if ("${{ matrix.msvc_version }}" -eq "2019") {
+            choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          } elseif ("${{ matrix.msvc_version }}" -eq "2022") {
+            choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          }
+
+          conan profile detect --force
+
+      - name: Install dependencies and build package
+        shell: pwsh
+        run: |
+          conan create . --build=missing `
+            -s build_type=Release `
+            -o "*:shared=${{ matrix.libtype == 'shared' }}"
+
+# =========================================================
+# macOS
+# =========================================================
+  build_macos:
+    name: macOS (${{ matrix.libtype }})
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install Xcode tools
+        run: |
+          if ! xcode-select -p &>/dev/null; then
+            sudo xcode-select --install
+            until xcode-select -p &>/dev/null; do sleep 5; done
+          fi
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+
+      - name: Install Conan and build tools
+        run: |
+          python -m pip install conan meson ninja
+          conan profile detect --force
+
+      - name: Install dependencies and build package
+        run: |
+          conan create . --build=missing \
+            -s build_type=Release \
+            -o "*:shared=${{ matrix.libtype == 'shared' }}"
+
+# =========================================================
+# Linux (Docker matrix)
+# =========================================================
+  build_linux:
+    name: Linux ${{ matrix.distro }} (${{ matrix.libtype }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu, fedora, archlinux, debian]
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.distro }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --file .github/ciimage/Dockerfile.${{ matrix.distro }} \
+            --tag conan-ci:${{ matrix.distro }} .
+
+      - name: Run Conan inside container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            conan-ci:${{ matrix.distro }} \
+            /bin/bash -c "
+              conan profile detect --force && \
+              conan create . --build=missing \
+                -s build_type=Release \
+                -o '*:shared=${{ matrix.libtype == 'shared' }}'
+            "
