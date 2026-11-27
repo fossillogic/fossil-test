@@ -53,6 +53,12 @@ jobs:
           conan create . --build=missing `
             -s build_type=Release `
             -o "*:shared=${{ matrix.libtype == 'shared' }}"
+          conan install . --output-folder=conan-deps --build=missing `
+            -s build_type=Release `
+            -o "*:shared=${{ matrix.libtype == 'shared' }}"
+          meson setup builddir --native-file conan-deps/conan_meson_native.ini
+          meson compile -C builddir
+          meson test -C builddir --print-errorlogs
 
 # =========================================================
 # macOS
@@ -95,6 +101,12 @@ jobs:
           conan create . --build=missing \
             -s build_type=Release \
             -o "*:shared=${{ matrix.libtype == 'shared' }}"
+          conan install . --output-folder=conan-deps --build=missing \
+            -s build_type=Release \
+            -o "*:shared=${{ matrix.libtype == 'shared' }}"
+          meson setup builddir --native-file conan-deps/conan_meson_native.ini
+          meson compile -C builddir
+          meson test -C builddir --print-errorlogs
 
 # =========================================================
 # Linux (Docker matrix)
@@ -142,5 +154,11 @@ jobs:
               conan profile detect --force && \
               conan create . --build=missing \
                 -s build_type=Release \
-                -o '*:shared=${{ matrix.libtype == 'shared' }}'
+                -o '*:shared=${{ matrix.libtype == 'shared' }}' && \
+              conan install . --output-folder=conan-deps --build=missing \
+                -s build_type=Release \
+                -o '*:shared=${{ matrix.libtype == 'shared' }}' && \
+              meson setup builddir --native-file conan-deps/conan_meson_native.ini && \
+              meson compile -C builddir && \
+              meson test -C builddir --print-errorlogs
             "
