@@ -1,5 +1,5 @@
 # Use a specific Debian Bookworm base image
-FROM debian:bookworm
+FROM debian:bookworm-slim
 
 # Set environment variables to avoid interaction
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # Install system dependencies and clean up
 RUN apt-get update && \
+    apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends \
     build-essential \
     clang \
@@ -25,7 +26,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Meson and Ninja using pip
-RUN python3 -m pip install --no-cache-dir meson==1.10.0 ninja==1.10.2 cmake --break-system-packages
+RUN python3 -m pip install --no-cache-dir meson==1.10.0 ninja==1.10.2 --break-system-packages
 
 # Set environment variables
 ENV CC=clang \

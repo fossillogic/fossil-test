@@ -5,7 +5,7 @@ FROM archlinux:latest
 ENV TZ=UTC
 
 # Update and install system dependencies
-RUN pacman -Syu --noconfirm && \
+RUN pacman -Syyu --noconfirm && \
     pacman -S --noconfirm \
     gcc \
     clang \
@@ -17,7 +17,6 @@ RUN pacman -Syu --noconfirm && \
     git \
     meson \
     ninja \
-    cmake \
     tzdata && \
     pacman -Scc --noconfirm
 
