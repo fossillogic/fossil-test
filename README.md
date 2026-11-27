@@ -83,9 +83,9 @@ Then use `dependency('fossil-test')` in your `meson.build`. Prefer the latest re
 
 ## Configure build options
 
-'''sh
+```sh
 meson setup builddir -Dwith_test=enabled
-'''
+```
 
 #### Tests double as samples
 
