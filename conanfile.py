@@ -24,7 +24,7 @@ class FossilTestConan(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {
-        "shared": [True, False],
+        "shared": [True, False, "true", "false"],
         "fPIC": [True, False],
     }
     default_options = {
@@ -49,6 +49,8 @@ class FossilTestConan(ConanFile):
         # Pure C library – drop C++-only settings
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+        # Conan option values may arrive as lowercase strings from CI.
+        self.options.shared = str(self.options.shared).lower() == "true"
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
