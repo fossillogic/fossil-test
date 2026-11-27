@@ -838,8 +838,7 @@ fossil_mutate_discover(
     fossil_mutate_validate(mutation)
 
 #define _FOSSIL_MUTATE_KILLED(mutation) \
-    (fossil_mutate_is_applied(mutation) && \
-     strcmp(fossil_mutate_status(mutation), FOSSIL_MUTATE_STATUS_KILLED) == 0)
+    fossil_mutate_is_killed(mutation)
 
 #define _FOSSIL_MUTATE_DISCOVER(mutate, file, source, operator_type, first_line, last_line) \
     fossil_mutate_discover(mutate, file, source, operator_type, first_line, last_line)
