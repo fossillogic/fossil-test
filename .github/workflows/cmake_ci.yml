@@ -13,13 +13,12 @@ on:
 # =========================================================
 jobs:
   build_msvc:
-    name: Microslop ${{ matrix.msvc_version }} (${{ matrix.libtype }})
-    runs-on: windows-latest
+    name: MSVC 2022 (${{ matrix.libtype }})
+    runs-on: windows-2022
 
     strategy:
       fail-fast: false
       matrix:
-        msvc_version: [2019, 2022]
         libtype: [shared, static]
 
     steps:
@@ -39,14 +38,12 @@ jobs:
 
       - name: Select MSVC toolset
         uses: ilammy/msvc-dev-cmd@v1
-        with:
-          vsversion: ${{ matrix.msvc_version }}
 
       - name: Configure
         shell: pwsh
         run: |
           $shared = if ("${{ matrix.libtype }}" -eq "shared") { "ON" } else { "OFF" }
-          cmake -S . -B builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }} `
+          cmake -S . -B builddir_msvc_${{ matrix.libtype }} `
             -G Ninja `
             -DCMAKE_BUILD_TYPE=Release `
             -DFOSSIL_TEST_WITH_TESTS=ON `
@@ -55,12 +52,12 @@ jobs:
             -DCMAKE_CXX_FLAGS="/W3"
 
       - name: Build
-        run: cmake --build builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }} --config Release
+        run: cmake --build builddir_msvc_${{ matrix.libtype }} --config Release
 
       - name: Test
         run: >
           ctest
-          --test-dir builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+          --test-dir builddir_msvc_${{ matrix.libtype }}
           -C Release
           -V
           --output-on-failure
