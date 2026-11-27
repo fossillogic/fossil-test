@@ -12,64 +12,63 @@ With Fossil Test, developers can build clean, structured tests that fit naturall
 
 ## Key Features
 
-| Feature                            | Description                                                                                                                             |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **Command-Line Interface (CLI)**   | A robust CLI for executing tests, managing test suites, and generating reports, enabling seamless automation and CI/CD workflows.      |
-| **Traceable Test Metadata**        | Each test case carries timestamped, hashed metadata for traceability and reproducibility, ensuring full accountability of test results.|
-| **Support for Multiple Testing Styles** | Compatible with Behavior-Driven Development (BDD), Domain-Driven Design (DDD), and Test-Driven Development (TDD) methodologies.   |
-| **Mocking Capabilities**           | Advanced mocking tools to simulate complex dependencies and edge conditions, enabling isolated and deterministic testing.              |
-| **Benchmarking Tools**             | Integrated benchmarking features to measure runtime performance, identify slow paths, and guide optimization.                         |
-| **Sanity Kit for Command Tests**   | A specialized module for validating command-line tools, ensuring consistent behavior across platforms and shell environments.         |
-| **Customizable Output Themes**     | Multiple output formats and visual themes (e.g., maip, catch, doctest) to match your preferred style of feedback.                    |
-| **Tag-Based Test Filtering**       | Execute subsets of tests based on custom tags for better test suite organization and faster iteration.                                |
-| **Detailed Performance Insights**  | In-depth statistics on execution time, memory usage, and test stability to help improve code performance and reliability.              |
-| **Mutation Testing**               | Advanced mutation testing capabilities to evaluate test suite robustness by introducing code mutations and verifying test effectiveness. |
-| **Objective-C & Objective-C++ Support (macOS)** | Full compatibility with Objective-C and Objective-C++ projects on macOS, allowing testing of Apple-specific frameworks and apps.  |
+| Feature | Description |
+|---------|-------------|
+| **Command-Line Interface (CLI)** | Run suites, filter/sort/shuffle cases, show results, and export reports for local use and CI/CD. |
+| **Traceable Test Metadata** | Test cases carry structured metadata to support clear, reproducible results. |
+| **Multiple Testing Styles** | Fits TDD, BDD-style given/when/then helpers, and structured suite/case organization. |
+| **Mocking (Fossil Mock)** | Record calls, verify arguments and order, and stub behavior for isolated tests. |
+| **Benchmarking (Fossil Mark)** | Measure iteration times and basic stats to spot slow paths. |
+| **Sanity Kit** | Portable helpers for process, files, env, and related command-oriented checks. |
+| **Flexible Output** | Show modes such as `list`, `tree`, `graph`, and `json`, plus color `enable` / `disable` / `auto`. Prefer `json` with `--verbose ci` in CI. |
+| **Tag-Based Filtering** | Run or show subsets of tests by name, suite, tag, or result. |
+| **Timeouts** | Configurable per-run timeout (default 60s) with platform-specific enforcement. |
+| **Mutation Testing (Fossil Mutate)** | In-memory mutation cases, operators, discovery helpers, and result recording (execution remains the test runner’s job). |
+| **Objective-C & Objective-C++ (macOS)** | Compatible with Objective-C / Objective-C++ test sources on macOS. |
+
+---
 
 ## Command-Line
 
-The Fossil Test CLI provides an efficient way to run and manage tests directly from the terminal. Here are the available commands and options:
+The Fossil Test CLI is invoked as `maip` (options and commands as below). Use `help`, `--help`, `help <command>`, or `<command> --help` for details.
 
-### Commands and Options
+### Global options
 
-| Command        | Description                                    | Flags / Options                                                                 |
-|---------------|------------------------------------------------|---------------------------------------------------------------------------------|
-| `--version, -v` | Show version information.                       | -                                                                               |
-| `--info, -i`    | Show detailed build, runtime, and framework information. | `--os, --arch, --memory, --endian, --self`                                   |
-| `--dry-run`     | Perform a dry run without executing commands.   | -                                                                               |
-| `--host`        | Show information about the current host.        | -                                                                               |
-| `--help, -h`    | Show help and usage information.                | -                                                                               |
-| `help`          | Display help for commands and options.          | `help <command>, <command> --help`                                                |
-| `run`           | Execute tests.                                  | `--fail-fast, --only <test>, --skip <test>, --repeat <count>`                    |
-| `filter`        | Filter tests based on criteria.                 | `--test-name <name>, --suite-name <name>, --tag <tag>, --help, --options`       |
-| `sort`          | Sort tests by specified criteria.               | `--by <criteria>, --order <asc/desc>, --help, --options`                         |
-| `shuffle`       | Shuffle tests.                                  | `--seed <seed>, --count <count>, --by <criteria>, --help, --options`            |
-| `show`          | Show test cases.                                | `--test-name <name>, --suite-name <name>, --tag <tag>, --result <result>, --verbose <level>, --mode <mode>` |
-| `color <mode>`  | Set color mode.                                 | `enable, disable, auto`                                                            |
-| `timeout=<sec>` | Set the timeout for commands (default: 60s).    | -                                                                               |
-| `report`        | Export test results for CI integration.         | `--format <json/fson/yaml/csv>, --destination <file/stdout>`                     |
+| Option | Description |
+|--------|-------------|
+| `--version`, `-v` | Show version information. |
+| `--help`, `-h` | Show main usage help. |
 
-> **Help System:** Fossil Test CLI provides both global and command-specific help. Running `--help` displays the main usage guide, available commands, global options, examples, and general documentation. You can also request detailed help for any command by using `help <command>` or `<command> --help` (for example, `help run`, `run --help`, `help filter`, or `filter --help`). Command-specific help includes syntax, supported options, defaults, examples, and additional notes relevant to that command. This allows documentation to be accessed directly from the terminal without requiring external references.
+### Commands
+
+| Command | Description | Flags / options |
+|---------|-------------|-----------------|
+| `help` | Global or command-specific help. | `help <command>`, `<command> --help` |
+| `run` | Execute tests. | `--fail-fast`, `--only <test>`, `--skip <test>`, `--repeat <count>` |
+| `filter` | Filter which tests are considered. | `--test-name <name>`, `--suite-name <name>`, `--tag <tag>`, `--help`, `--options` |
+| `sort` | Sort tests. | `--by <criteria>`, `--order <asc\desc>`, `--help`, `--options` |
+| `shuffle` | Shuffle tests. | `--seed <seed>`, `--count <count>`, `--by <criteria>`, `--help`, `--options` |
+| `show` | Show test cases / results. | `--test-name <name>`, `--suite-name <name>`, `--tag <tag>`, `--result <pass\fail\timeout\skipped\unexpected>`, `--verbose <plain\ci>`, `--mode <list\tree\graph\json>` |
+| `color` | Color output. | `enable`, `disable`, `auto` |
+| `info` | Environment / runner diagnostics. | `--os`, `--arch`, `--memory`, `--endian`, `--self` |
+| `report` | Export results for CI or files. | `--format <json\fson\yaml\csv>`, `--destination <file\stdout>` |
+| `timeout=<sec>` | Command/test timeout in seconds (default: 60). | — |
+
+> **Notes:** There is no separate `--host` or theme command. Host/OS details are available via `info`. On Windows, a timed-out test may stop the remainder of the run so the process is not left in an inconsistent state after forced thread termination.
 
 ---
 
 ## ***Prerequisites***
 
-To get started, ensure you have the following installed:
-
-- **Meson Build System**: If you don’t have Meson `1.10.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Meson** `1.10.0` or newer — see the [Meson getting started guide](https://mesonbuild.com/Getting-meson.html).
 
 ---
 
-### Adding Dependency
+### Adding the dependency
 
-#### Adding via Meson Git Wrap
+#### Meson git wrap
 
-To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use `dependency('fossil-test')` in `meson.build` so Meson can fetch and build it automatically.
-
-#### Integrate the Dependency:
-
-Add the `fossil-test.wrap` file in your `subprojects` directory and include the following content:
+Place a wrap file under `subprojects` (for example `fossil-test.wrap`):
 
 ```ini
 [wrap-git]
@@ -80,43 +79,35 @@ revision = v2.0.6
 dependency_names = fossil-test
 ```
 
-**Note**: For the best experience, always use the latest release of Fossil Test. Visit the [Fossil Test Releases](https://github.com/fossillogic/fossil-test/releases) page for the latest versions.
+Then use `dependency('fossil-test')` in your `meson.build`. Prefer the latest release from [Fossil Test Releases](https://github.com/fossillogic/fossil-test/releases).
 
-## Configure Build Options
+## Configure build options
 
-To configure the build system with testing enabled, use the following command:
-
-```sh
+'''sh
 meson setup builddir -Dwith_test=enabled
-```
+'''
 
-#### Tests Double as Samples
+#### Tests double as samples
 
-The `fossil-test` project is designed so that **test cases serve two purposes**:
+`fossil-test` tests serve two roles:
 
-- ✅ **Unit Tests** – validate the framework’s correctness.  
-- 📖 **Usage Samples** – demonstrate how to write tests with `fossil-test`.  
-
-This approach keeps the codebase compact and avoids redundant “hello world” style examples.  
-Instead, the same code that proves correctness also teaches usage.  
-
-This mirrors the **Meson build system** itself, which tests its own functionality by using Meson to build Meson.  
-In the same way, `fossil-test` validates itself by demonstrating real-world usage in its own tests.  
+- **Unit tests** — validate the framework.
+- **Usage samples** — show how to write suites, cases, assumes, mocks, and related APIs.
 
 ```bash
 meson test -C builddir -v
 ```
 
-Running the test suite gives you both verification and practical examples you can learn from.
+For machine-readable CI output, prefer show/report settings such as `--mode json` and `--verbose ci` where applicable.
 
 ---
 
 ## ***Contributing and Support***
 
-If you would like to contribute, have questions, or need help, feel free
+Contributions, questions, and issue reports are welcome on the [Fossil Test repository](https://github.com/fossillogic/fossil-test). Open an issue for bugs or feature requests, or a pull request for fixes and improvements.
 
 ---
 
 ## ***Conclusion***
 
-Fossil Test is a powerful and flexible framework for C and C++ developers, designed to support a wide range of testing methodologies such as BDD, DDD, and TDD. With features like mocking, detailed reporting, and performance tracking, Fossil Test empowers developers to create high-quality software and maintainable test suites. Combined with Pizza Mark and Pizza Mock, it provides a complete suite for testing, optimization, and dependency management. Whether you're building small projects or large-scale applications, Fossil Test is an essential tool to ensure the reliability and performance of your code.
+Fossil Test is a portable, zero-external-dependency unit testing framework for C and C++, with optional support for mocking (**Fossil Mock**), benchmarking (**Fossil Mark**), mutation bookkeeping (**Fossil Mutate**), and command-oriented helpers (**Sanity**). It is intended for projects that need clear results, predictable behavior, and a practical CLI for local and CI workflows.
