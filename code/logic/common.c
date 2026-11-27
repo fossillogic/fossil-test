@@ -25,6 +25,12 @@
 #include "fossil/maip/common.h"
 #include <stdio.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 // *****************************************************************************
 // macro definitions
 // *****************************************************************************
